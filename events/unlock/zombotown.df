@@ -1,0 +1,353 @@
+uses paul/region-layout.df
+uses paul/region-road-layout.df
+
+uses events/unlock/ztown-npc.df
+
+" 
+:map 1
+:tags infohut
+:scriptA regiondef{ info-dingus }
+:scriptB regiondef{ tutorial-dingus }
+:scriptC only-chosen; bed
+:scriptD only-chosen; sink -1 movey
+:scriptE regiondef{ delete-dingus }
+:size 11 11 
+:off 10 1 
+:tiles 
+22222222222
+23333333332
+2111CDC1112
+21111111E12
+21111111112
+211A111B112
+21111111112
+21111111112
+21111111112
+22222222222
+33333333333
+
+:map 2
+:tags perkhut
+:scriptA regiondef{ trait1-dingus }
+:scriptB kfridge -1 movey 
+:scriptC only-chosen; bed
+:scriptD only-chosen; sink -1 movey
+:scriptE smalltable
+:scriptF regiondef{ perk1-dingus }
+:scriptG regiondef{ perk2-dingus }
+:scriptH regiondef{ perk3-dingus }
+:size 11 11 
+:off 10 1 
+:tiles 
+22222222222
+23333333332
+21CDCDCDC12
+2111A111112
+211111F1112
+21G11111112
+21111111H12
+21111111112
+21111111112
+22222222222
+33333333333
+
+:map 3
+:tags jerkhut
+:scriptA regiondef{ jerk-dingus }
+:scriptB regiondef{ challenge-statue1 }
+:scriptC regiondef{ challenge-statue2 }
+:scriptD only-chosen; sink -1 movey
+:scriptE smalltable 
+:size 11 11 
+:off 10 1 
+:tiles 
+22222222222
+23333333332
+21111A11112
+21111111112
+21111111112
+2111B1C1112
+21111111112
+21111111112
+21111111112
+22222222222
+33333333333
+
+:map 4
+:tags gnomehut
+:scriptA regiondef{ unlockgnome-hut }
+:scriptB kfridge -1 movey 
+:scriptC only-chosen; bed
+:scriptD only-chosen; sink -1 movey
+:scriptE regiondef{ hut-capybara }
+:size 11 11 
+:off 10 1 
+:tiles 
+22222222222
+23333333332
+21CDCDCDC12
+2111E11E112
+21E11111E12
+21111A11112
+21E11111E12
+21111111112
+21111111112
+22222222222
+33333333333
+"
+value ZOMBOHUTS
+ZOMBOHUTS $parse-rooms
+
+locdef{
+
+location: infohut
+		max-rooms: 1
+		entry-tags: infohut
+		pre-script: set-theme-bookstore
+		script: set-theme-bookstore
+		post-script: 
+		
+		room-choice: infohut
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			filter-only
+			
+location: perkhut
+		max-rooms: 1
+		entry-tags: perkhut
+		pre-script: set-theme-bookstore
+		script: set-theme-bookstore
+		post-script: 
+		
+		room-choice: perkhut
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			filter-only
+			
+location: jerkhut
+		max-rooms: 1
+		entry-tags: jerkhut
+		pre-script: set-theme-bookstore
+		script: set-theme-bookstore
+		post-script: 
+		
+		room-choice: jerkhut
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			filter-only
+			
+location: gnomehut
+		max-rooms: 1
+		entry-tags: gnomehut
+		pre-script: set-theme-bookstore
+		script: set-theme-bookstore
+		post-script: 
+		
+		room-choice: gnomehut
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			filter-only
+
+}
+
+map{ regiondef{
+
+trade-camp-reset
+
+: bldg tanchor!
+	"infohut" $picklocid addloc "TRAITS" sign-text! prefab{ 2 7 1 shop } 
+;
+
+: bldg1 tanchor!
+	"infohut" $picklocid addloc "MORE INFO" sign-text! prefab{ 2 7 1 shop } 
+;
+
+: bldg2 tanchor!
+	"perkhut" $picklocid addloc "PERKS & TRAITS" sign-text! prefab{ 5 7 3 shop } 
+;
+
+: bldg3 gstats{ ugnome-jerkstore } not if then; tanchor!
+	"jerkhut" $picklocid addloc 
+	// "THE JERK STORE" sign-text! 
+	GREEN "THE " .. RED .. BLINKY .. "JERK " .. RAINBOW .. "STORE" .. sign-text!
+		0 0 0 sign-bg!
+		0 1 0 sign-border!
+		1 1 1 sign-fg!
+		1 sign-glow!
+	prefab{ 2 7 1 shop }
+;
+
+: gnomehut tanchor!
+	"gnomehut" $picklocid addloc "UNOME" sign-text! prefab{ 3 1 0 shop2 } 
+;
+
+: final-camp-recruit
+	new-camper
+	lt .character@ args( ch )
+	' trader-event lt .events!
+	1 lt .timer!
+
+	lt-here
+
+	' camp-recruit-final lt .cyoa!
+;
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+
+' plotgrass >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char { = if xyp.x to bfx then;
+	xyp.i char } = if bfx xyp.y xyp.x barbfence then;
+	xyp.i char s = if xyp.x to snx xyp.y to sny then;
+	xyp.i char g = if ' plotgrass to ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char p = if ' plotpave to ft then;
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char d = if ' plotdirt to ft then;
+	xyp.i char x = if ' plotgravel to ft then;
+
+	xyp.i char $ = if xyp.xy grassedge then;
+
+	xyp.i char w = if wooded then;
+	xyp.i char V = if tradercarhere then;
+	// xyp.i char t = if pictable1 lt-here 8 rdrift then;	
+	xyp.i char t = if wooded then;
+	xyp.i char f = if campfirehere then;	
+	
+	xyp.i char @ = if xyp.xy bldg then;
+	
+	xyp.i char 1 = if xyp.xy bldg1 then;
+	xyp.i char 2 = if xyp.xy bldg2 then;
+	xyp.i char 3 = if xyp.xy bldg3 then;
+	xyp.i char M = if xyp.xy gnomehut then;
+	
+	// xyp.i char T = if traderhere then;
+	xyp.i char S = if trader-food-for-gas then;
+	xyp.i char B = if roaming-capybara then;
+	// xyp.i char * = if ttenthere then;
+	xyp.i char % = if 12 for skel lt-here 48 rdrift next then;
+	xyp.i char D = if new-camper gun-weapon lt .character@ .weapona! then;
+	// xyp.i char R = if final-camp-recruit then;
+
+	xyp.i char [ = if dirtstart then;
+	xyp.i char ] = if gravelendw then;
+	xyp.i char ( = if dirtstart then;
+	xyp.i char ) = if dirtend then;
+	xyp.i char < = if grassstart2 then;
+	xyp.i char > = if grassend2 then;
+	xyp.i char = = if xyp.xy plotsolidroadlines then;
+	
+	xyp.i char R = if generalinfo-duder 39 lt .character@ .specialtype! lt-here then;
+	xyp.i char U = if 
+		gstats{ ugnome-found } 0 > if 
+			unlockgnome lt-here
+		then then;
+	xyp.i char T = if 
+		DEBUG_BUILD TEST_BRANCH or if freeZP-dingus lt-here then
+		// perk1-dingus lt-here 
+		// info-dingus lt-here 
+	then;
+	xyp.i char W = if twitter-chicken lt-here 1 movey then;
+;
+
+"
+............................
+............................
+..........t...t...t.........
+......t.............t.......
+...t.t........t.............
+.t......................t...
+...t.t...........t....t.....
+............................
+............................
+..................W.........
+..3.......2.....R.1.........
+[..........T................
+............................
+............................
+............................
+............................
+...........................]"
+constant maplayout1
+
+"
+............................
+............................
+............................
+...t....t......t............
+............................
+..................t.....M...
+............................
+..........t...t...t.........
+......t.............t.......
+...t.t........t.............
+.t..........................
+...t.t...........t....t.....
+.........B..................
+............................
+..................W.........
+..3......U2.....R.1.........
+[..........T................
+............................
+............................
+............................
+............................
+...........................]"
+constant maplayout2
+
+: gnomehutunlocked // Single word for checking if the gnome hut is unlocked
+	// Update upgradetally as more perks are added, unlocktally if pre-unlocked perks/traits are added
+	// Intent is that gnomehut gets unlocked by unlocking one trait or upgrading two perks
+	// Generally raise total-upgradetally by 1 with each new perk
+	total-unlocktally 14 > total-upgradetally 24 > or
+;
+
+: maplayoutcheck
+	gnomehutunlocked if
+		maplayout2
+	else
+		maplayout1
+	then
+;
+
+: plotmap ' plotgrass to ft	0 -1 maplayoutcheck xyplot: pt ;
+// : plotmap 0 -1 maplayout xyplot: pt ;
+
+: site-setup
+	1 no_time!
+	7 14 rnd o'clock
+	mission{ ' noop to main-event-mission-periodic }
+
+	pavement
+	plotmap
+
+//	0 h 5 - w ' plotsolidroadlines hline // But can also just do it manually like above in the map for more control
+
+	30 %chance if 0 0.5 frnd weather! -1 2 frnd wind_force! else -1 1 frnd wind_force! then
+
+	mission{ no-edge-spawns }
+
+	gnomehutunlocked if 25 else 32 then %chars-up
+;
+
+region: campsitefinal
+	w: maplayoutcheck layoutw
+	h: maplayoutcheck layouth
+
+	trade-mode
+	no-prefab
+	on-foot
+
+	post-script: site-setup
+
+} }

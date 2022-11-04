@@ -1,0 +1,405 @@
+// uses hack/region-downtown-test.df
+
+// "../deathforth/hack/gasbar.txt" $load-rooms
+// "additional-rooms.txt" $add-rooms
+
+map{ regiondef{
+
+9 value roadw
+roadw 2 / value roadrad
+1 value shoulder
+
+: cleanpave args( x1 y1 x2 y2 )
+
+	<- x1 <- y1 <- x2 <- y2 clean-floorbox
+	<- x1 <- y1 1+ <- x2 <- y2 1- pavebox-nograss
+;
+
+: bridgerail >r
+	cury boxb = if 2drop then;
+	tile@ TILE_BLOCK over .id!
+	dup LAYER_WALLTOP 0 .tile_layer.flipx!
+	dup LAYER_WALLTOP 0 0 .tile_layer.off!
+	LAYER_WALLTOP street_tiles_base_id 0x 90 + r> +
+		cury boxt = if 2 + then
+		cury boxb 1- = if 4 + then
+		.lspriteid!
+;
+
+: bridgerail0 0 bridgerail ;
+: bridgerail1 1 bridgerail ;
+
+
+: plotvroadline
+	dup 1 & if 2drop then;
+	tile@ LAYER_FLOOR street_tiles_base_id 0x 6b + .lspriteid!
+;
+
+: vroadline plotvroadline ;
+
+: vroadlines
+	tb.x 3 + tb.y 1+ tb.h 3 - ' plotvroadline vline
+	tb.x 6 + tb.y 1+ tb.h 3 - ' plotvroadline vline
+;
+
+
+0 value bsx
+0 value bsy
+0 value bey
+
+0 value br1y
+0 value br3y
+
+
+: br1-start to br1y drop ;
+: br2-end args( x y )
+	LAYER_WALLTOP max-layer!
+	LAYER_FLOORTOP min-layer!
+	<- x br1y <- x shoulder + <- y conclot
+	<- x br1y <- y br1y - ' bridgerail1 vline
+;
+
+: br3-start to br3y drop ;
+
+: br4-end args( x y )
+	LAYER_WALLTOP max-layer!
+	LAYER_FLOOR min-layer!
+	<- x shoulder - br3y <- x <- y conclot
+	<- x br3y <- y br3y - ' bridgerail0 vline
+;
+
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+' plotgrass >defer ft
+
+: blocked tile@ TILE_BLOCK over .id! drop ;
+
+: river tile@
+	dup LAYER_FLOOR particles32_base_id 0x 10 + .lspriteid!
+	dup LAYER_FLOOR 0 0 .tile_layer.off!
+	dup LAYER_FLOOR 0 .tile_layer.flipx!
+
+	dup LAYER_FLOORTOP particles32_base_id 0x 11 + .lspriteid!
+	dup LAYER_FLOORTOP 0 0 .tile_layer.off!
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+
+	TILE_BLOCK over .id!
+	drop
+;
+
+: riveredge
+	2dup river
+	tile@ LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+;
+
+: bank 2dup tile@ args( x y t )
+	<- t LAYER_WALLSIDE street_tiles_base_id 0x 99 + 0 3 rnd + .lspriteid!
+	<- t LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+	<- x <- y riveredge
+;
+
+
+: bushy >r tile@
+	dup LAYER_WALLSIDE .lspriteid@ if r> 2drop then;
+	dup LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 89 + 0 3 rnd + .lspriteid!
+	LAYER_WALLSIDE 0 r> .tile_layer.off!
+;
+
+: snowbushy >r tile@
+	dup LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 7c + 0 3 rnd + .lspriteid!
+	LAYER_WALLSIDE 0 r> .tile_layer.off!
+;
+
+: logbridge >r tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x 79 + r> + .lspriteid!
+;
+
+: cliff 2dup blocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x a9 + 0 3 rnd + .lspriteid!
+;
+
+: cliffedge 2dup blocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x ba + 0 3 rnd + .lspriteid!
+;
+
+: curb tile@
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 2e + .lspriteid!
+	LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: grassedge
+	tile@ dup LAYER_FLOORTOP street_tiles_base_id 0x 71 + .lspriteid!
+	LAYER_FLOORTOP 0 0 -3 rnd .tile_layer.off!
+;
+
+: trashblock tile@ tbwreck ;
+: trashs plotswreck ;
+
+: tollbooth
+	tanchor!
+	map{
+		0 prefab{ 5 3 0 shop }
+	}
+
+	tanchorx 3 + tanchorx!
+	tanchory 1 - tanchory!
+
+	3 for
+		street_tiles_base_id 0x a0 + 3 i - + tanchor solidwall
+		tanchor tile@ LAYER_WALLSIDE -10 -4 .tile_layer.off!
+		tanchory 1+ tanchory!
+	next
+;
+
+: checkpoint >r tanchor! map{ 0 prefab{ r> cabin } } ;
+
+: mygrass 2dup plotgrass tile@ TILE_LOT swap .id! ;
+
+0 value pvx
+0 value pvy
+
+: pavelotstart to pvy to pvx ;
+: pavelotend >r >r pvx pvy r> r> LAYER_FLOORTOP max-layer! pavedlot ;
+
+// : logwall barbfence ;
+
+: logwall barbfence ;
+
+: logup	args( x y s )
+
+	street_tiles_base_id 0x ca + <- s + -> s
+
+	3 for
+		<- s i 1- 0x 10 * +
+		<- x <- y solidwall
+		<- y 1- -> y
+	next
+;
+
+: cleanstreet tile@ LAYER_FLOOR street_tiles_base_id 0x 5 + .lspriteid! ;
+
+
+: snowy particle{
+	20 30 rnd for
+		new snowtype 0.5 vel.z! 60 2.5 * ticks! 30 fade_in!
+		pos.x@ view_w 0.5 * 32 + -1 1 frnd * + pos.x!
+		pos.y@ view_h 0.5 + -1 1 frnd * + 64 - pos.y!
+		0 30 rnd wait!
+	next
+} ;
+
+// last 1 hotkey!
+
+mission{
+	thing-event: snowcheck
+		eventid THING_EVENT_TIMER <> if then;
+		me .retrigger_timer
+		me .pos.y@ player .pos.y@ 32 - < if then;
+		snowy
+	;
+}
+
+: snowlast mission{ ' snowcheck } lt .events! 1 sec>tick lt .repeating_timer ;
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char . = if then;
+	xyp.i char g = if ' mygrass to ft then;
+	xyp.i char G = if ' mygrass to ft xyp.xy ft then;
+
+	xyp.i char P = if ' plotpave-nograss to ft xyp.xy ft then;
+	xyp.i char p = if ' plotpave-nograss to ft then;
+
+	xyp.i char S = if ' plotsnow to ft xyp.xy ft then;
+//	xyp.i char s = if ' plotsnow to ft then;
+
+	xyp.i char { = if xyp.x to bfx then;
+	xyp.i char } = if bfx xyp.y xyp.x barbfence then;
+	xyp.i char s = if xyp.x to snx xyp.y to sny then;
+	xyp.i char S = if snx sny xyp.x xyp.y snowlot then;
+	xyp.i char d = if xyp.x plotdirt then;
+	xyp.i char ^ = if xyp.xy river then;
+
+	xyp.i char v = if xyp.xy riveredge then;
+	xyp.i char \ = if xyp.xy cliff then;
+	xyp.i char / = if xyp.xy cliffedge xyp.xy -4 -5 rnd snowbushy then;
+	xyp.i char | = if xyp.xy bank then;
+	xyp.i char o = if xyp.xy -8 -7 rnd bushy then;
+	xyp.i char L = if xyp.xy 1 logbridge then;
+	xyp.i char l = if xyp.xy 0 logbridge then;
+	xyp.i char O = if xyp.xy 2 logbridge then;
+	xyp.i char c = if ' plotpave to ft xyp.xy ft xyp.xy grassedge xyp.xy curb then;
+	xyp.i char r = if xyp.xy vroadline then;
+	xyp.i char T = if xyp.xy trashblock then;
+	xyp.i char t = if xyp.xy trashs then;
+	xyp.i char J = if xyp.xy crap-aroundxy then;
+	xyp.i char j = if 3 onein if then; xyp.xy crap-aroundxy then;
+	xyp.i char W = if xyp.xy tile>pos 3 onein if burningwreck else carwreck then lt .pos! drift 0 lt .flip! then;
+	xyp.i char w = if xyp.xy tile>pos carwreck lt .pos! drift then;
+//	xyp.i char z = if xyp.xy 1 zombs tile>pos lt .pos! then;
+
+	xyp.i char 1 = if xyp.xy br1-start then;
+	xyp.i char 2 = if xyp.xy br2-end then;
+	xyp.i char 3 = if xyp.xy br3-start then;
+	xyp.i char 4 = if xyp.xy br4-end then;
+
+	xyp.i char 5 = if xyp.xy 0 logup then;
+	xyp.i char 6 = if xyp.xy 1 logup then;
+	xyp.i char 7 = if xyp.xy 2 logup then;
+
+//	xyp.i char A = if xyp.xy 2 - swap 1- swap 0x a6 wallside then;
+//	xyp.i char B = if xyp.xy 1- 0x a7 floortop then;
+//	xyp.i char B = if xyp.xy 1- 0x a7 floortop then;
+//	xyp.i char C = if xyp.xy 2 - swap 1+ swap 0x a8 wallside then;
+
+//	xyp.i char B = if xyp.xy 1- 0x 6c 0 3 rnd + floortop xyp.xy tile@ LAYER_FLOORTOP 0 .tile_layer.flipx! then;
+	xyp.i char b = if xyp.xy swap 1- swap 2dup 0x 6c 0 3 rnd + floortop
+		2dup tile@ LAYER_FLOORTOP 0 .tile_layer.flipx!
+		tile@ LAYER_FLOORTOP -1 1 rnd 0 .tile_layer.off! then;
+	xyp.i char B = if xyp.xy swap 1+ swap 2dup 0x 6c 0 3 rnd + floortop
+		2dup tile@ LAYER_FLOORTOP 1 .tile_layer.flipx!
+		tile@ LAYER_FLOORTOP -1 1 rnd 0 .tile_layer.off! then;
+
+
+	xyp.i char ( = if xyp.xy 0x 63 floortop ' plotpave-nograss to ft then;
+	xyp.i char ) = if xyp.xy 0x 65 floortop ' plotgrass to ft xyp.xy ft then;
+
+//	xyp.i char < = if ' cleanstreet to ft xyp.xy ft xyp.xy 0x 98 floortop then;
+//	xyp.i char > = if xyp.xy 0x 96 floortop ' plotsnow to ft then;
+
+	xyp.i char < = if ' cleanstreet to ft xyp.xy ft xyp.xy 0x 98 floortop then;
+	xyp.i char > = if xyp.xy 0x 96 floortop ' plotsnow to ft then;
+
+	xyp.i char h = if xyp.xy pavelotstart then;
+	xyp.i char H = if xyp.xy pavelotend then;
+
+	xyp.i char * = if xyp.xy tollbooth then;
+	xyp.i char @ = if xyp.xy 9 checkpoint then;
+	xyp.i char # = if xyp.xy 4 checkpoint then;
+	xyp.i char & = if xyp.xy tile>pos snowpine lt .pos! then;
+	xyp.i char $ = if snowlast then;
+;
+
+"
+S.....&.........B.<........>.b.......
+................B.<........>.b.......
+................B.<........>.b.......
+........@.........<........>.@.......
+&......&.....&..B.<........>.b.&...&.
+..&.............B.<........>.b...&...
+.....&..........B.<........>.b&......
+...&.....&......B.<..#.....>.b....&..
+........&.......B.<........>.b.......
+....&...........B.<........>.b.......
+.&.....&........B.<........>.b.......
+..&.....@.........<..#.....>.@.......
+................B.<...rr...>.b.......
+666666666666666667<...57...>566666666
+................B.<........>.b...&...
+................B.<...rr...>.b&......
+.....&.........&B.<...rr...>.b..&....
+.&.........&....B.<...rr...>.b&.....&
+................B.<...rr...>.b.......
+................B.<...rr...>.b.......
+................B.<...rr...>.b.......
+...............&B.<...rr...>.b.......
+................B.<...rr...>.b&......
+................B.<...rr...>.b.......
+................B.<...rr...>.b.......
+................B.<...rr...>.b.......
+................B.<...rr...>.b.......
+................B.<...rr...>.b.......
+..............&.B.<...rr...>.b&......
+...............&B.<...rr...>.b.......
+................B.<...rr...>.b.&.....
+................B.<...rr...>.b.......
+................B.<...rr...>.b.......
+..........&....&.1<...rr...>3...&....
+......&......&....<...rr...>..&....&.
+..........&.......<...rr...>.....&$..
+//////////////////<...rr...>/////////
+\\\\\\\\\\\\\\\\\\P...rr...P\\\\\\\\\
+\\\\\\\\\\\\\\\\\\P...rr...P\\\\\\\\\
+\\\\\\\\\\\\\\\\\\P...rr..jP\\\\\\\\\
+\\\\\\\\\\\\\\\\\\P...rr...P\\\\\\\\\
+\\\\\\\\\\\\\\\\\\Pj..rr...P\\\\\\\\\
+||||||||||||||||||P...rr...P|||||||||
+^^^^^^^^^^^^^^^^^^P...rr..jP^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^Pj..rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P..jrr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr..jP^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P..jrr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^PW..rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+^^^^^^^^^^^^^^^^^^P...rr...P^^^^^^^^^
+TTTTTTTTTTTTTTTTTt.........jtTTTTTTTT
+.................T..........T........
+.................T..........T........
+P...........z...T2J........T4T....z..
+{...............}J........W.T{......}
+J..............J..............W..J..J
+....J..J....T....................T..T
+..TTTT........J.............W...TT..T
+.........*...........W..........T.z.T
+...............................T....T
+............................TT.T....T
+........w...............W..TTTTTTTTTT" // *)
+
+constant maplayout
+
+: plotmap
+	tstart 0 -1 maplayout xyplot: pt "PLOTTING TIME " type tend
+;
+
+: site-setup
+	mission{ no-leaving }
+	pavement
+	0 0 w h clean-floorbox
+	plotmap
+;
+
+	location: test
+		max-rooms: 4
+		entry-tags: test entry
+
+		script:
+		pre-script:
+		post-script: 
+
+		room-choice: test entry
+			room-script: 
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+
+	 region: canada border
+		w: maplayout layoutw
+		h: maplayout layouth
+
+		loc-choice: something
+			loc-weight: 1
+			loc-count: 1
+
+		post-script: site-setup
+} }

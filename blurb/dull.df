@@ -1,0 +1,140 @@
+: dull-werewolf
+	blurbslot 0= if
+		"Why couldn't it have been a werewolf apocalypse?" blurbsay
+		"At least then there'd be WEREWOLVES." blurbsay
+	then
+;
+
+	: dull-oneline19 "If everyone listened to me, we'd be in Canada already!" ;
+	: dull-oneline22 "No one ever listens to me!" ;
+
+	: dull-oneline1 "This wouldn't a happened if we kept Obama out of the White House." ;
+	: dull-oneline2 "Thanks a lot zombie Obama." ;
+	: dull-oneline3 "We should try to set the zombies on fire more. Easiest way." ;
+	: dull-oneline4 "What's with all this zombie stuff?" ;
+	: dull-oneline5 "Why aren't these zombies running fast like in the movies?" ;
+// VVVVVVVV JONZ BLURBZ VVVVVVVVV
+	: dull-oneline6 "Where are the exploding zombies and the tongue ones?" ;
+	: dull-oneline7 "Are we there yet?" ;
+	: dull-oneline8 "Free healthcare... in Obama's America." ;
+	: dull-oneline9 "I know what I'm doing, I've played a lot of zombie games." ;
+	: dull-oneline21 "I don't want to go to Canada! It's too cold!" ;
+// VVVVVVVV DONZ BLURBZ VVVVVVVVV	
+	: dull-oneline10 "I could sure go for ANYTHING ELSE right now." ;
+	: dull-oneline11 "Wasn't the apocalypse supposed to be rad cars, leather, and way less waiting?" ;
+	: dull-oneline12 "Zombies. Blech. So gauche. What is this, 2004?" ;
+	: dull-oneline13 "I wish I was playing more videogames and less hiding from zombies." ;
+	: dull-oneline14 "I wonder if we can keep one for a pet." ;
+	: dull-oneline15 "Remember fun? I remember fun. Man, I miss fun." ;
+	: dull-oneline16 "I guess this is forever now. It sure feels like forever." ;
+	: dull-oneline17 "We should ditch the car and find a big zombie we can ride around on." ;	
+	: dull-oneline18 "None of these zombies has anything interesting to say." ;
+	: dull-oneline20 "What we need is a LOT of chainsaws." ;
+
+	deck-new
+		card: dull-oneline1
+		card: dull-oneline2
+		card: dull-oneline3
+		card: dull-oneline4
+		card: dull-oneline5
+		card: dull-oneline6
+		card: dull-oneline7
+		card: dull-oneline8
+		card: dull-oneline9
+		card: dull-oneline10
+		card: dull-oneline11
+		card: dull-oneline12
+		card: dull-oneline13
+		card: dull-oneline14
+		card: dull-oneline15
+		card: dull-oneline16
+		card: dull-oneline17
+		card: dull-oneline18
+		card: dull-oneline19
+		card: dull-oneline20
+		card: dull-oneline21
+		card: dull-oneline22
+		
+	constant DULL-ONELINERS
+	DULL-ONELINERS var dull-oneliners
+
+: dull-oneliner
+	dull-oneliners depths 0= if DULL-ONELINERS shuffles to dull-oneliners then
+	blurbslot 0= if
+		drawcard blurbsay
+	then
+;
+
+: dull-question
+	blurbslot 0= if
+		"Are we there yet?" blurbsay
+	else
+		blurbslot 2 < if
+			"NO, STOP ASKING!" blurbsay
+			STAT_MORALE 1st-char .stat--
+		then
+	then
+;
+	
+: obama-this
+2nd-char choosechar
+	blurbslot 0= if
+		"This wouldn't have happened if Obama..." blurbsay
+	else
+		blurbslot 2 < if
+			cwits- not if
+				($ "It doesn't matter anymore, " .. 1st-char .name@ .. "." $) blurbsay
+				"TALK ABOUT SOMETHING ELSE!" blurbsay
+				STAT_MORALE 1st-char .stat--
+		else
+			"I know! Thanks a lot, Obama!" blurbsay
+			STAT_MORALE me .stat++
+			STAT_MORALE 1st-char .stat++
+		then then
+	then
+;
+
+: zombie-games
+	2nd-char choosechar
+	blurbslot 0= if 
+		"This is all just like my online zombie video games!" blurbsay
+	else
+		blurbslot 2 < if		
+			cwits- if
+				($ "I love those games, " .. 1st-char .name@ .. "!" $) blurbsay
+			else
+				STAT_MORALE me .stat--
+			then
+		then
+	then
+;
+
+: dull-dullaggro1
+2nd-char choosechar
+	blurbslot 0= if
+		"Next time we stop I want to use the car battery to power my game console!" blurbsay
+	else
+		blurbslot 2 < if
+			ctemper+ cwits- or if
+				($ "Only if you 1v1 me, " .. 1st-char .name@ .. "." $) blurbsay
+				"No items, no bullcrap." blurbsay
+				STAT_MORALE me .stat++
+				STAT_MORALE 1st-char .stat++
+			else
+				"No." blurbsay
+				STAT_MORALE 1st-char .stat--
+			then 
+		then
+	then
+;	
+
+	deck-new
+		card: zombie-games
+		card: obama-this
+		card: dull-question
+		card: dull-dullaggro1
+		card: dull-werewolf
+		22 cards: dull-oneliner
+
+	constant BLURB-DECK-DULL
+	BLURB-DECK-DULL var blurb-deck-dull

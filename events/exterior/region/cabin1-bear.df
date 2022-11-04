@@ -1,0 +1,73 @@
+
+"../deathforth/rooms/cabin.txt" $load-rooms
+
+cyoa{
+
+cyoa-choice: cyoa-bear-wrestle
+	($ cname .. " grapples with the stuffed bear.
+	It doesn't budge. " .. cHe .. " keeps wrestling with the bear, and somehow absorbs a little bit of its strength.." $) cyoa-text! strength++ strengthREV goodfx clear-cyoa o'clock@ 3 + o'clock 6 10 rnd roomgen{ .zombspawn }
+;
+
+cyoa-choice: cyoa-bear-search
+	($ cname .. " searches the stuffed bear on a hunch.
+	Hey! There was a bunch of food and medical supplies hidden in a flap behind it!" $) cyoa-text! 15 add-food 5 add-medical goodfx clear-cyoa
+;
+
+cyoa: cyoa-bear
+	// NEED IMAGE
+	"Stuffed Bear" cyoa-title!
+	"A huge stuffed bear looms in the cabin." cyoa-text!
+		pchar charchoice( " wrestles it for a few hours" )choice: cyoa-bear-wrestle
+		pchar charchoice( " searches the bear quickly" )choice: cyoa-bear-search
+		choice( "Leave it for now" )choice
+;
+
+}
+
+: cabin1-bear
+	spawn special_objects48_base_id 0 + lt .spriteid! immovable
+	lt .sprh 2 / 8 - lt .anim.off.y! 8 lt .rad.x!
+	cyoa{ ' cyoa-bear cyoa! }
+;
+
+: cabinloot 
+	looseloot looseloot nicercommon-gun
+;
+
+location
+		tags: cabin-bear
+		max-rooms: 1
+		entry-tags: bearcabin
+		script: set-theme-cabin 
+		pre-script: set-theme-cabin
+		post-script: 20diff %zombs
+		
+		room-choice: bearcabin
+			room-weight: 80
+			room-count: 1
+			room-script: ndx
+			room-post-script: cabinloot
+			filter-only
+
+regiondef{
+
+	 region: forest cabin
+		w: 45
+		h: 45
+		script: timeofday o'clock
+
+		no-prefab // Don't build that default city
+
+		: make-a-cabin map{
+			"cabin-bear" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
+			addloc // Add a location using the resulting location definition  ( locdefid -- locid )
+			prefab{ 8 cabin } // Create a cabin of 5 width using the new location ( locid w -- <build cabin centered in upper part of map> )
+			}
+		;
+
+		: setup-cabin-forest
+			map{ grass make-a-cabin 50 pines }
+		;
+
+		post-script: setup-cabin-forest 2diff %zombs
+}

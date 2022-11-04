@@ -1,0 +1,141 @@
+// Event handlers we can assign outside of the case statements
+
+: ndefer defer <noop ; immediate
+
+defer main-event-new-session <noop
+defer main-event-do-select <noop
+defer main-event-do-info <noop
+defer main-event-do-esc <noop
+defer main-event-do-quit <noop
+defer main-event-do-title <noop
+defer main-event-do-options <noop
+defer main-event-do-save <noop
+defer main-event-do-load <noop
+defer main-event-loaded-session <noop
+
+defer main-event-do-save-custchars <noop
+defer main-event-do-load-custchars <noop
+
+defer main-event-road-start <noop
+defer main-event-road-resume <noop
+defer main-event-road-tick <noop
+defer main-event-road-periodic <noop
+defer main-event-road-end <noop
+
+defer main-event-premission-check <noop
+defer main-event-mission-setup <noop
+defer main-event-mission-start <noop
+defer main-event-mission-tick <noop
+defer main-event-mission-periodic <noop
+defer main-event-mission-edge <noop
+defer main-event-mission-location-leave <noop
+defer main-event-mission-orders <noop
+defer main-event-mission-killed <noop
+defer main-event-mission-character <noop
+defer main-event-mission-buddy-offmap <noop
+defer main-event-mission-end <noop
+
+defer main-event-mission-sunrise <noop
+defer main-event-mission-noon <noop
+defer main-event-mission-sunset <noop
+defer main-event-mission-dusk <noop
+defer main-event-mission-nightfall <noop
+
+defer main-event-cyoa-start <noop
+defer main-event-cyoa-resume <noop
+defer main-event-cyoa-end <noop
+
+defer main-event-social-moment <noop
+
+: main-event-do-processing ;
+
+defer textfill-vehicle-tab <noop
+defer textfill-stats-tab <noop
+
+0 	enum GAME_STATE_NONE
+	enum GAME_STATE_MISSION
+	enum GAME_STATE_DRIVING
+drop
+
+0 value game-state
+
+voc{ textfill
+	: +cr cr$ +textfill ;
+	: +chr $chr +textfill ;
+	: +text +textfill ;
+	: +purple 0x f4 $chr +text ;
+	: +blue 0x f1 $chr +text ;
+	: +green 0x f2 $chr +text ;
+	: +red 0x f3 $chr +text ;
+	: +white 0x f0 $chr +text ;
+}
+
+: handle-textfill
+	case
+		TEXTFILL_VEHICLE_TAB of textfill-vehicle-tab endof
+		TEXTFILL_STATS_TAB of textfill-stats-tab endof
+	endcase
+;
+
+
+// If this gets too long, we should switch to the ARRAY method like for cars
+: main-handler // args( eid )
+		// *** UI events
+
+		MAIN_EVENT_NEW  					?( main-event-new-session );
+		MAIN_EVENT_DO_PROCESSING			?( main-event-do-processing );
+		MAIN_EVENT_DO_TITLE  				?( main-event-do-title );
+		MAIN_EVENT_DO_OPTIONS 				?( main-event-do-options );
+		MAIN_EVENT_DO_SELECT 				?( main-event-do-select );
+		MAIN_EVENT_DO_INFO 					?( main-event-do-info );
+		MAIN_EVENT_DO_ESC 					?( main-event-do-esc );
+		MAIN_EVENT_DO_QUIT 					?( main-event-do-quit );
+		MAIN_EVENT_DO_LOAD 					?( main-event-do-load );
+		MAIN_EVENT_DO_SAVE 					?( main-event-do-save );
+		MAIN_EVENT_LOADED 					?( main-event-loaded-session );
+
+		MAIN_EVENT_DO_SAVE_CUSTCHARS 		?( main-event-do-save-custchars );
+		MAIN_EVENT_DO_LOAD_CUSTCHARS 		?( main-event-do-load-custchars );
+
+
+		// *** Mission events
+		MAIN_EVENT_MISSION_TICK 			?( main-event-mission-tick );
+		MAIN_EVENT_MISSION_PERIODIC 		?( main-event-mission-periodic );
+		MAIN_EVENT_MISSION_BUDDY_OFFMAP		?( main-event-mission-buddy-offmap );
+		MAIN_EVENT_MISSION_CHARACTER  		?( main-event-mission-character );
+		MAIN_EVENT_MISSION_EDGE_LEAVE 		?( main-event-mission-edge );
+		MAIN_EVENT_MISSION_LOCATION_LEAVE 	?( main-event-mission-location-leave );
+		MAIN_EVENT_MISSION_ORDERS 			?( main-event-mission-orders );
+		MAIN_EVENT_MISSION_KILLED 			?( main-event-mission-killed );
+		MAIN_EVENT_MISSION_END 				?( main-event-mission-end );
+
+		MAIN_EVENT_MISSION_SUNRISE			?( main-event-mission-sunrise );
+		MAIN_EVENT_MISSION_NOON				?( main-event-mission-noon );
+		MAIN_EVENT_MISSION_SUNSET			?( main-event-mission-sunset );
+		MAIN_EVENT_MISSION_DUSK				?( main-event-mission-dusk );
+		MAIN_EVENT_MISSION_NIGHTFALL		?( main-event-mission-nightfall );
+
+		MAIN_EVENT_PREMISSION_CHECK			?( main-event-premission-check );
+		MAIN_EVENT_MISSION_SETUP 			?( main-event-mission-setup );
+		MAIN_EVENT_MISSION_START 			?( main-event-mission-start );
+
+		// *** Road events                  
+		MAIN_EVENT_DRIVING_START 			?( 1 to game-state	main-event-road-start );
+		MAIN_EVENT_DRIVING_RESUME 			?( main-event-road-resume );
+		MAIN_EVENT_DRIVING_PERIODIC 		?( main-event-road-periodic );
+		MAIN_EVENT_DRIVING_TICK 			?( main-event-road-tick );
+		MAIN_EVENT_DRIVING_END 				?( main-event-road-end );
+		MAIN_EVENT_TEXTFILL  				?( handle-textfill );
+
+		MAIN_EVENT_CYOA_START 				?( main-event-cyoa-start );
+		MAIN_EVENT_CYOA_RESUME 				?( main-event-cyoa-resume );
+		MAIN_EVENT_CYOA_END 				?( main-event-cyoa-end );
+
+		// *** Other
+		MAIN_EVENT_SOCIAL_MOMENT 			?( main-event-social-moment );
+
+	// Unhandled
+;
+
+last main-event-handler!
+

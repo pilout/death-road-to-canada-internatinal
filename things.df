@@ -1,0 +1,1335 @@
+// uses mission.df
+
+40 value theme-stride		\ number of sprite frames in each theme
+0 value theme-num			\ current theme number, use "<num> to theme-num" to set it
+
+
+// Putting these here for now because uses things.df just errored it anyway
+: foreach-thing >r 1 #thing >r
+	begin r@ while
+	r@ rover execute
+	r> thing# 1+ #thing >r repeat
+	r> drop r> drop
+;
+
+: active-filter ( 'word thing -- 'word )
+	dup .id@ 0= if drop exit then
+	over execute ;
+
+: foreach-active-thing ' active-filter foreach-thing drop ;
+
+// Helper words for direct THING words to to work with the lt spawned/selected
+: movex lt .slidex ;
+: movey lt .slidey ;
+: move movey movex ;
+: flip! lt .flip! ;
+: spriteid! lt .spriteid! ;
+: %flammability! lt .flammability! ;
+: %spreadability! lt .spreadability! ;
+: cyoa! lt .cyoa! ;
+: events! lt .events! ;
+: action! lt .action! ;
+: bbox lt .bbox ;
+: health! lt .hitpoints! ;
+: mass! lt .mass! ;
+: loot! lt .loot! ;
+: amount! lt .amount! ;
+: noloot 0 loot! 0 amount! 0 action! ;
+: angle! lt .angle! ;
+: bcircle lt .bcircle ;
+: drift lt .drift ;
+: scatter lt .scatter ;
+: as-weapon# lt .as-weapon# ;
+: itemtype! lt .itemtype! ;
+: nearest player .nearest ;
+: interactee player .interact_id@ #thing ;
+: .interacting .interact_id@ #thing ;
+
+: opened 1 lt .item.opened! noloot ; // No loot in opened things by default
+: spawn> spawn lt ;
+: rndflip rnd5050 flip! ;
+: spawnflip spawn rndflip ;
+: vary-sprite rnd5050 + spriteid! rndflip ;
+: nohit 1 lt .no_hit! ;
+: nocollide 1 lt .nocollide! ;
+: walkover 1 lt .walkover! ;
+: .low-profile 1 over .no_hit! 2 swap .rad.z! ;
+: low-profile lt .low-profile ;
+: med-profile 1 lt .no_hit! 4 lt .rad.z! ;
+: on-floor 1 lt .layer! walkover ;
+: spawn-invis spawn 1 lt .nocollide! 1 lt .no_hit! 0 lt .spriteid! ;
+
+: weapon spawn as-weapon# ( itemtype! ) rnd5050 lt .flip! 1 lt .no_hit! ;
+: burning 1 lt .burning! ;
+
+// TODO: to complement immovable
+// : lightweight ... ;
+// : medweight ... ;
+// : heavyweight ... ;
+
+: immovable 1000 mass! ;
+: 1weight 4 mass! ;
+: 2weight 5 mass! ;
+: 3weight 6 mass! ;
+: 4weight 7 mass! ; // Needs 4 strength to pick up
+: 5weight 8 mass! ;
+: 6weight 9 mass! ; // Needs 6 strength to pick up
+: swoleweight- 12 mass! ;  // 6 + 3 strength, so TSTC and 3 strength on top
+// : swoleweight- 13 mass! ;
+: swoleweight 15 mass! ; // Needs 6 + 6 strength to pick up, formerly was 6 + 10 at 19 mass
+: swoleweight+ 18 mass! ; // Needs 6 + 9, so TSTC and Berserk!
+: tlbweight 108 mass! ; // Needs to be TLB and not tired to pick up
+: boltstr! lt .boltstr! ; // STR needed to tear up bolts
+: bolts! lt .bolted!
+	lt .boltstr@ 0= if 3 lt .boltstr! then // Default boltstr 
+; // Number of bolts
+
+: swolebolt-- 10 mass! 2 bolts! ; // For bathroom sinks mostly. One yank at 12 str at 3 default boltstr
+: swolebolt- swoleweight- 4 bolts! ; // Toilets, gachopon machines. 3 yanks at 12 str
+: swolebolt swoleweight 6 bolts! ; // Store fridges, some small factory equipment, dmv license
+: swolebolt+ swoleweight+ 6 bolts! 4 boltstr! ; // Bathtubs, arcade machines, some gym machines
+: tlbbolt 108 mass! 8 bolts! 10 boltstr! ;
+: lightbolt 1weight 4 bolts! 6 boltstr! ;
+: 4bolt 4weight 4 bolts! ;
+: 5bolt 5weight 4 bolts! ;
+
+: themed inside_objects_base_id + theme-stride theme-num * + ;
+
+// set up various attributes that make sense for materials
+: as-wood 75 %flammability! ;
+: as-cloth 95 %flammability! ;
+: as-bone 25 %flammability! ;
+: as-metal 5 %flammability! ;
+: as-rubber 85 %flammability! ;
+
+: this-cyoa interactee .cyoa! ;
+: clear-cyoa 0 this-cyoa ;
+: clear-action 0 nearest .action! ;
+: clear-events 0 nearest .events! ;
+
+: .smashy args( self )
+	<- self .smack
+	5 8 rnd <- self .smashybits
+	10 <- self .shudder!
+	sfx{ glass <- self .adjust-vol }
+	sfx{ noise 8 fx .pitch! 0.25 fx .s! 250 fx .r! <- self .adjust-vol }
+;
+
+// Pull out loot values, clear from THING
+: .pullloot ( thing -- amt loot )
+	dup >r .amount@ 0 r@ .amount! r@ .loot@ 0 r> .loot!
+;
+
+: .loot? ( thing -- t/f )
+	dup .loot@ 0= if drop false exit then
+	.amount@ 0= if drop false exit then
+	true
+;
+
+: .drop-loot args( thing )
+	<- thing .loot? 0= if then;
+	<- thing .pullloot spawnloot
+	<- thing .pos lt .pos! 
+	<- thing .vel 2 / swap 2 / swap lt .vel!
+	-1 lt .vel.z!
+	-8 lt .pos.z! 
+;
+
+: get-loot-act args( other self )
+	<- self .pullloot <- other .character@ .lootamt+
+	1 <- self .open! 0 <- self .cyoa!
+;
+
+: generalammo 40 %chance if 6 12 rnd LOOT_BULLET else 50 %chance if 5 10 rnd LOOT_RIFLE_SHELL else 3 7 rnd LOOT_SHOTGUN_SHELL then then ;
+: general-loot
+	60 %chance if generalammo else 
+	80 %chance if 1 LOOT_FOOD else 1 LOOT_MEDICAL then then // two thens because two ifs, amount and loot type are on the top of stack at this point
+	loot! amount!
+;
+
+// Weapons
+: $weapon> $weaponid weapon lt ;
+
+: weaponspawner dup :: postpone literal postpone $weapon> postpone ; ;
+: $weaponword dup weaponspawner // spawn the object
+	dup $weaponid swap "WEAPON_" swap $upper $cat ( PRINTSTACK ) $constant ; // create a WEAPON_* ID constant for it
+: weapon: token $weaponword ;
+
+// TODO: move these into weapondef.df
+weapon: ak47
+weapon: uzi
+weapon: pistol
+weapon: dolt
+weapon: hunting
+weapon: shotgun
+weapon: autoshot
+weapon: slug
+weapon: dawg
+weapon: rifle
+
+// weapon: blowtorch
+weapon: chainsaw
+weapon: hatchet
+weapon: spatula
+weapon: sledge
+weapon: wrench
+weapon: nail
+weapon: baseball
+weapon: cleaver
+weapon: kitch
+weapon: wood
+weapon: femur
+weapon: crowbar
+weapon: nightstick
+weapon: cricket
+weapon: aluminum
+weapon: otaku
+weapon: cane
+weapon: golf
+weapon: frying
+
+weapon: medieval
+weapon: knight
+weapon: claymore
+
+weapon: fire
+weapon: beach
+weapon: hockey
+weapon: xtreme
+weapon: umbrella
+weapon: cardboard
+weapon: pitchfork
+weapon: shovel
+weapon: treebranch
+weapon: metal
+weapon: machete1
+weapon: machete2
+weapon: parking
+
+weapon: lovely
+weapon: rapier
+weapon: toy
+weapon: gauntlet
+weapon: punchquest
+weapon: glove
+weapon: uppercut
+weapon: pool1
+weapon: pool2
+
+weapon: karate
+weapon: fierce
+weapon: boxing
+weapon: kung
+weapon: pokin
+weapon: morning
+
+weapon: zombleg
+weapon: spine
+weapon: spineskull
+weapon: rebar
+
+weapon: devilfork
+weapon: guitar
+weapon: fishing
+
+weapon: debutante
+weapon: masonmachete
+weapon: masonsaw
+weapon: sumo
+weapon: rambeux
+weapon: minigun
+weapon: ridic
+weapon: vlamb
+weapon: ninja
+weapon: kunai
+weapon: shuriken
+weapon: smokebomb
+weapon: vlamfishing
+
+weapon: grenade
+// weapon: pipebomb
+// weapon: molotov
+weapon: bottle
+weapon: flamethrower
+
+weapon: woodsword
+weapon: whitesword
+weapon: hero
+weapon: woodboom
+weapon: metalboom
+weapon: windstar
+weapon: lnkbomb
+
+weapon: mjolnir
+
+weapon: flashlight
+weapon: broom
+weapon: mop
+weapon: ultramop
+weapon: snubnose
+weapon: mountie
+weapon: antlers
+weapon: raygun
+weapon: ehzerbeam
+weapon: truekatana
+weapon: 2x4
+weapon: zwei
+weapon: masterkung
+
+weapon: clawhammer
+weapon: screwdriver
+weapon: icepick
+weapon: shiv
+weapon: ballpeen
+weapon: mallet
+weapon: scissors
+weapon: knitting
+weapon: scalpel
+weapon: poolcue
+weapon: purse
+weapon: firepoker
+weapon: tireiron
+// weapon: scythe
+// weapon: reaper
+weapon: pickaxe
+weapon: throwingboot
+
+
+: to-thing-pos swap .pos rot .pos! ;
+
+// Events for dropping stuff
+voc{ mission
+
+// Mission-specific event variables
+0 value me# 			// THING the event is for
+0 value them#			// ID of THING interacting with me
+0 value eventid
+
+: me me# #thing ;
+: them them# #thing ;
+
+: store-event-info // FOR THING EVENTS ONLY
+//	"STORE EVENT INFO" type PRINTSTACK
+	to eventid
+	thing# to me#
+	me .interact_id@ to them#
+;
+
+// The resulting defined word handles ALL events for the THING
+: thing-event: : postpone store-event-info ; immediate
+
+: drop-here	me swap -1 over .vel.z! to-thing-pos ;
+
+// THING events during mission
+thing-event: break-container
+	eventid THING_EVENT_BREAK <> ?;
+	me .loot? 0?;
+	me .drop-loot
+;
+
+thing-event: break-container-glass
+	eventid THING_EVENT_WAS_HIT <> ?;
+	me .item.opened@ not if me .smashy then
+	1 me .open!
+	0 me .action!
+	me .loot? 0?;
+	me .drop-loot lt-droploot-vel 0.6 1 frnd lt .vel.y!
+;
+
+thing-event: break-skel
+	eventid THING_EVENT_BREAK <> ?;
+	rnd5050 ?;
+	90 %chance if femur else spine then drop-here
+;
+
+thing-event: break-with-wood
+	eventid THING_EVENT_BREAK <> ?;
+	rnd5050 ?;
+	wood as-wood drop-here
+;
+
+thing-event: pump-event
+	eventid THING_EVENT_NO_LOOT = if 0 me .action! then;
+;
+
+: pump-act args( other self )
+	<- other <- self .pumpme
+	30 <- other .stun!
+	-8 <- other .shudder!
+	<- other .vel 0.5 xymul <- other .vel!
+	' pump-event <- self .events! 
+;
+
+}
+
+: pumpable mission{ ' pump-act lt .action! } ;
+: pumpgas pumpable amount! LOOT_GAS loot! particles_base_id 0x 3a + lt .action_icon! ;
+
+: container-loot-act args( other self )
+	<- other <- self get-loot-act
+	30 <- other  .stun!
+	-8 <- other  .shudder!
+	<- other  .vel 0.5 xymul <- other  .vel!
+	0 <- self .action!
+;
+
+: car-loot
+	50 %chance if 15 35 rnd pumpgas else general-loot then
+;
+
+: container-smash-act args( other self )
+	<- self .smashy
+	<- other <- self container-loot-act
+;
+
+: container lt .container ' container-loot-act action! general-loot 
+	mission{ ' break-container } lt .events!
+;
+
+: lootable postpone container ; immediate
+
+: smash-n-loot
+	' container-smash-act action!
+	mission{ ' break-container-glass } lt .events!
+;
+
+// TODO: Ugh, gotta make it work with stuff that can be opened... perhaps center around base unopened sprite?
+// : uncentered 1 lt .uncentered! ;
+: uncentered ;
+
+// THING will use an OPEN sprite frame
+: openable 1 lt .openable! uncentered ;
+
+: fridge
+	spawn					\ spawns a blank object to the current anchor point
+	0x 22 themed spriteid!	\ sets its sprite to 0x22 (hex) and applies the "themed" modifier to the value to use whatever the theme is (set in theme-num)
+	rnd5050 flip!			\ randomly flips the sprite
+	bbox					\ sets up a bounding box for collision, and mass estimated by size
+	\ TODO: Add loot into the fridge!
+	swoleweight
+	openable container		\ makes it a container
+	as-metal
+	100 health!
+;
+
+defer toiletwish
+
+defer stat-toilet
+
+: toilets-opened-check
+	gstats{ ugnome-toilet } 4 < if 99 else 49 then
+;
+
+: toilet-loot args( other self )
+	<- other <- self container-loot-act // Call the base action
+	gstats{ ' toilets-opened ++ } // Our custom behaviour after that
+	gstats{ toilets-opened } toilets-opened-check > if
+		stat-toilet
+		cyoa{ toiletwish }
+		gstats{ 0 to toilets-opened }
+	then
+;
+
+: .squirt args( self )
+	8 for
+		particle{ new <- self .pos 3 - pos!
+			particles_base_id 0x 5e + spriteid!
+			5 fade_out!
+			30 ticks!
+			1 1.5 frnd scale!
+			0.975 grow!
+			-1 -3 frnd vel.z!
+			-1 1 frnd 0.5 * vel.x!
+			-1 1 frnd 0.5 * vel.y!
+			0.1 accel.z!
+			 waterclr rgb!
+			i 2 8 rnd * wait!
+			1 global_colour!
+		}
+	next
+
+	sfx{ noise 10 20 rnd freq! 500 750 rnd freq2! 100 a! 750 d! 1 2 frnd pitch! <- self .adjust-vol scale@ 0.1 * scale! }
+;
+
+
+: sec>tick 60 * ;
+
+: .repeating_timer 2dup .timer_hint! .timer! ;
+: .retrigger_timer dup .timer_hint@ swap .timer! ;
+
+: pipewater args( self eventid  )
+	<- eventid THING_EVENT_TIMER <> if then;
+
+	<- self .anim.counter@ 0= if 0 <- self .events! then;
+
+	15 30 rnd 300 <- self .anim.counter@ over + /  dup * 30 * + <- self .repeating_timer
+
+	<- self .retrigger_timer
+	<- self .squirt
+;
+
+
+: spawnpipe spawn low-profile walkover immovable
+	' pipewater lt .events!
+	1 lt .timer!
+	5 8 rnd 60 * lt .anim.counter!
+
+	special_objects16_base_id 33 + spriteid!
+;
+
+: spawnrustypipe spawnpipe special_objects16_base_id 34 + spriteid! ;
+
+
+: .pipeme .pos spawnpipe lt .pos! ;
+
+
+: breakpipe-event args( me eventid )
+	<- eventid THING_EVENT_UNBOLTED = if <- me .pipeme then; // spawn pipe when unbolted
+
+	<- eventid THING_EVENT_BREAK <> if then;
+	<- me .bolted@ 0= if then; // No pipe if thing is not bolted down, i.e. movable
+
+	<- me .pipeme
+;
+
+
+: toilet
+	spawn
+	0x 1a themed spriteid!
+	bbox
+	swolebolt-
+	openable container ' toilet-loot action!
+	15 health!
+	rnd5050 if 1 lt .flies! then
+	' breakpipe-event events! // SQUIRT
+;
+
+: bathtub
+	spawn
+	0x 1c themed spriteid! bbox
+	swolebolt+
+	25 health!
+	' breakpipe-event events! // SQUIRT
+;
+
+: sink
+	spawn
+	0x 1d themed spriteid!
+	swolebolt--
+	10 health!
+	' breakpipe-event events! // SQUIRT
+;
+
+: dropswood mission{ ' break-with-wood } lt .events! ;
+
+: chair spawn 0x 15 themed vary-sprite bbox 1 mass!
+	3 health! as-wood dropswood ;
+: couch spawn 0x c themed spriteid! rndflip bbox as-cloth dropswood 12 health! ;
+: lazyboy spawn 0x d themed vary-sprite bbox as-cloth dropswood 9 health! ;
+: bed spawn 0x 6 themed vary-sprite bbox as-cloth dropswood 6 health! ;
+: endtable spawn 0x 14 themed spriteid! rndflip bbox
+	as-wood dropswood ;
+: smalltable spawn 0x 10 themed vary-sprite bbox as-wood dropswood ;
+: table spawn 0x 12 themed vary-sprite bbox as-wood dropswood 6 health! ;
+: table-hori spawn 0x 12 themed spriteid! rndflip bbox as-wood dropswood 3 health! ;
+: smalltable-hori spawn 0x 10 themed spriteid! rndflip bbox as-wood dropswood ;
+: pictable table special_objects32_base_id 0x 64 + rnd5050 + spriteid! bbox 9 health! ;
+: pictable1 table special_objects32_base_id 0x 64 + spriteid! bbox 9 health! ;
+: pictable2 table special_objects32_base_id 0x 65 + spriteid! bbox 9 health! ;
+
+: cupboard spawn 0 themed spriteid! bbox openable container as-wood ;
+
+: drawers spawn 2 themed spriteid! bbox openable container as-wood ;
+
+: smallshelf spawn 8 themed spriteid! bbox openable container as-wood ;
+: bigshelf spawn 0x a themed spriteid! bbox openable container as-wood 9 health! ;
+
+: kitchensink spawn 0x 24 themed spriteid! bbox tlbbolt uncentered ' breakpipe-event events! ;
+: stove spawn 0x 20 themed spriteid! bbox openable container tlbbolt ; // TODO: Change counter appliances to tiles
+
+: liedown 90 rndsign * angle! rndflip ;
+
+: skel spawn skeletons_base_id rnd5050 + spriteid! bcircle 1 mass! liedown 
+	as-bone mission{ ' break-skel } lt .events!
+	5 onein if 1 lt .flies! then
+;
+
+: skeldog skel skeletons_base_id 0x 8 + spriteid! ;
+: skelrat skel skeletons_base_id 0x b + spriteid! ;
+: skelalien skel skeletons_base_id 0x 9 + spriteid! ;
+: skeltaur skel skeletons_base_id 2 + spriteid! ;
+
+: lt-to-thing
+	dup .pos lt .pos!
+	.mapid@ lt .mapid!
+;
+
+: rarefood onein if LOOT_FOOD loot! 1 2 rnd amount! then; noloot opened ;
+
+: trashlid spawn special_objects16_base_id 27 + spriteid! as-metal walkover low-profile 2 health! 0 lt .no_hit! ;
+
+: lidme args( me )
+	// Trashlid
+	special_objects16_base_id 10 + <- me .spriteid@ = if
+		trashlid <- me lt-to-thing
+		<- me .vel lt .vel!
+		<- me .pos.z@ 8 - lt .pos.z!
+		<- me .vel.z@ 2 - lt .vel.z!
+		<- me .vel.y@ 0.1 + lt .vel.y!
+		30 lt .invincible_counter!
+	then
+;
+
+: trash-action args( other me )
+	<- other <- me container-loot-act <- me lidme
+	<- me .junkbits
+;
+
+: trash-events args( me eventid )
+	<- eventid THING_EVENT_WAS_HIT = <- eventid THING_EVENT_BOUNCE = or if
+		<- me .item.opened@ 0= if
+
+			<- me lidme
+			<- me .angle@ 90 -1 1 rnd * + <- me .angle!
+			<- me .junkbits
+
+			0 <- me .action!
+			1 <- me .open!
+			<- me .drop-loot // lt-droploot-vel 0.6 1 frnd lt .vel.y!
+
+		then
+	then;
+;
+
+// Periodic zombie spawner
+// Usage: <seconds> time-zomber
+// EXAMPLE: 2 tick-zomber // spawn a zombie every 2 seconds
+// NOTE: Spawner is an object like any other, can be placed using lt etc.
+
+: .invisible
+	1 over .no_hit!
+	1 over .nocollide!
+	0 over .spriteid!
+	drop
+;
+
+: invisible lt .invisible ;
+
+: jack-events args( me eventid )
+	<- eventid THING_EVENT_TIMER <> if then;
+
+	special_objects16_base_id 38 + <- me .spriteid!
+
+	daylight_scale if 60 <- me .timer! then;
+
+	<- me .spriteid@ 1+ <- me .spriteid!
+
+	3 10 rnd <- me .timer!
+	<- me .timer@ 1- <- me .pos ticklight
+	1 0.5 0.5 frnd 0.1 lt .clr! 35 50 frnd lt .item.hint!
+	0 lt .anim.state!
+	-2 2 frnd lt .pos.x@ + lt .pos.x!
+	-2 2 frnd lt .pos.y@ + lt .pos.y!
+;
+
+: jackolantern spawn rndflip low-profile
+	special_objects16_base_id 38 + lt .spriteid!
+	2 mass! 30 health! 0 lt .no_hit!
+	' jack-events lt .events! 1 lt .repeating_timer
+;
+
+: trashcan
+	time.month 9 = time.month.day 31 = and if jackolantern then;
+	spawn special_objects16_base_id 10 + spriteid! as-metal 7 health! openable container
+	' trash-events lt .events! 
+//	' trash-action lt .action! 
+	noloot 3 onein if LOOT_FOOD loot! 1 2 rnd amount! then
+;
+
+: emptytrashcan trashcan opened ;
+
+: parkcan 
+	time.month 9 = time.month.day 31 = and if jackolantern then;
+	trashcan special_objects16_base_id 12 + spriteid!
+	' trash-action lt .action!
+;
+
+
+// kepachanges
+
+: skelloot
+	50 %chance if spine else
+		50 %chance if 
+			spineskull
+		else 
+			50 %chance if zombleg else 80 %chance if throwingboot .scatter then throwingboot then
+		then
+	then
+	
+;
+
+: skelscat 95 %chance if skel scatter else skelloot .scatter then ;
+
+: lovingset
+	smalltable drift
+	couch drift -5 movey
+	lazyboy scatter
+	1 for endtable scatter next
+;
+
+( index -- xoff yoff )
+: 4corners
+	3 & case
+		0 of -1 -1 endof
+		1 of -1 1 endof
+		2 of 1 -1 endof
+		3 of 1 1 endof
+	endcase
+;
+
+: randbednchairs
+	mrand // random starting index for getting 4 corners
+	dup 4corners bed movex movey
+	1+ dup 4corners chair movex movey
+	1+ dup 4corners chair movex movey
+	1+ 4corners chair movex movey
+;
+
+: push-out-events args( me eventid )
+
+	0 <- me .nocollide!
+	0 <- me .walkover!
+	0 <- me .layer!
+
+	// Times up, stop pushing
+	<- eventid THING_EVENT_TIMER = if
+		0 <- me .events!
+	then;
+;
+
+: push-weapon-out
+	' push-out-events lt .events!
+	64 lt .timer!
+	64 lt .invincible_counter!
+	lt .hitpoints@ 1+ lt .hitpoints!
+;
+
+: push-car-out
+	' push-out-events lt .events!
+	64 lt .timer!
+	64 lt .invincible_counter!
+;
+
+: circle-push-events args( me eventid )
+	<- eventid THING_EVENT_TIMER <> if then;
+	// Time's up, go back to normal
+	<- me .anim.info@ <- me .rad.y!
+	<- me .rad.x@ 0.75 * <- me .rad.x!
+	0 <- me .vel.x!
+	0 <- me .vel.y!
+;
+
+: circle-push-out
+	' circle-push-events lt .events!
+	8 lt .timer!
+	lt .rad.y@ lt .anim.info!
+	lt .rad.x@ 1.5 * lt .rad.x!
+	0 lt .rad.y!
+;
+
+: testwreck spawn car_wrecks_base_id 0 11 rnd + lt .spriteid!
+	lt .rad.x@ 60 + lt .wallbox.x!
+	lt .rad.y@ 60 + lt .wallbox.y!
+	push-car-out
+	bbox lt .sprh 2 / 20 - lt .anim.off.y! 25 lt .rad.x!
+;
+
+: lt-as-wreck
+	bbox lt .rad.x@ 4 - lt .rad.x!
+
+	// TODO: When vertical circle/box collision is fixed
+	lt .rad.y@ 0.75 * lt .rad.y! // Tighter! Can pack more in smaller space, which means more space left over 
+
+	lt .sprh 4 / 6 - lt .anim.off.y!
+	// 1 lt .no_hit!
+	lt .rad.x@ 16 + lt .wallbox.x!
+	lt .rad.y@ 24 + lt .wallbox.y!
+	tlbweight
+	rndflip 0 %flammability!
+;
+
+: carwreck spawn car_wrecks_base_id 0 11 rnd + lt .spriteid! lt-as-wreck ;
+
+: burningwreck 
+	carwreck 100 %flammability! 300 lt .hitpoints! burning
+	// Lasts about 3 minutes before it destroys itself, could make this longer
+;
+
+: shoppingcart
+	spawn special_objects32_base_id 0x 17 + lt .spriteid!
+	bbox 5 lt .hitpoints! as-metal 2 lt .mass! rndflip
+;
+
+}
+
+: carts-scatter for shoppingcart scatter next ;
+: carts-here for shoppingcart drift next ;
+
+// : vending spawn special_objects32_base_id 0x 9 + spriteid! bbox as-metal 25 health! 20 mass!
+: vending spawn special_objects32_base_id 0x 9 + spriteid! bbox as-metal 25 health! 20 mass!
+	openable smash-n-loot
+;
+
+: storefridge vending container special_objects32_base_id 0x 10 + spriteid! bbox 25 health! swolebolt ;
+
+// TODO: Make it explode with gas cloud if broken
+
+mission{
+
+	: particleme me me .pos me .pos.z@ particle{ new pos.z! pos! } ;
+
+	: flameflicker
+		particle{
+			-1 1 frnd 0.5 * vel.x@ + vel.x!
+			-0.5 -2 frnd vel.y@ + vel.y!
+			glowy
+			1 clr.r!
+			0 1 frnd clr.g!
+			0 clr.b!
+			0.75 grow!
+			0.75 1 frnd scale!
+		}
+	;
+
+}
+
+: breaksplode-event args( me eventid )
+	<- eventid THING_EVENT_BREAK <> if then;
+	<- me .pos xyboom
+;
+
+: breaksplode3-event args( me eventid )
+	<- eventid THING_EVENT_BREAK <> if then;
+	<- me .pos xyboom
+	<- me .pos.x@ 16 - <- me .pos.y@ xyboom
+	<- me .pos.x@ 16 + <- me .pos.y@ xyboom
+;
+
+: .breaksplode ' breaksplode-event swap .events! ;
+: .breaksplode3 ' breaksplode3-event swap .events! ;
+
+// TODO: Make this HISSSSS for a bit and then UNPREDICTABLY explode (or not explode) with big white propane gas cloud
+
+: .particleme args( me ) <- me .pos <- me .pos.z@ particle{ new pos.z! pos! } ;
+
+: gas-hiss args( me )
+
+	<- me .hitpoints@ 3 < if then;
+
+	<- me .hitpoints@ 8 < rnd5050 and if then;
+
+	<- me .particleme
+ 
+	particle{
+		// Smoke puffs
+		0.4 0.6 frnd scale!
+		1.025 grow!
+		1.01 growy!
+		particles_base_id 0x 8f + spriteid!
+		-1 1 frnd dup >r 180 * dup angle! anglexy 0.5 xymul vel!
+		rnd5050 flipx!
+		0.75 clr.a!
+		13 ticks!
+		ticks@ 0.1 *  fade_in!
+		ticks@ 0.5 * fade_out!
+		<- me .burning@ if
+			1 clr.r!
+			0.5 clr.g!
+			0 clr.b!
+			glowy
+			1.05 grow!
+			<- me .vel 2 xymul <- me .vel!
+		then
+
+		pcopy
+		angle@ 15 -15 frnd + dup angle! anglexy 0.5 xymul vel!
+		0.4 0.6 frnd scale!
+		7 wait!
+		20 ticks!
+	}
+
+	r> 180 * 180 + anglexy <- me .vel xyadd <- me .vel!
+
+	sfx{ -5 nextpri
+		noise <- me .adjust-vol 100 a! 200 d! 0.9 s! 250 r! 100 150 frnd pitch! 10000 filt_high!
+
+		<- me .burning@ if 0.5 1 frnd pitch! 100 filt_high! 1000 filt! 0.5 q! then
+
+	}
+;
+
+
+: bbqtank-events args( me eventid )
+	<- eventid THING_EVENT_BREAK = if
+		 <- me .pos <- me .burning@ if 2 else 1 then xypowboom
+	then;
+
+	<- eventid THING_EVENT_TIMER = if
+		8 15 rnd <- me .timer! <- me .hitpoints@ 1- <- me .hitpoints! <- me gas-hiss
+	then;
+
+	<- eventid THING_EVENT_WAS_HIT = <- eventid THING_EVENT_DID_BURN = or if
+		<- me .timer@ 0= if 15 <- me .timer! then
+	then;
+;
+
+
+: bbqtank spawn special_objects16_base_id spriteid! as-metal
+	15 30 rnd health! 100 lt .flammability!
+	' bbqtank-events lt .events!
+( low-profile )
+;
+
+: oil-barrel spawn special_objects16_base_id 29 + spriteid! as-metal 5 health! ;
+: wood-barrel spawn special_objects16_base_id 30 + spriteid! as-wood 5 health! ;
+
+: pumps spawn special_objects48_base_id 0x b + lt .spriteid!
+	bbox lt .rad.x@ 4 - lt .rad.x!
+	lt .rad.y@ 0.5 * lt .rad.y!
+	lt .sprh 4 / 0 - lt .anim.off.y!
+	1000 lt .mass!
+	20 lt .hitpoints!
+	rndflip 0 %flammability!
+	lt .breaksplode3
+;
+
+: flipside lt .pos.x@ map{ pixelw } 0.5 * - sign 0 < lt .flip! ;
+: revflipside lt .pos.x@ map{ pixelw } 0.5 * - sign 0 > lt .flip! ;
+
+: checkoutobj spawn special_objects64_base_id lt .spriteid! bbox immovable ;
+: checkout checkoutobj flipside ;
+: revcheckout checkoutobj revflipside ;
+
+: cashcounter spawn special_objects64_base_id 2 + spriteid! as-metal bbox immovable 1 lt .no_hit!
+	flipside
+	6 lt .rad.y@ + lt .rad.y!
+	lt .rad.x@ lt .wallbox.x!
+	lt .rad.y@ lt .wallbox.y!
+;
+
+: cinderblock spawn special_objects16_base_id 16 + spriteid! as-metal 10 health! 3weight bbox low-profile 0 lt .no_hit! ;
+: tire spawn special_objects16_base_id 14 + spriteid! as-rubber 7 health! 2weight low-profile 0 lt .no_hit! ;
+: bigtire spawn special_objects16_base_id 15 + spriteid! as-rubber 14 health! 5weight med-profile 0 lt .no_hit! ;
+: boulderl spawnflip special_objects32_base_id 0x 9d + lt .spriteid! bbox bcircle lt .rad.x@ 5 + lt .rad.x! immovable ;
+: boulderm spawnflip special_objects32_base_id 0x 9e + lt .spriteid! bbox bcircle lt .rad.x@ 5 + lt .rad.x! immovable ;
+: boulders spawnflip special_objects32_base_id 0x 9f + lt .spriteid! bbox bcircle lt .rad.x@ 5 + lt .rad.x! immovable ;
+
+: #boulder 0 ?( boulderl ); 1 ?( boulderm ); drop boulders ;
+
+: edumpster spawn special_objects32_base_id 0x 66 + spriteid! bbox as-metal 100 health! 1 lt .flies! ;
+: dumpster edumpster openable container 50 mass! ;
+
+: onplayer player .pos lt .pos! drop ;
+
+: add-gas LOOT_GAS addloot ;
+: add-food LOOT_FOOD addloot ;
+: add-medical LOOT_MEDICAL addloot ;
+: add-bullet LOOT_BULLET addloot ;
+: add-shell LOOT_SHOTGUN_SHELL addloot ;
+: add-rifle LOOT_RIFLE_SHELL addloot ;
+
+: #kill #thing 0 swap .hitpoints! ;
+: killit .id@ #kill ;
+: silentkillit 0 swap .id! ;
+: deleteme interactee silentkillit ;
+
+: delete-cover-events 0 args( me eventid thing )
+	<- eventid THING_EVENT_PUSH = if
+		<- me .interact_id@ #thing -> thing
+		<- thing .mass@ 100 < if then;
+		32 <- me .timer!
+		<- thing silentkillit
+	then;
+
+	// Times up, no more deleting stuff
+	<- eventid THING_EVENT_TIMER = if
+		1 <- me .walkover!
+		<- me .bbox
+	then;
+;
+
+: delete-covering
+	' delete-cover-events lt .events!
+	32 lt .timer!
+	0 lt .nocollide!
+	0 lt .walkover!
+	10 lt .rad.x!
+	10 lt .rad.y!
+;
+
+: book spawn special_objects16_base_id 17 0 2 rnd + + spriteid! 2 health! bbox 3 mass! ;
+: magazine spawn special_objects16_base_id 20 0 2 rnd + + spriteid! 2 health! bbox 1 mass! walkover ;
+: wrotenote spawn special_objects16_base_id 23 + spriteid! 50 health! bbox 1 mass! walkover ;
+: goldkey spawn special_objects16_base_id 24 + spriteid! 50 health! bbox 1 mass! walkover ;
+: keychain spawn special_objects16_base_id 25 + spriteid! 50 health! bbox 1 mass! walkover ;
+: safe spawn special_objects32_base_id 0 rnd5050 if 2 + then + lt .spriteid!
+	bbox
+	as-metal openable tlbbolt nohit 
+;
+: labmachine spawn special_objects64_base_id 0x 7 + lt .spriteid! bbox as-metal tlbbolt 200 health! ;
+: altarstand spawn special_objects48_base_id 1 + lt .spriteid! immovable lt .sprh 2 / 8 - lt .anim.off.y! 8 lt .rad.x! ;
+
+: stockpile-boxes-food spawn special_objects48_base_id 0x 30 + 0 3 rnd + lt .spriteid! bbox immovable ;
+: stockpile-boxes-medical spawn special_objects48_base_id 0x 30 + 5 + lt .spriteid! bbox immovable ;
+: stockpile-boxes spawn special_objects48_base_id 0x 30 + 0 7 rnd + lt .spriteid! bbox immovable ;
+: trader-awning spawn special_objects48_base_id 0x 38 + 0 19 rnd + lt .spriteid! bbox immovable ;
+// 38 for white awning, 40 for red awning, 48 for stripe blue awning
+
+// Give a metallic item a rusty tint
+: .rusty 1 over .clr.r! 0.75 over .clr.g! 0.5 over .clr.b! drop ;
+
+// Get a -1 or 1 for current flip direction
+: .flipx .flip@ -2 * 1+ ;
+
+: .ghosty args( thing )
+	1 <- thing .glow!
+	0 0.5 1 <- thing .clr!
+;
+
+: .zomb? .typeid@ THING_ZOMBIE = ;
+
+: zomboff dup mission{ .zomb? } 0= if drop then;
+	dup .mapid@ curmapsel <> if drop then;
+	silentkillit
+;
+
+: kill-zombies-here
+	mission{ ' zomboff foreach-active-thing }
+;
+
+// Only room0 zombies
+: zomboff0 dup mission{ .zomb? } 0= if drop then;
+	dup .mapid@ if drop then;
+	silentkillit
+;
+
+: kill-zombies-outside
+	mission{ ' zomboff0 foreach-active-thing }
+;
+
+: zombsplat dup mission{ .zomb? } 0= if drop then;
+	dup .mapid@ curmapsel <> if drop then;
+	killit
+;
+
+: splat-zombies-here
+	mission{ ' zombsplat foreach-active-thing }
+;
+
+// ex 32 32 skelscatxy
+: skelscatxy skel lt .scatterxy ;
+
+: .inside? .inside_id 0= not ;
+: .inside@ .inside_id #thing ;
+: .nearest? player 0= if drop 0 then;
+	thing# player .nearest_interact_id@ = ;
+: .interacting? player 0= if drop 0 then;
+	dup thing# player .interact_id@ =
+	swap .interact_id@ player thing# = and
+;
+
+: hospitalmachine spawn special_objects32_base_id 0x 5a + lt .spriteid! bbox as-metal 15 health! ;		
+: stretcher spawn special_objects32_base_id 0x 57 + lt .spriteid! rndflip
+	bbox as-metal ;
+: hospitalcurtain spawn special_objects32_base_id 0x 5b + lt .spriteid!
+	bbox as-metal ;	
+: wheelchair spawn special_objects32_base_id 0x 55 + lt .spriteid! rndflip
+	bbox as-metal 10 health! ;
+	
+	
+: dumbrack
+	spawn special_objects32_base_id 0x 70 + lt .spriteid! rndflip
+	25 health! bbox swolebolt+ as-metal
+;
+
+: gymbike
+	spawn special_objects32_base_id 0x 71 + lt .spriteid!
+	bbox swolebolt+ as-metal
+;
+
+: treadmill
+	spawn special_objects32_base_id 0x 72 + lt .spriteid! rndflip
+	15 health! bbox swoleweight as-metal
+;
+
+: olympicbar
+	spawn special_objects32_base_id 0x 73 + lt .spriteid!
+	20 health! bbox 6weight as-metal immovable
+;
+
+: barbell
+	spawn special_objects32_base_id 0x 74 + lt .spriteid!
+	12 health! bbox 4weight as-metal
+;
+: dumbbell3 2 + + lt .spriteid! 7 health! bbox 2weight ;
+: dumbbell2 1 + + lt .spriteid! 5 health! bbox 1weight ;
+: dumbbell1 0 + + lt .spriteid! 3 health! bbox ;
+: dumbbell
+	spawn special_objects32_base_id 0x 75 
+	50 %chance if dumbbell2 else 50 %chance if dumbbell1 else dumbbell3 then then
+	as-metal
+;
+
+: chandelier spawnflip special_objects32_base_id 0x a7 + lt .spriteid! bcircle 12 lt .rad.x! swoleweight 50 health! ;
+
+: mansionstatue spawnflip special_objects32_base_id 0x a4 + 0 2 rnd + lt .spriteid! 
+	bcircle 9 lt .rad.x! 6weight as-metal 12 health! 
+;
+
+: spawnscat spawnloot scatter 1 lt .jumpy ;
+: spawndrift spawnloot drift 1 lt .jumpy ;
+
+: sbullet LOOT_BULLET spawnscat ;
+: sshot LOOT_SHOTGUN_SHELL spawnscat ;
+: srifle LOOT_RIFLE_SHELL spawnscat ;
+: sgas LOOT_GAS spawnscat ; 
+: sfood for 1 LOOT_FOOD spawnscat next ;
+: smed for 1 LOOT_MEDICAL spawnscat next ;
+
+: dbullet LOOT_BULLET spawndrift ;
+: dshot LOOT_SHOTGUN_SHELL spawndrift ;
+: drifle LOOT_RIFLE_SHELL spawndrift ;
+: dgas LOOT_GAS spawndrift ; 
+
+// AI stuff
+: .followed .ai.followid@ #thing ;
+: .follow args( a b ) <- a thing# <- b .ai.followid! ;
+
+: .poofme 0 360 frnd args( angle )
+	dup	sfx{ thump 0.2 fx .s! 500 fx .r! 100 fx .filt! 0.95 fx .q! .adjust-vol }
+
+	.pos3 6 for
+		particle{ new 3dup pos3!
+			particles_base_id 0x 2c + spriteid! 0 360 frnd angle!
+			<- angle i 360 6 / * + anglexy vel!
+			1.5 scale!
+			30 ticks!
+			15 fade_out!
+			0.5 clr.g!
+		}
+	next
+	3drop
+;
+
+: .poofmescary 0 360 frnd args( angle )
+	dup	sfx{ thump 0.2 fx .s! 500 fx .r! 100 fx .filt! 0.95 fx .q! .adjust-vol }
+
+	.pos3 5 for
+		particle{ new 3dup pos3!
+			particles_base_id 0x 2c + spriteid! 0 360 frnd angle!
+			<- angle i 360 5 / * + anglexy 0.5 xymul vel!
+			1.75 scale!
+			60 ticks!
+			30 fade_out!
+			// 1 0.1 0.1 rgb! // RED?
+			0.1 0.1 0.1 rgb! 
+		}
+	next
+	3drop
+;
+
+: .sproink 0 360 frnd args( angle )
+	dup	sfx{ pulse 50 fx .freq! 550 2 * fx .freq2! 0.25 fx .s! 250 fx .r! 2 fx .a! 125 fx .d! 0.5 fx .scale! .adjust-vol }
+
+	.pos3
+	particle{ new pos3!
+		particles_base_id 0x 59 + spriteid! 0 3 rnd 90 * angle!
+		1.05 grow!
+		15 ticks!
+		5 fade_out!
+	}
+;
+
+
+1000000000 constant PRACTICALLY_FOREVER
+: burnpatch ( duration radius ) spawn lt .rad.x! lt .burning! lt .invisible 100 lt .flammability! 1 lt .no_hit! ;
+: lilburnpatch PRACTICALLY_FOREVER 8 burnpatch ;
+: medburnpatch PRACTICALLY_FOREVER 16 burnpatch ;
+: bigburnpatch PRACTICALLY_FOREVER 32 burnpatch ;
+
+: medburnpatch-spark PRACTICALLY_FOREVER 16 burnpatch
+	60 lt .hitpoints! 2 lt .mass!
+;
+
+: shortlilburnpatch 7 sec>tick 8 burnpatch ; // Lasts 7 - 2 seconds
+: sparkingburnpatch 60 16 burnpatch
+	60 lt .hitpoints! 2 lt .mass! // These two commands set a self-destruct duration, and let it spark (mass > 1)
+;
+
+: sec>tick 60 * ;
+
+: .repeating_timer 2dup .timer_hint! .timer! ;
+: .retrigger_timer dup .timer_hint@ swap .timer! ;
+
+: ticklight-events args( me eid )
+	<- eid THING_EVENT_TIMER <> if then;
+	<- me .clr@ <- me .item.hint@ <- me .rad.x@ + <- me .pos d-light
+
+	<- me .clr@ 1 <- me .weapon_state.val@ - rgb* <- me .clr!
+
+	<- me .anim.state@ 0= if
+		<- me .anim.counter@ 0= if <- me silentkillit then;
+	then
+
+	<- me .retrigger_timer
+;
+
+:noname ( dur x y ) spawn-invis ' ticklight-events lt .events! 1 lt .repeating_timer
+	lt .pos!
+	lt .anim.counter!
+	50 lt .item.hint!
+	lt .anim.counter@ 0 < lt .anim.state!
+; last to ticklight
+
+: .overlapper .overlap_id@ #thing ;
+
+: poosmudge args( x y )
+	particle{ new
+		street_tiles_base_id 0x 12c + 0 1 rnd + spriteid!
+		1 layer!
+		<- x >int <- y >int pos!
+		300 ticks!
+		30 fade_out!
+		1 global_colour!
+	}
+;
+
+: poojiggle args( me )
+	-15 <- me .shudder!
+	-0.1 <- me .shudderpuff.y!
+	0.1 <- me .shudderpuff.x!
+;
+
+: poosplat args( me )
+	<- me .anim.counter@ if then;
+
+	1 <- me .vel.z!
+
+	sfx{ crunch 50 filt! 0.5 q! 10 state! 0.5 scale! 0.5 pitch! <- me .adjust-vol
+		pip 5 freq! 1500 freq2! 0.5 scale! <- me .adjust-vol
+	}
+
+
+	// Use the normal poo sprite for the chunks
+	<- me .spriteid@
+		street_tiles_base_id 0x 12b + <- me .spriteid! 
+		3 <- me .smashychunks
+		3 <- me .smashybits
+	<- me .spriteid!
+
+	<- me .pos.z@ -3 > if <- me .pos poosmudge then
+	<- me .pos poosmudge <- me .pos.z@ particle{ pos.z!
+		30 ticks! 2 scale! 0.9 grow! 0 layer! 0 180 frnd angle! 15 rndsign * rotate!
+	}
+
+	15 <- me .anim.counter!
+
+	<- me .item.locked@ if then;
+
+	<- me silentkillit
+;
+
+: poo-flies args( me target )
+	<- target .flies@ <- me .flies@ >= if then;
+	<- me .flies@ <- target .flies!
+	0x 9F6B61 #rgb <- target .clr!
+;
+
+: poo-trip-zombie args( me target )
+	<- target .pos.z@ -1 < if then;
+	<- target .zomb? 0= if then;
+	-1 <- target .vel.z!
+	<- me .pos <- target .pos xysub xynorm 0.25 xymul <- target .vel xyadd <- target .vel!
+	<- me <- target poo-flies
+	<- me poosplat
+;
+
+: poo-events 0 args( me eventid target )
+	<- eventid
+
+		THING_EVENT_DROP ?( 0 <- me .anim.state! );
+		THING_EVENT_PICKUP ?( <- me <- me .carrierid@ #thing poo-flies );
+		THING_EVENT_THROW ?( 1 <- me .anim.state! );
+		THING_EVENT_BOUNCE ?( <- me poojiggle <- me .anim.state@ if <- me poosplat then; );
+		THING_EVENT_WALL ?( <- me .carrierid@ not if <- me poosplat then );
+		THING_EVENT_WAS_HIT ?(
+			<- me .overlapper if
+				<- me .overlapper .zomb? if
+					<- me <- me .overlapper poo-flies
+				then
+			then
+			<- me poosplat
+		);
+		THING_EVENT_OVERLAP ?(
+			<- me .pos.z@ -1 < if then; // Not on ground
+			<- me <- me .overlapper poo-trip-zombie
+		);
+	drop
+;
+
+: poo spawn nohit walkover rnd5050 flip! 6 lt .rad.x! 1 lt .nodust!
+	street_tiles_base_id 0x 12b + lt .spriteid! 
+	' poo-events lt .events!
+	0 1 rnd lt .flies!
+;
+
+: smiling-pile-of-poo poo street_tiles_base_id 0x 12a + lt .spriteid! 1 lt .item.locked! ;
+
+: .nearest-dist-hittable swap dup * args( me dist2 )
+	<- me .nearest_enemy_dist2@ <- dist2 < if <- me .nearest_enemy_id@ then;
+	<- me .nearest_interact_dist2@ <- dist2 > if 0 then;
+	<- me .nearest_interact_id@ <- me .nearest_pickup_id@ = if 0 then;
+	<- me .nearest_interact_id@ #thing .typeid@ THING_HUMAN = if 0 then;
+	<- me .nearest_interact_id@
+;
+
+: haunted-item-events args( me eventid )
+	<- eventid THING_EVENT_TIMER = if
+		-1 1 frnd <- me .vel.x!
+		-1 1 frnd <- me .vel.y!
+		-1 -2 frnd <- me .vel.z!
+		0 5 frnd dup * rndsign * <- me .angle!
+		15 600 rnd <- me .timer!
+
+		3 onein if
+			0 15 frnd <- me .anim.floatheight!
+			5 <- me .anim.floatval!
+		else
+			0 <- me .anim.floatheight!
+			0 <- me .anim.floatval!
+		then
+
+	then;
+;
+
+// Make stuff haunted
+: .make-haunted
+	' haunted-item-events over .events!
+	1 over .no_hit!
+//	1 over .no_do_damage!
+	180 600 rnd over .timer!
+	drop
+;
+
+: haunted-chair
+	chair lt .make-haunted
+;
+
+: haunted-drawers
+	drawers lt .make-haunted
+;
+
+// Etc...
+: haunted-fridge
+	fridge lt .make-haunted
+;

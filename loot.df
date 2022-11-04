@@ -1,0 +1,67 @@
+uses base.df
+uses charblurb.df
+
+: lt last-thing ;
+: tm to-me ;
+: lttm lt tm ;
+
+items_base_id constant LOOTBASE
+LOOTBASE constant FOODBASE
+LOOTBASE 8 + constant MEDBASE
+MEDBASE 4 + constant GASBASE
+MEDBASE 8 + constant AMMOBASE
+
+: lootsprite ( lootid -- spriteid )
+
+	case
+		LOOT_FOOD of 0 6 rnd FOODBASE + endof
+
+		LOOT_BULLET of AMMOBASE endof
+		LOOT_RIFLE_SHELL of AMMOBASE 1 + endof
+		LOOT_SHOTGUN_SHELL of AMMOBASE 2 + endof
+		LOOT_GAS of GASBASE endof
+
+		// TODO: Medical FLAVA text
+		LOOT_MEDICAL of 0 3 rnd MEDBASE + endof
+		otherwise AMMOBASE 3 +
+	endcase
+;
+
+
+: lootsprite-bulk ( lootid -- spriteid )
+
+	case
+		LOOT_FOOD of FOODBASE 7 + endof
+		LOOT_BULLET of AMMOBASE endof
+		LOOT_RIFLE_SHELL of AMMOBASE 1 + endof
+		LOOT_SHOTGUN_SHELL of AMMOBASE 2 + endof
+		LOOT_GAS of GASBASE endof
+		LOOT_MEDICAL of MEDBASE endof
+		otherwise AMMOBASE 3 +
+	endcase
+;
+
+
+: spawnloot ( amt loot -- )
+	dup 0= if 2drop exit then
+	over 0= if 2drop exit then
+	spawn lt .loot! lt .amount!
+	lt .as-pickup
+
+	lt .loot@ lootsprite lt .spriteid!
+;
+
+: lt-bulk-lootsprite lt .loot@ lootsprite-bulk lt .spriteid! ;
+
+: .lootargs dup .amount@ swap .loot@ ;
+
+: lt-droploot-vel
+	-1.5 -2.5 frnd lt .vel.z!
+	-8 lt .pos.z!
+	0 360 frnd anglexy 0.125 0.5 frnd * lt .vel.y! 0.125 0.5 frnd * lt .vel.x!
+;
+
+: trunk.loot+ >int swap >int swap 2dup args( inc loot# ) report-lootchg
+
+	<- loot# trunk.loot@ <- inc + <- loot# trunk.loot!
+;

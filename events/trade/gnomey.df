@@ -1,0 +1,201 @@
+road{ 
+	
+}
+
+cyoa{ regiondef{
+
+0 value tnome-bought
+0 value tnome-seen
+0 value the-tnome
+
+0 stack
+	"Nice purchase, NERD!" shove
+	"OOOooooooo!" shove
+	"Keep on looting toilets! " ;) .. shove
+	"Ooo! Oooooooo!" shove
+	"Good luck with Canada! " trollface .. shove
+	"Smell ya later!" shove
+	"Whenever you need help... look to the staaaaars!" shove
+	"I'm ascending!" shove
+	"I'M INTERFAAAAACED!" shove
+	"This... this is goodbye!" shove
+	"I'm outta heeeeere!" shove
+	"Believe in the Uncks!" shove
+	"May the Zombo Points protect you!" shove
+	"Uh, something's pulling me upwards." shove
+	"The real power was FRIENDSHIP!" shove
+	"I'll always be with you, inside your heart!" shove
+	"Thank you, please shop at TNOME-CO again!" shove
+	"Thanks for the ZP!" shove
+value tnome-sayings-base
+tnome-sayings-base shuffles var tnome-sayings
+
+: tnome-zoop3 the-tnome silentkillit ;
+: tnome-zoop2 
+	-10 the-tnome .vel.z!
+	20 ' tnome-zoop3 timer_add
+;
+: tnome-zoop1 tnome-sayings pops nip fbold the-tnome .yellmsg 100 ' tnome-zoop2 timer_add ;
+
+: tnome-end	args( cost )
+	gstats{ <- cost -1 * ' zombo-point +! }
+	// filesave{ save-global-stats }
+	1 to tnome-bought
+	pchar .loot-to-trunk
+	clear-cyoa
+	45 ' tnome-zoop1 timer_add
+;
+
+// The rewards
+
+cyoa: tnome-rodent
+	"Rodent of Unusual Size" cyoa-title!
+	"WELCOME TO A NEW WORLD
+	A WORLD OF RODENT" pbold text!
+	"These words from Tnomey echo in your mind." +crtext
+	char-gen to recruitee ricon
+	recruitee .gerbilfy
+	// WEAPON_FIERCE recruitee .weapon_default!
+	4 recruitee .strength! // 3 4 rnd recruitee .morale!
+	"Shield of Hope" recruitee .perk!
+	team-full? if
+		($ "The group is too full for a rodent this big.
+		Who would you like to replace to make rodent room?" $) +crtext
+		recruit-replace?
+	else
+		recruited
+	then
+;
+
+: tnome-weaponbuy args( weapon cost )
+	1 <- weapon trunk.weapon+ <- cost tnome-end goodfx
+;
+
+defer d1-base
+defer d2-base
+defer d3-base
+
+0 stack var tnome-reward-1-deck
+0 stack var tnome-reward-2-deck
+0 stack var tnome-reward-3-deck
+
+: d1-up tnome-reward-1-deck pops drop depths 0= if d1-base shuffles to tnome-reward-1-deck then drop ;
+: d2-up tnome-reward-2-deck pops drop depths 0= if d2-base shuffles to tnome-reward-2-deck then drop ;
+: d3-up tnome-reward-3-deck pops drop depths 0= if d3-base shuffles to tnome-reward-3-deck then drop ;
+
+// TODO: Add appropriate d*-up to end of each deck card choice handler
+
+: tnome-food-1 4 add-food 10 tnome-end d1-up ;
+: tnome-med-1 3 add-medical 10 tnome-end d1-up ;
+: tnome-gas-1 3 10 * add-gas 10 tnome-end d1-up ;
+: tnome-bullet-1 3 8 * add-bullet 10 tnome-end d1-up ;
+: tnome-shell-1 3 5 * add-shell 10 tnome-end d1-up ;
+: tnome-rifle-1 3 6 * add-rifle 10 tnome-end d1-up ;
+: tnome-recruit-1 road{ ' normalcevent stack-road-action } 10 tnome-end goodfx d1-up ;
+// : tnome-recruit-2 ' recruit-dog stack-road-action 10 tnome-end d2-up ;
+// : tnome-pipebomb-1 WEAPON_PIPEBOMB 10 tnome-weaponbuy d1-up ;
+// : tnome-ballpeen-1 WEAPON_BALLPEEN 10 tnome-weaponbuy d1-up ;
+
+: tnome-food-2 6 add-food 20 tnome-end d2-up ;
+: tnome-med-2 4 add-medical 15 tnome-end d2-up ;
+: tnome-gas-2 4.5 10 * add-gas 20 tnome-end d2-up ;
+: tnome-bullet-2 4.5 8 * add-bullet 20 tnome-end d2-up ;
+: tnome-shell-2 4.5 5 * >int add-shell 20 tnome-end d2-up ;
+: tnome-rifle-2 4.5 6 * add-rifle 20 tnome-end d2-up ;
+: tnome-rodent-2 ' tnome-rodent stack-road-action 20 tnome-end goodfx d2-up ;
+
+: tnome-rifle-2 WEAPON_RIFLE 20 tnome-weaponbuy d2-up ;
+: tnome-dolt-2 WEAPON_DOLT 20 tnome-weaponbuy d2-up ;
+: tnome-shotgun-2 WEAPON_SHOTGUN 20 tnome-weaponbuy d2-up ;
+: tnome-grenade-2 WEAPON_GRENADE 20 tnome-weaponbuy d2-up ;
+
+: tnome-food-3 8 add-food 30 tnome-end d3-up ;
+: tnome-med-3 6 add-medical 30 tnome-end d3-up ;
+: tnome-gas-3 6 10 * add-gas 30 tnome-end d3-up ;
+: tnome-bullet-3 6 8 * add-bullet 30 tnome-end d3-up ;
+: tnome-shell-3 6 5 * add-shell 30 tnome-end d3-up ;
+: tnome-rifle-3 6 6 * add-rifle 30 tnome-end d3-up ;
+: tnome-recruit-3 road{ ' scgoodevent stack-road-action } 30 tnome-end goodfx d3-up ;
+
+: tnome-sledge-3 WEAPON_SLEDGE 30 tnome-weaponbuy d3-up ;
+: tnome-fire-3 WEAPON_FIRE 30 tnome-weaponbuy d3-up ;
+
+deck-new
+	($ "4 food - 10 " .. "ZP" pbold $) choice-card: tnome-food-1
+	($ "3 medical - 10 " .. "ZP" pbold $) choice-card: tnome-med-1
+	($ "30 gas - 10 " .. "ZP" pbold $) choice-card: tnome-gas-1
+	($ "24 bullets - 10 " .. "ZP" pbold $) choice-card: tnome-bullet-1
+	($ "15 shotgun ammo - 10 " .. "ZP" pbold $) choice-card: tnome-shell-1
+	($ "18 rifle ammo - 10 " .. "ZP" pbold $) choice-card: tnome-rifle-1
+	($ "Random Common Recruit! - 10 " .. "ZP" pbold $) choice-card: tnome-recruit-1
+constant tnome-reward-1-base last to d1-base
+tnome-reward-1-base shuffles to tnome-reward-1-deck
+
+deck-new
+	($ "6 food - 20 " .. "ZP" pbold $) choice-card: tnome-food-2
+	($ "4 medical - 15 " .. "ZP" pbold $) choice-card: tnome-med-2
+	($ "45 gas - 20 " .. "ZP" pbold $) choice-card: tnome-gas-2
+	($ "36 bullets - 20 " .. "ZP" pbold $) choice-card: tnome-bullet-2
+	($ "22 shotgun ammo - 20 " .. "ZP" pbold $) choice-card: tnome-shell-2
+	($ "27 rifle ammo - 20 " .. "ZP" pbold $) choice-card: tnome-rifle-2
+	($ "Battle Rodent - 20 " .. "ZP" pbold $) choice-card: tnome-rodent-2
+	($ "Cowboy Rifle - 20 " .. "ZP" pbold $) choice-card: tnome-rifle-2
+	($ "Dolt Revolver - 20 " .. "ZP" pbold $) choice-card: tnome-dolt-2
+	($ "Shotgun - 20 " .. "ZP" pbold $) choice-card: tnome-shotgun-2
+	($ "Grenade - 20 " .. "ZP" pbold $) choice-card: tnome-grenade-2
+constant tnome-reward-2-base last to d2-base
+tnome-reward-2-base shuffles to tnome-reward-2-deck
+
+deck-new
+	($ "8 food - 30 " .. "ZP" pbold $) choice-card: tnome-food-3
+	($ "6 medical - 30 " .. "ZP" pbold $) choice-card: tnome-med-3
+	($ "60 gas - 30 " .. "ZP" pbold $) choice-card: tnome-gas-3
+	($ "48 bullets - 30 " .. "ZP" pbold $) choice-card: tnome-bullet-3
+	($ "30 shotgun ammo - 30 " .. "ZP" pbold $) choice-card: tnome-shell-3
+	($ "36 rifle ammo - 30 " .. "ZP" pbold $) choice-card: tnome-rifle-3
+	($ "Random Rare Recruit! - 30 " .. "ZP" pbold $) choice-card: tnome-recruit-3
+	($ "Sledgehammer - 30 " .. "ZP" pbold $) choice-card: tnome-sledge-3
+	($ "Fire Axe - 30 " .. "ZP" pbold $) choice-card: tnome-fire-3	
+constant tnome-reward-3-base last to d3-base
+tnome-reward-3-base shuffles to tnome-reward-3-deck
+
+// Non-destructive selection of top item
+: top-card-choice -1 picks execute ;
+
+: tnome-reward-1-choice tnome-reward-1-deck top-card-choice ;
+: tnome-reward-2-choice tnome-reward-2-deck top-card-choice ;
+: tnome-reward-3-choice tnome-reward-3-deck top-card-choice ;
+
+cyoa: tnomey-start
+	"TNOMEY THE TRADER GNOME" cyoa-title!
+	
+	1 to tnome-seen
+	
+	"HI I'M TNOMEY
+	DON'T YOU KNOW ME?
+	WAIT THAT JOKE DOESN'T WORK AS WELL" pbold text!
+	+cr cyoa{ zptally }
+
+	choice( "Save up " .. "ZP" pbold .. " for now!" )choice
+	gstats{ zombo-point 9 > } if tnome-reward-1-choice then
+	gstats{ ugnome-trader 1 > zombo-point 19 > } and if tnome-reward-2-choice then
+	gstats{ ugnome-trader 2 > zombo-point 29 > } and if tnome-reward-3-choice then
+;
+
+} } 
+
+map{ regiondef{
+
+(*
+: tgnome-trader
+	new-camper
+	lt .character@ args( ch )
+	' trader-event lt .events!
+	1 lt .timer!
+
+	lt-here
+
+	' camp-recruit-final lt .cyoa!
+; *)
+
+} }

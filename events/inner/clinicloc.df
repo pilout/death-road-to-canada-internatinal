@@ -1,0 +1,118 @@
+
+map{ roomgen{
+			
+: hospitalshelf
+	spawn special_objects32_base_id 0x 50 + lt .spriteid!
+	bbox openable container 2 3 rnd LOOT_MEDICAL loot! amount! as-metal
+;
+
+: hospitalshelfempty spawn special_objects32_base_id 0x 51 + lt .spriteid! bbox as-metal ;
+: %hospitalshelf %chance if hospitalshelf else hospitalshelfempty then ;
+: hospitalbed spawn special_objects32_base_id 0x 58 0 1 rnd + + lt .spriteid! rndflip
+	bbox as-metal ;
+: hospitalbedside spawn special_objects32_base_id 0x 58 + lt .spriteid! rndflip
+	bbox as-metal ;
+: ivpole spawn special_objects32_base_id 0x 52 0 1 rnd + + lt .spriteid! rndflip
+	bbox as-metal ;
+: hospitalstool spawn special_objects32_base_id 0x 54 + lt .spriteid! bbox rndflip
+	as-metal 1 mass! ;
+: hospitalstepper spawn special_objects32_base_id 0x 56 + lt .spriteid! rndflip
+	bbox as-metal ;
+: hospitalexam spawn special_objects32_base_id 0x 5c + lt .spriteid! rndflip
+	bbox as-metal ;
+: hospitalcurtainbig spawn special_objects48_base_id 0x 5 + lt .spriteid!
+	bbox as-metal ;
+
+: hospitalthinger 30 %chance if wheelchair else 70 %chance if ivpole else stretcher then then ;
+: %hospitalthing %chance if hospitalthinger then ;
+	
+: hospitalcounter
+	spawn special_objects32_base_id 0x 4b + lt .spriteid!
+	25 health! bbox immovable as-wood dropswood
+;
+
+: bodychart	special_objects32_base_id 0x 43 + tanchor 1- wallhang ;
+
+: hospitalwall special_objects32_base_id 0x 41 0 2 rnd + + tanchor 1- wallhang
+	tanchor 1- tile@ LAYER_WALLTOP rnd5050 .tile_layer.flipx! // Randomly flip the wall hanger
+;
+
+} }			
+
+locdef{
+
+location: clinic
+		max-rooms: 7
+		entry-tags: clinicstart
+		pre-script: set-theme-hospital
+		script: set-theme-hospital
+		post-script: 10diff %zombs nad ndx
+
+	: startclinichall 
+		random-door "restroom" only-with-door
+		random-door "office" only-with-door
+		random-door "clinichall" only-with-door
+	;
+	
+	: clinicrooms
+		random-door "clinicbed" only-with-door
+		random-door "clinicexam" only-with-door
+		random-door "medstorage" only-with-door
+	;
+	
+	: medstorage 1 2 rnd for 1 LOOT_MEDICAL spawnloot scatter next skelscat 30 %chance if skelscat then 
+		healspray .scatter
+		1 3 rnd for scalpel .scatter next
+		15 %chance if bonesaw .scatter then
+	; 
+	: %medlootdrift %chance if 1 LOOT_MEDICAL spawnloot drift then 20 %chance if skelscat then 40 %chance if cane .scatter then 15 %chance if scalpel .scatter then 1 %chance if bonesaw .scatter then ;
+	
+		room-choice: clinicstart
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: startclinichall
+			filter-only
+
+		room-choice: clinicbed
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 40 %medlootdrift
+			filter-only
+			
+		room-choice: clinicexam
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 30 %medlootdrift
+			filter-only
+		
+		room-choice: medstorage
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: medstorage
+			filter-only
+			
+		room-choice: clinichall
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: clinicrooms
+			filter-only
+
+		room-choice: office
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 0 3 rnd roomgen{ officechairs }
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			filter-only
+			
+}

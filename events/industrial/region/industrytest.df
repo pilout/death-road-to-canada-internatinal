@@ -1,0 +1,82 @@
+"../deathforth/rooms/industrial.txt" $load-rooms
+
+	location
+		tags: factory
+		max-rooms: 9
+//		max-rooms: 4
+		entry-tags: indust-room
+		
+		: randnes 40 %chance if e else rnd5050 if n else s then then ;
+		: randne rnd5050 if n else e then ;
+						
+		: factoryhall
+			rooms-left . "rooms left" print
+			rooms-left 2 < if then;
+			randnes dup edge-inc random-edge-door
+			indust-rnd with-door
+		;
+
+		: startfactoryhall
+			randne dup edge-inc random-edge-door
+			indust-rnd with-door
+		;
+		
+		: factoryloot
+			factorylloot
+			rooms-left 4 > if then;
+			rooms-left 2 < if then;
+			1 allow-inset-doors!
+//			s edge-inc s random-inset-door
+			random-door
+			"treasure" only-with-door
+			0 allow-inset-doors!
+		;
+
+		: tryfactoryend
+			rooms-left 1 > if then;
+			random-door "indust-end" with-door
+		;
+		
+		script: factory-theme 
+		post-script: 10diff %zombs map{ room-papers 25 %chance if swreckage then 15 %chance if room-garbage then } nad ndx
+
+		room-choice: indust-room
+			room-weight: 1
+			room-count: 6
+			room-post-script: factoryhall tryfactoryend factoryloot
+			filter-only
+
+		room-choice: treasure
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+		room-choice: indust-end
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+		room-choice: indust-hall
+			room-weight: 1
+			room-count: 6
+			room-post-script: tryfactoryend factoryhall factoryloot
+			filter-only
+
+regiondef{
+
+	region: industrytest
+		w: 40
+		h: 23
+		max-locs: 1
+		script: timeofday o'clock
+		post-script: 10diff %zombs
+
+		inside no-rest
+
+		"REGION LOCATIONS" print
+					
+		loc-choice: factory
+			loc-weight: 99
+			loc-count: 1
+
+}

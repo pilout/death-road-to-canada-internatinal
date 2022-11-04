@@ -1,0 +1,65 @@
+uses paul/region-road-layout.df
+
+cyoa{
+
+cyoa: mountie-temp
+	rescue choosechar cicon
+	clear-cyoa
+	"Mountie" cchar .name!
+	"We're All Out of Death Road" cyoa-title!
+	cchar .alive? if
+		"The Mountie's clothing is pristine, despite his zombie slaugtherings." 
+	else
+		"The Mountie is merely winded. Somehow not even his clothes are ripped from his battle with the zombies."
+	then cyoa-text!
+	($ "WELL, THIS IS ALL WE GOT FOR NOW, EH?
+	CONGRATULATIONS ON WINNING THE ALPHA!" pbold .. "
+	Please post your feedback so far to Kickstarter, either by direct message or by using the comments section for the last private update." $) +crtext
+		choice( "I did it!" )choice: quit-to-title
+;
+
+}
+
+map{ mission{ regiondef{
+
+	: .mountiefy
+		38 over .specialtype!
+		6 over .strength!
+		6 over .fitness!
+		80 over .vitality!
+		80 over .health!
+		0 over .female!
+		WEAPON_XTREME over .weapona!
+		drop
+	;
+
+	: spawn-end-mountie  
+		new-npc lt .character@ .mountiefy
+		lt .character@ to rescue
+		cyoa{ ' mountie-temp cyoa! }
+		pixelh 0.5 * lt .pos.y! pixelw 100 - lt .pos.x! ;
+
+	// The stuff below is all you need to do
+	: rg-setup
+		0 mission-bottom-leave!
+		0 mission-top-leave!
+		0 mission-left-leave!
+		0 mission-right-leave!
+		timeofday o'clock
+		50 region.zombie_basespawn!
+		
+		// The prefab road options so far
+		cityroad some-car-wrecks spawn-end-mountie
+
+		// some-car-wrecks is random car wrecks with one-in-5-chance of general-loot. Edit in region-road-layout.df if you need
+		
+	;
+
+	region: road-gauntlet
+		w: 120
+		h: 15
+		on-foot
+
+	post-script: rg-setup 5diff %zombs
+
+} } }

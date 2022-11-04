@@ -1,0 +1,86 @@
+
+load? events/siege/gasbar-location.df
+load? events/siege/gasbar-region.df
+
+"../deathforth/paul/gasbar.txt" $load-rooms // free-all-rooms
+// "additional-rooms.txt" $add-rooms
+
+location: gasrescue
+	max-rooms: 3
+	entry-tags: gasbar entry
+
+	room-choice: gasbar closet
+		room-script: nad gcloset-theme
+		room-weight: 1
+		room-count: 1
+		room-post-script: new-rescue-npc
+
+	room-choice: gasbar bathroom
+		room-script: nad gbath-theme
+		room-weight: 1
+		room-count: 1
+
+	room-choice: gasbar entry
+		room-script: gas-theme
+		room-post-script: regiondef{ gasbar-entry } 2 for bbqtank scatter next
+		room-weight: 1
+		room-count: 1
+		filter-only
+
+location: gasrescue
+	max-rooms: 3
+	entry-tags: gasbar entry
+
+	room-choice: gasbar closet
+		room-script: nad gcloset-theme
+		room-weight: 1
+		room-count: 1
+
+	room-choice: gasbar bathroom
+		room-script: nad gbath-theme
+		room-weight: 1
+		room-count: 1
+
+	room-choice: gasbar entry
+		room-script: gas-theme
+		room-post-script: regiondef{ gasbar-entry } 2 for bbqtank scatter next new-rescue-npc
+		room-weight: 1
+		room-count: 1
+		filter-only
+
+location: gasrescue
+	max-rooms: 3
+	entry-tags: gasbar entry
+
+	room-choice: gasbar closet
+		room-script: nad gcloset-theme
+		room-weight: 1
+		room-count: 1
+
+	room-choice: gasbar bathroom
+		room-script: nad gbath-theme
+		room-weight: 1
+		room-count: 1
+		room-post-script: new-rescue-npc
+
+	room-choice: gasbar entry
+		room-script: gas-theme
+		room-post-script: regiondef{ gasbar-entry } 2 for bbqtank scatter next
+		room-weight: 1
+		room-count: 1
+		filter-only
+
+: site-setup gas-station mission{ siege-start-dig 50 bottom-spawn } 5sdiff %zombs ;
+
+	 region: gasrescue
+		w: 15
+		h: 12
+		on-foot
+		script: timeofday o'clock
+
+		loc-choice: gasrescue
+			loc-weight: 1
+			loc-count: 1
+
+		post-script: site-setup
+} }

@@ -1,0 +1,124 @@
+(*
+[12:51:14 AM] Kepa Auwae: Check screply.df and sharp.df - also
+currently blogic.df is set up to run one of the blurbs I did as
+examples over and over. Do that and put gnomey or mason or santa in a
+group.
+[12:51:28 AM] Kepa Auwae: It works, but I have no idea how it works
+really.
+[12:51:34 AM] Kepa Auwae: Which isn't a great sign.
+
+[12:52:07 AM] Kepa Auwae: Like with useful-info in sharp-df, lines 6
+and 8 and 10 ... I really don't know for sure how the logic works here.
+
+[12:52:33 AM] Kepa Auwae: Same with screply.df line 66
+
+[12:53:24 AM] Kepa Auwae: With sharp.df lines 8 and 10, I'm not sure
+why sc-reply is returning 1.
+
+[12:54:21 AM] Kepa Auwae: With sc-check in screply.df, not sure why
+sc-pick returns 0 if something picked successfully. Or what it returns
+if unsuccessful really.
+
+[12:54:34 AM] Kepa Auwae: But when trying to logic it out, I failed to
+have anything work right.
+*)
+
+// EZ changes to the tone of what a special char says. I liked how this turned out.
+0 value sc-mood
+
+: sc-silent	"..." ;
+: sc-horse "NEIGH!" ;
+: sc-octodad "*bourdonne*" ;
+: sc-turkey "GOBBLE GOBBLE" ;
+: sc-clown "HA HA HA!" ;
+: sc-grf "*bruits gutturaux etouffes*" ;
+: sc-dog "WOOF!" ;
+: sc-panda "EEEEE!" ;
+: sc-lnk "KYAAAAAAAAAAAA!" ;
+: sc-billy " ><> " ; // maybe replace with bfish
+
+: sc-gnomey
+	sc-mood 0 > if "Ooo! Ooo!" then;
+	sc-mood 0 < if "Vous etes un DINKUS!" then;
+	"Mes pieds me font mal!"
+;
+
+: sc-alvis
+	sc-mood 0 > if "mercibeaucoup" then;
+	sc-mood 0 < if "heymec c'estpascool" then;
+	"uh huh huh"
+;
+
+: sc-santa
+	sc-mood 0 > if "HO! HO! HO!" then;
+	sc-mood 0 < if "ÇA SONNE COMME UN NOEL TRISTE POUR MOIII..." then;
+	"HO, HO, HO!" ;
+
+: sc-evilsanta "HO HO HO" fbold ;
+
+: sc-tlb
+	sc-mood 0 > if  "YEAH! YEAH!" fbold then;
+	sc-mood 0 < if "VOUS AVEZ BESOIN DE VOUS ENTRAINER ET DE VOUS MUSCLER!" then;
+	"CONSTRUISEZ EN MASSE! CONSTRUISEZ EN VRAC !"
+;
+
+(*
+	The goal here was to avoid my original plan where I had a big word
+	called sc-verify, that checked if the 2nd character's specialtype
+	was a valid one, and then had an almost identical word of logic
+	checks that determined what the character said. So I tried to have
+	just one word, sc-pick, that would serve as both.
+*)
+: sc-pick
+
+	2nd-st 1 = 2nd-st 15 = 2nd-st 58 = or or if sc-silent then;
+	2nd-st 49 = if sc-silent then;
+	2nd-st 3 = if sc-santa then;
+	2nd-st 4 = if sc-evilsanta then;
+	2nd-st 5 = if sc-octodad then;
+	// maybe boxer later? 2nd-st 9 = if sc-boxer then;
+	// maybe cat lady? 2nd-st 11 = if sc-catlady then;
+	2nd-st 22 = if sc-dog then;
+	2nd-st 35 = if sc-panda then;
+	2nd-st 25 = if sc-tlb then;
+	2nd-st 27 = if sc-turkey then;
+	2nd-st 29 = if sc-clown then;
+	2nd-st 31 = if sc-grf then;
+	2nd-st 33 = if sc-gnomey then;
+	2nd-st 34 = if sc-horse then;
+	2nd-st 36 = if sc-alvis then;
+	2nd-st 52 = if sc-lnk then;
+	// maybe knight later? 2nd-st 53 = if sc-knight then;
+	2nd-st 59 = if sc-billy then;
+	// maybe anime girl later? 2nd-st 62 = if sc-anime then;
+	// There used to be a false here, but having it in made characters that failed the check just say "0" (false)
+;
+
+: sc-reply
+	sc-pick blurbsay exit
+;
+
+// Shortcut word to avoid typing this logic for each mood.
+: sc-check
+	sc-pick 0= if sc-reply then;
+	false // I tested this without the false and it still works, so this probably doesn't even do anything?	
+;
+(* TESTING THING
+	: sc-check
+	2nd-st 33 = 2nd-st 1 = 2nd-st 15 = 2nd-st 58 = or or or if screply then;
+	false ;
+
+sc-blah 0= if then; // Switch to this later?
+use-the-string
+	return 0  return 1
+*)
+
+// Quick words for blurb writer to indicate tone of voice of the special character
+: screply 0 to sc-mood sc-check ;
+: screply+ 1 to sc-mood sc-check ;
+: screply- -1 to sc-mood sc-check ;
+
+// Below didn't work well, tried it as an experiment before abandoning concept of all-in-one words to handle both the response and the morale change.
+: screply-1stmorale-- screply- STAT_MORALE 1st-char .stat-- ;
+
+

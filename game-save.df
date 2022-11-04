@@ -1,0 +1,106 @@
+(*
+	NOTES:
+		- find a good point to save the game (only on the ROAD) and call save-game. That should be all there is to it.
+	TODO:
+		- Implement script-side data save... all persistent stacks, variables, and other values that need state
+		maintained for the game session to work properly
+*)
+
+USES game-save-char.df
+USES game-save-team.df
+USES game-save-state.df // Save script-side game state variables and such (implement a "dumpstate" here)
+
+filesave{
+
+: save-slot-info
+
+	// Make the evaluation string for the save slot button's display
+	($ 0 #teamchar .name@ .. " with " .. team-count 1- .. " others" .. ", DAY " .. road{ road-trip-days } $)
+
+	// Set icon to a skull if team is dead etc.
+	// team-count 0= if " skullicon " $cat then
+
+	slot-info-name $swrite
+;
+
+: delete-slot-info "" slot-info-name $swrite ;
+
+// : save-slot-data savestr slot-data-name $swrite ;
+
+: save-slot-data slot-data-name $strbuf-write ;
+
+: delete-slot-data "" slot-data-name $swrite ;
+
+: delete-game delete-slot-info delete-slot-data ;
+
+: save-game-state
+	save-slot-info
+
+	save-start
+		dumpchars
+		dumpgame
+		dumpstate
+	save-end
+
+	save-slot-data // SAVE the actual data to disk
+;
+
+: save-global-stats
+	gstats{ save }
+	cheevo{ save }
+;
+
+: load-global-stats
+	gstats{ load }
+	cheevo{ load }
+;
+
+: save-everything
+	save-game-state
+	save-global-stats
+;
+
+}
+
+last to main-event-do-save
+last to save-the-game
+
+// ' save-game to save-the-game
+
+: clear-streak-gstat
+	gstats{ 
+		0 to wins-streak
+		0 to wins-normal-streak
+		0 to wins-long-streak
+		0 to wins-special-streak
+		0 to wins-family-streak
+		0 to wins-specialEX-streak
+		0 to wins-familyEX-streak
+		0 to wins-kepa-streak
+		0 to wins-short-streak
+		0 to wins-marathon-streak
+		0 to wins-deadlier-streak
+		0 to wins-endless-streak
+		0 to wins-opp-streak
+		0 to wins-quickdeath-streak
+		0 to wins-4jerks-streak
+		0 to wins-4jerksEX-streak
+		' total-losses ++
+		
+		// Best Endless calc
+		
+		gamedef{ ' endlessmode gamemode? } if
+		
+			road{ road-trip-days } best-endless > if 	
+				road{ road-trip-days } to best-endless
+			then
+			
+		then
+		
+	}
+	filesave{ save-global-stats }
+;
+
+' clear-streak-gstat to clear-streak
+
+filesave{ ' delete-game } to delete-the-game

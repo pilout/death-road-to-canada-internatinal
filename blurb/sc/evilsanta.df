@@ -1,0 +1,64 @@
+
+: evilsanta-hohoho
+	blurbslot 0= if // Conversation starter, then everyone in party responds
+		"HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO HO" fbold blurbsay
+	else
+		rnd5050 if
+			blurbslot 2 < if ($ "GET OUT OF MY HEAD!" $) blurbsay
+			STAT_MORALE me .stat--
+			then
+		then
+	then
+;
+
+: evilsanta-christmas
+	blurbslot 0= if
+		($ ICON_SKULL textclr$ .. me .name@ .. " screams something unintelligible about Christmas." .. 0 textclr$ $) blurbevent
+	else
+		blurbslot 3 < if
+			STAT_MORALE me .stat--
+		then
+	then
+;
+
+	: ESANTA-oneline1 "I WILL JUDGE WHO HAS BEEN NAUGHTY AND WHO HAS BEEN NICE" ;
+	: ESANTA-oneline2 "HO HO HO" ;
+	: ESANTA-oneline3 "HO HO HO, HO HO HO" ;
+	: ESANTA-oneline4 "I WILL DEEM WHO HAS BEEN NICE AND WHO HAS BEEN NAUGHTY" ;
+	: ESANTA-oneline5 "YOU'LL PUT YER EYE OUT KID" ;
+	: ESANTA-oneline6 "THE NICE HAVE BEEN PURGED FROM THIS EARTH AND ONLY THE NAUGHTY REMAIN" ;
+	: ESANTA-oneline7 "THE NAUGHTY WALK THE EARTH AND ONLY I CAN STOP THEM" ;
+	: ESANTA-oneline8 "MAY THE NAUGHTY BE SCOURGED FROM THIS BLIGHTED LAND" ;
+	: ESANTA-oneline9 "I AM THE JUDGE OF MANKIND AND ONE DAY, ONLY I SHALL REMAIN ON THIS EARTH" ;
+	: ESANTA-oneline10 "I LIKE MILK AND COOKIES" ;
+
+	deck-new
+		card: ESANTA-oneline1
+		card: ESANTA-oneline2
+		card: ESANTA-oneline3
+		card: ESANTA-oneline4
+		card: ESANTA-oneline5
+		card: ESANTA-oneline6
+		card: ESANTA-oneline7
+		card: ESANTA-oneline8
+		card: ESANTA-oneline9
+		card: ESANTA-oneline10
+	constant EVILSANTA-ONELINERS
+	EVILSANTA-ONELINERS var evilsanta-oneliners
+	EVILSANTA-ONELINERS shuffles to evilsanta-oneliners
+
+: evilsanta-oneliner
+	evilsanta-oneliners depths 0= if EVILSANTA-ONELINERS shuffles to evilsanta-oneliners then
+	blurbslot 0= if
+		drawcard fbold blurbsay
+	then
+;
+
+	deck-new
+		2 cards: evilsanta-hohoho
+		card: evilsanta-christmas
+	10 cards: evilsanta-oneliner
+
+	constant BLURB-EVILSANTA-DECK
+	BLURB-EVILSANTA-DECK var blurb-evilsanta-deck
+	BLURB-EVILSANTA-DECK shuffles to blurb-evilsanta-deck

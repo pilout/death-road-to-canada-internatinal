@@ -1,0 +1,91 @@
+uses paul/region-layout.df
+uses paul/region-road-layout.df
+
+map{ regiondef{
+
+trade-camp-reset
+
+' plotdirt >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char v = if tradercarhere then;
+	xyp.i char P = if pictable1 lt-here 8 rdrift then;
+	xyp.i char x = if quietgravehere then;
+	xyp.i char y = if gravehere then
+	xyp.i char c = if campfirehere then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char C = if tenthere then;
+	xyp.i char * = if ttenthere then;
+	xyp.i char $ = if xyp.xy grassedge then;
+	xyp.i char T = if traderhere then;
+	xyp.i char S = if trader-food-for-gas then;
+	xyp.i char R = if roadlines then;
+	xyp.i char B = if trader-weapon-buyer then;
+	xyp.i char g = if ' plotpave to ft xyp.xy ft xyp.xy grassedge xyp.xy then;
+	xyp.i char r = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char w = if docarwreck then;
+	xyp.i char s = if dotirestack then;
+	xyp.i char t = if wooded then;
+	xyp.i char { = if dirtstart then;
+	xyp.i char } = if dirtend then;
+	xyp.i char [ = if dirtstart then;
+	xyp.i char ] = if gravelendw then;
+	xyp.i char ( = if grassstart then;
+	xyp.i char ) = if grassend then;
+	xyp.i char < = if grassstart2 then;
+	xyp.i char > = if grassend2 then;
+	xyp.i char Z = if tnomey-spawn then;
+;
+
+"
+.........................
+..........t...t...t......
+......t.............t....
+...t.t...................
+.t..........B.........t..
+......T...........T......
+.t.......................
+.........................
+[........................
+.........................
+.........................
+........................]
+.........................
+..{..........Z...........
+....xx..x..x..x..x..x....
+....x.y..xy..x.yx..yx....
+.....x..x..x..x..x..x....
+......................}..
+........................."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	7 14 rnd o'clock
+	
+	10 %chance if 0 1 frnd weather! 0.5 1.5 frnd wind_force! else -1 1 frnd wind_force! then
+
+	' plotgrass to ft
+	plotmap
+	mission{ no-edge-spawns }
+
+	// Put char and chars in middle of map
+	50 %mv-up
+	50 %chars-up
+;
+
+region: campsite7
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+
+	post-script: site-setup
+
+} }

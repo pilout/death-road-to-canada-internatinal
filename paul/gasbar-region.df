@@ -1,0 +1,114 @@
+
+"../deathforth/paul/gasbar.txt" $load-rooms
+
+: rarefood onein if lootable LOOT_FOOD loot! 1 amount! then; noloot opened ;
+
+map{ roomgen{
+
+	: mirror inside_tiles_shelves_id 0x 19 + tanchor 1- wallhang ;
+	: gasbath sink -1 movey mirror toilet toiletloot -1 movey 1 movex ;
+	: gasfridge storefridge 3 rarefood -1 movey ;
+
+} }
+
+map{ regiondef{
+
+	: gasvend vending 1 rarefood ;
+
+	: gbcanopy tanchor map{ prefab{ add-gasbar } } ;
+	: doorside map{ last-build-doorxy drop tanchorx - last-build-size drop 2 / - sign } ;
+
+	10 value stockchance
+	LOOT_FOOD value stockloot
+	1 value stockamt
+
+	: rollshelfloot tile@ args( t )
+		<- t .id@ TILE_SHELF = not if then;
+		stockchance %chance not if then;
+		stockamt stockloot <- t tile.loot!
+	;
+
+	: pumpgas lootable amount! LOOT_GAS loot! ;
+	: shelfstock map-extents ' rollshelfloot boxcall ;
+
+	: gas-station locals( x y ) prefab{
+			street-junk street-junk
+			tanchor tile>pos -> y -> x
+			tanchorx 5 - tanchorx!
+			auto-picklocid addloc
+			// "gasstation" $picklocid addloc
+
+			mission{ 0 mission-right-leave! 0 mission-left-leave! 0 mission-top-leave! }
+
+			"GOT GAS?" sign-text!
+			0.75 0.70 0.75 sign-bg!
+			0.235 0.447 0.317 sign-border!
+			0.235 0.447 0.317 sign-fg!
+
+			3 11 1 shop2nogable
+
+			tanchory 3 - tanchory!
+
+			doorside 0 < if tanchorx last-build-size drop 4 - + tanchorx! then
+
+			gbcanopy
+
+			pumps tanchorx 16 * 16 2 * + tanchory 16 * 16 5 * + lt .pos!
+			0 100 rnd pumpgas
+
+			// vending machines
+			1 1.5 frnd
+			0 2 rnd for
+				last-build-doorxy tile>pos 8 + gasvend lt .pos!
+				dup doorside neg * movex 1.25 +
+			next drop
+
+			// bbq propane tanks around the side
+			<- x doorside 90 * + <- y 25 -
+			0 3 rnd for 2dup bbqtank lt .pos! drift next 2drop
+	} ;
+
+	: site-setup gas-station 10 o'clock ;
+
+	: gasbar-entry shelfstock room-junk room-papers ;
+
+	: wall-cinderblock 0x 18 loc-wtheme! ;
+	: floor-concrete 0x 13 loc-ftheme! ;
+	: gas-theme 0x 17 loc-wtheme! 4 loc-ftheme! ;
+	: gbath-theme gas-theme floor-bath ;
+	: gcloset-theme gas-theme floor-concrete wall-cinderblock ;
+
+	location: gasstation
+		max-rooms: 3
+		entry-tags: gasbar entry
+
+		room-choice: gasbar closet
+			room-script: nad gcloset-theme
+			room-weight: 1
+			room-count: 1
+
+		room-choice: gasbar bathroom
+			room-script: nad gbath-theme
+			room-weight: 1
+			room-count: 1
+
+		room-choice: testentry
+
+		room-choice: gasbar entry
+			room-script: gas-theme
+			room-post-script: gasbar-entry
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+
+	 region: gas station example
+		w: 15
+		h: 12
+
+		loc-choice: gasstation
+			loc-weight: 1
+			loc-count: 1
+
+		post-script: site-setup
+} }

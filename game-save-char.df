@@ -1,0 +1,226 @@
+voc{ filesave
+
+: #keepchar? #character .name@ $len 0 > ;
+
+: ifthen swap if execute then ;
+: ifelsethen args( check a b ) <- check if <- a else <- b then execute ;
+
+: #charprop: " #c " token $cat postpone literal postpone $cat postpone save-prop ; immediate
+
+: #dumpstats
+	STAT_COUNT for
+		// <statid> <char#> .stat
+		i 1- " " $cat over $cat
+		dup #charprop: .stat
+		dup #charprop: .knownstat
+		#charprop: .bonus
+	next
+	drop
+;
+
+: #dumploot
+	LOOT_COUNT for
+		// <lootid> <char#> .loot
+		i 1- " " $cat over $cat
+		#charprop: .lootamt
+	next
+	drop
+;
+
+
+: char-validation #character args( chara )
+	<- chara .carrying.slot_count@ 0= if 3 <- chara .carrying.slot_count! then
+;
+
+
+: #dumpchar
+	dup #charprop: .name
+
+//	Example of saveprop
+//	dup "#c .bounceval" saveprop
+
+	dup #charprop: .seed
+	dup #charprop: .health
+	dup #charprop: .team_status
+	dup #charprop: .location
+	dup #charprop: .party
+	dup #charprop: .female
+	dup #charprop: .pet
+
+	dup #charprop: .voice.ex
+	dup #charprop: .voice.q
+	dup #charprop: .voice.k
+	dup #charprop: .voice.pitch
+	dup #charprop: .voice.duty
+	dup #charprop: .voice.flo
+	dup #charprop: .voice.fhi
+	dup #charprop: .voice.vol
+
+	dup #charprop: .perk
+	dup #charprop: .trait
+
+	// Stats
+	dup #dumpstats
+	dup #dumploot
+
+	dup #charprop: .weapona
+	dup #charprop: .weaponb
+	dup #charprop: .weaponc
+	dup #charprop: .stackeda
+	dup #charprop: .stackedb
+	dup #charprop: .stackedc
+	dup #charprop: .weapon_nodropa
+	dup #charprop: .weapon_nodropb
+	dup #charprop: .weapon_nodropc
+	dup #charprop: .weapon_default
+
+	dup #charprop: .bounceval
+	dup #charprop: .floatval
+	dup #charprop: .floatheight
+	dup #charprop: .breathescale
+
+	dup #charprop: .carrying.slot_count
+
+	dup #charprop: .bodytype
+	dup #charprop: .headtype
+	dup #charprop: .torsotype
+	dup #charprop: .legstype
+	dup #charprop: .facetype
+	dup #charprop: .hairtype
+	dup #charprop: .hattype
+	dup #charprop: .glassestype
+	dup #charprop: .specialtype
+	dup #charprop: .specialhead
+	dup #charprop: .specialbody
+	dup #charprop: .speed_bonus
+//	dup #charprop: .special_flags
+	dup #charprop: .mod_flags
+	dup #charprop: .mod_flags2
+	dup #charprop: .use_info
+	dup #charprop: .use_filter
+	dup #charprop: .job
+	dup #charprop: .skincolour
+	dup #charprop: .haircolour
+
+	dup #charprop: .tint.hair.r
+	dup #charprop: .tint.hair.g
+	dup #charprop: .tint.hair.b
+	dup #charprop: .tint.hair.a
+	dup #charprop: .tint.skin.r
+	dup #charprop: .tint.skin.g
+	dup #charprop: .tint.skin.b
+	dup #charprop: .tint.skin.a
+	dup #charprop: .tint.body.r
+	dup #charprop: .tint.body.g
+	dup #charprop: .tint.body.b
+	dup #charprop: .tint.body.a
+	dup #charprop: .scale.head.x
+	dup #charprop: .scale.head.y
+	dup #charprop: .scale.body.x
+	dup #charprop: .scale.body.y
+
+	dup #charprop: .ai.wander_chance
+	dup #charprop: .ai.attack_chance
+	dup #charprop: .ai.attack_level
+	dup #charprop: .ai.attack_mode
+	dup #charprop: .ai.prefer_weapon_slot
+	dup #charprop: .ai.follow_leash
+	dup #charprop: .ai.ranged_leash
+	dup #charprop: .ai.safety_leash
+	dup #charprop: .ai.flock_dist
+	dup #charprop: .ai.flee_dist
+	dup #charprop: .ai.attack_dist
+	dup #charprop: .ai.shoot_dist
+
+	dup #charprop: .ai.shoot_obstacle_mass_min
+
+	dup #charprop: .ai.loot_chance
+	dup #charprop: .ai.loot_dist
+	dup #charprop: .ai.pickup_gun_max
+	dup #charprop: .ai.pickup_melee_max
+
+	dup #charprop: .ai.threat_radius
+	dup #charprop: .ai.threat_count_base
+	dup #charprop: .ai.threat_dist_base
+	dup #charprop: .ai.threat_threshold
+	dup #charprop: .ai.threat_respond_chance
+	dup #charprop: .ai.threat_relax_chance
+
+	dup #charprop: .main_events
+
+	dup #charprop: .user.ival
+	dup #charprop: .user.fval
+	dup #charprop: .user.special_counter
+
+	// Added for OPP mode oversized characters
+	dup #charprop: .headoff.x
+	dup #charprop: .headoff.y
+	dup #charprop: .specialmode
+
+	( TODO: add char validation call )
+	dup "char-validation" save-cmd
+	drop
+	scr
+;
+
+: dumpchars
+	// While a valid character ID
+
+	CHARACTERS_MAX for
+		CHARACTERS_MAX i - #keepchar? if
+			CHARACTERS_MAX i - dup #dumpchar #character . cr
+		then
+	next
+;
+
+: dumpchars-test
+	// While a valid character ID
+
+	CHARACTERS_MAX for
+		CHARACTERS_MAX i - #keepchar? if
+			CHARACTERS_MAX i - #character . cr
+		then
+	next
+//		#dumpchar 
+;
+
+
+"custchars.save" constant CUSTCHARS_SAVE_BASE
+
+: CUSTCHARS_FILENAME savename-prefix CUSTCHARS_SAVE_BASE .. ;
+
+: custchars-clear !!clear_custchars "" CUSTCHARS_FILENAME $swrite ;
+
+: save-custchars
+	timestart
+
+	!!sel_custchars
+		save-start
+			CUSTOM_CHARS_EDIT_MAX for
+				i #keepchar? if
+					i #dumpchar
+				then
+			next
+		save-end
+
+		filesave{ CUSTCHARS_FILENAME $strbuf-write }
+
+	!!sel_gamechars
+
+	"SAVE" $timeend
+;
+
+last to main-event-do-save-custchars
+
+: load-custchars !!sel_custchars CUSTCHARS_FILENAME $load-savefile !!sel_gamechars ;
+
+last to main-event-do-load-custchars
+
+
+: test-savechar
+	save-start
+		dumpchars // strbuf@ print
+	save-end
+;
+
+}

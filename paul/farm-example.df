@@ -1,0 +1,366 @@
+uses paul/region-layout.df
+
+" 
+:map 2 
+:tags fishing 
+:scriptB fridge -1 movey 
+:scriptC bed 
+:scriptD sink -1 movey 
+:scriptE smalltable 
+:size 9 9 
+:off 10 1 
+:tiles 
+222222222
+233333332
+21C11BD12
+211111112
+211A11E12
+211111112
+211111112
+222222222
+333333333
+"
+value FISHROOM
+
+map{ regiondef{
+
+: .temp-invince >r 60 r> .invincible_counter! ;
+
+: .pop-out
+	-0.5 0.5 frnd over .vel.x!
+	4 over .pos.y@ + over .pos.y!
+	-1 -2 frnd over .vel.z!
+	.temp-invince 
+;
+
+: .pop-outta ( parent me ) 2dup to-thing-pos nip .pop-out ;
+
+
+// Custom container action
+: open-weird-act args( activator me )
+
+	// Execute default container behaviour
+	<- activator if <- activator <- me container-loot-act then
+
+	// Examples: Uncomment to test each one
+
+	// WHOA EXPLODING TOILET
+//	<- me .pos xyboom
+
+	// Skellingons
+//	3 for <- me skel lt .pop-outta next
+
+	// GUTS
+//	10 <- me .zguts
+
+	// Bones
+//	10 <- me .zbones
+
+	// Sparks
+//	6 for <- me .spitspark next
+
+	// aaaaaa flies
+//	10 <- activator .flies!
+;
+
+
+: break-weird-events args( me eventid )
+	<- me <- eventid mission{ break-container }
+
+	<- eventid THING_EVENT_BREAK <> if then;
+
+	0 ( no activator ) <- me open-weird-act
+;
+
+
+: open-thing-popout-act args( activator me )
+
+	<- activator if <- activator <- me container-loot-act then // Execute default container behaviour
+
+	<- me .user_word@ if <- me .user_word@ then
+	<- me .carryid@ not if then;
+
+	0 <- me .carryid@ #thing .inside_id!
+	<- me <- me .carryid@ #thing .pop-outta
+	0 <- me .carryid! 
+;
+
+
+: break-spawn-events args( me eventid )
+	<- me <- eventid mission{ break-container }
+
+	<- eventid THING_EVENT_BREAK <> if then;
+
+	0 ( no activator ) <- me open-thing-popout-act
+;
+
+
+: .put-in-container args( container other )
+	' open-thing-popout-act <- container .action!
+	<- other thing# <- container .carryid!
+	<- container thing# <- other .inside_id!
+//	1 <- container .action_icon!
+;
+
+
+root{
+	: cowskull spawnflip building_misc_tiles_base_id lt .spriteid! 5 health! walkover ;
+	: haybale spawnflip building_misc_tiles_base_id 1 + lt .spriteid! 12 health! bbox low-profile ;
+	: tractor-tire spawnflip special_objects32_base_id 0x 94 + lt .spriteid! bcircle 12 lt .rad.x!  swoleweight 100 health! med-profile ;
+	: tractor spawn special_objects64_base_id 0x 13 + lt .spriteid! lt-as-wreck lt .rad.y@ 0.75 * lt .rad.y! ;
+
+	: bstester
+		spawn container noloot
+		lttm lt skel lt .put-in-container
+	;
+
+	: bstester2
+		spawn container lttm ' open-weird-act lt .action! noloot
+		mission{ ' break-weird-events } lt .events!
+	;
+}
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+' plotgrass >defer ft
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+: grassstart xyp.y to sy ;
+: grassend map{ -1 sy w xyp.y grasslot } ;
+
+: river tile@
+	dup LAYER_FLOOR particles32_base_id 0x 10 + .lspriteid!
+	dup LAYER_FLOOR 0 0 .tile_layer.off!
+	dup LAYER_FLOOR 0 .tile_layer.flipx!
+
+	dup LAYER_FLOORTOP particles32_base_id 0x 11 + .lspriteid!
+	dup LAYER_FLOORTOP 0 0 .tile_layer.off!
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+
+	TILE_BLOCK_FLOOR over .id!
+	drop
+;
+
+: riveredge
+	2dup river
+	tile@ LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+;
+
+: bank 2dup tile@ args( x y t )
+	<- t LAYER_WALLSIDE street_tiles_base_id 0x 99 + 0 3 rnd + .lspriteid!
+	<- t LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+	<- x <- y riveredge
+;
+
+
+: bushy >r tile@
+	// dup LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 89 + 0 3 rnd + .lspriteid!
+	LAYER_WALLSIDE 0 r> .tile_layer.off!
+;
+
+: logbridge >r tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x 79 + r> + .lspriteid!
+;
+
+: cliff 2dup floorblocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x a9 + 0 3 rnd + .lspriteid!
+;
+
+: cliffedge 2dup floorblocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x ba + 0 3 rnd + .lspriteid!
+;
+
+: curb tile@
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 2e + .lspriteid!
+	LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: fbldg tanchor! map{ 
+	"farmhouse" $picklocid addloc prefab{ farmhouse } 
+} ;
+
+: bbldg tanchor! map{ 
+	"barn" $picklocid addloc prefab{ barn } 
+} ;
+
+: tbldg tanchor! map{
+
+//	"shop" $picklocid addloc 6 5 prefab{ yallmart }
+//	"shop" $picklocid addloc 5 13 0 prefab{ shop }
+	"shop" $picklocid addloc "BUTTVILLE POLICE" sign-text! prefab{ 5 9 0 shop }
+} ;
+
+: wall-boards 0x d loc-wtheme! ;
+
+: set-theme-barn
+	floor-concrete
+	wall-boards
+	2 loc-dtheme!
+	0 5 rnd to theme-num ( used for inside objects )
+;
+
+location: farmhouse
+		max-rooms: 1
+		entry-tags: farm-entry
+		pre-script: set-theme-cabin
+		script: set-theme-cabin
+		post-script: 
+
+		room-choice: farm-entry
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+//			room-post-script: 10diff %zombs
+			filter-only
+			
+location: barn
+		max-rooms: 1
+		entry-tags: barn-entry
+		pre-script: set-theme-barn
+//		script: set-theme-cabin
+		post-script: 
+		
+		room-choice: barn-entry
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: 20diff %zombs 3 for skelscat next
+			filter-only
+
+: grassedge
+	tile@ dup LAYER_FLOORTOP street_tiles_base_id 0x 71 + .lspriteid!
+	LAYER_FLOORTOP 0 0 -3 rnd .tile_layer.off!
+;
+
+
+: fenceit	args( x y s )
+
+	building_misc_tiles_base_id 14 7 * + 7 + <- s + -> s
+
+	2 for
+		<- s i 1- 14 * + <- x <- y solidwall
+		<- x <- y tile@ LAYER_WALLTOP 0 0 .tile_layer.off!
+		<- x <- y tile@ LAYER_WALLTOP rnd5050 .tile_layer.flipx!
+		<- y 1- -> y
+	next
+;
+
+
+' plotdirt value groundtype
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx 1- gby xyp.xy swap 1+ swap grasslot then;
+	xyp.i char ( = if xyp.xy to gby2 to gbx2 then;
+	xyp.i char ) = if gbx2 1- gby2 xyp.xy swap 1+ swap grasslot then;
+	xyp.i char { = if xyp.xy to bfy to bfx  then;
+	xyp.i char } = if bfx 1- bfy xyp.xy 1+ swap 1+ swap gravellot then;
+	xyp.i char s = if xyp.x to snx xyp.y to sny then;
+	xyp.i char S = if snx sny xyp.x xyp.y snowlot then;
+	xyp.i char g = if groundtype to ft xyp.xy ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char d = if xyp.x plotdirt then;
+	xyp.i char ^ = if xyp.xy river then;
+	xyp.i char v = if xyp.xy riveredge then;
+	xyp.i char \ = if xyp.xy cliff then;
+	xyp.i char / = if xyp.xy cliffedge xyp.xy -4 -5 rnd bushy then;
+	xyp.i char | = if xyp.xy bank then;
+	xyp.i char o = if xyp.xy -8 -7 rnd bushy then;
+	xyp.i char O = if xyp.xy -8 -7 rnd bushy groundtype to ft xyp.xy ft then;
+	xyp.i char b = if xyp.xy 0 bushy then;
+	xyp.i char F = if xyp.xy fbldg then;
+	xyp.i char B = if xyp.xy bbldg then;
+	xyp.i char @ = if xyp.xy tbldg then;
+	xyp.i char 1 = if xyp.xy xyp.x 1 & if 2 else rnd5050 then fenceit then;
+	xyp.i char 2 = if xyp.xy 3 fenceit then;
+	xyp.i char 3 = if xyp.xy 4 fenceit then;
+;
+
+: domap
+"////////////////////////////////
+||||||||||||||||||||||||||||||||
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Oooooooooooooooooooooooooooooooo
+................................
+112.31111111112.311111111112.311
+(.................<.............
+................................
+................................
+................................
+................................"
+
+rnd5050 if
+"
+.B................F............."
+else
+"
+......F.................B......."
+then ..
+"
+............)..................>
+................................
+(..................<............
+................................
+111111111112.......3111111111111
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+111111111112.......3111111111111
+................................
+...........)...................>
+................................
+................................
+................................
+................................" ..
+;
+
+
+domap constant maplayout
+
+: makemap
+	domap to maplayout
+	0 0 maplayout xyplot: pt
+;
+
+
+: site-setup
+//	0 0 layoutw layouth gravel-lot
+//	pavement
+	makemap
+//	5diff %zombs
+;
+
+region: farm
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	loc-choice: farmhouse
+		loc-weight: 1
+		loc-count: 1
+
+	loc-choice: barn
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

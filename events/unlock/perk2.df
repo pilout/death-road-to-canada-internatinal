@@ -1,0 +1,186 @@
+gstats{
+
+: perk2-upgradetally
+	0
+	perk-athlete 1 max +
+	perk-ultrafit 1 max + 
+	perk-megabuff 1 max + 
+	perk-bruiser 1 max +
+	perk-martialartist 1 max +
+	perk-exwrestler 1 max +
+	perk-hiddenpotential 1 max +
+	perk-tstc 1 max +
+;
+
+: perk2-upgradecalc
+	// Total number of perks * 3 = possible upgrades
+	// Subtract by values of all perks added together with 1 max, floor of 1
+	8 3 * perk2-upgradetally -
+;
+
+: perk2-unlocktally
+	0
+	perk-athlete 0 > if 1 else 0 then +
+	perk-ultrafit 0 > if 1 else 0 then +
+	perk-megabuff 0 > if 1 else 0 then +
+	perk-bruiser 0 > if 1 else 0 then +
+	perk-martialartist 0 > if 1 else 0 then +
+	perk-exwrestler 0 > if 1 else 0 then +
+	perk-hiddenpotential 0 > if 1 else 0 then +
+	perk-tstc 0 > if 1 else 0 then +
+;
+
+: perk2-unlockcalc
+	// Total number of perks, subtracted by total number of perks that are above 0
+	8 perk2-unlocktally -
+;
+
+: perk2-remaining
+	perk2-upgradecalc 0 > if ($ "  UPGRADES LEFT: " pbold .. perk2-upgradecalc $) +text then
+	perk2-unlockcalc 0 > if ($ " UNLOCKS: " pbold .. perk2-unlockcalc $) +text then
+;
+
+: perk2-stockleft
+	perk2-unlockcalc perk2-upgradecalc +
+;
+
+}
+
+(*
+cyoa: perk2--buy
+	"WOO" cyoa-title!
+	"" "perk-" gstats{ perk- } perk-buy! ;
+cyoa-blank: perk2-
+	"" _COST gstats{ perk- } ' perk2--buy ' perk2back perk-confirm! ;
+*)
+
+cyoa: perk2-athlete-buy
+	"WARMED UP" cyoa-title!
+	"Athlete" "perk-athlete" gstats{ perk-athlete } perk-buy! ;
+cyoa-blank: perk2-athlete
+	"Athlete" ATHLETE_COST gstats{ perk-athlete } ' perk2-athlete-buy ' perk2back perk-confirm! ;
+	
+cyoa: perk2-ultrafit-buy
+	"TOO FIT TO QUIT" cyoa-title!
+	"Ultrafit" "perk-ultrafit" gstats{ perk-ultrafit } perk-buy! ;
+cyoa-blank: perk2-ultrafit
+	"Ultrafit" ULTRAFIT_COST gstats{ perk-ultrafit } ' perk2-ultrafit-buy ' perk2back perk-confirm! ;
+	
+cyoa: perk2-megabuff-buy
+	"FLEX" cyoa-title!
+	"Megabuff" "perk-megabuff" gstats{ perk-megabuff } perk-buy! ;
+cyoa-blank: perk2-megabuff
+	"Megabuff" MEGABUFF_COST gstats{ perk-megabuff } ' perk2-megabuff-buy ' perk2back perk-confirm! ;
+	
+cyoa: perk2-bruiser-buy
+	"HIT LIKE A TRUCK" cyoa-title!
+	"Big Bruiser" "perk-bruiser" gstats{ perk-bruiser } perk-buy! ;
+cyoa-blank: perk2-bruiser
+	"Big Bruiser" BRUISER_COST gstats{ perk-bruiser } ' perk2-bruiser-buy ' perk2back perk-confirm! ;
+
+cyoa: perk2-martialartist-buy
+	"WEAPONS NOT NEEDED" cyoa-title!
+	"Martial Artist" "perk-martialartist" gstats{ perk-martialartist } perk-buy! ;
+cyoa-blank: perk2-martialartist
+	"Martial Artist" MARTIALARTIST_COST gstats{ perk-martialartist } ' perk2-martialartist-buy ' perk2back perk-confirm! ;
+	
+cyoa: perk2-hiddenpotential-buy
+	"UNLEASHED POTENTIAL" cyoa-title!
+	"Hidden Potential" "perk-hiddenpotential" gstats{ perk-hiddenpotential } perk-buy! ;
+cyoa-blank: perk2-hiddenpotential
+	"Hidden Potential" HIDDENPOT_COST gstats{ perk-hiddenpotential } ' perk2-hiddenpotential-buy ' perk2back perk-confirm! ;
+
+cyoa: perk2-exwrestler-buy
+	"TRAGIC WRESTLING BACKSTORY" cyoa-title!
+	"Ex-Wrestler" "perk-exwrestler" gstats{ perk-exwrestler } perk-buy! ;
+cyoa-blank: perk2-exwrestler
+	"Ex-Wrestler" EXWRESTLER_COST gstats{ perk-exwrestler } ' perk2-exwrestler-buy ' perk2back perk-confirm! ;
+
+cyoa: perk2-tstc-buy
+	"TOO*SWOLE*TO*CONTROL" cyoa-title!
+	"T*S*T*C" "perk-tstc" gstats{ perk-tstc } perk-buy! ;
+cyoa-blank: perk2-tstc
+	"T*S*T*C" TSTC_COST gstats{ perk-tstc } ' perk2-tstc-buy ' perk2back perk-confirm! ;
+	
+(*	
+cyoa: perk2--buy
+	"WOO" cyoa-title!
+	"" "perk-" gstats{ perk- } perk-buy! ;
+cyoa-blank: perk2-
+	"" _COST gstats{ perk- } ' perk2--buy ' perk2back perk-confirm! ;
+*)
+cyoa: perk2-dingus gstats{
+	"Peak Performance Perks" cyoa-title!
+		
+	($ "The Last Bodybuilder looks lost in thought.
+	" .. "YOU CAN'T RELY ON GUNS TO SURVIVE... THE ONLY GUNS YOU CAN TRULY RELY ON... ARE THESE GUNS
+	" pbold .. "T*L*B flexes, BIG TIME" fbold $) text!
+	
+	perk2-stockleft 15 < if
+		($ "T*L*B is going through his posing routine.
+		" .. "I'M READY FOR THE NEXT BODYBUILDING COMPETITION, WHEN CIVILIZATION COMES BACK!
+		" pbold .. "T*L*B grunts and flexes at an alarming speed!" fbold $) text!
+	
+	then
+	
+	perk2-stockleft 12 < if
+		($ "BIG BRUISER AND MARTIAL ARTIST ARE VERY STRONG IN THE BEGINNING OF A GAME!
+		" pbold .. "He emphasizes by FLEXING when saying 'STRONG'!" fbold $) text!	
+	then
+	
+	perk2-stockleft 9 < if
+		($ "HIDDEN POTENTIAL CAN REALLY PAY OFF WITH HEAVY TRAINING AND A SLOW WEAPON!
+		" pbold .. "T*L*B flexes a little bit more!" fbold $) text!	
+	then
+	
+	perk2-stockleft 6 < if
+		($ "I LOVE BEING STRONG, THAT'S ALL YOU GOTTA KNOW!
+		" rbold .. "T*L*B flexes so hard he emits smoke!" fbold $) text!	
+	then
+	
+	perk2-stockleft 1 < if
+		($ "I'M OUT OF STRENGTH TIPS!
+		YOU'LL HAVE TO CONTINUE YOUR TRAINING ON THE WAY TO CANADA!
+		" pbold .. "T*L*B flexes extra hard, to wish you luck!" fbold $) text!
+	
+	then
+	
+	+cr zpwallet perk2-remaining
+	
+	choice( "Leave for now" )choice
+	
+	perk-athlete 3 < if 
+		"Athlete" ATHLETE_COST perk-athlete zpview ' perk2-athlete perk-view!
+	then
+	perk-ultrafit 3 < if 
+		"Ultrafit" ULTRAFIT_COST perk-ultrafit zpview ' perk2-ultrafit perk-view!
+	then
+	perk-megabuff 3 < if 
+		"Megabuff" MEGABUFF_COST perk-megabuff zpview ' perk2-megabuff perk-view!
+	then
+	perk-bruiser 3 < if 
+		"Big Bruiser" BRUISER_COST perk-bruiser zpview ' perk2-bruiser perk-view!
+	then
+	perk-martialartist 3 < if 
+		"Martial Artist" MARTIALARTIST_COST perk-martialartist zpview ' perk2-martialartist perk-view!
+	then
+	perk-hiddenpotential 3 < if 
+		"Hidden Potential" HIDDENPOT_COST perk-hiddenpotential zpview ' perk2-hiddenpotential perk-view!
+	then
+	perk-exwrestler 3 < if 
+		"Ex-Wrestler" EXWRESTLER_COST perk-exwrestler zpview ' perk2-exwrestler perk-view!
+	then
+	perk-tstc 3 < if 
+		"T*S*T*C" TSTC_COST perk-tstc zpview ' perk2-tstc perk-view!
+	then
+	
+	(*
+	perk- 3 < if 
+		"" _COST perk- zpview ' perk2- perk-view!
+	then	
+	*)
+	
+} ;
+
+' perk2-dingus to perk2back
+

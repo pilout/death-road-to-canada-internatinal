@@ -1,0 +1,109 @@
+"../deathforth/rooms/bigstore.txt" $load-rooms
+"../deathforth/rooms/bigoffice.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/exterior/yall-maker.df" $load
+
+location
+		tags: yallmart
+		max-rooms: 6
+		entry-tags: yallmart
+		
+		script: yall-theme 
+	
+	: camploot
+		1 2 rnd sfood
+		1 5 rnd case
+			1 of hatchet .scatter endof
+			2 of frying .scatter hatchet .scatter endof
+			3 of machete2 .scatter endof
+			4 of 80 %chance if rifle else hunting then .scatter 15 srifle endof
+			5 of shotgun .scatter 8 sshot endof 
+		endcase
+		machete1 .scatter
+		fishing .scatter
+		70 %chance if machete1 .scatter then
+		5 %chance if blowtorch scatter then
+		20 %chance if 20 50 rnd sgas then
+		5 %chance if bow scatter then
+	;
+	: airhornloot
+		30 %chance if 50 else 30 then airhorn .item.charges! lt .scatter
+	;
+	: jockweapons
+		for 
+		1 7 rnd case
+			1 of baseball .scatter endof
+			2 of cricket .scatter endof
+			3 of golf .scatter endof
+			4 of aluminum .scatter endof
+			5 of 90 %chance if hockey else xtreme then .scatter endof 
+			6 of tennis .scatter endof
+			7 of paddle .scatter endof
+		endcase
+		next
+	;
+	: jockloot
+		2 3 rnd jockweapons
+		60 %chance if baseball .scatter then
+		60 %chance if tennis .scatter then
+	;
+	: shoploot
+		random-door "yallhall" only-with-door
+		1 3 rnd for skelscat next
+		camploot jockloot jockloot LLammo LLammo
+		30 %chance if airhornloot then
+	;
+	: hallloot
+		50 %chance if 1 jockweapons else camploot then
+		50 %chance if LLammo then
+		0 2 rnd for skelscat next
+	;
+	: storageloot
+		camploot jockloot
+		airhornloot
+	;
+
+		room-choice: yallmart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: shoploot 10diff %zombs
+			filter-only
+
+		room-choice: restroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath	
+			room-post-script: 5diff %zombs
+
+		room-choice: yallhall
+			room-script: ndx
+			room-weight: 1
+			room-count: 1
+			room-post-script: hallloot 5diff %zombs
+
+		room-choice: emplounge
+			room-script: nad
+			room-weight: 1
+			room-count: 1
+			room-post-script: LLkitchen 5diff %zombs
+			
+		room-choice: storage
+			room-script: nad
+			room-weight: 1
+			room-count: 1
+			room-post-script: storageloot
+
+regiondef{
+
+//	2 1000 tone
+
+	 region: yallmart
+		w: 26
+		h: 30
+		script: timeofday o'clock
+
+		no-prefab
+
+		post-script: setup-sporting 5diff %zombs
+}

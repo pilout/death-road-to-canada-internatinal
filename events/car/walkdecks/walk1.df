@@ -1,0 +1,287 @@
+
+// Might need to add trunk-food 0 > if then checks to taking food away. I added this to walk-hole.
+
+cyoa{ road{ 
+
+cyoa: walk-stubtoe
+	image-stubbed-toe
+	"TOE STUB" cyoa-title!
+	someone choosechar
+	($ "While walking, " .. cname .. " stubs " .. chis .. " toe badly. It's not a big deal, but it is really annoying." $) cyoa-text! 
+	bitefx morale-- sting--
+;
+cyoa: walk-hole
+	image-backpack-hole
+	"Bottomless Pit" cyoa-title!
+	choosehuman
+	($ "While walking, " .. cname .. " doesn't notice a hole in " .. chis .. " backpack." $) cyoa-text!
+	nosupplyloss2? if
+	// cchar .weaponb@ 0 = and
+		($ "There were so little supplies that none were lost.
+		" .. cname .. " feels really smug about this!" $) +crtext morale2+ goodfx
+	else
+		($ "By the time " .. che .. " realizes this, there had been hours of opportunity for supplies to fall through." $) +crtext
+		morale-- badfx supplyloss2
+	then
+;
+
+cyoa: walk-carrock
+	image-car-looking-rock
+	"SO CLOSE" cyoa-title!
+	someone choosechar
+	($ "While walking along a dirt road, " .. cname .. " thought that " .. che .. " spotted a car in the distance. It was only when " .. che .. " got close to it that " .. che .. " realized it was just a giant rock. What a shame." $) cyoa-text! badfx morale--all 
+;
+cyoa: walk-dirty
+	image-wet-bag
+	"All Dirty" cyoa-title!
+	choosehuman
+	($ "While walking through the woods, " .. cname .. " doesn't pay attention to where " .. che .. " is going and falls into a deep puddle of water. " .. cHis .. " gear is fully submerged, putting supplies in danger." $) cyoa-text! supplyloss2 morale2- badfx
+;
+
+
+cyoa-choice: walk-branchbreak-go
+	($ cname .. " decides to climb a tree to get a better vantage point of the surrounding area." $) cyoa-text!
+	cfitness+ if
+		($ cHe .. " climbs the tree with little effort. It's fun exercise! " .. cHe .. " spots something in the distance." $) +crtext morale++ goodfx fitnessREV
+	then;
+	40 %chance if
+		 ($ "On the way up, the branch that was holding " .. chis .. " weight breaks, causing " .. chim .. " to fall a good distance!" $) +crtext fitnessREV morale-- bitefx ouch--
+	then;
+		($ cHis .. " plan works out fine. " .. cHe .. " spots something in the distance, and gets to see a majestic view!" $) +crtext fitnessREV morale++ goodfx
+;
+: walk-branchbreak-no 2 ' walk-countdown +! badfx ;
+
+cyoa: walk-branchbreak
+	image-tree
+	"THE BRANCH" cyoa-title!
+	choosehuman
+	($ "While trekking through the woods, " .. thegroup .. " gets pretty lost. If " .. gthey .. " keep" .. g1s .. " going like this, " .. gthey .. "'ll waste a lot of time." $) cyoa-text! 
+		fittest charchoice( " climbs a tree to look around" )choice: walk-branchbreak-go
+		choice( "Keep wandering blindly" )choice: walk-branchbreak-no
+;
+cyoa: walk-nicewalk
+	image-uneventful-way
+	"Nice Walk" cyoa-title!
+	($ "" .. Thegroup .. " continues walking through the country side. It is very uneventful but at least there are no zombies or dangers in sight. For the first time in a long time they are able to drop their guard and walk in some form of peace." $) cyoa-text! basic-tone
+;
+cyoa: walk-mold
+	image-white-van
+	"Good Forever" cyoa-title!
+	($ "" .. Thegroup .. " spots a bakery van that has broken down on the side of the road. The van is irreparable, the bread is moldy and inedible, but there are some sugary cakes that are still good." $) cyoa-text! morale++all 4 trunk-food+ goodfx
+;
+cyoa: walk-pain1
+	"Leap of Faith" cyoa-title!
+	($ Thegroup .. " gets sandwiched by zombie hordes while on a cliffside road. Without a car, the only way to escape was by jumping and hoping for the best. The fall was painful, but not fatal." $) cyoa-text! sting--all bitefx
+;
+cyoa: walk-pain2
+	"Cat Attack!" cyoa-title!
+	someicon
+	image-feral-cat
+	
+	($ cname .. " is walking along the road when " .. che .. " is suddenly mauled by a feral cat!
+	Feral cats coat the United States after the zombocalypse. You never see them, but they're always watching. Waiting for any weakness." $) cyoa-text! sting-- morale-- bitefx
+;
+cyoa: walk-pain3
+	"Rough Terrain" cyoa-title! someicon
+	($ Thegroup .. " runs into a particularly rough stretch of road. There's nothing life-threatening about it, it's just a long and miserable walk. " .. gThey .. " get" .. g1s .. " bruised and battered in multiple small accidents." $) cyoa-text! sting--all morale--all bitefx
+;
+cyoa: walk-rainmorale
+	"Horrible Weather" cyoa-title! someicon
+	($ "The weather suddenly turns bad. " .. Thegroup .. " is caught in the open, and must keep moving. " .. gTheyare .. " forced to stumble around in miserable conditions." $) cyoa-text!
+	roadtrip-has-umbrella? if
+		umbrella-count numhums >= if 
+			solohuman if choosehuman 
+				($ "It's a good thing that " .. cname .. " brought an umbrella!" $)
+			else "There are enough umbrellas to go around!" then +crtext "Things could have been much worse!" +crtext goodfx
+		else 
+			umbrella-count 2 < if "Having an umbrella helps, but only a little." else "There are not enough umbrellas to fully protect everyone from the downpour!"
+			then +crtext morale--all badfx
+		then
+	else
+		morale2-all badfx
+	then
+	1.2 1.6 frnd weather! -2 2 frnd wind_force!
+;
+cyoa: walk-meal
+	image-caught-fish
+	"Free Meal" cyoa-title!
+	choosehuman
+	($ "While walking along side a large stream " .. cname .. " notices some fish in the water. " .. cname .. " tries their luck, goes into the water, and tries to catch some fish by hand. By some miracle, " .. cname .. " is able to catch a decent sized Catfish! " $) cyoa-text! morale++all +6 trunk-food+ goodfx
+;
+
+cyoa-choice: walk-bandit1-paranoid
+	($ cname .. " foresaw an ambush, so " .. che .. " set " .. chis .. " plans up shortly before the bandits appeared." $) cyoa-text!
+	solo if
+		($ cHe .. " runs immediately as the bandits start making demands. When the bandits chase " .. chim .. ", they trip over branches and snares that were set on the path." $)
+	else
+		($ "When the bandits make their demands of " .. cname .. ", " .. theothers .. " sneak" .. g2s .. " behind them in a counter-ambush. They're surprised by this and surrender." $)
+	then +crtext morale++all witsattREV goodfx
+;
+
+cyoa-choice: walk-bandit1-charm
+	($ cname .. " convinces the bandits to not go through with the attack. They didn't want to, anyway." $) cyoa-text! goodfx
+	trunk-food 4 > if
+		($ "Feeling pity, " .. cname .. " gives them some food." $) +crtext -5 trunk-food+ morale++
+	else
+		($ cname .. " wants to help them, but can't spare much." $) +crtext  morale--
+	then
+;
+
+cyoa: walk-bandit1
+	"Reluctant Bandits" cyoa-title!
+	($ "Without a car, " .. thegroup .. " is a sitting duck for bandits.
+	" .. Thegroup .. " is ambushed by awkward bandits that apologize for the robbery. They are likely new at this.
+	" .. "They demand " rbold $) cyoa-text! 1 500 tone
+	bandit-demand-fight
+		most-paranoid if 
+			charchoice( " expected this" )choice: walk-bandit1-paranoid
+		then
+		most-charming if
+			charchoice( " reasons with them" )choice: walk-bandit1-charm
+		then
+;
+
+cyoa-choice: walk-bandit2-coolit
+	cpet? if 
+		($ cname .. " somehow manages to speak with " .. chis .. " animal mouth to say" .. " COOL IT " pbold .. "to the merciless bandits." $)
+	else
+		($ cname .. " tells the merciless bandits to" .. " COOL IT." pbold $)
+	then cyoa-text!
+	($ "This transforms them into murderous bandits. No miracle here was possible." $) +crtext
+	cool-it++ sting--all ouch2- witsattREV bitefx
+;
+
+cyoa-choice: walk-bandit2-pay
+	($ Thegroup .. " pays up." $) text!
+	ezbandit? if
+		($ gThey .. " lose" .. g1s .. " a chunk of " .. ghis .. " supplies. " .. gTheyare .. " still alive, for the time being." $) 
+	else
+		($ gThey .. " lose" .. g1s .. " " .. ghis .. " weapons and everything else " .. gthey .. " had. " .. gTheyare .. " still alive, for the time being." $) 
+	then +crtext badfx
+	 ezbandit? not if 0weaponsall trunk.clear then bandit-all morale3-all someicon
+;
+
+: bandit2-ezbandit ezbandit? if " a quarter " else " half " then ;
+
+cyoa-choice: walk-bandit2-paranoid
+	($ cname .. " expected an ambush, so " .. che .. " thought of an escape plan earlier." $) cyoa-text!
+	($ gHe .. " quickly tosses" .. bandit2-ezbandit .. "of " .. ghis .. " supplies on the ground as a distraction, then " .. "RUNS AWAY!" rbold .. " as a hail of bullets zing by." $) +crtext
+	sting-- 
+	($ "The plan was really simple and far from perfect, but things could have gone a lot worse." $) +crtext goodfx witsattREV bandit-supplies2
+;
+
+cyoa: walk-bandit2
+	"Merciless Bandits" cyoa-title!
+	($ "Without a car, " .. thegroup .. " is easy prey for bandits. A group ambushes you and demands your supplies." $) text!
+	ezbandit? if
+		($ "All food and gas, plus half of your ammo and medical supplies." rbold $)
+	else
+		($ "All weapons, ammo, gas, supplies. Everything." rbold .. "
+		This is exceptionally cruel, to a level most bandits won't stoop to. They know it's a death sentence." $)
+	then +crtext 1 500 tone
+	choice( "Give their demands" )choice: walk-bandit2-pay
+	bandit-fight
+		most-paranoid if 
+			charchoice( ": Drop" .. bandit2-ezbandit .. "of loot and run" )choice: walk-bandit2-paranoid
+		then
+		most-grating if
+			charchoice( " says 'Cool It' as last words" )choice: walk-bandit2-coolit
+		then
+;
+
+cyoa-choice: walk-bandit3-burn
+	($ cname .. " promises the bandits that if " .. che .. " isn't let go, " .. che .. " will come back and burn the bridge down." $) cyoa-text!
+	50 %chance if
+		($ "The bandits decide to play it safe and just attack immediately. " .. Thegroup .. " manages to escape from the fight, with no supplies stolen." $) +crtext
+		solo if 
+			sting2-
+		else
+			sting-- sting--all
+		then bitefx 
+	else
+		($ "The bandits are intimidated at the thought of losing their livelihood, so they let " .. thegroup .. " pass.
+		Once " .. che .. " crosses the bridge, " .. che .. " lights it on fire." $) +crtext morale++ goodfx
+	then aholeREV
+;
+
+cyoa-choice: walk-bandit3-paranoid
+	($ cname .. " expected an ambush, so " .. che .. " walked through the bridge alone, carrying nothing.
+	The bandits are annoyed by " .. chis .. " lack of stuff and crappy attitude, so they toss " .. chim .. " over the bridge. It's not a bad fall." $) cyoa-text!
+	sting-- 
+	($ "While this is happening, " .. theothers .. " sneak" .. g2s .. " past the bridge with the supplies!" $) +crtext goodfx witsattREV
+;
+
+cyoa: walk-bandit3
+	"Toll Bridge Bandits" cyoa-title!
+	($ Thegroup .. " is ambushed while crossing a rickety bridge over a river.
+	The bandits demand a toll to cross.
+	" .. "They want " rbold $) cyoa-text! 1 500 tone
+	bandit-demand-fight
+		most-paranoid notsolo and if 
+			charchoice( " expected this" )choice: walk-bandit3-paranoid
+		then
+		most-ahole if
+			charchoice( " threatens to burn bridge" )choice: walk-bandit3-burn
+		then
+;
+
+cyoa-choice: walk-bandit4-fight
+	($ Thegroup .. " is tired and caught in the open as " .. gthey .. " fight" .. g1s .. ". It's fortunate that these bandits aren't that dangerous. After a short fight, they run." $) cyoa-text! someicon bitefx sting--all
+;
+cyoa-choice: walk-bandit4-angry
+	($ "The bandits are " .. "UTTERLY TERRIFIED" rbold .. " by " .. cname .. "!
+	They trip over themselves in a rush to escape!
+	" .. Thegroup .. " is relieved to avoid a fight while exhausted." $) cyoa-text! goodfx temperREV strengthREV morale++
+;
+cyoa-choice: walk-bandit4-obliv
+	cpet? if
+		($ cname .. " makes a threatening sounding noise. It turns out it was just animal confusion noises." $) cyoa-text!
+	else
+		($ cname .. " says something like " .. "WHAT DID YOU SAY?" pbold .. " but really " .. che .. " just didn't hear them." $) cyoa-text!
+	then
+	($ "The bandits misunderstand this and are " .. "VERY INTIMIDATED" rbold .. " by " .. cname .. "! They flee and scatter!
+	" .. cname .. " has no idea what happened but is glad the bandits are gone." $) +crtext goodfx witsattREV morale++
+;
+
+cyoa: walk-bandit4
+	"Cowardly Bandits" cyoa-title!
+	($ Thegroup .. " is robbed by weak bandits. The bandits are of a kind that would normally not be a problem, if " .. thegroup .. " had a car or wasn't tired from walking all day.
+	" .. "The bandits nervously demand " rbold $) cyoa-text! 1 500 tone
+	bandit-demand choice( "Refuse and fight!" )choice: walk-bandit4-fight
+	most-angrystrong if 
+		charchoice( " terrifies the bandits" )choice: walk-bandit4-angry
+	then
+	most-oblivious if
+		charchoice( ": WHAT DID YOU SAY?" )choice: walk-bandit4-obliv
+	then
+	// badfx morale--all bandit-ammomed bandit-food 0bweaponsall
+;
+
+: walk-boot-get 1 WEAPON_THROWINGBOOT trunk.weapon+ goodfx ;
+
+cyoa: walk-boot
+	image-stubbed-toe
+	"Free Boot" cyoa-title!
+	($ Thegroup .. " spots an old boot on the road. It doesn't look like it's anyone's size, but hey, it's free!
+	This is surely a symbol of good luck." $) cyoa-text!
+		choice( "Get that boot" )choice: walk-boot-get
+		choice( "Ignore boot" )choice
+;
+
+: walk-caryell-check args( @ )
+	<- @ oblivious? if
+		($ <- @ .colourname .. " didn't notice any of this." $) +crtext 
+		<- @ <- @ .witsattREV
+	then;
+	<- @ .morale--
+;
+
+cyoa: walk-caryell
+	image-angry-car
+	"Immortal American Pastime" cyoa-title!
+	($ Thegroup .. " spots a car speeding down the road. Maybe this stranger can help them!
+	Without slowing down, the driver yells out " .. FLASHY .. "NEEEEEEEEEEEEEEEEEEEERD" .. gS .. "!" .. WHITE $) cyoa-text!
+	"And then the car is gone." +crtext ' walk-caryell-check foreach-human-char badfx
+;
+
+} }

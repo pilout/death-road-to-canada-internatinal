@@ -1,0 +1,72 @@
+// uses events/city/building-pick-layout.df - Commented because special-lots already loads this. Also currently using test/loctestlayout instead.
+
+// "../deathforth/events/rareloc/weird.txt" $load-rooms
+"../deathforth/rooms/city.txt" $add-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+load? events/city/city-locations.df
+ 
+map{ regiondef{
+
+	: pick-building
+
+		' curbuild ++ 
+		try-special-build if then;
+
+		rowsleft 2 >= 50 %chance and if 0 else
+			rowsleft 1 <= 75 %chance and if 0 else auto-picklocid then
+		then
+		
+		trashed-house-maker
+	;
+
+	: pick-lots
+		blocks-init
+			6 to blockh
+			3 to maxrows
+			5 6 rnd to streeth // Random streeth is pretty dangerous
+			35 to greenspace%
+			1 3 rnd to grassylots
+		blocks-start
+
+		pavement 
+		begin canplot? while
+			pick-building next-plot
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		5diff %zombs pavement pick-lots
+	;
+	
+} }
+ 
+regiondef{
+
+	: runme
+	//	special-lot-setup-example
+		building-pick-setup
+	;
+
+	 region: burbnarrow3x3
+		w: 30
+		h: 37 // Increased it from 36 due to streeth
+		script: timeofday o'clock
+
+	regcity	
+
+		// NOTE: You could use a draw deck for all these shops too if you wanted, just have one loc-choice like
+		
+//			loc-choice: some-business
+//				loc-weight: 100
+//				loc-count: 1
+//				loc-pick-script: plot-a-random-business
+		
+		// and define 'some-business' in city-locations.df locdefs
+
+		post-script: runme
+}

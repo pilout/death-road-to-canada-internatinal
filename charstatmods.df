@@ -1,0 +1,1644 @@
+uses weapondef.df
+
+: .noattack dup .use_filter@ USE_FLAG_ATTACK | swap .use_filter! ;
+: .yesattack dup .use_filter@ USE_FLAG_ATTACK ~ & swap .use_filter! ;
+: .nocarry dup .use_filter@ USE_FLAG_CARRY | swap .use_filter! ;
+: .notake dup .use_filter@ USE_FLAG_TAKE | swap .use_filter! ;
+: .yestake dup .use_filter@ USE_FLAG_TAKE ~ & swap .use_filter! ;
+: .noswap dup .use_filter@ USE_FLAG_SWAP | swap .use_filter! ;
+: .noweapon dup .use_info@ USE_INFO_NO_USE_WEAPON | swap .use_info! ;
+: .nopickups dup .use_info@ USE_INFO_NO_PICKUP | swap .use_info! ;
+: .yespickups dup .use_info@ USE_INFO_NO_PICKUP ~ & | swap .use_info! ;
+: .yesweapon dup .use_info@ USE_INFO_NO_USE_WEAPON ~ & swap .use_info! ;
+
+// General char RGB words
+: .tint.hair! args( r g b chara )
+	<- r <- chara .tint.hair.r!
+	<- g <- chara .tint.hair.g!
+	<- b <- chara .tint.hair.b!
+;
+
+: .tint.hair@ args( chara )
+	<- chara .tint.hair.r@
+	<- chara .tint.hair.g@
+	<- chara .tint.hair.b@
+;
+
+: .tint.skin! args( r g b chara )
+	<- r <- chara .tint.skin.r!
+	<- g <- chara .tint.skin.g!
+	<- b <- chara .tint.skin.b!
+;
+
+: .tint.skin@ args( chara )
+	<- chara .tint.skin.r@
+	<- chara .tint.skin.g@
+	<- chara .tint.skin.b@
+;
+
+: .tint.body! args( r g b chara )
+	<- r <- chara .tint.body.r!
+	<- g <- chara .tint.body.g!
+	<- b <- chara .tint.body.b!
+;
+
+: .tint.body@ args( chara )
+	<- chara .tint.body.r@
+	<- chara .tint.body.g@
+	<- chara .tint.body.b@
+;
+
+statmod{
+
+: modcount?! CHARACTER_MOD_COUNT >= if abort" OUT OF MODS!" then ;
+
+(* TODO:
+	- switch most of these used for special characters to being the actual character's main_events handler instead
+*)
+
+// //////////////////////////////////////////////////////
+// NOTE: DO NOT CHANGE THE ORDER OF THESE, ONCE ASSIGNED!
+// //////////////////////////////////////////////////////
+0
+	enum MOD_SICK
+	enum MOD_INJURED
+	enum MOD_TIRED
+	enum MOD_SUPERDOG
+	enum MOD_DOGMALUS
+	enum MOD_COFFEE
+	
+	enum MOD_DOGPAL
+	enum MOD_EXPLORER
+	
+	enum MOD_SINGER
+	enum MOD_TLBB
+	enum MOD_WRESTLER
+	enum MOD_FENCER
+	enum MOD_LNK
+	enum MOD_MADSCI
+	enum MOD_VALK
+	enum MOD_SWAP_ATTACK
+	enum MOD_HORSE
+	enum MOD_DSYP
+	enum MOD_ANIME
+	enum MOD_SHODUKIN
+	enum MOD_EHZERBEAM
+	enum MOD_CARL
+	enum MOD_CAT
+	enum MOD_PETMALUS
+	
+	enum MOD_HAGGLER
+	enum MOD_PATHFINDER
+	enum MOD_SOUNDSLEEP
+	enum MOD_FIREPROOF
+
+	// TODO:
+	enum MOD_INFECTED		// Stealth status, use along with SICK... infection can cause SICK, but so can other things
+	enum MOD_ZOMBIE			// UR A ZOMBIE
+
+dup constant MOD_COUNT modcount?!
+
+
+// TODO: Change this to using args( me eventid )
+// a ME to use for THINGs during statmod actions
+0 value me
+0 value eventid
+
+0 value mod
+: #set dup CHARACTER_MOD_COUNT >= if abort" OUT OF MOD SLOTS!" then #mod to mod ;
+
+// : set_special mod .special_flags@ rot | swap .special_flags! ;
+// : clr_special mod .special_flags@ rot ~ & swap .special_flags! ;
+: statmod+ mod .statmod+ ;
+: statmod@ mod .statmod@ ;
+: statmod! mod .statmod! ;
+: desc! mod .desc! ;
+: desc@ mod .desc@ ;
+: tags! mod .tags! ;
+: tags@ mod .tags@ ;
+: icon! mod .icon! ;
+: icon@ mod .icon@ ;
+: handler! mod .handler! ;
+: handler@ mod .handler@ ;
+: command! mod .command! ;
+: command@ mod .command@ ;
+: animate! mod .animate! ;
+: animate@ mod .animate@ ;
+
+: chara>thing .cur_thingid@ #thing ;
+
+: #mod-icon$ #mod .icon@ $chr ;
+
+
+
+// NOTE: Not to be confused with mission eventid and me
+0 value eventid
+0 value me
+
+: store-char-event-info // FOR CHARACTER MAIN_EVENTS ONLY
+	to eventid
+	to me
+;
+
+// Can use for MODS or direct char MAIN_EVENTS both
+: char-event: : postpone store-char-event-info ; immediate
+
+// TODO: Make it throw up a BLURB also
+: .charsay chara>thing dup if .say else 2drop then ;
+
+// TODO:
+// - GAWAIN handler
+
+: .ismod? .get_modnum ;
+
+// TODO: Pass hint if it's already set?
+: .callmod
+	2dup .ismod? 0= if 2drop exit then
+	statmod{ swap #mod .handler@ dup if execute else 2drop exit then }
+;
+
+: .callmods 0 swap MOD_COUNT for 2dup .callmod swap 1+ swap next
+	2drop ;
+
+: .setmod args( smid chara ) ( <- smid <- chara )
+	<- smid <- chara .set_modnum
+	<- chara .modrecalc <- smid <- chara .callmod
+;
+
+: .clrmod args( smid chara )
+	<- smid <- chara .clr_modnum
+	<- chara .modrecalc <- smid <- chara .callmod
+;
+
+// SHORTCUTS: call with a character, i.e. soloer sick
+
+: .sick MOD_SICK swap .setmod ;
+: .unsick MOD_SICK swap .clrmod ;
+: .sick? MOD_SICK swap .ismod? ;
+: .injured MOD_INJURED swap .setmod ;
+: .uninjured MOD_INJURED swap .clrmod ;
+: .injured? MOD_INJURED swap .ismod? ;
+
+: .reportmod args( themod chara )
+	<- chara .name@ " is " .. BLUE .. TOGGLE .. <- themod #mod .desc@ .. " " .. WHITE .. <- themod #mod-icon$ ..
+		blurbevent 
+	<- chara blurbchar
+	blurb!icon
+;
+
+: .soundsleep MOD_SOUNDSLEEP swap .setmod ;
+: .soundsleep? MOD_SOUNDSLEEP swap .ismod? ;
+
+: .fireproof MOD_FIREPROOF swap .setmod ;
+: .fireproof? MOD_FIREPROOF swap .ismod? ;
+: .unfireproof MOD_FIREPROOF swap .clrmod ;
+
+: .tired args( chara )
+	<- chara .soundsleep? not if
+		MOD_TIRED <- chara 2dup .setmod .reportmod
+	then
+;
+
+: .untired MOD_TIRED swap .clrmod ;
+: .tired? MOD_TIRED swap .ismod? ;
+
+: .undog dup .yesweapon MOD_DOGMALUS swap .clrmod ;
+: .unpet MOD_PETMALUS swap .clrmod ;
+: .superpet MOD_SUPERDOG swap .setmod ;
+: .superdog dup .undog .superpet ;
+: .superdog? MOD_SUPERDOG swap .ismod? ;
+
+: .depettify args( self )
+	<- self .undog
+	0 <- self .pet!
+	0 <- self .footoff.y!
+	<- self .user.ival@ <- self .bodytype!
+	0 <- self .weapon_default!
+;
+
+: .dogpal MOD_DOGPAL swap .setmod ;
+: .dogpal? MOD_DOGPAL swap .ismod? ;
+
+: .explorer MOD_EXPLORER swap .setmod ;
+: .explorer? MOD_EXPLORER swap .ismod? ;
+
+: .haggler MOD_HAGGLER swap .setmod ;
+: .haggler? MOD_HAGGLER swap .ismod? ;
+
+: .pathfinder MOD_PATHFINDER swap .setmod ;
+: .pathfinder? MOD_PATHFINDER swap .ismod? ;
+
+: .coffee MOD_COFFEE swap .setmod ;
+: .coffee? MOD_COFFEE swap .ismod? ;
+: .uncoffee MOD_COFFEE swap .clrmod ;	
+
+// EXAMPLE STAT MOD CONFIGS
+0x e9 constant STATMOD_ICONS	// Starting glyph of icons, in hex
+
+	MOD_SICK #set
+		"SICK" desc!
+		-2 STAT_MORALE statmod+
+		-1 STAT_FITNESS statmod+
+		STATMOD_ICONS icon!
+
+		// EXAMPLE SICK MESSAGE, probably don't use this like this
+		: sickmsg
+			dup .sick? if
+				"UGH, FEEL PUKEY" swap .charsay else drop
+			then ;
+
+		last handler!
+
+	MOD_INJURED #set
+		"INJURED" desc!
+		-1 STAT_MORALE statmod+
+		-2 STAT_STRENGTH statmod+
+		STATMOD_ICONS 1 + icon!
+
+		// EXAMPLE JUST FOR TESTINS
+//		: injuredbeep drop beep ; last handler!
+		: injuredbeep drop ; last handler!
+
+	MOD_TIRED #set
+		"TIRED" desc!
+		-3 STAT_FITNESS statmod+
+		-3 STAT_STRENGTH statmod+
+		-3 STAT_SHOOTING statmod+
+		STATMOD_ICONS 3 + icon!
+
+	MOD_SUPERDOG #set
+		"SUPERTRAINED" desc!
+		STATMOD_ICONS 5 + icon!
+	
+	MOD_DOGPAL #set
+		"FRIEND OF DOG" desc!
+		STATMOD_ICONS 6 + icon!
+	
+	MOD_EXPLORER #set
+		"EXPLORER" desc!
+		STATMOD_ICONS 6 + icon!
+	
+	MOD_DOGMALUS #set
+		"CLUMSY DOG" desc!
+		-4 STAT_FITNESS statmod+
+		-4 STAT_STRENGTH statmod+
+		-4 STAT_SHOOTING statmod+
+		-4 STAT_MECHANICAL statmod+
+		-4 STAT_MEDICAL statmod+
+//		STATMOD_ICONS 2 + icon!		
+
+		// You get MORALE + 1 amount of POOS per mission
+		: try-poo args( me )
+			360 <- me .action_cooldown! // 6 second cooldown
+
+			<- me .item.charges@ <- me .character@ .morale@ rnd5050 + >= if then;
+			// Before below change added you got MORALE + 1 amount of POOS per mission
+
+			<- me .item.charges@ 1+ <- me .item.charges!
+
+			<- me .character@ .morale@ 5 <= <- me .item.charges@ 3 <= and if then;
+			// Above change makes it so dogs won't poop right away before max morale, and they'll get 2 poos at 4 morale, 3 at 5, 7 at 6, and 50% chances of one at 3
+
+			sfx{ pip 10 freq! 500 freq2! 250 d! 0.1 duty! <- me .adjust-vol 0.875 1.25 frnd pitch! }
+
+			1 %chance if smiling-pile-of-poo else poo then lttm
+			-1 lt .vel.z!
+			<- me .aim_angle@ anglexy -0.5 xymul lt .vel!
+			15 <- me .shudder!
+		;
+
+		: dog-commands args( me )
+			<- me .isswap? if
+				<- me try-poo
+			then;
+
+		; last command!
+
+	MOD_PETMALUS #set
+		"NOT SAPIENT" desc!
+		-4 STAT_STRENGTH statmod+
+		-4 STAT_SHOOTING statmod+
+		-4 STAT_MECHANICAL statmod+
+		-4 STAT_MEDICAL statmod+
+//		STATMOD_ICONS 2 + icon!		
+	
+	MOD_COFFEE #set
+		"COFFEED UP" desc!
+		+4 STAT_FITNESS statmod+
+		+4 STAT_STRENGTH statmod+
+		+3 STAT_DEXTERITY statmod+
+		// 0.5 me .speed_bonus!
+		STATMOD_ICONS 1 + icon!
+	
+	MOD_HAGGLER #set
+		"SELLER" desc!
+		STATMOD_ICONS 6 + icon!
+	
+	MOD_SOUNDSLEEP #set
+		"SOUNDSLEEP" desc!
+		STATMOD_ICONS 6 + icon!
+	
+	MOD_PATHFINDER #set
+		"PATHFINDER" desc!
+		STATMOD_ICONS 6 + icon!
+		
+	// TODO: actual gameplay effects
+	MOD_SINGER #set
+		: notes
+			($ BOUNCY .. RAINBOW .. 0x df $chr .. BOUNCY_OFF .. " " ..
+				BOUNCY .. 0x de $chr .. BOUNCY_OFF ..
+				" " .. BOUNCY .. 0x df $chr .. " " .. BOUNCY_OFF ..
+				BOUNCY .. 0x dd $chr $) ;
+
+		: charsing to eventid to me 
+			// ( THING is passed in for command handlers )
+			// It's for a SWAP command only
+			// dup .isswap? not if drop exit then
+			
+			
+			me .action_cooldown@ if exit then
+			eventid THING_EVENT_SWING = not if exit then
+			notes me 4 -rot .reportdur
+			60 4 * me .action_cooldown!
+			me sfx{ .character@ charsing 0.4 ( fx .scale! ) scale! me .adjust-vol } // TODO: Verify
+		; last animate!
+
+	MOD_TLBB #set
+		: .gruntsound
+			sfx{ pip
+				0 fx .duty! 0.4 0.6 frnd fx .pitch! 5 fx .freq2! 250 fx .d!
+				0.25 fx .s! 250 fx .r!
+				1000 fx .filt! 0.8 fx .q!
+				.adjust-vol
+			}
+		;
+
+		: .gruntsound2 // A bit higher pitch
+			sfx{ pulse
+				20 fx .a!
+				0.05 fx .duty! 0.4 0.6 frnd 2 * fx .pitch! 150 fx .freq2! 250 fx .d!
+				0.25 fx .s! 250 fx .r!
+				1000 fx .filt! 0.8 fx .q!
+				.adjust-vol
+			}
+		;
+		: .shudderpuff
+			-15 over .shudder!
+			0.3 over .shudderpuff.x!
+			-0.1 swap .shudderpuff.y!
+		;
+
+		: .grunt
+			10 3 * over .action_cooldown!
+			dup .shudderpuff
+			// dup .carryid@ 0= if
+			dup ($ DEATH .. "*GRUNT*" $) 0.5 swap rot .reportdur
+			// then
+			.gruntsound
+		;
+
+		: .flex
+			10 3 * over .action_cooldown!
+			dup .shudderpuff
+			dup ($ DEATH .. "*FLEX*" $) 0.5 swap rot .reportdur
+
+			.gruntsound
+		;
+
+		: tlbb-commands
+			dup .action_cooldown@ if .deny exit then
+
+			dup .isswap? if .flex then;
+			dup .isattack? if .grunt then;
+
+		; last command!
+
+	MOD_WRESTLER #set
+		: slamname 1 11 rnd case
+			1 of "BODYSLAM!" endof
+			2 of "SPINNING PILEDRIVER!" endof
+			3 of "FINAL ATOMIC BUSTER!" endof
+			4 of "PILEDRIVER!" endof
+			5 of "EL SATAN ATOMIC PUNCH!" endof
+			6 of "BARON VON SLAMMIN SLAMMER!" endof
+			7 of "PENULTIMATE BONE BREAKER!" endof
+			8 of "JUDO FLIP!" endof
+			9 of "MEGA-BODYSLAM!" endof
+			10 of "FLORIDA CRUSHER!" endof
+			11 of "DR CRUSHER'S SPINE RIPPER!" endof
+		endcase ;
+
+		: .zombie? .typeid@ THING_ZOMBIE = ;
+		: .item? .typeid@ THING_ITEM = ;
+		: .carried .carryid@ #thing ;
+
+		: slammin
+			me .carried if
+				me .carried .zombie? if
+					($ RAINBOW .. slamname $) me .yellmsg
+				else me .carried .item? if
+					 ($ RAINBOW .. "FOREIGN OBJECT!" $) me .yellmsg
+					then
+				then
+				// me .gruntsound2
+				// me .character@ sfx{ charbabble yell 20 * fx .d! me .adjust-vol }
+				// me .yell
+			then
+		;
+
+		: wrestler-throw to eventid to me
+			me .isattack? me .isuse? or if slammin then
+		; last animate!
+
+	MOD_FENCER #set
+		: fencersay 1 10 rnd case
+			1 of "En Garde!" endof
+			2 of "Oh ho ho!" endof
+			3 of "I have you now!" endof
+			4 of "Parry and riposte!" endof
+			5 of "They're all too slow for me!" endof
+			6 of "Now for the coup de grace!" endof
+			7 of "Ha!" endof
+			8 of "Thrust! Dodge! Ha!" endof
+			9 of "Ha ha! Ho ho!" endof
+			10 of "Too slow! Fie!" endof
+		endcase ;
+
+		: engarde
+			40 me .action_cooldown!
+			($ RAINBOW .. fencersay $) me .yellmsg
+		;
+
+		: fencer-commands to eventid to me
+			me .action_cooldown@ if exit then
+			eventid THING_EVENT_SWING = if engarde then
+		; last animate!
+		
+	MOD_CARL #set
+		: carlsay 1 33 rnd case
+			1 of "CAAAAARL!" endof
+			2 of "CAAAAAAAAAAAAARL!" endof
+			3 of "CARL! CAAAAARL!" endof
+			4 of "CAAAAAAAAAAAAAAAAAAAAARL!" endof
+			5 of "CAAAARL!" endof
+			6 of "CARL!" endof
+			7 of "I'm doin stuff" endof
+			8 of "CORAL!" endof
+			9 of "CAAAARL!" endof
+			10 of "CAAAAAAAAAAAARL!" endof
+			11 of "CARL! CARL! CARL!" endof
+			12 of "CAAAAAAAAAAAAAAAAARL!" endof
+			13 of "CAARL!" endof
+			14 of "CRL!" endof
+			15 of "WAYNE!" endof
+			16 of "CARL!" endof
+			17 of "CAAARL!" endof
+			18 of "CAAAAAARL!" endof
+			19 of "CAAAAAAARL!" endof
+			20 of "CAAAAAAAARL!" endof
+			21 of "CAAAAAAAAARL!" endof
+			22 of "CAAAAAAAAAARL!" endof
+			23 of "CAAAAAAAAAAARL!" endof
+			24 of "CARL!" endof
+			25 of "CARL!" endof
+			26 of "CARL!" endof
+			27 of "CARL!" endof
+			28 of "CARL!" endof
+			29 of "CARL!" endof
+			30 of "CARL!" endof
+			31 of "CARL!" endof
+			32 of "CARL!" endof
+			33 of "CARL!" endof
+		endcase ;
+
+		: carl
+			30 me .action_cooldown!
+			($ RAINBOW .. carlsay $) me .yellmsg
+		;
+
+		: carl-commands to eventid to me
+			me .action_cooldown@ if exit then
+			eventid THING_EVENT_SWING = if carl then
+		; last animate!
+	
+	MOD_LNK #set
+		: lnksay 1 5 rnd case
+			1 of "KYAAA!" endof
+			2 of "KYAAAAA!" endof
+			3 of "HYAAAA!" endof
+			4 of "KYAAAAAAAAAAA!" endof
+			5 of "HYWAAA!" endof
+		endcase ;
+
+		: lnkattack
+//			me .action_cooldown@ if me exit then
+//			30 me .action_cooldown!
+			me .carried if
+				($ RAINBOW .. "HAAUUUGH!" $) me .yellmsg
+					
+			else
+				($ RAINBOW .. lnksay $) me .yellmsg
+			then
+		;
+
+		: lnk-events to eventid to me
+			eventid THING_EVENT_SWING = if lnkattack then
+		; last animate!
+	
+	// Cancelled
+	MOD_MADSCI #set
+		: madsci-port
+			30 3 * me .action_cooldown!
+			($ RAINBOW .. "INSERT TELEPORT EFFECT HERE" $) me .yellmsg
+		;
+
+		: madsci-commands to me
+			me .action_cooldown@ if me .deny exit then
+			me .isswap? if madsci-port then;
+		; last command!
+
+	// Special: seek out mjolnir THING and make it return
+	MOD_VALK #set
+		: valk-throw
+			30 3 * me .action_cooldown!
+			($ RAINBOW .. "EAT HAMMER, NERDS" $) me .yellmsg
+		;
+
+		: valk-commands to me
+			me .isswap? if me mission{ .get-mjolnir } then;
+		; last command!
+
+		: .swapattackok?
+			me .wielded me .character@ .weapon_nodropa@ = if 1 exit then
+			me .wielded me .character@ .weapon_nodropb@ = if 1 exit then
+			me .altwielded me .character@ .weapon_nodropa@ = if 1 exit then
+			me .altwielded me .character@ .weapon_nodropb@ = if 1 exit then
+			0
+		;
+
+	MOD_SWAP_ATTACK #set
+		: swap-attack-commands to me
+			me .isswap? not if 0 me .slotuse! then;
+			1 me .slotuse!
+			me .attack
+		; last command!
+		
+	MOD_HORSE #set
+		: horse-neigh
+			10 3 * me .action_cooldown!
+			($ RAINBOW .. "NEIGH" $) me .yellmsg
+		;
+
+		: horse-commands to me
+			me .action_cooldown@ if exit then
+			me .isswap? if horse-neigh then;
+		; last command!
+
+
+	MOD_CAT #set
+		: .charmew
+			sfx{
+				catmew 0.25 fx .scale!
+				} .seed@ sfx{ 8 >> 7 & 7 / 0.35 * 0.75 + fx .pitch!
+			}
+			0 1 camera.pos alertlcxy
+		;
+		
+		: .mew dup .character@ .charmew
+			dup sfx{ .adjust-vol } >r
+			0.375 ($ PINK .. "mew" $) r@ .reportdur
+			-5 r> .shudder!
+		;
+
+		: .hiss
+			sfx{
+				noise 0.75 2 frnd fx .pitch!
+				0.5 fx .scale!
+				240 fx .freq! 500 fx .freq2!
+				350 fx .a! 25 fx .d! 0.8 fx .q! 0.25 fx .s! 150 fx .r!
+				1000 fx .filt_high!
+				.adjust-vol
+			}
+		;
+
+		: cat-mew
+			10 3 * me .cooldown!
+			me .mew
+			1 me .faceframe!
+			// TODO: Some sort of cat special mew action?
+		;
+
+		: cat-commands to me
+			me .isattack? if
+				me .hiss
+				0.375 ($ RED .. FLICKER .. "hiss!" $) me .reportdur
+			then;
+			me .cooldown@ if exit then
+			me .isswap? if cat-mew then;
+		; last command!
+
+	MOD_DSYP #set
+		
+		0 value dsyp-farted
+		
+		: dsyp-fart1
+			me .pos 5 + xyfart -1 lt .hitcheck.blast!
+			-30 me .shudder!
+		;
+		
+		: dsyp-fartdie
+			dsyp-fart1 0 me .character@ .health!
+		;
+		
+		: dsyp-fart
+
+			30 3 * me .action_cooldown!
+			($ RAINBOW .. "FART" $) me .yellmsg
+			' dsyp-farted ++
+
+			dsyp-farted 3 < if
+				dsyp-fart1
+			then;
+
+			dsyp-farted 10 < if
+				80 %chance if dsyp-fart1 else dsyp-fartdie then
+			then;
+
+			25 %chance if dsyp-fart1 else dsyp-fartdie then
+		;
+
+		: dsyp-commands to me
+			me .action_cooldown@ if me .deny exit then
+			me .isswap? if dsyp-fart then;
+		; last command!
+
+	MOD_ANIME #set
+		: animesay 1 16 rnd case
+			1 of "Heart Beam!" endof
+			2 of "Heeeaaaart Beeeaaaam!" endof
+			3 of "Kyaaaaaa!" endof
+			4 of "You're in for it now!" endof
+			5 of "LOVELY TRANSFORM!" endof
+			6 of "*sparkles*" endof
+			7 of "*twirls*" endof
+			8 of "I can't believe senpai is a zombie!" endof
+			9 of "( ^ '-' ^ )" endof
+			10 of "(*' ^'*)" endof
+			11 of "(* > ^ < *)" endof
+			12 of "(po_o)q" endof
+			13 of "(*' ^'*)" endof
+			14 of "(('v' *))" endof
+			15 of "( 'v' )" endof
+			16 of "(`^w^`)" endof
+		endcase ;
+
+		: kyaaaaaa
+			// me .action_cooldown@ if exit then
+			// 40 me .action_cooldown!
+			($ RAINBOW .. animesay $) me .yellmsg
+		;
+
+		: anime-commands to eventid to me
+			eventid THING_EVENT_SWING = if kyaaaaaa then
+		; last animate!
+			
+
+	MOD_SHODUKIN #set
+		mission{
+		thing-event: shodukin-glow
+			eventid THING_EVENT_TIMER <> if exit then
+
+			1 me .timer! 
+
+
+			particle{ new me .pos pos! }
+//				me .spriteid@ particle{ spriteid! }
+				particles32_base_id 6 + particle{ spriteid! }
+				me .angle@ particle{ angle! }
+				me .flip@ particle{ not flipx! }
+
+
+				particle{
+					1 ticks!
+					0 clr.r!
+					madticks 30 * sin 0.4 * 0.4 + clr.g!
+
+					pcopy glowy 5 ticks! ticks@ fade_out!
+					clr.r@ 0.5 * clr.r!
+					clr.g@ 0.5 * clr.g!
+					clr.b@ 0.5 * clr.b!
+					0.9 grow!
+					}
+
+		;
+		}
+
+		: shodukin locals( b )
+
+			60 2 * me .action_cooldown!
+
+			blast -> b
+			8 <- b .hitcheck.rad!
+			45 <- b .anim.counter!
+			me .pos3 <- b .pos.z! <- b .pos.y! <- b .pos.x! 
+
+//			particles32_base_id 6 + <- b .spriteid!
+			0 <- b .spriteid!
+
+			3 <- b .hitcheck.knockback!
+			1 <- b .hitcheck.power!
+			me .flip@ <- b .flip!
+
+			1 <- b .anim.extra!
+
+			mission{ ' shodukin-glow <- b .events! }
+			
+			1 <- b .timer!
+
+			me .aim_angle@ anglexy 3 xymul <- b .vel.y! <- b .vel.x!
+			me .aim_angle@ <- b .angle!
+
+			sfx{ noise 1 fx .pitch!
+				1000 fx .freq!
+				50 fx .freq2!
+				50 fx .a! 
+				50 fx .d! 
+				0.25 fx .s!
+				550 fx .r! 
+				0.5 fx .q!
+				1000 fx .filt!
+				0.75 1 frnd fx .pitch!
+				0.5 fx .scale!
+				}
+			me .adjust-vol
+		;
+
+		: shodukin-commands to me
+			me .action_cooldown@ if exit then
+			me .isattack? not if exit then
+			me .weapon_slot_using@ 0= not if exit then
+			me .carryid@ if exit then
+			shodukin
+		; last command!
+
+	MOD_EHZERBEAM #set
+
+		: ehzershot to eventid to me
+
+			eventid THING_EVENT_TIMER = if exit
+				1 me .timer! 
+
+				me .fade@ if then;
+
+				particle{ new me .pos pos! } me .pos.z@ particle{ pos.z! }
+					particles_base_id 0x 4b + particle{ spriteid! }
+					me .angle@ particle{ angle! }
+					me .flip@ particle{ not flipx! }
+
+					particle{
+						1 ticks!
+						0 clr.b!
+						madticks 30 * sin 0.4 * 0.4 + clr.g!
+
+						pcopy glowy 5 ticks! ( ticks@ fade_out! )
+						clr.r@ 0.5 * clr.r!
+						clr.g@ 0.5 * clr.g!
+						clr.b@ 0.5 * clr.b!
+						0.9 grow!
+						}
+			then;
+
+			eventid THING_EVENT_BOUNCE <> if then;
+			blast
+			me .pos3 lt .pos.z! lt .pos.y! lt .pos.x!
+			-1 lt .hitcheck.blast!
+			5 lt .hitcheck.knockback!
+			2 lt .hitcheck.power!
+
+			1 lt .anim.counter!
+			40 lt .rad.x!
+			lt .rad.x@ lt .hitcheck.rad!
+			sfx{ thump 0.125 fx .pitch! 500 fx .d! 0.25 fx .s! 500 fx .r! 0.75
+				fx .q! 200 fx .i!
+				fx .scale@ 2 * fx .scale! me .pos xy-vol }
+
+			5 me .smashybits
+
+			me .pos me .pos.z@
+			particle{ 	// CANADIAN mushroom cloud
+				new
+					pos3!
+					glowy
+					20 ticks!
+					5 fade_out!
+					1.025 grow!
+					0.75 scaley!
+					0.75 scale!
+					1 clr.r! 0 clr.g! 0.0 clr.b!
+					-2 vel.y!
+					
+					particles32_base_id 3 + spriteid!
+
+				// blast ring
+				pcopy
+					0 wait!
+					15 ticks!
+					5 fade_out!
+					0.75 scaley!
+					0.5 scale!
+					1.1 grow!
+					0 vel.y!
+					particles32_base_id 4 + spriteid!
+					1 clr.r! 0 clr.g! 0.0 clr.b!
+
+				// mushroom stem
+				pcopy
+					20 ticks!
+					5 fade_out!
+					1 scale!
+					1 grow!
+					0.5 scaley!
+					1.05 growy!
+					-1 vel.y!
+					particles32_base_id 5 + spriteid!
+					1 clr.r! 0 clr.g! 0.0 clr.b!
+
+				// Stem ring
+				pcopy
+					pos.z@ 10 + pos.z!
+					10 ticks!
+					1 grow!
+					10 fade_in!
+					2 fade_out!
+					-3 vel.y!
+					8 wait!
+					particles32_base_id 4 + spriteid!
+					0.5 scale!
+
+				// white flash
+				pcopy
+					pos.z@ 15 - pos.z!
+					10 ticks!
+					0 wait!
+					0.75 scaley!
+					0 angle!
+					1 growx!
+					1 growy!
+					1 scalex!
+					4 scale!
+					0.6 grow!
+					0 vel.y!
+					particles32_base_id 1 + spriteid!
+					1 clr.r! 1 clr.g! 1 clr.b!
+
+				pcopy
+					0 clr.g! 0 clr.b!
+					nonglowy
+					1 scalex!
+					1 scaley!
+					0.5 scale!
+					1.02 grow!
+					-0.5 vel.y!
+					particles_base_id 0x 2c + spriteid!
+					0 360 frnd angle!
+					5 rndsign * rotate!
+					30 wait!
+					60 ticks!
+					10 fade_in!
+					30 fade_out!
+
+				// Copied at later times
+				pcopy
+					0 360 frnd angle!
+					5 rndsign * rotate!
+					45 wait!
+					0.8 scale@ * scale!
+
+				pcopy
+					0 360 frnd angle!
+					5 rndsign * rotate!
+					60 wait!
+					0.7 scale@ * scale!
+
+			}
+
+			me silentkillit
+		;
+
+		: ehzerbeam spawn lt args( b )
+			' ehzershot <- b .events!
+			1 lt .timer!
+//			1 me .glow! // WHAT WHY this makes the mechamountie glow
+			TILEFLAG_NO_COLLIDE lt .tileflags!
+			particles32_base_id 0x 17 + <- b .spriteid!
+			10 me .action_cooldown!
+			32 <- b .hitcheck.rad!
+			45 <- b .anim.counter!
+			1 <- b .nocollide!
+			1 <- b .no_hit!
+			0 <- b .gravity!
+			me .aim_angle@ anglexy 3 xymul <- b .vel.y! <- b .vel.x!
+			2 <- b .vel.z!
+			1 lt .no_lighting!
+
+			me .pos3 <- b .pos.z! <- b .pos.y! <- b .pos.x!
+			-35 <- b .pos.z!
+			<- b .vel.x@ <- b .vel.y@ <- b .vel.z@ + xyangle <- b .angle!
+			0 lt .clr.b!
+			0 lt .clr.g!
+			5 lt .fade!
+			1 lt .scale.y!
+
+			sfx{ fm_sweep A0 32 * fx .ramp_start! C0 4 * fx .ramp_end! 35 fx .freq! 1 fx .i! 0.5 fx .duty!
+				1 fx .priority! 0.75 fx .scale!
+				me .adjust-vol
+			}
+
+			particle{ new me .pos pos! particles32_base_id 3 + spriteid! } me .pos.z@ 35 - particle{ pos.z!
+				} me .vel particle{ vel!
+				pos.x@ me .flipx 5 * + pos.x!
+				0 clr.g!
+				0 clr.b!
+				1.2 grow!
+				glowy
+				0.25 scaley!
+				5 ticks!
+				0.5 scale!
+
+				me .turnframe@ if 1 layer! then
+
+				pcopy 1 clr.r! 1 clr.g! 1 clr.b! 0.125 scaley! 0.5 scalex!
+				// ticks@ 2 / fade_out!
+			}
+
+		;
+
+		: .mecha-say args( str thing )
+			FLASHY <- str $cat <- thing .yellmsg
+			sfx{ fx .pitch@ 0.25 * fx .pitch! 0.9 fx .q! fx .scale@ 3 * fx .scale! }
+		;
+
+		: .mecha-sayings args( thing )
+			rnd5050 if "EH-ZER BEAM!" else rnd5050 if "O, CANADA" else "HOSER" then then
+			<- thing .mecha-say
+		;
+
+		: ezherbeam-commands to me
+			me .action_cooldown@ if exit then
+			me .isattack? not if exit then
+
+			3 onein if
+				me .mecha-sayings
+			then
+
+			ehzerbeam
+		; last command!
+}
+
+
+// TODO: Move these somewhere else
+
+// Prevent them from swapping weapons
+: .swapspecial USE_FLAG_SWAP swap .usefilterset ; 
+
+// Prevent from attacking normally
+: .atkspecial USE_FLAG_ATTACK swap  .usefilterset ; 
+
+: .sing statmod{ sfx{ charsing } } ;
+
+: .thing@ .cur_thingid@ #thing ;
+
+// Shortcuts for character generation TODO: Move to separate file?
+: .doggify args( self )
+
+	// If we're in a mission, drop the weapons
+	<- self .thing@ if
+		<- self .thing@ .drop-weapons
+		0 <- self .thing@ .weapon_slot_using!
+	// On road, drops everything to trunk now
+ 	else
+		<- self .weapons-to-trunk
+	then
+
+	0 <- self .weapon_nodropa!
+	0 <- self .weaponb! 0 <- self .weaponc! // Clears nodrop weapons in slots B and C
+
+	<- self .pet@ 0= if <- self .bodytype@ <- self .user.ival! then
+
+	1 <- self .pet!
+	2 <- self .vitality!
+	2 <- self .health!
+	"is a dog. Dogs used to be pets, now most are feral." <- self .job!
+
+	6 <- self .footoff.y!
+
+	0 17 rnd <- self .bodytype!
+	statmod{ MOD_DOGMALUS <- self .setmod }
+	USE_FLAG_SWAP USE_FLAG_CARRY | <- self .usefilterset 
+	WEAPON_CLAW <- self .weapon_default!
+//	<- self .swapspecial
+	<- self statmod{ .noweapon }
+	1 <- self .carrying.slot_count!
+	skeletons_base_id 8 + <- self .skeleton_spriteid!
+;
+
+: .nocantake USE_FLAG_TAKE swap .usefilterset ;
+: .nocanshoot USE_FLAG_SHOOT swap .usefilterset ;
+: .nocanthrow USE_FLAG_THROW swap .usefilterset ;
+
+// Turn a character into a singer
+: .bardify statmod{ MOD_SINGER over .setmod }  ;
+
+// BECOME ALVIS
+: .alvify
+	36 over .specialtype!
+	900 over .seed!
+	0 over .female!
+	"is a singer, trying to make it big in this zombie world." over .job!
+	WEAPON_KARATE over .weapon_default!
+	.bardify drop
+;
+
+: .zombielifter USE_INFO_CARRY_DOWNED_ZOMBIE swap .useinfoset ;
+: .zombiewrestler USE_INFO_CARRY_ZOMBIE swap .useinfoset ;
+: .nodeathdrop USE_INFO_NO_DEATH_DROP swap .useinfoset ;
+: .yesdeathdrop USE_INFO_NO_DEATH_DROP swap .useinfoclr ;
+: .nodropweapon USE_INFO_NO_DROP_WEAPON swap .useinfoset ;
+
+: .tlbify
+	25 over .specialtype!
+	100 STAT_STRENGTH 2 pick .bonus!
+	0 over .female!
+	6 over .strength!
+	"is The Last Bodybuilder. He is the True Swole One, others are mere pretenders." over .job!
+	1 over .carrying.slot_count!
+	dup .nodropweapon
+	dup .zombielifter
+	dup .nocanshoot
+	statmod{ MOD_TLBB over .setmod } dup .swapspecial .atkspecial
+;
+
+: .wrestify
+	8 over .specialtype!
+	4 over .fitness!
+	0 over .female!
+	4 over .strength!
+	"is a world famous wrestler from one of the countries where wrestling is real." over .job!
+	dup .zombiewrestler
+	dup .nocanshoot
+	statmod{ MOD_WRESTLER over .setmod } drop
+//	.swapspecial // TODO: later, maybe special throws?
+;
+
+: .fencify
+	30 over .specialtype!
+	3 STAT_FITNESS 2 pick .bonus!
+	6 over .fitness!
+	1 over .female!
+	3 over .strength!
+	"always knew that all that historical recreation swordfighting practice would pay off." over .job!
+	WEAPON_RAPIER over .weapona!
+	1 over .weapon_nodropa!
+	statmod{ MOD_FENCER over .setmod } drop
+;
+
+: ricknamer args( char )
+	0 stack
+		"R#ck" shove
+		"Sick Rhymes" shove
+		"Ding Dimes" shove
+		"Rck Trimes" shove
+		"Sheriff" shove
+		"R*ck" shove
+		"Rock" shove
+		"Ruck" shove
+		"Ryck" shove
+		"Rack" shove
+		"Reyeck" shove
+		"Rk" shove
+	shuffles pops nip
+	<- char .name!
+;
+
+: .rickify
+	2 STAT_FITNESS 2 pick .bonus!
+	3 over .fitness!
+	0 over .female!
+	4 over .strength!
+	4 over .shooting!
+	5 over .wits!
+	5 over .attitude!
+	1 over .composure!
+	7 over .hattype!
+	3 over .bodytype!
+	2 over .torsotype!
+	12 over .headtype!
+	5 over .haircolour!
+	0 over .glassestype!
+	1 over .legstype!
+	0 over .facetype!
+	6 over .loyalty!
+	2 over .medical!
+	2 over .mechanical!
+	"R#ck" over .name!
+	"used to be a sheriff. CAAAAAAAAAAAAAAAAAAAAAAAAAAAARL!!!" over .job!
+	"CARL!" over .trait!
+	"CAAAAAAARL!" over .perk!
+	WEAPON_DOLT over .weapona!
+	6 LOOT_BULLET 2 pick .lootamt!
+	statmod{ MOD_CARL over .setmod } drop
+;
+
+: .debutantify
+	12 over .specialtype!
+	3 over .fitness!
+	1 over .female!
+	2 over .strength!
+	"is a remnant from a far more civilized time." over .job!
+	WEAPON_DEBUTANTE over .weapona!
+	1 over .weapon_nodropa!
+	WEAPON_PURSE over .weaponb!
+	drop
+;
+
+: .lnkify
+	52 over .specialtype!
+	0 over .female!
+	3 over .strength!
+	4 over .fitness!
+	"isn't based off of anything and if he is, he is a parody." over .job!
+	2 over .carrying.slot_count!
+	dup .nodeathdrop
+	dup .nodropweapon
+	WEAPON_WOODSWORD over .weapona!
+	1 over .weapon_nodropa!
+	WEAPON_TREEBRANCH over .weaponb!
+	statmod{ MOD_LNK over .setmod } drop
+;
+
+: .masonify
+	1 over .specialtype!
+	0 over .specialmode!
+	-3 STAT_MORALE 2 pick .bonus!
+	6 over .fitness!
+	0 over .female!
+	6 over .strength!
+	"loves hanging out with friends!" over .job!
+	0 over .mechanical!
+	0 over .medical!
+	dup .nodeathdrop
+	2 over .carrying.slot_count!
+	WEAPON_MASONMACHETE over .weapona!
+	1 over .weapon_nodropa!
+	WEAPON_MASONSAW over .weaponb!
+	1 over .weapon_nodropb!
+	drop
+;
+
+
+: .mason? dup .specialtype@ 1 = swap .specialmode@ 0= and ;
+
+
+: .octodadify
+	5 over .specialtype!
+	1 STAT_MORALE 2 pick .bonus!
+	0 over .fitness!
+	0 over .female!
+	"is a dad. A post-apocalyptic dad." over .job!
+	0 over .strength!
+	1 over .vitality!
+	1 over .health!
+	6 over .attitude!
+	6 over .composure!
+	drop
+;
+
+: .boxerify
+	9 over .specialtype!
+	3 STAT_FITNESS 2 pick .bonus!
+	6 over .fitness!
+	1 over .female!
+	4 over .strength!
+	5 over .vitality!
+	5 over .health!
+	0 over .shooting!
+	6 over .attitude!
+	dup .nodeathdrop
+	"is a boxer, tough from fighting in the ring. She never takes her gloves off." over .job!
+	2 over .carrying.slot_count!
+	WEAPON_GLOVE over .weapona!
+	1 over .weapon_nodropa!
+	WEAPON_UPPERCUT over .weaponb!
+	1 over .weapon_nodropb!
+	statmod{ MOD_SWAP_ATTACK over .setmod } .swapspecial
+;
+
+: madsci-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		WEAPON_SOLARMAZER <- chara .weapona@ = if 50 <- chara .stackeda! then
+		WEAPON_DOODAD <- chara .weaponb@ = if 5 <- chara .stackedb! then
+	then;
+;
+
+: .madscify args( chara )
+	10 <- chara .specialtype!
+	1 <- chara .female!
+	0 <- chara .shooting!
+	"Doc" <- chara .name!
+	"is a scientist who left her secret lab for some field tests. She is NOT mad." <- chara .job!
+	6 <- chara .wits!
+	6 <- chara .mechanical!
+	// <- chara .nodeathdrop
+	WEAPON_SOLARMAZER <- chara .weapona! 50 <- chara .stackeda!
+	1 <- chara .weapon_nodropa!
+	WEAPON_DOODAD <- chara .weaponb! 5 <- chara .stackedb! 
+	1 <- chara .weapon_nodropb!
+	' madsci-main-events <- chara .main_events!
+;
+
+: .sumoify
+	6 over .specialtype!
+	0 over .female!
+	4 over .fitness!
+	6 over .strength!
+	4 over .vitality!
+	4 over .health!
+	"Sumo" over .perk!
+	"Gourmand" over .trait!
+	"is a sumo wrestler, keeping the ancient tradition of sumo alive." over .job!
+	WEAPON_SUMO over .weapon_default!
+	drop
+;
+
+
+// TODO: Move characters into their own files if this gets all too big
+
+statmod{
+char-event: valk-main-events
+//	"VALKYRIE " type eventid print
+	eventid MAIN_EVENT_DRIVING_START = if
+		"WIZARD SHOT THE FOOOD... :(" print
+		// TODO: Check if holding MJOLNIR
+		// - if so, do nothing
+		// - if not, replace and do special event
+	then
+;
+}
+
+: .valkify
+	7 over .specialtype!
+	1 over .female!
+	0 over .shooting!
+	5 over .fitness!
+	5 over .strength!
+	1 over .composure!
+	"is some sorta celestial warrior. Whatever." over .job!
+	WEAPON_MJOLNIR over .weapona!
+	statmod{ MOD_VALK over .setmod 
+	' valk-main-events swap } .main_events!
+;
+
+: .rambify
+	46 over .specialtype!
+	0 over .female!
+	5 over .shooting!
+	5 over .fitness!
+	5 over .strength!
+	0 over .composure!
+	"has similarities to that one guy, but is a completely original character." over .job!
+	// dup .nodeathdrop
+	WEAPON_MINIGUN over .weapona!
+	1 over .weapon_nodropa!
+	50 LOOT_RIFLE_SHELL 2 pick .lootamt!
+	WEAPON_RAMBEUX over .weaponb!
+	1 over .weapon_nodropb!
+	drop
+;
+
+: .billify
+	59 over .specialtype!
+	0 over .female!
+	5 over .shooting!
+	dup .nodeathdrop
+	"is a fisherman. With civilization over, there's no more fishing regulations." over .job!
+	WEAPON_RIDIC over .weaponc!
+	1 over .weapon_nodropc!
+	12 LOOT_SHOTGUN_SHELL 2 pick .lootamt!
+	20 LOOT_BULLET 2 pick .lootamt!
+	WEAPON_VLAMB over .weaponb!
+	1 over .weapon_nodropb!
+	WEAPON_VLAMFISHING over .weapona!
+	1 over .weapon_nodropa!
+	drop
+;
+
+: .ninjaify
+	15 over .specialtype!
+	1 over .female!
+	4 over .strength!
+	6 over .fitness!
+	3 over .composure!
+	0.3 over .speed_bonus!
+	"is a ninja. Her motives are mysterious whims. She's likely to vanish." over .job!
+	-2 STAT_MORALE 2 pick .bonus!
+	dup .nodeathdrop
+
+	// Paul's ninja loadout
+	WEAPON_KUNAI over .weapon_default!
+	WEAPON_SHURIKEN over .weapona! 7 over .stackeda!
+	// 1 over .weapon_nodropa!
+	WEAPON_SMOKEBOMB over .weaponb! 5 over .stackedb! 
+	// 1 over .weapon_nodropb!
+
+	// statmod{ MOD_SWAP_ATTACK over .setmod } .swapspecial
+	drop
+;
+
+: .rollerify
+	14 over .specialtype!
+	1 over .female!
+	5 over .fitness!
+	4 over .strength!
+	0 over .composure!
+	0.2 over .speed_bonus!
+	"is a former roller derby champion, ready to thump skulls." over .job!
+	WEAPON_WRENCH over .weapona!
+	WEAPON_BASEBALL over .weaponb!
+	drop
+;
+
+: .gnomify
+	33 over .specialtype!
+	3 over .composure!
+	6 over .attitude!
+	0 over .wits!
+	0 over .strength!
+	6 over .medical!
+	1 over .health!
+	1 over .vitality!
+	0.2 over .speed_bonus!
+	WEAPON_POKIN over .weapon_default!
+	"is a magical forest creature, riding a large rodent." over .job!
+	drop
+;
+
+: .gnomify2
+	75 over .specialtype!
+	3 over .composure!
+	6 over .attitude!
+	0 over .wits!
+	0 over .strength!
+	6 over .medical!
+	1 over .health!
+	1 over .vitality!
+	WEAPON_POKIN over .weapon_default!
+	"is a magical forest creature, not riding a large rodent." over .job!
+	drop
+;
+
+: .horsify
+	34 over .specialtype!
+	0 over .female!
+	0 over .shooting!
+	6 over .fitness!
+	0 over .strength!
+	3 over .composure!
+	3 over .wits!
+	3 over .attitude!
+	2 over .vitality!
+	0.4 over .speed_bonus!
+	"is a man in a horse mask. But he's more than a man. He's a horse." over .job!
+	1 over .carrying.slot_count!
+	dup .atkspecial
+	dup .nodropweapon
+//	dup .nocanshoot
+	statmod{ MOD_HORSE over .setmod } dup .swapspecial
+	drop
+;
+
+: .knightify
+	53 over .specialtype!
+	1 over .female!
+	6 over .fitness!
+	6 over .strength!
+	30 over .health!
+	dup .nodeathdrop
+	"wears a thick suit of custom-fitted armor. She is nigh invulnerable!" over .job!
+	1 over .carrying.slot_count!
+	WEAPON_KNIGHT over .weapona!
+	1 over .weapon_nodropa!
+	// WEAPON_GAUNTLET over .weaponb!
+	// 1 over .weapon_nodropb!
+	drop
+;
+
+: .cleanerify
+	45 over .specialtype!
+	1 over .female!
+	"isn't necessarily a cleaning woman. She might just like the outfit." over .job!
+	WEAPON_ULTRAMOP over .weapona!
+	1 over .weapon_nodropa!
+	drop
+;
+
+: .dsypify
+	58 over .specialtype!
+	0 over .female!
+	0 over .shooting!
+	0 over .fitness!
+	0 over .strength!
+	3 over .composure!
+	3 over .wits!
+	3 over .attitude!
+	"is the star of a very popular game that I can't say the title of." over .job!
+	1 over .carrying.slot_count!
+	WEAPON_CARDBOARD over .weapona!
+	statmod{ MOD_DSYP over .setmod } dup .swapspecial
+	dup .nodropweapon
+	drop
+;
+
+: .animeify args( chara )
+	<- chara .name@ dup $len 8 min $left "-chan" $cat <- chara .name!
+	62 <- chara .specialtype!
+	1 <- chara .female!
+	0 <- chara .shooting!
+	5 <- chara .fitness!
+	2 <- chara .strength!
+	6 <- chara .attitude!
+	"Anime Girl" <- chara .trait!
+	"is a magical anime girl. She seems to be getting more anime by the day." <- chara .job!
+	WEAPON_LOVELY <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	statmod{ MOD_ANIME <- chara .setmod }
+;
+
+: .pqify
+	32 over .specialtype!
+	0 over .female!
+	0 over .shooting!
+	5 over .fitness!
+	5 over .strength!
+	6 over .attitude!
+	"is a main character from Punch Quest." over .job!
+	dup .nodeathdrop
+	WEAPON_PUNCHQUEST over .weapona!
+	1 over .weapon_nodropa!
+//	statmod{ MOD_SHODUKIN over .setmod } dup .swapspecial
+	statmod{ MOD_SHODUKIN swap .setmod } 
+;
+
+
+: .mechamountie-ai args( chara )
+	0 <- chara .ai.loot_chance!
+	0.1 <- chara .ai.wander_chance!
+	50 <- chara .ai.follow_leash!
+	150 <- chara .ai.safety_leash!
+	200 <- chara .ai.attack_dist!
+	1 <- chara .ai.attack_chance!
+	0.1 <- chara .ai.safety_threshold!
+	30 <- chara .ai.flee_dist!
+	-1 <- chara .ai.attack_level!
+	1 <- chara .ai.rush_chance!
+;
+
+: .mechamountify dup .cur_thingid@ #thing args( chara thing ) statmod{ 
+	0 <- chara .pet!
+	1 <- chara .specialtype!
+	1 <- chara .specialmode!
+	-3 <- chara .headoff.x!
+	7 <- chara .headoff.y!
+	<- chara .nocarry 
+	<- chara .notake 
+	<- chara .noswap 
+	<- chara .swapspecial <- chara .atkspecial
+	<- chara .mechamountie-ai
+	statmod{ MOD_EHZERBEAM <- chara .setmod }
+	WEAPON_EHZERBEAM <- chara .weapon_default! // To give us the melee range
+} ;
+
+: .mechamountie? dup .specialtype@ 1 = swap .specialmode@ 1 = and ;
+
+: .genieify dup .cur_thingid@ #thing args( chara thing ) statmod{ 
+	0 <- chara .pet!
+	2 <- chara .specialtype!
+	1 <- chara .specialmode!
+	<- chara .nocarry 
+	<- chara .notake 
+	<- chara .noswap 
+	<- chara .nopickups
+	0 <- chara .ai.flee_dist!
+	0.001 <- chara .ai.wander_chance!
+	0 <- chara .ai.loot_chance!
+	<- chara .swapspecial <- chara .atkspecial }
+
+	8 <- chara .floatheight!
+	3 <- chara .floatval!
+;
+
+
+: .genie? dup .specialtype@ 2 = swap .specialmode@ 1 = and ;
+: .hermit? dup .specialtype@ 2 = swap .specialmode@ 0 = and ;
+
+
+: .normify
+	0 over .pet!
+	0 over .specialtype!
+	0 over .specialmode!
+	0 over .headoff.x!
+	0 over .headoff.y!
+;
+
+statmod{
+	char-event: beepasdad beep PRINTSTACK ;
+}
+
+: anime? args( char )
+	<- char .specialtype@ 62 = <- char .specialtype@ 63 = <- char .specialtype@ 64 = <- char .specialtype@ 65 = or or or 
+;
+: dsyp? .specialtype@ 58 = ;
+
+: .beeptestify
+	statmod{ ' beepasdad } swap .main_events!
+;
+
+: uncoffeed statmod{ dup .uncoffee .unsick } ;
+: unsick statmod{ .unsick } ;
+: reset-temp-mods ' uncoffeed foreach-team-char ;
+
+
+// TODO:
+statmod{
+// char-event: cat-main-events
+//	.s 2drop cr
+//	eventid
+// ;
+}
+
+// generic petmaking, can't use weapons or carry things, skill penalties but not fitness
+: .petify args( chara )
+	1 1 1 <- chara .tint.body!
+	2 <- chara .pet!
+	WEAPON_CLAW <- chara PRINTSTACK .weapon_default!
+	statmod{ MOD_PETMALUS <- chara .setmod }
+	USE_FLAG_SWAP USE_FLAG_CARRY | <- chara .usefilterset 
+	<- chara statmod{ .noweapon }
+	1 <- chara .carrying.slot_count!	
+; 
+
+
+: .catify dup args( chara ) .doggify
+	1 1 1 <- chara .tint.body!
+	statmod{ MOD_DOGMALUS <- chara .clrmod }
+	statmod{ MOD_PETMALUS <- chara .setmod }
+	2 <- chara .pet!
+	<- chara .nocarry
+	<- chara .notake
+	-1 <- chara .breathescale!
+	-0.25 <- chara .bounceval!
+	WEAPON_FIERCE <- chara .weapon_default!
+	skeletons_base_id 0x c + <- chara .skeleton_spriteid!
+	statmod{ MOD_CAT <- chara .setmod } <- chara .swapspecial
+
+	"is a cat. Cats used to be pets, now most are feral. And huge." <- chara .job!
+
+	3 <- chara .vitality!
+	3 <- chara .health!
+	0 7 rnd <- chara .bodytype!
+	4 5 rnd <- chara .fitness!
+	0 <- chara .loyalty!
+	4 5 rnd <- chara .morale!
+	-2 STAT_MORALE <- chara .bonus!
+	1 STAT_FITNESS <- chara .bonus!
+;
+
+
+0 value kspet-checker
+
+: .oscarcatify dup args( chara ) .catify
+	9 <- chara .bodytype!
+	"Oscar" <- chara .name!
+	1 STAT_MORALE <- chara .bonus!
+	0 <- chara .female!
+	6 <- chara .wits!
+	6 <- chara .attitude!
+	6 <- chara .composure!
+	"is the nicest cat in the world." <- chara .job!
+	' kspet-checker ++
+;
+
+: .sambyoolify dup args( chara ) .doggify
+	20 <- chara .bodytype!
+	<- chara statmod{ .superdog }
+	"Sam Byool" <- chara .name!
+	0 <- chara .female!
+	WEAPON_SHOTGUN <- chara .weapona!
+	12 LOOT_SHOTGUN_SHELL <- chara .lootamt!
+	6 <- chara .shooting!
+	6 <- chara .composure!
+	6 <- chara .wits!
+	($ "is a hyper-intelligent wiener dog. 
+	Full name: " .. "Lil' Sam Byool" pbold $) <- chara .job!
+	' kspet-checker ++
+;

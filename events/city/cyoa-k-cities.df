@@ -1,0 +1,208 @@
+uses base.df
+uses charfilt.df
+uses charstats.df
+// uses road.df
+
+// uses paul/building-pick-layout-test.df
+
+uses events/city/region/special-lots.df
+// uses events/block/blocktestlayout.df
+
+cyoa{ road{
+
+// : specialmission regiondef{ special-lot-setup-example } premission ;
+
+: easycity-picker
+	0 stack
+		"events/city/region/easy/easy-burb-vary-3x3.df" shove
+		"events/city/region/easy/easy-aparts-1row.df" shove
+		// "events/city/region/easy/easy-aparts-mid-2x3.df" shove
+		"events/city/region/easy/easy-burb-3x2.df" shove
+		"events/city/region/easy/easy-burb-4x2.df" shove
+	shuffles pops nip
+;
+
+: citylayout1 "events/city/region/burb-narrow-3x3.df" ;
+: citylayout2 "events/city/region/aparts-mid-3x3.df" ;
+: citylayout3 "events/city/region/aparts-vary-4x3.df" ;
+: citylayout4 "events/city/region/aparts-narrow-4x3.df" ;
+: citylayout5 "events/city/region/aparts-wide-3x3.df" ;
+: citylayout6 "events/city/region/mix-vary-3x3.df" ;
+: citylayout7 "events/city/region/aparts-vary-3x4.df" ;
+: citylayout8 "events/city/region/burb-vary-3x4.df" ;
+: citylayout9 "events/city/region/mix-3x4.df" ;
+: citylayout10 "events/city/region/aparts-vary-2x4.df" ;
+: citylayout11 "events/city/region/burb-vary-2x4.df" ;
+: citylayout12 "events/city/region/mix-4x2.df" ;
+: citylayout13 "events/city/region/aparts-vary-4x2.df" ;
+: citylayout14 "events/city/region/mixed-vary-5x2.df" ;
+: citylayout15 "events/city/region/suburb-vary-5x2.df" ;
+: citylayout16 "events/city/region/mixed-rnd-3x2.df" ;
+: citylayout17 "events/city/region/burb-vary-3x2.df" ;
+: citylayout18 "events/city/region/burb-1row.df" ;
+
+	deck-new
+		card: citylayout1
+		card: citylayout2
+		card: citylayout3
+		card: citylayout4
+		card: citylayout5
+		card: citylayout6
+		card: citylayout7
+		card: citylayout8
+		card: citylayout9
+		card: citylayout10
+		card: citylayout11
+		card: citylayout12
+		card: citylayout13
+		card: citylayout14
+		card: citylayout15
+		card: citylayout16
+		card: citylayout17
+		card: citylayout18
+	constant CITYLAYOUT-DECK
+	CITYLAYOUT-DECK var citylayout-deck
+	CITYLAYOUT-DECK shuffles to citylayout-deck
+	
+: citylayoutdeck 
+	citylayout-deck depths 0= if CITYLAYOUT-DECK shuffles to citylayout-deck then
+	drawcard ;
+
+cyoa: easycity1
+	"Afternoon Raid" cyoa-title!
+	someicon
+	($ Thegroup .. " spots an infested city from the road. Scouting it from afar, " .. ghe .. " has to decide whether to fight under the noon sun for supplies." $) cyoa-text! basic-tone
+	0.9 1.1 frnd 12 1 zforecast
+	($ "From a distance, " .. thegroup .. " sees something of interest:" $) +crtext
+	easycity-picker $load-region
+		lot-draw
+;
+
+cyoa: easycity2
+	"Early Morning Zombies" cyoa-title!
+	someicon
+	($ Thegroup .. " spies a city from a distance. There's more undead than usual, but it's early in the day so they should be groggy. At least at first." $) cyoa-text! basic-tone
+	1.1 1.3 frnd 7 9 frnd 0 zforecast
+	($ "When driving into the city, " .. thegroup .. " spots something:" $) +crtext
+	easycity-picker $load-region
+		lot-draw
+;
+
+cyoa: easycity3
+	"Light Rain" cyoa-title!
+	someicon
+	($ Thegroup .. " reaches a city as it starts to rain. The drizzle seems to rile up the local zombies." $) cyoa-text! basic-tone
+	0.9 10 15 frnd 2 zforecast
+	0.1 0.2 frnd weather! -0.5 0.5 frnd wind_force! 
+	($ "When driving into the city, " .. thegroup .. " discovers:" $) +crtext
+	easycity-picker $load-region
+		lot-draw
+;
+
+cyoa: easycity4
+	"Fear the Night" cyoa-title!
+	someicon
+	($ Thegroup .. " drives into a city as it starts to get dark. Try not to lose track of time. Things can get bad after the sun sets." $) cyoa-text! basic-tone
+	0.8 17 18 frnd 0 zforecast 
+	($ "When driving into the city, " .. thegroup .. " finds:" $) +crtext
+	easycity-picker $load-region
+		lot-draw
+;
+
+cyoa: easycity5
+	"Quick Looting" cyoa-title!
+	someicon
+	($ Thegroup .. " drives through a city that hasn't been completely over-run. You should look for supplies to stock up for the journey." $) cyoa-text! basic-tone
+	0.9 1.1 frnd 10 16 frnd 0 1 rnd zforecast
+	($ "When driving into the city, " .. thegroup .. " spots something:" $) +crtext
+	easycity-picker $load-region
+		lot-draw
+;
+
+cyoa: normcity1
+	"Bustling City" cyoa-title!
+	someicon
+	($ Thegroup .. " finds a city in the afternoon. The dead swarm over it. They're idle now, but they will notice you soon enough." $) cyoa-text! basic-tone
+	1.3 1.7 frnd 11 15 frnd 0 zforecast
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+cyoa: normcity2
+	"Crowded City" cyoa-title! 0 to cyoaicon cyoaicon
+	someicon
+	($ Thegroup .. " sees a city in the distance, with zombies crowding the streets. Getting back alive may be difficult." $) cyoa-text! basic-tone
+	1.5 1.8 frnd 8 14 frnd 1 zforecast
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+cyoa: normcity3
+	"City Before Dusk" cyoa-title!
+	someicon
+	($ Thegroup .. " is travelling close to nightfall and sees a city in the distance. The zombies grow more aggressive as the sun sets." $) cyoa-text! basic-tone
+	0.8 1 frnd 18 20 frnd 1 2 rnd zforecast
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+cyoa: normcity4
+	"Quiet City" cyoa-title! 0 to cyoaicon cyoaicon
+	someicon
+	($ Thegroup .. " explores a fairly quiet city. This is a good chance to resupply in relative safety." $) cyoa-text! basic-tone
+	0.8 1.1 frnd 8 16 frnd 0 zforecast
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+cyoa: normcity5
+	"Rush Hour" cyoa-title!
+	someicon
+	($ "The zombies in this city have stirred. They are already aggressive as " .. thegroup .. " arrives." $) cyoa-text! basic-tone
+	1 1.3 frnd 16 17 frnd 2 zforecast
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+cyoa: normcity6
+	"City in the Rain" cyoa-title!
+	someicon
+	($ "It has started to rain over this city. The zombies become more aggressive in response, for reasons that have not been explained." $) cyoa-text! basic-tone
+	1 1.3 frnd 7 15 frnd 2 zforecast
+	0.4 1 frnd weather! -1 1 frnd wind_force!
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+cyoa: normcity7
+	"City in the Storm" cyoa-title!
+	someicon
+	($ "A storm descends on " .. thegroup .. ". In the pouring rain, the zombies of this city search for the living!" $) cyoa-text! basic-tone
+	1 13 17 frnd 3 zforecast
+	1 1.5 frnd weather! -2 2 frnd wind_force!
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+cyoa: normcity8
+	"City Outskirts" cyoa-title!
+	someicon
+	($ Thegroup .. " drives into the outskirts of a city. Zombies mill around, but they haven't seemed to notice the car yet." $) cyoa-text! basic-tone
+	1 1.3 frnd 9 16 frnd 0 1 rnd zforecast
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+cyoa: normcity9
+	"Waking the City" cyoa-title!
+	someicon
+	($ Thegroup .. " drives into a new city. Noises from the car have already started to draw attention from the undead." $) cyoa-text! basic-tone
+	1.2 1.5 frnd 7 9 frnd 2 zforecast
+	citylayoutdeck $load-region
+		lot-draw
+;
+
+} }
+
+
+

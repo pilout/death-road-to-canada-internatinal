@@ -1,0 +1,114 @@
+0 stack var familiar-stack
+
+: .applyperk args( chara )
+	0 6 rnd <- chara .wits! 0 6 rnd <- chara .attitude!
+	0 6 rnd <- chara .composure! 0 6 rnd <- chara .loyalty!
+	<- chara .perk@ dup "APPLYING PERK: " type print perk-find dup if <- chara swap execute then
+;
+
+: .applytrait args( chara )
+	<- chara .trait@ dup "APPLYING TRAIT: " type print trait-find dup if <- chara swap execute then
+;
+
+: draw-familiar
+	familiar-stack depths for
+		pops #savechar-clone dup if
+			nip #character
+			dup .applyperk dup .applytrait
+		then;
+		drop
+	next
+	drop 0
+;
+
+cyoa{ road{
+
+: fam-text
+	0 stack
+		($ rHe .. " hasn't seen " .. thegroup .. " yet, and is real busy picking " .. rhis .. " nose." $) shove
+		($ rHe .. " is sleeping on a picnic table, right out in the open." $) shove
+		($ rHe .. " was found trying to pull open a door that said PUSH on it." $) shove
+		($ rHe .. " is humming a little song, and hasn't noticed " .. thegroup .. " yet." $) shove
+		($ rHe .. " is being thrown out by " .. rhis .. " former group. They seem pretty angry. " .. rname .. " shrugs." $) shove
+		($ rHe .. " was sleeping in an abandoned house. " .. rHe .. " is slightly irritated to have been woken up." $) shove
+		($ rHe .. " is sitting in a park, reading a book." $) shove
+		($ rHe .. " was making tons of noise, playing a portable game console at full blast." $) shove
+		($ rHe .. " is eating a candy bar. Those things still haven't gone bad." $) shove
+		($ rHe .. " stretches. Then " .. rhe .. " stretches some more. It's an elaborate stretching routine." $) shove
+		($ rHe .. " pokes the dirt with a stick. Maybe " .. rhe .. " is drawing plans, maybe just poking the dirt with a stick." $) shove
+		($ rHe .. " is staring at a map, with an expression of total confusion." $) shove
+		($ rHe .. " is yelling at some survivors, because they made fun of " .. rhis .. " hair." $) shove
+		($ rHe .. " is kicking a car in frustration. The car is emitting plumes of smoke." $) shove
+		($ rHe .. " is fighting a single zombie, then suddenly trips and falls down in an awkward mistake. " .. rHe .. " gets really embarassed when " .. rhe .. " notices " .. thegroup .. "." $) shove
+		// ($ rHe .. " " $) shove
+	shuffles pops nip
+;
+
+: familiar-carnut-yes
+	perkdef{
+		carnut-picker to starting-car
+		starting-car get-car 
+	}
+;
+
+cyoa: familiar-carnut-event
+	"Sweet Ride" cyoa-title! ricon
+		($ rname .. " said that " .. rhe .. " had " .. rhis .. " own car stashed nearby, and that it's a " .. "'pretty sweet ride'" pbold .. "
+		Would you like to switch to " .. rname .. "'s car?" $) cyoa-text!
+		choice( "Keep current car" )choice
+		choice( "Switch to new car" )choice: familiar-carnut-yes
+		
+;
+
+: familiar-recruit-check
+	perkdef{
+		recruitee carnut? if
+			' familiar-carnut-event stack-road-action
+		then 
+	}
+;
+
+cyoa-choice: recruit-familiarreplace
+	ricon
+	($ cname .. " gets booted out of the group to make room for " .. rname .. "." $) cyoa-text!
+	decruit-bad-silent-takeweapons 0.5 600 tone
+	recruited
+	familiar-recruit-check
+;
+
+: recruit-familiarreplace?
+	' recruit-familiarreplace cyoa-team-choice
+	choice( "Leave " .. rname .. " behind" )choice
+;
+
+cyoa: recruit-familiaryes
+	team-full? if
+		($ "The group is full.
+		Who would you like to replace to make room for " .. rname .. "?" $) cyoa-text!
+			recruit-familiarreplace?
+	then;
+	ricon
+	($ Thegroup .. " accepts " .. rname .. " to the team!" $) cyoa-text! 2 300 tone
+	recruited
+	familiar-recruit-check
+;
+
+defer use-recruit-deck
+
+cyoa: famevent
+	"Familiar Faces" cyoa-title!
+
+	draw-familiar dup not if drop "NO MORE PEOPLE!" text! use-recruit-deck then;
+
+	to recruitee ricon
+
+	($ "Whoa, it's " .. rname .. "! It's nice to see a familiar face! " .. fam-text $) text! 
+		($ "TRAIT: " pbold .. recruitee .trait@ $) +crtext 
+		($ "  PERK: " pbold .. recruitee .perk@ $) +text 
+			choice( "Recruit " .. rname .. " to team" )choice: recruit-familiaryes
+			choice( "Leave " .. rname .. " behind" )choice
+;
+
+} }
+
+

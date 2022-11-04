@@ -1,0 +1,62 @@
+: lnk-annoy1
+	blurbslot 0= if // Conversation starter, then everyone in party responds
+		"KYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!" blurbsay
+	else
+		blurbslot 2 < if
+			50 %chance if
+				($ "SHUT UP!" $)
+			else
+				($ "WHAT THE HELL IS WRONG WITH YOU?" $) 
+			then
+			blurbsay STAT_MORALE me .stat--
+		then
+	then
+;
+
+: lnk-annoy2 
+	blurbslot 0= if
+		"KYAAAAAAA! KYAAAAAAAAAAA! KYAAAAAAAAAAAAA!" blurbsay
+		"KYYAAAAAAAAAAAAAAAAAAAAAAAAAUUUUGH!" blurbsay
+	else
+		50 %chance if
+			STAT_MORALE me .stat--
+		then
+	then
+;
+
+	: LNK-oneline1 "KYAAA!" ;
+	: LNK-oneline2 "KYAAAAA!" ;
+	: LNK-oneline3 "HYAAAA!" ;
+	: LNK-oneline4 "KYAAAAAAAAAAA!" ;
+	: LNK-oneline5 "HYWAAA!" ;
+	: LNK-oneline6 "HAAUUUGH!" ;
+	: LNK-oneline7 "WAUHG?" ;
+
+	deck-new
+		card: LNK-oneline1
+		card: LNK-oneline2
+		card: LNK-oneline3
+		card: LNK-oneline4
+		card: LNK-oneline5
+		card: LNK-oneline6
+		card: LNK-oneline7
+	constant LNK-ONELINERS
+	LNK-ONELINERS var lnk-oneliners
+	LNK-ONELINERS shuffles to lnk-oneliners
+
+: lnk-oneliner
+	lnk-oneliners depths 0= if LNK-ONELINERS shuffles to lnk-oneliners then
+	blurbslot 0= if
+		drawcard blurbsay
+	then
+;
+
+
+	deck-new
+	card: lnk-annoy1
+	card: lnk-annoy2
+	7 cards: lnk-oneliner
+
+	constant BLURB-LNK-DECK
+	BLURB-LNK-DECK var blurb-lnk-deck
+	BLURB-LNK-DECK shuffles to blurb-lnk-deck

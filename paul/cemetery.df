@@ -1,0 +1,265 @@
+// uses hack/region-downtown-test.df
+uses paul/region-layout.df
+
+// "../deathforth/hack/gasbar.txt" $load-rooms
+// "additional-rooms.txt" $add-rooms
+
+map{ regiondef{
+
+0 value bfx
+0 value bfy
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+: grassbunch
+	xyp.x 1 - xyp.y 1 - xyp.x 1 + xyp.y 1 + map{ grasslot }
+;
+
+: tombstone spawn special_objects32_base_id 0x 78 + 0 0x 16 rnd + lt .spriteid!
+	bbox immovable
+;
+
+
+: cemstatue spawn special_objects48_base_id 0x 24 + 0 3 rnd + lt .spriteid!
+	postify lt .rad.x@ 2 * lt .rad.x! immovable
+;
+
+: spookytree spawn rndflip
+	special_objects48_base_id 0x 1e + 0 3 rnd + lt .spriteid!
+	1 1.25 frnd lt .scale.y!
+	treeify lt .rad.x@ 2 * lt .rad.x!
+;
+
+: maybetree
+	5 onein not if
+		spookytree xyp.xy tile>pos lt .pos!
+		0 0.5 frnd rndsign * lt .jumpx
+//		0 0.5 frnd rndsign * lt .jumpy
+	then
+;
+
+: dotombstone xyp.xy tombstone tile>pos -2 2 rnd + swap -2 4 rnd + swap lt .pos! -1 lt .jumpy
+	grassbunch
+;
+
+: .no_tile_collide TILEFLAG_NO_COLLIDE swap .tileflags! ;
+
+: walktile
+	xyp.xy tile@ LAYER_WALLSIDE street_tiles_base_id 0x 5a + .lspriteid!
+	xyp.xy tile@ LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	xyp.xy tile@ LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: junkit
+	2dup tile@ 0= if 2drop then;
+	2dup tile@ LAYER_WALLSIDE street_tiles_base_id 0x 1c + .lspriteid!
+	blocked
+;
+
+: mausoleum spawn special_objects64_base_id 0x c + lt .spriteid! bbox immovable nohit
+	openable container noloot
+
+	// No collision, but...
+	lt .no_tile_collide
+
+	// Put solid wall under it so it seems like a wall
+	3 for
+		xyp.x 2 i - - xyp.y junkit
+		xyp.x 2 i - - xyp.y 1- junkit
+		xyp.x 2 i - - xyp.y 1+ junkit
+	next
+;
+
+// TODO: Do some other action on opening
+
+: domausoleum xyp.xy mausoleum tile>pos lt .pos!
+;
+
+0 value digstart
+0 value digend
+
+150 value maxzombs
+
+: dodig
+
+	zomb-count maxzombs < if
+		2 map{ w 3 - } rnd digstart digend rnd tile>pos xyzombdig
+	then
+
+	15 60 rnd timer_dur! timer_retrigger
+;
+
+: dostatue xyp.xy cemstatue tile>pos lt .pos!
+;
+
+: cemfence args( spr )
+	xyp.xy tile@ LAYER_WALLSIDE street_tiles_base_id 0x 145 + <- spr + .lspriteid!
+	xyp.xy blocked
+	xyp.xy 1- tile@ LAYER_WALLSIDE street_tiles_base_id 0x 135 + <- spr + .lspriteid!
+	xyp.xy 1- blocked
+;
+
+: doextras
+	// skeleton with tool
+	skel map{ w 0.5 * w 0.5 * 3 - rndsign * + } 3 tile>pos lt .pos! drift rndflip
+	lt .pos rnd5050 if crowbar else shovel then .pos! drift
+
+	60 5 * ' dodig timer_add
+;
+
+: fencea 0 cemfence ;
+: fenceA 1 cemfence ;
+
+: fenceb 3 cemfence ;
+: fenceB 2 cemfence ;
+
+' plotgrass >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char g = if grassbunch then;
+	xyp.i char # = if walktile then;
+	xyp.i char x = if dotombstone then;
+	xyp.i char t = if maybetree then;
+	xyp.i char a = if fencea then;
+	xyp.i char A = if fenceA then;
+	xyp.i char b = if fenceb then;
+	xyp.i char B = if fenceB then;
+	xyp.i char m = if domausoleum then;
+	xyp.i char 1 = if xyp.y to digstart then;
+	xyp.i char 2 = if xyp.y to digend then;
+	xyp.i char s = if dostatue then;
+	xyp.i char M = if domausoleum lt .spriteid@ 2 + lt .spriteid! then;
+	xyp.i char E = if doextras then;
+;
+
+"
+.t.t.t..tt...m....M....m...tt..t.t.t.
+.......tt....#....#....#....tt.......
+.t.t..tt.....#....#....#.....tt..t.t.
+..t..tt......###########......tt..t..
+.................###.................
+.................###.................
+..1x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+................#####................
+......t..t..t...##s##...t..t..t......
+................#####................
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###..............2..
+.................###.................
+aaaaaaaaaaaaaaaaA###Bbbbbbbbbbbbbbbbb
+.............t.........t.............
+.....................................
+.....................................
+.....................................
+.....................................
+..................................E.."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+
+: scarydark 1 light_mode! 0 0 0 tint_far! 1 0.5 0 tint_near!
+	0.25 gloom_lighting!
+	0.25 0.25 0.25 tint_tile_near!
+;
+
+: toodark scarydark
+	0.5 gloom_lighting!
+	0 0.5 1 tint_thing_near!
+	0 0 0 tint_thing_far!
+	0.1 0.1 0.1 tint_tile_near!
+	0 0 0 tint_tile_far!
+;
+
+: spookydark scarydark
+	0.25 gloom_lighting!
+	0.5 1 2 tint_thing_near!
+	2 0 3 tint_thing_far!
+	0.35 0.4 0.6 tint_tile_near!
+	0 0 0 tint_tile_far!
+	0.5 near_bright!
+;
+
+: darkdark scarydark
+	0.15 gloom_lighting!
+	0 0 0 tint_thing_near!
+	0 0 0 tint_thing_far!
+	1 0 0 tint_tile_near!
+	0 0 1 tint_tile_far!
+;
+
+: cloudparticle wind_force@ abs 0.5 * 0.5 max wind_force@ sign * 3 5 frnd args( relpos wind scale )
+	curmapview if then;
+	particle{
+		new
+		special_objects64_base_id 0x 10 + spriteid!
+//		0 0 0 rgb!
+//		0.2 clr.a!
+//		1 1 1 rgb!
+//		0.05 clr.a!
+		glowy 0.02 0.025 0.05 rgb!
+		<- scale 0.5 * scalex! <- scale scaley!
+		rndsign 90 * angle!
+		rnd5050 flipx!
+		90 fade_in!
+		90 fade_out!
+
+		<- wind 0.9 1 frnd * 0.5 * vel.x!
+		-1 1 frnd 0.1 * <- wind * -0.05 0.05 clamp vel.y!
+
+		map{ pixelw 64 <- scale * + vel.x@ abs / } ticks!
+
+		-1 1 frnd view_h * camera.pos.y@ + pos.y!
+
+		map{ pixelw 0.5 * 32 <- scale * + vel.x@ sign neg * <- relpos * pixelw 0.5 * + } pos.x!
+	}
+;
+
+
+: clouds 5 for -0.5 0.5 frnd cloudparticle next ;
+
+: cloudfloat 1 cloudparticle
+	60 3 * 0.5 1 frnd * timer_dur!
+	timer_retrigger
+;
+
+: cloudauto 1 ' cloudfloat timer_add cloudfloat ;
+
+: site-setup
+//	' plotgrass to ft plotmap
+	' plotgravel to ft plotmap
+
+	rndsign wind_force!
+	cloudauto clouds
+	spookydark 1 no_time!
+
+	mission{ no-leaving no-edge-spawns 1 mission-bottom-leave! }
+;
+
+// TODO: make mausoleums enterable
+
+region: cemetery
+	w: maplayout layoutw
+	h: maplayout layouth 
+
+	loc-choice: cemetery
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

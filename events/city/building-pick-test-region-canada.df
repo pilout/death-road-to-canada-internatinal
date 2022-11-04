@@ -1,0 +1,138 @@
+// uses events/city/building-pick-layout.df - Commented because special-lots already loads this. Also currently using test/loctestlayout instead.
+
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+: smallloot 
+	looseloot looselootgasmed LLweapon skelscat 2 for 50 %chance if skelscat then next
+;
+
+: bigloot 
+	LLammo LLammo looselootgasmed niceranged .drift skelscat skelscat 2 for 50 %chance if skelscat then next
+;
+
+
+
+location
+		tags: trashed
+		max-rooms: 1
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			filter-only
+
+location
+		tags: canada-loot
+		max-rooms: 1
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: smallloot
+			filter-only
+			
+location
+		tags: canada-bigloot
+		max-rooms: 1
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: bigloot
+			filter-only
+
+map{ regiondef{
+
+	: pick-building
+
+		' curbuild ++
+		
+		try-special-build if then;
+
+		rowsleft 3 >= 40 %chance and if 0 else
+			rowsleft 2 <= 75 %chance and if 0 else auto-picklocid then
+		then
+		
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+//			"trashed" $picklocid addloc	make-a-house
+			"trashed" $picklocid addloc	make-apartments
+			90 %chance if block-last-build-door then
+		then
+	;
+
+	: pick-lots
+		blocks-init
+			6 to blockh
+			5 to maxrows
+			5 to streeth
+			35 to greenspace%
+			1 3 rnd to grassylots
+		blocks-start
+
+		pavement
+
+		begin canplot? while
+
+			pick-building next-plot
+
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat
+
+		street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		5diff %zombs pavement pick-lots
+	;
+	
+} }
+
+regiondef{
+
+	: runme
+	//	special-lot-setup-example
+		mission{ all-leaving }
+		building-pick-setup
+		50 70 rnd for skelscat next
+		3 4 rnd for LLammo next 
+		LLweapon LLweapon
+		walk-music
+	;
+
+	 region: new-locations-test
+		w: 30
+		h: 56
+		script: timeofday o'clock
+
+		loc-choice: canada-bigloot
+			loc-weight: 40
+			loc-count: 1
+
+			loc-pick-script: make-apartments
+
+		loc-choice: canada-loot
+			loc-weight: 30
+			loc-count: 3
+			loc-pick-script: make-apartments
+
+		post-script: runme
+}

@@ -1,0 +1,222 @@
+// uses base.df
+// uses charfilt.df
+
+: text! cyoa-text! ;
+
+: cyoa-sprite-icon! cyoa-image-icon! ;
+: cyoa-image-icon! eventcards_base_id + cyoa-image-icon! ;
+
+// Convenience stuff for managing a picked CYOA character
+0 value choicechar#
+0 value choicenum
+0 value pickedid
+
+: choicechar choicechar# if choicechar# #character then;
+	cyoa-chosen-charid #character ;
+: choicecharname choicechar .name@ ;
+// : choosechar character# dup cyoa-choice-charid! to choicechar# ;
+: choosechar character# to choicechar# ;
+
+: autoicon variable does> @ cyoa-image-icon! ;
+autoicon cyoaicon
+
+: choicechar-as-icon choicechar# if choicechar# cyoa-char-icon! then ;
+: char-as-icon character# cyoa-char-icon! ;
+
+// redefine this to make sure that we store the chosen character ID
+// before clearing it with cyoa-start
+
+: cyoa-start-result
+
+	cyoa-chosen-charid if cyoa-chosen-charid else choicechar# then
+
+		to choicechar#
+
+		cyoa-chosen-num to choicenum
+		cyoa-picked to pickedid
+
+		cyoa-start
+
+		choicechar# cyoa-choice-charid!
+		choicechar# if choicechar# cyoa-char-icon! else cyoaicon then
+
+	"RESULT" cyoa-title!
+;
+
+: cyoa-mid-result
+	cyoa-chosen-charid if cyoa-chosen-charid else choicechar# then
+
+		to choicechar#
+
+		cyoa-start
+		
+		choicechar# cyoa-char-icon!
+
+	"THE PLOT THICKENS" cyoa-title!
+;
+
+cyoa{
+: good "WOO" cyoa-title! goodfx ;
+: bad "OH NO" cyoa-title! badfx ;
+: bite "OUCH!" cyoa-title! bitefx ;
+}
+
+// TODO: REMOVE
+: cyoa-good-dialog cyoa-start-result "WOO" cyoa-title! goodfx ;
+: cyoa-bad-dialog cyoa-start-result "OH NO" cyoa-title! badfx ;
+: cyoa-bite-dialog cyoa-start-result "OUCH!" cyoa-title! bitefx ;
+
+: cyoa-new 0 to cyoaicon 0 to choicechar# cyoa-start "" cyoa-text! 4 500 tone ;
+: cyoa-new- 0 to cyoaicon 0 to choicechar# cyoa-start- "" cyoa-text! 4 500 tone ;
+
+// Add a new CYOA choice button using provided character
+: cyoa-add-char-choice ( chara -- )
+	cyoa-add-choice
+	dup .name@ cyoa-choice-text!
+	character# cyoa-choice-charid!
+;
+
+: choice( cyoa-add-choice ($ ;
+: )choice $) cyoa-choice-text! ;
+
+: charchoice( choice( over character# cyoa-choice-charid! swap .name@ .. ;
+
+
+: )choice: postpone )choice (') postpone cyoa-choice-handler! ; immediate
+
+// Generates choices to pick the characters in your team
+
+: char-choice-with-handler
+	// dup choice( over character# cyoa-choice-charid! swap .name@ )choice choosechar
+	dup charchoice( "" )choice choosechar
+	// dup cyoa-add-char-choice	
+	dup cyoa-choice-handler!
+;
+
+: ctc-handlers ' char-choice-with-handler foreach ;
+
+: #cyoa-team-choice ( ' cyoa-choice number -- )
+	#team-stack-shuffled
+	ctc-handlers
+	2drop
+;
+
+: mission-char-choice-with-handler
+	dup .dead? if drop exit else cyoa-add-char-choice then
+	dup cyoa-choice-handler!
+;
+
+: cyoa-mission-team-choice ( ' cyoa-choice -- )
+	mission-team-stack
+	' mission-char-choice-with-handler foreach
+	drop
+;
+
+: #cyoa-team-choice-except ( ' cyoa-choice character number -- )
+	#team-stack-shuffled-except
+	ctc-handlers
+	2drop
+;
+
+: cyoa-team-choice ( ' cyoa-choice -- ) team-count #cyoa-team-choice ; 
+: cyoa-team-choice-except ( ' cyoa-choice character -- )
+	team-count 1 - #cyoa-team-choice-except 
+;
+
+: cyoa-char-stack-choice ( ' cyoa-choice stack -- )
+	ctc-handlers 2drop
+;
+
+: team-nearby? mission-team-stack depths nip 1 > if absentees not nip then; 0 ;
+: o'clock@ hour minute 60 / + ;
+
+// END choice words
+
+: .colourname ($ PURPLE .. swap .name@ .. WHITE $) ;
+
+: premission to-pre-mission ( beep ) "PREMISSION" print ;
+
+: entercity ' premission cyoa-choice-handler! ;
+
+: cyoa-text-cr2 cyoa-text-cr cyoa-text-cr ;
+
+: +cr cyoa-text-cr2 ;
+: +text cyoa-text-append ;
+
+// Common shortcuts
+
+: cchar choicechar ;
+: notcchar cchar team-stack-except shuffles pops nip ; 
+: .notchoosechar team-stack-except shuffles pops nip choosechar ; 
+
+// Chosen character's icon
+: cicon cchar character# cyoa-char-icon! ;
+
+// Random team member's icon (and choose them)
+: someicon someone choosechar cicon ;
+
+// Player's icon
+: picon pchar character# if pchar character# cyoa-char-icon! then ;
+: picon! picon pchar choosechar ;
+
+// interactee's icon
+: iicon interactee .charid@ if interactee .charid@ cyoa-char-icon! then ;
+
+: cname cchar .colourname ;
+: notcname notcchar .colourname ;
+: rname recruitee .colourname ;
+: soloname soloer .colourname ;
+: somename someone .colourname ;
+: pname pchar .colourname ;
+
+// For automating creationg of a choice-card word with title etc.
+: _choicer ( 'choiceword "text" "name" ) $create 2 stack <shove <shove last >body !
+	does> cyoa-add-choice 1 picks cyoa-choice-text! 2 picks cyoa-choice-handler! drop ;
+: choice-card: (') swap dup >r char - 32 r> $replace _choicer last shove ;
+
+: +crtext +cr +text ;
+
+cyoa{
+: cyoa:
+	: postpone cyoa-new postpone picon
+; immediate
+
+: cyoa-blank:
+	: postpone cyoa-new
+; immediate
+
+: cyoa-choice:
+	: postpone cyoa-start-result
+; immediate
+
+: cyoa-bridge:
+	: postpone cyoa-mid-result
+; immediate
+
+
+: cyoa-interactee:
+	: postpone cyoa-new postpone iicon
+; immediate
+
+}
+
+cyoa{
+
+: fcoolit 
+	cool-it 5 > if 
+	.. 5 textclr$ .. "!!!" .. 0 textclr$ fbold
+	then
+;
+
+	: backicon icons16_id ICON_ARROWLEFT + cyoa-choice-iconid! ;
+	: circleicon icons16_id ICON_SLOT_EMPTY + cyoa-choice-iconid! ;
+	: ballicon icons16_id ICON_SLOT_USED + cyoa-choice-iconid! ;
+	: thumbupicon icons16_id ICON_UP + cyoa-choice-iconid! ;
+	: thumbdownicon icons16_id ICON_DOWN + cyoa-choice-iconid! ;
+	: skullicon icons16_id ICON_SKULL + cyoa-choice-iconid! ;
+
+	: cyoa-back-esc cyoa-choice-esc-default backicon ;
+
+}
+
+: back-esc cyoa{ cyoa-back-esc } ;

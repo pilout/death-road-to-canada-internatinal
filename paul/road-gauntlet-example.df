@@ -1,0 +1,41 @@
+uses paul/region-road-layout.df
+
+
+map{ mission{ regiondef{
+
+	// The stuff below is all you need to do
+	: rg-init
+		3 region.zombie_alertscale!
+		0 mission-bottom-leave!
+		1 mission-right-leave!
+	;
+
+	: rg-build
+		rg-init
+		// 2 9 3 zforecast // TESTING aggressive little shitz
+
+		10diff %zombs // This is setting region.zombie_aggro! to ZERO (default) if zforecast is not set up first
+
+		// The prefab road options so far
+//		cityroad some-car-wrecks 
+//		countryroad some-car-wrecks 
+//		gravelroad some-car-wrecks 
+//		dirtroad some-car-wrecks 
+		tunnelroad 0.75 %some-car-wrecks sfx{ 0.075 0.6 globalecho } // TUNNEL ECHO-O-O-O
+
+		// some-car-wrecks is random car wrecks with one-in-5-chance of general-loot. Edit in region-road-layout.df if you need
+		
+
+		( chanceofendcar %chance if )
+		0 12 rnd ( pick a car in the "normal" range ) spawn-end-car // You still need to add your desired CYOA to the resulting car 
+		( then )
+	;
+
+	region: road-gauntlet
+		w: 70
+		h: 11
+		on-foot
+
+	post-script: rg-build
+
+} } }

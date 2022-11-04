@@ -1,0 +1,242 @@
+uses locals.df
+
+
+road{
+
+	1 value temp-difficulty
+	0 value temp-aggro
+	1 value road-difficulty
+	1 value siege-duration
+	
+	0 value gas-drivemore
+	0 value gas-drove
+}
+
+12 value timeofday
+
+: aggrocheck road{ temp-aggro } ;
+
+: aggro 
+	aggrocheck 4 < if
+		road{ temp-aggro } region.zombie_aggro! 
+	else
+		3 region.zombie_aggro! 3 region.zombie_alertscale!
+	then
+;
+
+: difficulty road{ road-difficulty temp-difficulty } * * ;
+: 20diff aggro 20 difficulty ;
+: 10diff aggro 10 difficulty ;
+: 5diff aggro 5 difficulty ;
+: 2diff aggro 2 difficulty ;
+
+// sdiff just gets rid of the aggro for sieges, since siege-start puts that in anyway
+: 2sdiff 2 difficulty ; 
+: 5sdiff 5 difficulty ; 
+: 10sdiff 10 difficulty ;
+
+: halfrnd rnd 2 / ;
+
+: siege-endtime timeofday road{ siege-duration } + 0.5 + >int ;
+
+: swarmforecast
+	10diff 0 = if "Vide" then;
+	10diff 6 < if "Tres faible" then; // 6
+	10diff 10 < if "Faible" then; // 11
+	10diff 13 < if "Normal" then; // 16
+	10diff 16 < if "Dense" then; // 21
+	10diff 19 < if "Vraiment Dense" rbold then; // 31 
+	10diff 22 < if "Vraiment Dense!" rbold then;
+	10diff 24 < if "Vraiment Dense!!" rbold then;
+	10diff 26 < if "Vraiment Dense!!!" rbold then;
+	10diff 29 < if "Sardine emballee" rbold then; // 41 
+	10diff 32 < if "Sardine emballee!" rbold then;
+	10diff 35 < if "Sardine emballee!!" rbold then;
+	10diff 38 < if "Sardine emballee!!!" rbold then;
+	10diff 41 < if "Essaim de la mort" fbold then;
+	10diff 45 < if "Essaim de la mort!" fbold then;
+	10diff 49 < if "Essaim de la mort!!" fbold then;
+	10diff 54 < if "Essaim de la mort!!!" fbold then;
+	10diff 61 < if "Impossible" fbold then; // 61
+	10diff 81 < if "PRESQUE SOLIDE" fbold then; // 81
+	"COMPLETEMENT SOLIDE ??!" fbold
+;
+
+: timeforecast
+	timeofday 1 < if "Minuit" fbold then;
+	timeofday 5 < if "Avant l'aurore" fbold then;
+	timeofday 7 < if "Aube" then;
+	timeofday 9 < if "Matin" then;
+	timeofday 11 < if "Fin de matinee" then;
+	timeofday 12 = if "Midi" then;
+	timeofday 13 < if "Vers midi" then;
+	timeofday 14 < if "Apres-midi" then;
+	timeofday 17 < if "Fin d'apres-midi" then;
+	timeofday 19 < if "Soire" rbold then;
+	timeofday 21 < if "Coucher du soleil" rbold then;
+	timeofday 22 < if "Nuit tombee" rbold then;
+	timeofday 24 < if "Tard dans la nuit" fbold then;
+	"IL EST TEMPS D'ACHETER UNE NOUVELLE MONTRE" fbold
+;
+
+: aggroforecast
+	aggrocheck 0 = if "Paresseux" then;
+	aggrocheck 1 = if "Calme" then;
+	aggrocheck 2 = if "Normal" rbold then;
+	aggrocheck 3 = if "Forte" rbold then;
+	aggrocheck 4 = if "DANGER" fbold then;
+	"MORT!!!" fbold
+;
+
+: zforetext
+	($ "Votre prevision de zombies est:
+		MASSE DE ZOMBIES: " pbold .. swarmforecast .. "
+		AGRESSIVITE: " pbold .. aggroforecast .. "
+		HEURE ACTUELLE: " pbold .. timeforecast $) +crtext
+;
+
+: zfore-music
+	10diff 19 < if 
+		easy-music-load
+	else
+		hard-music-load
+	then
+;
+
+: dusk-music-setup mission{ ' dusk-music to main-event-mission-dusk } ;
+
+: zforecast locals( tdiff timeset aggro ) // 0 9 3 -- for no zombies, 9 o'clock, 3 aggro
+	-> aggro -> timeset -> tdiff
+	<- timeset to timeofday
+	<- aggro road{ to temp-aggro }
+	<- tdiff road{ to temp-difficulty }
+		
+	zforetext	
+	zfore-music
+;
+
+: siegeforecast
+	10diff 0 = if "Vide" then;
+	10diff 12 < if "Peu rempli" then;
+	10diff 15 < if "Normal" then;
+	10diff 17 < if "Grand" then;
+	10diff 19 < if "Tres Grand" rbold then;
+	10diff 20 < if "Tres Grand!" rbold then;
+	10diff 21 < if "Tres Grand!!" rbold then;
+	10diff 22 < if "Tres Grand!!!" rbold then;
+	10diff 24 < if "Massif" rbold then;
+	10diff 25 < if "Massif!" rbold then;
+	10diff 26 < if "Massif!!" rbold then;
+	10diff 27 < if "Massif!!!" rbold then;
+	10diff 29 < if "Surcharger" rbold then;
+	10diff 31 < if "Surcharger!" rbold then;
+	10diff 33 < if "Surcharger!!" rbold then;
+	10diff 35 < if "Surcharger!!!" rbold then;
+	10diff 37 < if "Inondation de morts-vivants" fbold then;
+	10diff 39 < if "Inondation de morts-vivants!" fbold then;
+	10diff 41 < if "Inondation de morts-vivants!!" fbold then;
+	10diff 43 < if "Inondation de morts-vivants!!!" fbold then;
+	10diff 45 < if "Armee de la mort" fbold then;
+	10diff 47 < if "Armee de la mort!" fbold then;
+	10diff 49 < if "Armee de la mort!!" fbold then;
+	10diff 51 < if "Armee de la mort!!!" fbold then;
+	10diff 53 < if "Armee de la mort!!!!" fbold then;
+	10diff 55 < if "Armee de la mort!!!!!" fbold then;
+	"AUCUNE CHANCES" fbold
+;
+
+: siegeduration road{ siege-duration } ;
+
+: siegetime
+	siegeduration 1 < if siegeduration .. " HEURES " then;
+	siegeduration 1 = if "1 HEURE" then;
+	siegeduration 2 <= if RED .. siegeduration .. " HEURES " .. WHITE then;
+	5 textclr$ .. siegeduration .. " HEURES " .. 0 textclr$
+;
+
+1.1 value siege-scalar // For quickly playing with siege difficulty
+
+: siegecast locals( sdiff timeset stime ) // 0 9 3 -- for no zombies, 9 o'clock, 3 hour siege
+	-> stime -> timeset -> sdiff
+	<- timeset to timeofday
+	<- stime road{ to siege-duration }
+	<- sdiff siege-scalar * road{ to temp-difficulty }
+	zfore-music
+	
+	($ "ALERTE SIEGE! IL N'Y A PAS D'ECHAPPATOIRE!" fbold .. "
+		TAILLE DE LA HORDE: " pbold .. siegeforecast .. "
+		HEURE ACTUELLE: " pbold .. timeforecast .. "
+		DUREE DU SIEGE: " pbold .. siegetime $) +crtext
+	
+;
+
+: isexplorer? statmod{ .explorer? } ;
+: numexplorer team-stack ' isexplorer? stack-filter ;
+: explorer? numexplorer 0 > ;
+
+: explorerdiscount
+	explorer? if drop
+		gstats{ perk-explorer } 3 >= if 2 - 
+			else gstats{ perk-explorer } 2 >= if 1 - then then
+	else 
+		drop 
+	then
+;
+: gas-drawcost 
+	road{ gas-drove 1 + car-guzzle 2 / explorerdiscount * } >int
+;
+: gas-reroll
+	road{ gas-drawcost -1 * trunk-gas+ -1 car-tune+ 1 to gas-drivemore }
+;
+
+: gas-drawchoice 
+	choice( "Conduire vers un autre emplacement - " .. gas-drawcost .. " essence" )choice: gas-reroll
+;
+
+0 stack
+"Les ignorer" shove
+"Les laisser derriere" shove
+"Laissez-les" shove
+"Les éviter" shove
+"Laissez-les loin d'ici" shove
+"Ne pas s'en soucier" shove
+"Continuer votre route" shove
+"Continuer de conduire" shove
+"Continuer de conduire loin" shove
+constant skiptxtstack
+
+: skiptxt skiptxtstack shuffles pops nip ;
+: gas-skip 
+	choice( skiptxt pbold )choice
+;
+
+: explorerskip explorer? if drop 2 else drop 1 then ;
+
+// No explorer: 5, 10, 15, skip. 4 things seen, 30 gas cost total.
+// Explorer: 3, 6, 9, 12, skip. 5 things seen. 30 gas cost total.
+
+// Not used anymore, replaced by locpick in locplan.df
+// gas-draw is still called by many things, but is currently blank
+: gas-draw ;
+: gas-draw-noskip gas-draw ;
+
+(* Old system below
+
+: gas-draw-noskip
+	road{ gas-drove } 1 > if then;
+	trunk-gas gas-drawcost 1 - > if
+		gas-drawchoice
+	then;
+;
+
+: gas-draw
+	// road{ gas-drove } 1 > 80 %chance and if gas-skip then;
+	road{ gas-drove } explorerskip > if gas-skip then;
+	trunk-gas gas-drawcost 1 - > if
+		gas-drawchoice
+	else
+		gas-skip
+	then;
+;
+
+*)

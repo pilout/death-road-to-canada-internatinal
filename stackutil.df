@@ -1,0 +1,23 @@
+// Stack util words
+: foreach- ( stack word ) ( execute: stackval -- )
+	>r depths for i picks swap >r 2 rpick execute r> next r> 2drop
+;
+
+: popeach ( stack word -- ) ( execute: value -- )
+	>r begin depths 0 > while
+		pops r@ rot >r execute r>
+	repeat r> 2drop
+;
+
+
+: filtereach 2dup swap execute if rot swap shove swap else drop then ;
+
+: stack-filter ( stack filter-word -- filtered-stack count)
+	0 stack -rot swap ' filtereach popeach drop
+	depths 0= if 0 then;
+	depths resizes depths
+;
+
+: array dup stack swap for 0 shove next ;
+: peek 1+ picks ;
+: poke swap 1+ swaps drop ;

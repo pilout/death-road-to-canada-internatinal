@@ -1,0 +1,411 @@
+// uses hack/region-downtown-test.df
+uses paul/region-layout.df
+
+// "../deathforth/hack/gasbar.txt" $load-rooms
+// "additional-rooms.txt" $add-rooms
+
+cyoa{
+
+0 value creepytombnum
+0 value creepytombprize
+
+
+: reaper-bonus
+	-5 fade_to 1 1 1 fade_clr 15 fade_count!
+	5 0.975 rumble-camera
+	sfx{ rumble }
+	flop-zombs
+;
+
+: tomb-grim-bonus
+	1 STAT_STRENGTH pchar .bonus+
+	1 STAT_FITNESS pchar .bonus+
+	1 STAT_SHOOTING pchar .bonus+
+	"MAXIMUM STRENGTH, FITNESS, AND SHOOTING INCREASED!" rbold +crtext
+	($ "The " .. cname .. " grants a gift!" $) +crtext
+	reaper southofcyoa drop drop -3 lt .vel.z!
+	1 ' reaper-bonus timer_add
+;
+
+cyoa-choice: tomb-grim-go2
+	nearest .character@ choosechar cicon 
+	clear-cyoa 0.25 cchar .ai.wander_chance! 0 nearest .unseen! sfx{ creepy }
+	($ "The " .. cname .. " shakes hands with no hesitation! Making friends is fun.
+	" .. pname .. " gets blasted with tremendous amounts of " .. "DEATH ENERGY!" fbold $) text!
+	pchar .vitality@ 1 > if
+		($ pname .. " is killed!" fbold .. " Well, almost." $) +crtext
+		($ pname .. " - MAXIMUM HEALTH SET TO 1!" rbold $) +crtext
+		1 pchar .vitality! 1 pchar .health!
+		tomb-grim-bonus
+	else
+		($ pname .. " feels really smug for some reason." $) +crtext
+		($ pname .. " feels " .. "EVEN MORE BERSERK!" fbold $) +crtext
+		tomb-grim-bonus
+	then
+	
+;
+
+cyoa-bridge: tomb-grim-go
+	($ "ARE YOU ABSOLUTELY SURE YOU WANT TO SHAKE HANDS WITH DEATH?" rbold $) text!
+	($ "This probably isn't the best deal for " .. pname .. "." $) +crtext
+	choice( "Don't do it!" )choice
+	choice( "Have someone else do it!" )choice
+	pchar charchoice( ": " .. "Shake hands! Do it!" fbold )choice: tomb-grim-go2
+;
+
+cyoa: tomb-grimreaper
+	"The Grim Specter of Death Road" cyoa-title!
+	nearest .character@ choosechar cicon
+	($ "The " .. cname .. ", Avatar of Death Itself, emerges from the crypt.
+	" .. cname .. " looks around at the hordes and the carnage. It looks at " .. pname .. ". It shrugs." $) text!
+		choice( "Try to ignore it for now" )choice
+		pchar charchoice( ": " ..  "Shake hands with Death!" fbold )choice: tomb-grim-go
+;
+
+cyoa: tomb-dracula
+	"Just Like in My Twilight Novels" cyoa-title!
+	nearest .character@ choosechar cicon
+	($ "Hey, it's Dracula! Hi, Dracula." $) text! " BLUHD! BLAUGH!" rbold +text
+	($ pname .. " never thought " .. phe .. "'d meet a celebrity! He doesn't mind doing some of his catchphrases." $) +crtext
+	pchar .morale4+
+	cchar to recruitee recruitee .fitnessREV goodfx clear-cyoa
+	($ "Should " .. pname .. " recruit " .. cname .. "? He seems pretty lonely from being stuffed in a crypt for so long." $) +crtext
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yesno
+
+;
+
+cyoa-choice: creepytomb-open
+
+	1 ' creepytombnum +!
+
+	($ Thegroup .. " opens up the mausoleum, which seems like a horrible idea in the zombopocalype." $) text!
+
+	
+	creepytombprize 1 < if
+	
+		33 %chance creepytombnum 2 > or if 
+			($ "Something emerges from the tomb as " .. pname .. " opens it! I hope it's a " .. "goblin" fbold .. "!" $) +crtext sfx{ creepy }	
+			1 to creepytombprize
+			
+			still-npc 
+			50 %chance if
+				0.1 lt .character@ .ai.wander_chance! .dracufy
+				lt cyoa{ ' tomb-dracula cyoa! } drop
+			else
+				0.5 lt .character@ .ai.wander_chance! .grimreaperify
+				lt cyoa{ ' tomb-grimreaper cyoa! } drop
+			then
+			15 lt .fade!
+			interactee .pos 16 + lt .pos!
+			lt mission{ .smokepoof } .s drop
+			lt .pos xyzombbust lt silentkillit
+		else 
+			($ "Nothing special in this one. It's likely that this is a decoy for the one the " .. "goblin" fbold .. " is really living in." $) +crtext
+			badfx
+			0.5 5sdiff count-zomber interactee .pos 16 + lt .pos!
+			lt .pos xyzombbust
+		then
+		
+	else
+		($ "Just more tomb stuff! Your obsession with tombs and " .. "goblins" fbold .. " is veering out of control!" $) +crtext
+			badfx
+			0.5 5sdiff count-zomber interactee .pos 16 + lt .pos!
+			lt .pos xyzombbust
+	then
+
+	1 nearest .open! clear-cyoa
+	
+;
+
+cyoa: creepytomb
+
+"Spooky Mausoleum" cyoa-title! picon!
+
+($ "There may be a " .. "goblin" fbold .. " hiding in here." $) text!
+	team-has-breakin? if
+		WEAPON_CROWBAR team-has-weapon? if
+			"It would be easy to pry the door open with the crowbar." +crtext
+		then
+		WEAPON_SHOVEL team-has-weapon? if
+			"The shovel could pry the door open, with some effort." +crtext
+		then
+		WEAPON_SLEDGE team-has-weapon? if
+			"The door would be no match for a good sledgehammer."
+		then
+		WEAPON_PICKAXE team-has-weapon? if
+			"The pickaxe would break this door into pieces."
+		then +crtext 
+			choice( "Open the Tomb" )choice: creepytomb-open
+			choice( "Leave it for now" )choice
+	else
+		"The door is solid and shut tight. You'd need something to pry it open with. A shovel would work. There must be one nearby." +crtext
+	then
+;
+
+}
+
+map{ regiondef{
+
+0 value bfx
+0 value bfy
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+: grassbunch
+	xyp.x 1 - xyp.y 1 - xyp.x 1 + xyp.y 1 + map{ grasslot }
+;
+
+: .baseify
+	4 over .rad.y!
+	dup .sprh 0.5 * 4 - over .anim.off.y!
+	drop
+;
+
+
+: tombstone spawn special_objects32_base_id 0x 78 + 0 0x 16 rnd + lt .spriteid!
+	bbox immovable lt .baseify
+;
+
+
+: cemstatue spawn special_objects48_base_id 0x 24 + 0 3 rnd + lt .spriteid!
+	postify lt .rad.x@ 2 * lt .rad.x! immovable
+;
+
+: spookytree spawn rndflip
+	special_objects48_base_id 0x 1e + 0 3 rnd + lt .spriteid!
+	1 1.25 frnd lt .scale.y!
+	treeify lt .rad.x@ 2 * lt .rad.x!
+;
+
+: maybetree
+	5 onein not if
+		spookytree xyp.xy tile>pos lt .pos!
+		0 0.5 frnd rndsign * lt .jumpx
+//		0 0.5 frnd rndsign * lt .jumpy
+	then
+;
+
+: dotombstone xyp.xy tombstone tile>pos -2 2 rnd + swap -4 4 rnd + swap lt .pos!
+	lt .rad.y@ -8 / lt .jumpy
+	grassbunch
+;
+
+: .no_tile_collide TILEFLAG_NO_COLLIDE swap .tileflags! ;
+
+: walktile
+	xyp.xy tile@ LAYER_WALLSIDE street_tiles_base_id 0x 5a + .lspriteid!
+	xyp.xy tile@ LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	xyp.xy tile@ LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: junkit
+	2dup tile@ 0= if 2drop then;
+	2dup tile@ LAYER_WALLSIDE street_tiles_base_id 0x 1c + .lspriteid!
+	blocked
+;
+
+: mausoleum spawn special_objects64_base_id 0x c + lt .spriteid! bbox immovable nohit
+	openable container noloot
+	
+	cyoa{ ' creepytomb cyoa! }
+
+	// No collision, but...
+	lt .no_tile_collide
+
+	// Put solid wall under it so it seems like a wall
+	3 for
+		xyp.x 2 i - - xyp.y junkit
+		xyp.x 2 i - - xyp.y 1- junkit
+		xyp.x 2 i - - xyp.y 1+ junkit
+	next
+;
+
+// TODO: Do some other action on opening
+
+: domausoleum xyp.xy mausoleum tile>pos lt .pos!
+;
+
+0 value digstart
+0 value digend
+
+50 value maxzombs
+
+: dodig
+
+	zomb-count maxzombs < if
+		2 map{ w 3 - } rnd digstart digend rnd tile>pos xyzombdig
+	then
+
+	15 180 cyoa{ creepytombnum } 1 + / rnd timer_dur! timer_retrigger
+;
+
+: dostatue xyp.xy cemstatue tile>pos lt .pos!
+;
+
+: cemfence args( spr )
+	xyp.xy tile@ LAYER_WALLSIDE street_tiles_base_id 0x 145 + <- spr + .lspriteid!
+	xyp.xy blocked
+	xyp.xy 1- tile@ LAYER_WALLSIDE street_tiles_base_id 0x 135 + <- spr + .lspriteid!
+	xyp.xy 1- blocked
+;
+
+: doextras
+	// skeleton with tool
+	skel map{ w 0.5 * w 0.5 * 4 - rndsign * + } 2 map{ h 3 / } rnd tile>pos lt .pos! drift drift drift rndflip
+
+	lt .pos shovel .pos! drift
+
+	60 5 * ' dodig timer_add
+;
+
+: fencea 0 cemfence ;
+: fenceA 1 cemfence ;
+
+: fenceb 3 cemfence ;
+: fenceB 2 cemfence ;
+
+' plotgrass >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char g = if grassbunch then;
+	xyp.i char # = if walktile then;
+	xyp.i char x = if dotombstone then;
+	xyp.i char t = if maybetree then;
+	xyp.i char a = if fencea then;
+	xyp.i char A = if fenceA then;
+	xyp.i char b = if fenceb then;
+	xyp.i char B = if fenceB then;
+	xyp.i char m = if domausoleum then;
+	xyp.i char 1 = if xyp.y to digstart then;
+	xyp.i char 2 = if xyp.y to digend then;
+	xyp.i char s = if dostatue then;
+	xyp.i char M = if domausoleum lt .spriteid@ 2 + lt .spriteid! then;
+	xyp.i char E = if doextras then;
+;
+
+"
+.t.t.t.t.t...m....M....m...t.t.t.t.t.
+........t....#....#....#....t........
+.t.....t.....#....#....#.....t.....t.
+..t.t.t......###########......t.t.t..
+.t.....t..t......###......t..t.....t.
+.................###.................
+..1x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+....t.....t.....#####........t.......
+.t............t.##s##.t............t.
+.......t........#####.....t.....t....
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.t...............###..............2t.
+.................###.................
+aaaaaaaaaaaaaaaaA###Bbbbbbbbbbbbbbbbb
+.t...t...t...t.........t...t...t...t.
+.....................................
+.....................................
+.....................................
+.....................................
+..................................E.."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+
+: scarydark 1 light_mode! 0 0 0 tint_far! 1 0.5 0 tint_near!
+	0.25 gloom_lighting!
+	0.25 0.25 0.25 tint_tile_near!
+;
+
+: spookydark scarydark
+	3 gloom_lighting!
+	0.5 0.75 2 tint_thing_near!
+	2 0 3 tint_thing_far!
+	0.35 0.4 0.6 tint_tile_near!
+	0 0 0 tint_tile_far!
+	1 near_bright!
+;
+
+: cloudparticle wind_force@ abs 0.5 * 0.5 max wind_force@ sign * 3 5 frnd args( relpos wind scale )
+	curmapview if then;
+	particle{
+		new
+		special_objects64_base_id 0x 10 + spriteid!
+//		0 0 0 rgb!
+//		0.2 clr.a!
+//		1 1 1 rgb!
+//		0.05 clr.a!
+		glowy 0.02 0.025 0.05 rgb!
+		<- scale 0.5 * scalex! <- scale scaley!
+		rndsign 90 * angle!
+		rnd5050 flipx!
+		90 fade_in!
+		90 fade_out!
+
+		<- wind 0.9 1 frnd * 0.5 * vel.x!
+		-1 1 frnd 0.1 * <- wind * -0.05 0.05 clamp vel.y!
+
+		map{ pixelw 64 <- scale * + vel.x@ abs / } ticks!
+
+		-1 1 frnd view_h * camera.pos.y@ + pos.y!
+
+		map{ pixelw 0.5 * 32 <- scale * + vel.x@ sign neg * <- relpos * pixelw 0.5 * + } pos.x!
+	}
+;
+
+
+: clouds 5 for -0.5 0.5 frnd cloudparticle next ;
+
+: cloudfloat 1 cloudparticle
+	60 3 * 0.5 1 frnd * timer_dur!
+	timer_retrigger
+;
+
+: cloudauto 1 ' cloudfloat timer_add cloudfloat ;
+
+: site-setup
+//	' plotgrass to ft plotmap
+	' plotgravel to ft plotmap
+
+	50 difficulty to maxzombs
+
+	cyoa{
+	0 to creepytombnum
+	0 to creepytombprize
+	}
+
+	rndsign wind_force!
+	cloudauto clouds
+	spookydark 1 no_time!
+
+	2diff %zombs
+	mission{ no-leaving no-edge-spawns 1 mission-bottom-leave! }
+;
+
+// TODO: make mausoleums enterable
+
+region: cemetery
+	w: maplayout layoutw
+	h: maplayout layouth 
+	
+	spooky-music
+
+	loc-choice: cemetery
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

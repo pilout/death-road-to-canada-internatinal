@@ -1,0 +1,82 @@
+"../deathforth/rooms/mall.txt" $load-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+"events/inner/shoploc.df" $load	
+
+	: mall-loot
+		0 stack
+			' gunshoploot shove
+			' foodshoploot shove
+			' umbrellashoploot shove
+			' campingshoploot shove
+			' jockshoploot shove
+			' skelscat shove
+			' skelscat shove
+			' skelscat shove
+		shuffles pops execute drop
+	;
+
+: storage ;
+: rest ;
+
+: setup-mall 
+	yall-theme
+;
+
+: mallcop1say args( me ) 1 nearest .character@ .party-familiar "YEAH! THIS IS WHAT I TRAINED FOR!" <- me .sprayitfast clear-cyoa ;
+: mallcop2say args( me ) 1 nearest .character@ .party-familiar "READY 2 ROCK!!!" <- me .sprayitfast clear-cyoa ;
+
+location
+		tags: mall
+		max-rooms: 3
+		entry-tags: mall-open		
+			
+		: mallsiegedoor
+			20 %chance if 
+				edge-door "restroom" with-door 
+			else 
+				row-door map{ block-last-door } 
+			then
+		;
+		: mallsiegesetup
+			-1 row-door map{ block-last-door } 1 row-door map{ block-last-door }
+			map{ selected } . cr new-npc@ .mallcop1 lt ' mallcop1say cyoa! drop
+			map{ selected } . cr new-npc@ .mallcop2 lt ' mallcop2say cyoa! drop
+		;		
+						
+		script: setup-mall
+		post-script: 2diff %zombs 0 3 rnd for skelscat next
+	
+		room-choice: mall-open
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: mallsiegesetup
+			filter-only
+						
+		room-choice: restroom
+			room-weight: 10
+			room-count: 2
+			room-script: nad floor-bath	
+			room-post-script: 
+			filter-only
+			
+regiondef{
+
+	: siegesetup mission{ siege-start 50 bottom-spawn } ;
+
+	 region: mall
+		w: 26
+		h: 30
+		script: timeofday o'clock
+
+		// no-prefab
+		inside no-rest
+		
+		loc-choice: mall
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: siegesetup 5sdiff %zombs
+}

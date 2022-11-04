@@ -1,0 +1,87 @@
+"../deathforth/rooms/police.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/policeloc.df" $load
+
+location: policeHQ
+		max-rooms: 11
+		entry-tags: policeHQstart
+		pre-script: set-theme-police
+		script: set-theme-police
+//		post-script: 10diff %zombs nad ndx 
+		post-script: 10diff dup 0.8 * %zombs-cop 0.2 * %zombs nad ndx 
+
+		: startpoliceHQ
+			random-door "restroom" only-with-door
+			random-door "office" only-with-door
+			random-door "office" only-with-door
+		;
+		: policetolootHQ
+			random-door "copevidence" only-with-door
+			random-door "restroom" only-with-door
+			random-door "coplounge" only-with-door
+			random-door "bigcopevidence" only-with-door
+			10diff %zombs
+		;
+		
+		room-choice: policeHQstart
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: startpoliceHQ
+			filter-only
+
+		room-choice: copevidence
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 
+			filter-only
+			
+		room-choice: bigcopevidence
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 
+			filter-only
+			
+		room-choice: coplounge
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 
+			filter-only
+			
+		room-choice: policecells
+			room-weight: 10
+			room-count: 2
+			room-script: 
+			room-post-script: policetolootHQ
+			filter-only
+
+		room-choice: office
+			room-weight: 10
+			room-count: 2
+			room-script: 
+			room-post-script: 0 3 rnd officechairs policeoffice
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 3
+			room-script: floor-bath
+			filter-only
+
+regiondef{			
+
+	region: policeHQ
+		script: timeofday o'clock
+
+		inside
+					
+		loc-choice: policeHQ
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 10diff %zombs inspawn
+}

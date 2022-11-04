@@ -1,0 +1,201 @@
+uses paul/region-layout.df
+// "../deathforth/rooms/TEMPROOM.txt" $load-rooms
+	
+" 
+:map 1 
+:tags bighousecamp  
+:scriptA regiondef{ traderinside } 
+:scriptB endtable
+:scriptC bed 
+:scriptD nkitchenset 
+:scriptE diningset 
+:scriptF nbathsetsmall 
+:scriptG bighouse-magchance 
+:scriptH livingset 
+:size 26 21 
+:off 9 0 
+:tiles 
+02222222222222222222222200
+02333333323333333233333200
+02111D11121111111211F11222
+0211111112111A11121G111232
+021111111211111112221222C2
+021111E1121111111233133312
+0211111112C1111112B1111112
+02212222222212222222122212
+03213333333313333333123212
+002111111111111111111202C2
+22222221222212222122222222
+23333331233313332133333323
+21111111211111112111111120
+21111111211111112111111120
+211A11112111111121111A1120
+211111112111H1112111111120
+21111111211111112111111120
+211C11112111111121111C1120
+22222222211111112222222220
+33333333222222222333333330
+00000000333333333000000000
+"
+value BIGHOUSECAMP-OLDLOPSIDED
+	
+" 
+:map 1 
+:tags bighousecamp  
+:scriptA regiondef{ traderinside } 
+:scriptB endtable 
+:scriptC bed 
+:scriptD nkitchenset 
+:scriptE diningset 
+:scriptF nbathsetsmall 
+:scriptG bighouse-magchance 
+:scriptH livingset 
+:size 25 21 
+:off 9 0 
+:tiles 
+2222222222222222222222200
+2333333323333333233333200
+2111D11121111111211F11222
+211111112111A111211G11232
+21111111211111112222122C2
+211111E121111111233313312
+211111112111111C2B1111112
+2212222222221222222122212
+3213333333331333333123212
+02111111111111111111202C2
+2222222122221222212222222
+2333333123331333213333332
+2111111121111111211111112
+2111111121111111211111112
+211A11112111111121111A112
+211111112111H111211111112
+2111111121111111211111112
+211C11112111111121111C112
+2222222221111111222222222
+3333333322222222233333333
+0000000033333333300000000
+"
+value BIGHOUSECAMP
+BIGHOUSECAMP $parse-rooms
+
+locdef{
+
+location: bighousecamp
+		max-rooms: 1
+		entry-tags: bighousecamp
+		script: set-theme-house
+		
+		room-choice: bighousecamp
+			room-weight: 10
+			room-count: 1
+			filter-only
+
+}
+		
+root{
+
+: bighouse-magchance
+	20 %chance if
+		magazine 0 4 rnd cyoa{ to bookmagtype ' bookmag-get cyoa! } 50 health! drift
+	then
+;
+
+}
+		
+map{ regiondef{
+
+trade-camp-reset
+
+0 value gbx
+0 value gby
+
+' plotgrass >defer ft
+
+: bldg tanchor!
+	"bighousecamp" $picklocid addloc
+	// prefab{ farmhouse } 
+	// prefab{ mrand ( style ) 0 2 rnd 2 * 5 + ( width ) 0 ( depth ) theme-generic-building }
+	
+	// Below one is good, building2 isn't used often in-game
+	prefab{ mrand 13 2 building2 }
+	
+	// ARCHITECTURE NOTES
+	// prefab{ 0 4 rnd 7 house3 } - house goes from 1 to 3, is used in-game
+	// prefab{ mrand 7 0 rnd5050 if cbuilding else cbuilding2 then } - Carolina style apartments
+	// prefab{ mrand 5 7 rnd 0 rnd5050 if fbuilding else fbuilding2 then } - Florida style apartments
+;
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char d = if xyp.x plotdirt then;
+	xyp.i char T = if traderhere then;
+	// xyp.i char S = if trader-food-for-gas then;
+	xyp.i char U = if tnomey-spawn then;
+	xyp.i char W = if trader-food-for-gas then;
+	
+	xyp.i char @ = if xyp.xy bldg then;
+	
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx gby xyp.x xyp.y map{ 4dup dirtbox grasshole } then;
+	
+	xyp.i char [ = if dirtstart then;
+	xyp.i char ] = if gravelendw then;
+	
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	
+	xyp.i char { = if dirtstart then;
+	xyp.i char } = if dirtend then;
+
+;
+
+"
+.........................
+.........................
+.........................
+.........................
+.....{...................
+.........................
+.........................
+......@............}.....
+..........<..............
+.........................
+.......U.................
+..................W......
+.........................
+..............>..........
+[........................
+.........................
+.........................
+........................]
+........................"
+constant maplayout
+
+: tradercamp15
+	0 -1 maplayout xyplot: pt
+;
+
+
+: site-setup
+	pavement
+	tradercamp15
+	
+	1 no_time!
+	7 14 rnd o'clock
+	20 %chance if 1 2 frnd weather! -1 -2 frnd wind_force! else -1 1 frnd wind_force! then
+	mission{ no-edge-spawns }
+	
+	20 %mv-up
+	40 %chars-up
+	
+;
+
+	 region: tradercamp15
+		w: maplayout layoutw
+		h: maplayout layouth
+
+		trade-mode
+		no-prefab
+
+		post-script: site-setup
+} }

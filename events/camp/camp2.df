@@ -1,0 +1,466 @@
+
+cyoa{ mission{
+
+cyoa: camp2-fightdone
+	($ "The worst of the zombie siege is over. " .. Thegroup .. " clears out any remaining zombies outside, then goes back in to splat any stragglers so " .. gthey .. " can set up camp." $) cyoa-text! morale++all +cr road{ fullcamp }
+;
+
+} }
+
+cyoa{ road{
+
+// Minigolf, no choices
+
+cyoa: camp2-minigolf
+	image-golf-course
+	"Mini Golf!" cyoa-title!
+	($ Thegroup .. " sets up camp at the safest place they could find around: an abandoned mini-golf park. " $) cyoa-text! basic-tone
+	+cr fullcamp
+	($ "In the morning, " .. gthey .. " find" .. g1s .. " a golf ball and putter while searching the area. " .. Thegroup .. " decides to play a quick game!" $) +crtext
+	unfittest choosechar cfitness- if
+		cpet? if
+			($ cname .. " runs around in excitement!" $) +crtext morale++
+		else
+			($ cname .. " gets some needed exercise!" $) +crtext fitness++
+		then	
+	then
+	most-ahole if
+		choosechar ($ cname .. " gets tired of the game and then loses the ball on purpose." $) +crtext morale--all
+	then;
+	strongest-pass if
+		cpet? if
+		 	($ cname .. " accidentally bites through the ball." $) +crtext morale++ 1 WEAPON_GOLF trunk.weapon+
+		then;
+		strongest choosechar 50 %chance if
+			($ cname .. " accidentally destroys the putter." $) +crtext morale++
+		else
+			($ cname .. " accidentally hits the ball so far that it gets lost." $) +crtext fitness++ 1 WEAPON_GOLF trunk.weapon+
+		then
+	then;
+	morale++all 1 WEAPON_GOLF trunk.weapon+
+;
+
+// Driving range with different choices
+
+// previously they find a less dangerous and less fun place to camp - fullcamp
+cyoa-choice: camp2-fore-flee
+	($ Thegroup .. " decides to flee the golf course. " .. gThey .. " end up not finding another good place to sleep, and drive for most of the night. " .. gThey .. " are very tired the next day." $) cyoa-text! +cr tiredcamp
+;
+cyoa-choice: camp2-fore-fore
+	solo if
+		soloer choosechar
+		cpet? if
+			($ cname .. " attempts to play golf, but it's difficult to do this as a " .. cdogcat .. ". " .. cHe .. " maybe could have done it with a caddy.
+			" .. cname .. " is completely overwhelmed." $) cyoa-text! morale3- ouch-- sting-- bitefx 
+		else
+			($ cname .. " clubs a bunch of golf balls into zombie heads. It's pretty good exercise, but soon " .. che .. " is overwhelmed by them.
+			" .. cHe .. " escapes, but spends the night hiding in a closet. " .. cHe .. " is exhausted in the morning." $) cyoa-text! fitness++ fitnessREV morale-- sting-- bitefx  
+		then someone choosechar alive? if +cr tiredcamp then
+	then;
+	($ Thegroup .. " picks up a bunch of clubs and gets some buckets of golf balls. They start driving shots down the range as the zombies close in." $) cyoa-text! 
+	fitness-total 7 > if
+		"They send golf ball after golf ball into the incoming horde." +crtext
+		strength-total 7 > if
+			"The team beans the zombies from across the range. They never even get close!" +crtext goodfx morale++all
+		else
+			"The zombies get pelted by golf balls, but they're not hit hard enough to get slowed down much. The team ends up fighting them normally." +crtext someone .sting-- someone .sting-- bitefx
+		then
+		unfittest .fitness++ ' .fitnessREV foreach-team-char 
+		' .strengthREV foreach-team-char +cr fullcamp
+	else
+		($ "It's hard work, and the team mostly just tires themselves out. " .. gThey .. " are overwhelmed by the zombies." $) +crtext ouch--all ' .fitnessREV foreach-team-char +cr choosehuman alive? if fullcamp then bitefx
+	then
+	1 WEAPON_GOLF trunk.weapon+
+;
+cyoa-choice: camp2-fore-mech
+	($ cname .. " jumps into a golf ball collector and starts running over zombies.
+	It's surprisingly effective. By the time the collector breaks down, most of the zombies are taken care of." $) cyoa-text! morale++all mechanicREV mechanic++ +cr fullcamp
+;
+cyoa-bridge: camp2-fore-fight
+	($ "The zombies start hitting the door of the pro shop. There's not much time to prepare before the door breaks!" $) cyoa-text!
+		2.4 20 22 rnd 1 siegecast // Formerly 1.3 then 1.7 diff
+		"events/siege/region/golfcamp.df" $load-region
+		choice( "Try to Survive" )choice: premission
+;
+
+cyoa: camp2-fore
+	image-golf-course
+	"Driving Range Last Stand" cyoa-title! 
+	choosehuman
+	($ Thegroup .. " camps out in a pro shop near a golf course. " .. cname-He .. " looks out the window and sees a large group of zombies approaching from the driving range!
+	" $) cyoa-text! basic-tone 3 WEAPON_GOLF trunk.weapon+
+	mechanicest-pass if
+		mechanicest charchoice( " hotwires a golf ball collector" )choice: camp2-fore-mech
+	then
+		choice( "Shoot golf balls at the zombies" )choice: camp2-fore-fore
+		choice( "Prepare for Siege!" )choice: camp2-fore-fight
+		choice( "Drive away with no sleep" )choice: camp2-fore-flee
+;
+
+// No sleep campground
+
+cyoa-choice: camp2-smell-morale
+	someicon
+	($ Thegroup .. " endures the " .. "SMELL ZONE" rainbold .. " all night, until passing out. " .. gTheyare .. " not happy in the morning, but " .. gtheywere .. " at least able to sleep." $) cyoa-text! morale--all +cr fullcamp
+;
+
+cyoa-choice: camp2-smell-no
+	image-camp-1
+	($ Thegroup .. " gets out of the " .. "SMELL ZONE" rainbold .. ". " .. gThey .. " get" .. g1s .. " no sleep, yet feel" .. g1s .. " like leaving was the right choice." $) cyoa-text! +cr tiredcamp
+;
+
+cyoa: camp2-smell
+	image-camp-1
+	"Smelly Campsite" cyoa-title! 
+	($ "The campground that " .. thegroup .. " sets up smells terrible! The source of the smell is a complete mystery." $) text!
+		choice( "Endure the smell" )choice: camp2-smell-morale
+		choice( "Drive off with no sleep" )choice: camp2-smell-no
+;
+
+// Cut right before release due there already being a lot of tired things, plus this one was unavoidable
+cyoa: camp2-creepy
+	image-camp-1
+	"Creepy Campsite" cyoa-title! 
+	($ "The campground that " .. thegroup .. " stumbles on is very eerie. It's hard to place why it's so unsettling.
+	" .. gThey .. " get" .. g1s .. " no sleep, and feel" .. g1s .. " off even after leaving." $) cyoa-text! +cr tiredcamp
+;
+
+// Night watch for bandits, or rather thieves
+
+cyoa-choice: camp2-bwatch-drive
+	($ Thegroup .. " refuses to camp in a dangerous area, and spends a tense and sleepless night driving through the dark.
+	" $) cyoa-text! morale--all +cr tiredcamp
+	50 %chance if "The car veers off the road and crashes into a tree." +crtext  -2 car-chassis+ then
+;
+cyoa-choice: camp2-bwatch-pick
+	($ cname .. " stands guard for the night." $) cyoa-text!
+	cloyalty- if
+		($ cHe .. " ignores the task and falls asleep almost instantly. The next morning, a bunch of supplies are missing." $) +crtext sleep bandit-supplies2
+	else
+		($ cHe .. " manages to stay awake, but feels pretty bad in the morning." $) +crtext
+		sleep-except morale--
+	then loyaltyREV
+	+cr chowtime
+;
+
+cyoa-bridge: camp2-bwatch-pick4
+	someicon
+	"Who should stay up on watch?" cyoa-text!
+	' camp2-bwatch-pick cyoa-team-choice
+;
+
+cyoa: camp2-bwatch
+	image-bandit-watch
+	"Bandit Watch" cyoa-title! 
+	($ "It's nearly time to camp, but there has been a lot of signs of bandits today. Someone needs to be awake in case of an attack.
+	Who should stay up on watch?" $) cyoa-text! basic-tone
+		team-count 3 > if
+			' camp2-bwatch-pick 2 #cyoa-team-choice
+			choice( "Pick someone else" )choice: camp2-bwatch-pick4
+		else
+			' camp2-bwatch-pick 3 #cyoa-team-choice
+		then
+		choice( "Keep driving" )choice: camp2-bwatch-drive
+;
+
+// Night watch for zombies
+
+cyoa-choice: camp2-zwatch-awake
+	($ cname .. " decides to go to sleep, betting that the zombies won't find " .. chim .. "." $) cyoa-text!
+	50 %chance if
+		($ cHe .. " wakes up in the middle of being eaten by a small group of zombies. With no one to help " .. chim .. ", it's hard to break free." $) +crtext despairbite
+	else
+		($ cHe .. " sleeps through the night with no interruption." $) +crtext
+	then
+	someone choosechar alive? if +cr fullcamp then
+;
+cyoa-choice: camp2-zwatch-shift
+	someone choosechar
+	($ Thegroup .. " takes turns sleeping during the night." $) text!
+	team-count 4 < if 
+		($ cname .. " is very tired in the morning, and " .. theothers .. " didn't sleep great either." $) +crtext sleep-except 5050nosleep morale--all +cr chowtime
+	else
+		($ "With a full group, there's enough people to still get plenty of sleep!" $) +crtext +cr fullcamp
+	then
+;
+cyoa-choice: camp2-zwatch-pick
+	($ cname .. " stands watch for roving zombies." $) cyoa-text!
+	cloyalty- if
+		cchar statmod{ .soundsleep? } if
+			($ cHe .. " stops paying attention and wanders off in the middle of standing guard. " .. gHe .. " is ambushed by zombies, but manages to fight them off." $) +crtext
+			cchar ' .sting-- foreach-team-char-except
+		else
+			($ cHe .. " falls asleep almost instantly. " .. gHe .. " wakes up in the middle of being eaten." $) +crtext ouch--all
+		then sleep
+	else
+		($ cHe .. " manages to stay awake, but feels groggy in the morning." $)
+		+crtext sleep-except morale--
+	then loyaltyREV
+	someone choosechar alive? if +cr chowtime then
+;
+
+cyoa-bridge: camp2-zwatch-pick4
+	someicon
+	"Who should stay up on watch?" cyoa-text!
+	' camp2-zwatch-pick cyoa-team-choice
+;
+
+cyoa: camp2-zwatch
+	image-zombie-watch
+	"Zombie Watch" cyoa-title! 
+	($ "It gets late, and there's no great place to camp. Solo zombies hobble around in the far distance, and one might sneak up on " .. thegroup .. " while " .. gthey .. " sleep" .. g1s .. ".
+	Who should stay up on watch?" $) cyoa-text! basic-tone
+		team-count 3 > if
+			' camp2-zwatch-pick 2 #cyoa-team-choice
+			choice( "Pick someone else" )choice: camp2-zwatch-pick4
+		else
+			' camp2-zwatch-pick 3 #cyoa-team-choice
+		then		
+		solo if
+			choice( "Sleep anyway" )choice: camp2-zwatch-awake
+		else
+			choice( "Take shifts" )choice: camp2-zwatch-shift
+		then
+;
+
+// Berry picking
+
+cyoa-choice: camp2-berry-go
+	($ Thegroup .. " picks berries all night and puts them into whatever containers are handy." $) cyoa-text! numhums 3 * 2 + trunk-food+
+	+cr tiredcamp
+;
+
+cyoa-choice: camp2-berry-no
+	($ Thegroup .. " really doesn't want to pick berries for 8 hours." $) cyoa-text!
+	+cr fullcamp
+;
+
+cyoa: camp2-berry
+	image-camp-2
+	"Berry Picking in Zombie Games" cyoa-title!
+	($ Thegroup .. " sets up camp for the night after being sure there's no danger here." $) cyoa-text! 
+		($ gThey .. " discover" .. g1s .. " edible berry bushes all around the campsite!
+		
+		The berries wouldn't be a big amount of food for the work and the sleepless night, but every bit could help." $) +crtext
+		choice( "Pick berries all night" )choice: camp2-berry-go
+		choice( "Go to sleep" )choice: camp2-berry-no
+;
+
+
+// Scary Stories
+
+: camp2-scary-noun 
+	0 stack
+		"GOBLINS!!!!" shove
+		"SKELETONS!!" shove
+		"BAD SMELLS!" shove
+		"HUGE FARTS!" shove
+		"DIARRHEA!!!" shove
+		"TINY GHOSTS!" shove
+		"A TURTLE!!!" shove
+		"MEAN CATS!!" shove
+		"CAR REPAIR!" shove
+		"YAPPY DOGS!" shove
+		"EVIL GOBLINS!" shove
+		"DANCING SKELETONS!" shove
+		"PEANUT ALLERGIES!" shove
+		"LAUGHING GOBLINS!!!" shove
+		"GOBLINS!!" shove
+		"MENACING GOBLINS!" shove
+	shuffles pops nip
+;
+
+cyoa-choice: camp2-scary-go
+	($ Thegroup .. " decides to tell scary stories!" $) text!
+	solo if
+		($ "But it turns out that " .. soloname .. " was alone, " .. "TELLING THE SCARY STORIES TO GHOSTS!
+		WHOOOOOAAAAAAA!" fbold $) +crtext morale3+all someicon
+	else
+		choosehuman cicon
+		cpet? if
+			($ cname .. " mostly " .. cbarkmeow .. "s a lot but in a " .. "SCARY WAY!" fbold $) +crtext
+		else
+			($ cname .. " makes " .. chis .. " scary story about " .. camp2-scary-noun fbold $) +crtext
+		then morale2+all	
+	then
+	sfx{ creepy 30 fx .delay! }
+	($ Thegroup .. " has fun, but doesn't get enough sleep and is tired the next day." $) +crtext nosleep
+;
+
+cyoa: camp2-scary
+	image-camp-1
+	"No More Creepypastas" cyoa-title!
+	($ Thegroup .. " is sitting around a campfire, resting before a brutal day tomorrow." $) text!
+		+cr fullcamp
+		choice( "Tell Scary Stories" )choice: camp2-scary-go
+		choice( "Just go to sleep" )choice
+;
+
+// Bad Weather camping
+
+: camp2-badweather-check args( @ )
+	<- @ oblivious? if
+		($ <- @ .colourname .. " thought the weather was nice!" $) +crtext 
+		<- @ choosechar morale++ witsattREV
+	then;
+	<- @ .cattitude+ if 
+		($ <- @ .colourname .. " didn't mind it much." $) +crtext 
+		<- @ .attitudeREV
+	then;
+	<- @ .morale--
+;
+
+cyoa: camp2-badweather
+	image-camp-2
+	"Miserable Camping" cyoa-title!
+	($ Thegroup .. " couldn't find any safe shelters, but was able to cobble together a campsite. The weather is terrible all night!" $) text! ' camp2-badweather-check foreach-team-char +cr fullcamp
+	0.4 1 frnd weather! -1 1 frnd wind_force!
+;
+
+
+// Woodstove camping
+
+: camp2-wood-fire args( @ )
+	<- @ .cattitude- if <- @ .attitudeREV then;
+	<- @ .morale++
+;
+
+cyoa-choice: camp2-wood-chopped
+	($ cname .. " chops a bunch of wood and gets the woodstove going before passing out from exhaustion.
+	" .. cHe .. " will be very tired tomorrow!" $) text!
+	strengthREV strength++ cchar tired goodfx
+	"The fire feels great!" +crtext
+	' camp2-wood-fire foreach-team-char
+;
+
+cyoa: camp2-wood-chop
+	solohuman if
+		choosehuman camp2-wood-chopped
+	then;
+	"Who should go chop the wood? It's really hard work!" cyoa-text!
+	' camp2-wood-chopped cyoa-human-choice
+;
+
+cyoa: camp2-wood
+	image-cabin-in-woods
+	"Cabin with Woodstove" cyoa-title!
+	($ Thegroup .. " finds a cabin in the woods, with no zombies in sight. It has a woodstove in it, but no wood!" $) text! +cr fullcamp
+		choice( "Go out and chop wood" )choice: camp2-wood-chop
+		choice( "Just go to sleep" )choice
+;
+
+// Creepy inn woman
+
+: camp2-airbnb-eat args( @ )
+	<- @ paranoid? if
+		($ <- @ .colourname .. " refuses to eat it!" $) +crtext <- @ .morale-- 
+		<- @ .witsREV <- @ .attitudeREV
+	then;
+	<- @ .morale2+
+;
+
+: camp2-airbnb-breakfast
+	($ "The innkeeper serves up an amazing breakfast!" $) +crtext
+	' camp2-airbnb-eat foreach-team-char goodfx	sleep
+;
+
+cyoa-choice: camp2-airbnb-pay
+	($ Thegroup .. " pays to stay a night at the inn. It's comfortable.
+	" .. "No one wants zombies creepin while they're sleepin hhhHHHHHHeheh." rbold $) text! -10 trunk-food+
+	camp2-airbnb-breakfast
+;
+
+cyoa-choice: camp2-airbnb-charm
+	($ cname .. " gets a better deal for the night.
+	" .. "You're a sly one hhhhhhhhhhHHHHHHeheh." rbold $) text! -5 trunk-food+
+	camp2-airbnb-breakfast
+;
+
+: camp2-airbnb-pres
+		($ "...hhhhhhhhhhHHHHHHeheh you must be a big shot.
+		I'll show you the presidential suite." rbold $)
+		+crtext
+;
+
+cyoa-choice: camp2-airbnb-coolit
+	cpet? if
+		($ cname .. " makes a " .. "hhhHHHHHeh" rbold .. " sound." $)
+	else
+		($ cname .. " tells the woman to " .. "SAY IT NOT SPRAY IT." pbold $)
+	then text!
+	cool-it-7 if
+		camp2-airbnb-pres
+		"She shows the Presidential Suite! It's got a spa!" +crtext
+		morale3+all 
+		"She also shows off the Executive Gym!" +crtext
+		' .fitness++ foreach-team-char ' .strength++ foreach-team-char
+		camp2-airbnb-breakfast
+		cooled-it goodfx
+	else cool-it++
+		camp2-airbnb-pres 
+		($ "She kicks " .. thegroup .. " out. " .. gThey .. " eat" .. g1s .. " on the road, but never find" .. g1s .. " a secure place to sleep." $) +crtext badfx +cr tiredcamp
+	then witsattREV 
+;
+
+cyoa-choice: camp2-airbnb-nosleep
+	($ Thegroup .. " peels out of there pretty fast. " .. gThey .. " eat" .. g1s .. " on the road, but never find" .. g1s .. " a secure place to sleep." $) text! +cr tiredcamp
+;
+
+cyoa: camp2-airbnb
+	image-old-house
+	"Bed & Breakfast" cyoa-title!
+	($ Thegroup .. " finds an inn, open for business! The owner wrings her hands: 
+	" .. "Give me 10 food, I'll watch over you while you sleep hhhHHHHHeh." rbold .. "
+	She is super creepy." $) text!
+		trunk-food 9 > if	
+			choice( "Pay the 10 food" )choice: camp2-airbnb-pay
+		then
+		most-grating if	
+			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: camp2-airbnb-coolit
+		then
+		most-charming trunk-food 5 > and if
+			charchoice( " haggles it to 5 food" )choice: camp2-airbnb-charm
+		then
+		choice( "Drive off with no sleep" )choice: camp2-airbnb-nosleep
+;
+
+// Zombie singalong
+
+: camp2-sing-team args( @ )
+	<- @ .attitudeREV
+	<- @ .cattitude+ if
+		<- @ .morale++
+	then
+	<- @ .cattitude- if
+		<- @ .morale--
+	then	
+;
+
+cyoa-choice: camp2-sing-sing someicon
+	($ Thegroup .. " tries to keep spirits high by singing. Whether or not the singing was any good mostly depends on your attitude." $) cyoa-text! 3 700 tone 2 500 tone
+		' camp2-sing-team foreach-team-char
+;
+
+cyoa-choice: camp2-sing-plan
+	cwits- if
+		($ "It turns out that " .. thegroup .. " really isn't that great at planning things at all." $) cyoa-text! morale--all ' .witsREV foreach-team-char badfx
+	then;	
+	cwits+ witsroll or if
+		($ cname .. " plans out the next day. It's a good use of time, and helps " .. ghim .. " focus on the big picture." $) cyoa-text!
+			morale++ goodfx
+	else
+		($ cname .. " makes elaborate plans for the next day. It's not until morning that " .. ghe .. " realizes that the plans were completely goofy." $) cyoa-text!
+			morale--all badfx
+	then witsREV
+;
+
+cyoa: camp2-sing
+	"Death Road Sing-a-Long" cyoa-title!
+	($ Thegroup .. " is sitting around a campfire. Finding this campsite was rough, so " .. gtheyare .. " getting in a bad mood." $) cyoa-text! +cr fullcamp
+		choice( "Sing a song" )choice: camp2-sing-sing
+		smartest charchoice( ": Plan out tomorrow" )choice: camp2-sing-plan
+;
+		
+} }
+
+

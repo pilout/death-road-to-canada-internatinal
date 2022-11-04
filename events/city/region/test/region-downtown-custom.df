@@ -1,0 +1,117 @@
+// uses hack/region-layout.df
+
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+"events/inner/shoploc.df" $load
+
+load? events/city/city-locations.df
+
+map{ regiondef{
+
+	0 value alley%
+
+	: make-prefab-building
+		' curbuild ++
+		try-special-build if then;
+
+		// auto-picklocid addloc
+		
+		rowsleft 3 >= if
+			50 %chance if 0 else auto-picklocid then
+		else
+			rowsleft 2 = if 
+				75 %chance if 0 else auto-picklocid then
+			else
+				curbuild 10 < if
+					25 %chance if 0 else auto-picklocid then
+				then
+				curbuild 9 > if auto-picklocid then
+			then
+		then 
+
+		trashed-house-maker
+
+(*
+		rnd5050 if
+			0 1 rnd vshift
+			prefab{ mrand 5 8 rnd 0 building }
+			rnd5050 if concrete-lotw else paved-lotw walkway then
+		else
+			0 -1 rnd vshift
+			prefab{ 0 4 rnd 7 house1 }
+			grass-lotw  walkway
+		then
+*)	
+	;
+
+	// 0 make-apartments // EXAMPLE... apartments with no door!
+
+	: try-empty-lot try-grassy-lot ;
+
+	: make-test-downtown
+			blocks-init
+				6 to blockh
+				2 to maxrows
+				25 to greenspace%
+				25 to grassylot%
+				50 to alley%
+				6 to treemax
+				1 3 rnd to grassylots
+			blocks-start
+
+			0 begin 1+ canplot? while
+				try-empty-lot 0= if
+//					canplot? 0= if
+					0 if
+						grass-lot
+					else
+						make-prefab-building
+					then
+
+					next-plot
+
+					canplot? 0= if break then
+
+//					block-middle? if 1 2 rnd dup if conc-alleyway-plot else drop then then
+//					block-middle? if 1 2 rnd dup if gravel-alleyway-plot else drop then then
+//					block-middle? if 1 2 rnd dup if grass-alleyway-plot else drop then then
+//					block-middle? if 1 2 rnd dup if dirt-alleyway-plot else drop then then
+//					block-middle? if 1 2 rnd dup if paved-alleyway-plot else drop then then
+
+					block-middle? alley% %chance and if
+						1 2 rnd conc-alleyway-plot
+
+						lot-boundsw box-midy 1 -
+
+						next-plot
+
+						canplot? if fencex-cind else 4drop then
+
+						// 1 lot-back-chain+ next-lot then
+					then
+
+				then
+				dup 100 > if break then
+			repeat drop
+		;
+
+
+// : downtown-setup regiondef{ map-extents dirtbox make-test-downtown } map{ street-junk } ;
+
+: downtown-setup regiondef{ pavement make-test-downtown } map{ street-junk } ;
+
+region: downtown custom test
+//	w: maplayout layoutw 
+//	h: maplayout layouth
+	w: 40
+	h: 22
+	
+	script: timeofday o'clock
+
+	regcity
+
+	post-script: downtown-setup
+} }

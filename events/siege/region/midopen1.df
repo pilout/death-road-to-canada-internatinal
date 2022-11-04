@@ -1,0 +1,58 @@
+"../deathforth/rooms/city.txt" $load-rooms
+
+locdef{
+
+	location: siegehouse
+		max-rooms: 4
+		entry-tags: open1
+		script: set-theme 
+		pre-script: set-theme
+		post-script: 2sdiff %zombs
+
+		: siegeblock
+			2 for random-door map{ block-last-door } next
+			70 %chance if random-door map{ block-last-door } then
+		;
+		
+		room-choice: open1
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: siegeblock
+			filter-only
+
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+
+		room-choice: bedroom
+			room-weight: 50
+			room-count: 1
+			room-script: nad
+
+		room-choice: kitchen
+			room-weight: 70
+			room-count: 1
+			room-script: nad floor-kitchen
+
+}
+
+regiondef{
+
+	region: siegehouse
+		w: 1
+		h: 1
+		max-locs: 1
+		script: timeofday o'clock
+	
+		inside no-rest
+					
+		loc-choice: siegehouse
+			loc-weight: 99
+			loc-count: 1
+		
+		: siegesetup mission{ siege-start 50 bottom-spawn } 5sdiff %zombs ;
+			
+		post-script: siegesetup
+}

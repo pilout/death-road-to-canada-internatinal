@@ -1,0 +1,144 @@
+
+"../deathforth/rooms/industrial.txt" $load-rooms
+"events/industrial/sewer-locations.df" $load
+
+cyoa{
+
+cyoa: hazmatb
+	nearestget nearest .character@ to hazmatb
+	hazmatb choosechar cicon
+	"Mattie" cchar .name!
+	dead? if npc-died then;
+	"Hazmattie" cyoa-title!
+	($ cname .. " says something, but her big respirator muffles what she is saying.
+	It's likely she wants out of here, as soon as possible. Or maybe she likes sewer living. Who can say?" $) cyoa-text!
+		road{ ' hazmatrescue to post-mission-cyoa }
+;
+
+cyoa: hazmata
+	nearestget nearest .character@ to hazmata
+	hazmata choosechar cicon
+	"Matilda" cchar .name!
+	dead? if npc-died then;
+	"Hazmatilda" cyoa-title!
+	($ cname .. " is ready to get out of this sewer! 
+	" .. "Living here worked at first! Sure the beds were soggy, but otherwise it was fine!" pbold $) cyoa-text!
+		road{ ' hazmatrescue to post-mission-cyoa }
+;
+
+cyoa: hazmat1
+	nearestget nearest .character@ to hazmat1
+	hazmat1 choosechar cicon
+	dead? if npc-died then;
+	"Hazmatt" cyoa-title!
+	($ cname .. " asks for help! He offers a reward if " .. thegroup .. " can help him rescue his two team members, then get out of this sewer through the door.
+	" .. "We tried living down here for awhile. It turned out to not be such a great idea." pbold $) cyoa-text!
+		road{ ' hazmatrescue to post-mission-cyoa }
+;
+
+}
+
+: .hazmat2
+	23 over .specialtype!
+	4 over .strength!
+	4 over .fitness!
+	3 over .shooting!
+	1 over .female!
+	WEAPON_PISTOL over .weapona!
+	60 LOOT_BULLET 2 pick .lootamt!
+	drop
+;
+
+: .hazmat1
+	23 over .specialtype!
+	4 over .strength!
+	3 over .fitness!
+	4 over .shooting!
+	0 over .female!
+	"Matt" over .name!
+	WEAPON_SHOTGUN over .weapona!
+	60 LOOT_SHOTGUN_SHELL 2 pick .lootamt!
+	drop
+;
+
+: hazmata map{ selected } . cr new-npc@ .hazmat2 1 lt .unseen! 0 lt .leaveok! lt cyoa{ ' hazmata cyoa! } drop ;
+: hazmatb map{ selected } . cr new-npc@ .hazmat2 1 lt .unseen! 0 lt .leaveok! lt cyoa{ ' hazmatb cyoa! } drop ;
+: hazmat1 map{ selected } . cr new-npc@ .hazmat1 1 lt .unseen! 0 lt .leaveok! lt cyoa{ ' hazmat1 cyoa! } drop ;
+
+locdef{
+
+	location
+		tags: hazmat
+		max-rooms: 8
+		entry-tags: sewer-entry
+
+		script: setup-sewer
+		post-script: 10diff %zombs map{ wetfloor } nad ndx
+		
+		: hazmatstart
+			e random-edge-door "sewer-hall" only-with-door
+			w random-edge-door "sewer-hall" only-with-door
+		;
+		
+		: hazmathall
+			random-door "sewer-hall" only-with-door
+			random-door "hazmatrescue" only-with-door
+		;
+		
+		: hazloot
+			1 allow-inset-doors!
+			randns dup edge-inc random-inset-door
+//			random-door
+			"treasure" only-with-door
+			0 allow-inset-doors!
+		;
+		
+		room-choice: sewer-entry
+			room-weight: 1
+			room-count: 1
+			room-post-script: hazmatstart hazmat1
+
+		room-choice: treasure
+			room-weight: 1
+			room-count: 3
+			filter-only
+			
+		room-choice: hazmatrescue
+			room-weight: 1
+			room-count: 1
+			filter-only
+			room-post-script: hazmata
+			
+		room-choice: hazmatrescue
+			room-weight: 1
+			room-count: 1
+			filter-only
+			room-post-script: hazmatb
+
+		room-choice: sewer-hall
+			room-weight: 1
+			room-count: 3
+			room-post-script: hazmathall hazloot
+			filter-only
+
+}
+			
+regiondef{
+
+	region: hazmat
+		w: 15
+		h: 15
+		max-locs: 1
+		script: timeofday o'clock
+		post-script: 10diff %zombs inspawn
+		
+		no-prefab 
+		inside
+
+		"REGION LOCATIONS" print
+					
+		loc-choice: hazmat
+			loc-weight: 99
+			loc-count: 1
+
+}

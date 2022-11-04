@@ -1,0 +1,117 @@
+uses base.df
+
+voc{ particle
+
+: pos@ pos.x@ pos.y@ ;
+: pos! pos.y! pos.x! ;
+: pos3@ pos.x@ pos.y@ pos.z@ ;
+: pos3! pos.z! pos.y! pos.x! ;
+: vel@ vel.x@ vel.y@ ;
+: vel! vel.y! vel.x! ;
+: vel3@ vel.x@ vel.y@ vel.z@ ;
+: vel3! vel.z! vel.y! vel.x! ;
+: rgb! clr.b! clr.g! clr.r! ;
+: rgba! clr.a! clr.b! clr.g! clr.r! ;
+
+: .pcopy particle{ new p copy } ;
+: pcopy particle{ p .pcopy } ;
+
+: shroomsplosion locals( posx posy posz )
+
+	// mushroom cloud
+	new
+		pos3!
+
+		20 ticks!
+		5 fade_out!
+		1.025 grow!
+		0.75 scaley!
+		0.75 scale!
+		1 clr.r! 0.5 clr.g! 0.0 clr.b!
+		-2 vel.y!
+		glowy
+		particles32_base_id 3 + spriteid!
+
+	// blast ring
+	pcopy
+		0 wait!
+		15 ticks!
+		5 fade_out!
+		0.75 scaley!
+		0.5 scale!
+		1.1 grow!
+		0 vel.y!
+		particles32_base_id 4 + spriteid!
+		1 clr.r! 0.5 clr.g! 0.0 clr.b!
+
+	// mushroom stem
+	pcopy
+		20 ticks!
+		5 fade_out!
+		1 scale!
+		1 grow!
+		0.5 scaley!
+		1.05 growy!
+		-1 vel.y!
+		particles32_base_id 5 + spriteid!
+		1 clr.r! 0.5 clr.g! 0.0 clr.b!
+
+	// Stem ring
+	pcopy
+		pos.z@ 10 + pos.z!
+		10 ticks!
+//		1.05 grow!
+		1 grow!
+		5 fade_out!
+		-3 vel.y!
+		8 wait!
+		particles32_base_id 4 + spriteid!
+		0.5 scale!
+
+	// white flash
+	pcopy
+		pos.z@ 15 - pos.z!
+		10 ticks!
+		0 wait!
+		0.75 scaley!
+		0 angle!
+		1 growx!
+		1 growy!
+		1 scalex!
+		4 scale!
+		0.6 grow!
+		0 vel.y!
+		particles32_base_id 1 + spriteid!
+		1 clr.r! 1 clr.g! 1 clr.b!
+
+	// Smoke puffs
+	pcopy
+		nonglowy
+		1 scalex!
+		1 scaley!
+		0.5 scale!
+		1.02 grow!
+		-0.5 vel.y!
+		particles_base_id 0x 2c + spriteid!
+		0 360 frnd angle!
+		5 rndsign * rotate!
+		30 wait!
+		60 ticks!
+		10 fade_in!
+		30 fade_out!
+
+	// Copied at later times
+	pcopy
+		0 360 frnd angle!
+		5 rndsign * rotate!
+		45 wait!
+		0.8 scale@ * scale!
+
+	pcopy
+		0 360 frnd angle!
+		5 rndsign * rotate!
+		60 wait!
+		0.7 scale@ * scale!
+;
+
+}

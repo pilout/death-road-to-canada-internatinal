@@ -1,0 +1,73 @@
+(*
+//	start_seed
+//	seed
+	road_theme
+	leader_charid
+	team charid (use recruit?)
+	trunk.loot
+	trunk.weapon
+	vehicle
+*)
+
+filesave{
+
+: dumploot
+	LOOT_COUNT for 
+		i 1- " trunk.loot" $cat save-prop
+	next
+;
+
+: dumpweapons
+	weapondef{ WEAPON_COUNT } for
+		i 1- trunk.weapon@ if
+			i 1- " trunk.weapon" $cat save-prop
+		then
+	next
+;
+
+
+: dumpteam
+	4 for
+		i 1- team_charid@ if
+			i 1- " team_charid" $cat save-prop
+		then
+	next
+;
+
+
+: dumpvehicle
+	save-prop: road_theme
+	save-prop: leader_charid
+	save-prop: vehicle.which
+	save-prop: vehicle.variant
+	save-prop: vehicle.max_gas
+	save-prop: vehicle.motor.freq1
+	save-prop: vehicle.motor.freq2
+	save-prop: vehicle.motor.duty1
+	save-prop: vehicle.motor.duty2
+	save-prop: vehicle.motor.filt_low
+	save-prop: vehicle.motor.filt_high
+	save-prop: vehicle.motor.q
+;
+
+: dumpsys
+	// Always start 1 second back from next road event
+	1 main-event-period!
+	save-prop: main-event-period
+;
+
+: dumpgame
+	dumpsys
+	dumpteam
+	dumploot
+	dumpweapons
+	dumpvehicle
+;
+
+: test-savegame
+	save-start
+		dumpgame strbuf@ print
+	save-end
+;
+
+}

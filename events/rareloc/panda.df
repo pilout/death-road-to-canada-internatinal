@@ -1,0 +1,104 @@
+
+cyoa{
+
+// Unused
+: npc-panda-go 
+	($ cname .. " starts following " .. pname .. " for awhile!" $) +crtext ccharget
+;
+
+: npc-panda-recruit
+	cchar to recruitee goodfx clear-cyoa
+	($ "The panda seems to want to follow " .. pname .. "!" $) +crtext
+	pchar .morale3+ pchar .loyaltyREV pchar .attitudeREV
+	recruitee .strengthREV recruitee .fitnessREV
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yesno
+;
+
+: npc-panda-attack
+	($ "The panda " .. "lashes out!" rbold $) +crtext pchar .ouch-- bitefx
+;
+
+cyoa-bridge: npc-panda-food
+	($ pname .. " offers the panda some food." $) text!
+	50 %chance if 
+		npc-panda-recruit
+	else
+		($ "The panda chomps on the food and then spits it out. Pandas are picky eaters, but you can keep trying with more food." $) +crtext badfx
+	then	
+	-1 add-food
+;
+
+cyoa-bridge: npc-panda-pull
+	($ pname .. " pulls the panda towards " .. phim .. " in hopes that the animal follows. It seems like it's worth a shot." $) text!
+	50 %chance if 
+		npc-panda-recruit
+	else
+		npc-panda-attack
+	then	
+	
+;
+
+cyoa-bridge: npc-panda-charm
+	pchar isdogpal? if
+		($ pname .. " uses " .. phis .. " DOG PSYCHOLOGY on the panda, which is a type of dog." $) text!
+		npc-panda-recruit
+	else
+		pchar charming? if 
+			($ pname .. " uses " .. phis .. " natural charm to coax the panda to follow." $) text!
+			npc-panda-recruit
+		else
+			($ "The panda just seems irritated by " .. pname .. "." $) text!
+			npc-panda-attack
+		then
+	then
+;
+
+// pchar .nonfatal if then
+
+cyoa: npc-panda
+	"Panda Panic" cyoa-title!
+	nearest .character@ choosechar cicon
+	($ "It's a panda, standing around the trashed building. It stares at " .. pname .. " with a blank expression. It may be possible to get it to follow you..." $) text!
+	"WARNING: Will probably kill you unless you're offering it food. Is a dingus with 50% chance to waste your food." rbold +crtext
+		choice( "Leave it alone" )choice
+		choice( "Pull the panda along" )choice: npc-panda-pull
+		LOOT_FOOD pchar .lootamt@ 0 > if
+			choice( "Lure it with food" )choice: npc-panda-food
+		then
+		choice( "Coax it with charm" )choice: npc-panda-charm	
+;
+
+}
+
+: .panda args( char )
+	35 <- char .specialtype!
+	"Panda" <- char .name!
+	WEAPON_FIERCE <- char .weapon_default!
+	2 STAT_STRENGTH <- char .bonus!
+	6 <- char .strength!
+	6 <- char .fitness!
+	1 <- char .female!
+	1 <- char .carrying.slot_count!
+	"is a panda. Real cute unless angered." <- char .job!
+	<- char cyoa{ ' npc-panda cyoa! }
+	drop
+;
+
+locdef{
+		
+location
+		tags: panda
+		max-rooms: 2
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+			room-post-script: still-npc .panda
+			filter-only
+			
+}

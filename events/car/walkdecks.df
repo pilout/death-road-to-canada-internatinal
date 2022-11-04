@@ -1,0 +1,135 @@
+uses cyoa.df
+uses events/car/walkdecks/walk1.df
+uses events/car/walkdecks/camp1.df
+uses events/car/walkdecks/walkfindcar.df
+
+events{
+road{
+
+// STUFF HAPPENS while walking
+
+	deck-new
+		card: walk-stubtoe
+		card: walk-hole
+		card: walk-carrock
+		card: walk-dirty
+	//	card: walk-fart
+		card: walk-branchbreak
+		card: walk-nicewalk
+		card: walk-mold
+		card: walk-meal
+		card: walk-bandit1
+		card: walk-bandit2
+		card: walk-bandit3
+		card: walk-bandit4
+		card: walk-pain1
+		card: walk-pain2
+		card: walk-pain3
+		card: walk-rainmorale
+		card: walk-boot
+		card: walk-caryell
+				
+	constant WALK-DECK
+	WALK-DECK var walk-deck
+	
+	WALK-DECK shuffles to walk-deck
+		
+: walkcard 
+	walk-deck depths 0= if WALK-DECK shuffles to walk-deck then
+	drawcard ;
+	
+	deck-new
+		card: walk-camp1
+		card: walk-camp2
+		card: walk-camp3
+		card: walk-camp4
+		card: walk-camp5
+		card: walk-camp6
+		card: walk-camp7
+		card: walk-camp8
+	constant WALK-CAMP-DECK
+	WALK-CAMP-DECK var walk-camp-deck
+	
+	WALK-CAMP-DECK shuffles to walk-camp-deck
+	
+: walk-camp-event
+	walk-camp-deck depths 0= if WALK-CAMP-DECK shuffles to walk-camp-deck then
+	drawcard
+;
+	
+	deck-new
+		card: find-car-SUV
+		card: find-car-muscle
+		card: find-car-starter
+		card: find-car-hybrid
+		card: walkfind-cabin
+		card: walkfind-rest
+		card: walkfind-junk
+		card: carfind-tunnel
+		card: carfind-dirt
+		card: carfind-gravel
+		card: carfind-country
+		card: carfind-city
+		card: carfind-long
+	constant FIND-CAR-DECK
+	FIND-CAR-DECK var find-car-deck
+	
+	FIND-CAR-DECK shuffles to find-car-deck
+
+: find-car-morale++ 
+	dup .morale 1 = if
+		.morale++ 
+	else 
+		dup .morale 0 = if
+			.morale++ 
+		then
+	then 
+;
+
+: find-car
+	find-car-deck depths 0= if FIND-CAR-DECK shuffles to find-car-deck then
+	drawcard ;	
+
+: end-walk-day
+		walk-days-left 0 > if
+			walk-camp-event
+			heal-event
+		else
+		walk-days-left 0 < if
+			walk-camp-event walk-day-pick
+		then;
+			' find-car-morale++ foreach-team-char
+			road-music
+			find-car
+		then
+		new-walk-day
+		-1 road-delay
+;
+	
+: walk-card-event
+	walkcard
+	2 road-delay
+;
+
+: walk-event
+		
+		' walk-countdown -- 	// Decrement number of road events remaining
+		' walk-event-turn ++	// Number of road events/turns occurred 
+
+		walk-countdown 1 < if end-walk-day exit then
+
+		walk-card-event
+			
+	;
+	
+// Maybe use the below if I want to make the find-gas logic fancier
+: new-car-gas
+	trunk-gas 50 < if
+		find-car-gas
+	then;
+	50 80 rnd trunk-gas+
+;
+	
+
+
+} }

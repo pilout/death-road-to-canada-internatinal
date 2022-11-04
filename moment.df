@@ -1,0 +1,65 @@
+voc{ moment
+
+// Context for interpreting the moment
+// TODO: these are just examples, add/remove as needed
+
+0 stack var moments
+
+' noop value handler
+
+	// All variables you want to be able to use in a moment
+	0 value socialtype
+	0 value hint			// Put anything you want in here for case-specific context, or nothing
+	0 value subject
+	0 value affected
+
+	// Clear all variables for a new moment
+	: new
+//		to socialtype
+		0 to subject
+		0 stack to affected
+		0 to hint
+	;
+
+	: post MAIN_EVENT_SOCIAL_MOMENT main-post-event ;
+
+	// DEBUG
+
+	: globaleventtest
+		"SOCIAL MOMENT: " type socialtype . cr
+		"hint: " type hint . cr
+		"subject: " type subject . cr
+		"affected: " print affected list-stack cr
+	;
+	last to main-event-social-moment
+
+	: ?choicechar choicechar character# if choicechar then; 0 ;
+
+	: everyone team-stack shuffles ;
+	: instigated to subject ;
+	: instigator subject ;
+	: dosocial new ?choicechar to subject everyone to affected ;
+
+	: blameless 0 to subject ;
+	: moment postpone post postpone } ; immediate
+
+	// Stuff to use within the moment handler:
+	: alone? affected depths 1 = ;
+	: blameless? subject 0= ;
+	: subject? subject 0= ;
+	: subject! to subject ;
+	: rando affected -1 picks nip ;
+
+	// Testing
+	: flah "GFASFAFS" $cyoa-ok-dialog ;
+	: tm "BLAH" $cyoa-ok-dialog "foo" +crtext ' flah
+		road{ stack-road-action } ;
+}
+
+// cyoa{
+
+: social postpone moment{ moment{ postpone dosocial } ; immediate
+
+// }
+
+}

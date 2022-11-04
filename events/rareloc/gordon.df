@@ -1,0 +1,62 @@
+
+cyoa{
+
+cyoa-bridge: npc-gordon-recruit
+	cchar to recruitee goodfx clear-cyoa
+	($ cname .. " seems ok with following " .. pname .. ". Maybe? It's hard to say due to the silent protagonist scthick." $) text!
+	recruitee .strengthREV recruitee .fitnessREV recruitee .shootingREV recruitee .mechanicREV
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yesno
+;
+
+cyoa: npc-gordon
+	"The Gord Man" cyoa-title!
+	interactee .character@ choosechar cicon
+	($ "........" pbold $) text!
+	($ " -- " .. cname $) +crtext
+		choice( "Leave him alone for now" )choice
+		choice( "Have him follow you" )choice: npc-gordon-recruit
+;
+
+}
+
+: .gordon args( char )
+	49 <- char .specialtype!
+	"Gordo" <- char .name!
+	WEAPON_CROWBAR <- char .weapona!
+	WEAPON_SHOTGUN <- char .weaponb!
+	WEAPON_DOLT <- char .weaponc!
+	42 LOOT_BULLET <- char .lootamt!
+	5 <- char .strength!
+	5 <- char .fitness!
+	5 <- char .shooting!
+	4 <- char .vitality!
+	4 <- char .health!
+	5 <- char .mechanical!
+	3 <- char .attitude!
+	3 <- char .wits!
+	3 <- char .loyalty!
+	3 <- char .composure!
+	"seems quiet, or possibly has no personality whatsoever." <- char .job!
+	0 <- char .female!
+	<- char cyoa{ ' npc-gordon cyoa! }
+	drop
+;
+
+locdef{
+		
+location
+		tags: gordon
+		max-rooms: 2
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+			room-post-script: still-npc .gordon
+			filter-only
+			
+}

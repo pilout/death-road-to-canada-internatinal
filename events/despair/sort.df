@@ -1,0 +1,151 @@
+
+cyoa{
+
+cyoa: despair-oblivious 
+	road{ despair-start! }
+	($ cname .. "'s " .. "INCREDIBLE POWERS OF POSITIVE THINKING" rbold .. " kick in, shielding " .. chim .. " from the horrors of reality." $) cyoa-text!
+	cchar .attitude 5 > if "Really, things aren't going too bad here!" +crtext then
+	cchar .attitude 5 = if "Well, things could be worse I guess!" +crtext then
+	morale4+
+	($ cHe .. " gains strength from hope!" $) +crtext
+	strength++ shooting++
+	cchar .attitude 5 = if ($ cname .. "'s spirit starts to crack! " .. cHe .. " might not be so lucky next time!" $) +crtext then
+	witsattREV attitude-- goodfx
+;
+
+cyoa: despair-superdog
+	"The Death Road Continues" cyoa-title!
+	bully .notchoosechar
+	bully character# cyoa-char-icon!
+	($ bname .. " apologizes to " .. cname .. "." $) text!
+	bully notpet? if
+		($ "I can't go on the Death Road any more! Just remember everything I taught you!
+			You can do it, I believe in you!" pbold $)
+	else
+		($ bname .. " " .. bully barkmeow .. "s in a very inspirational way.
+		The crown is being passed on, to " .. cname .. "!" $)	
+	then +crtext
+	($ cname .. " gets the keys, puts them in the car ignition, and starts it up. Onward to Canada!" $) +crtext
+	ccat? not if
+		morale3+ strength++ fitness++
+	else
+		($ cHe .. " Drives Around, All Over the Town" $) cyoa-title!
+		($ cHe .. " never listened to a single thing " .. bname .. " said. " .. cname .. " slowly makes it a few miles down the road, but then drives the car right over a cliff." $) +crtext
+		cchar .kill
+		clear-streak delete-the-game
+		choice( "CATS DON'T LISTEN" )choice: quit-to-title
+		exit
+	then
+	bully .weapons-to-trunk
+	TEAM_STATUS_GOOD_LEFT bully .decruit cchar .dogtosuperdog goodfx
+;
+
+}
+
+events{ road{
+
+	: despair-deck-draw
+		despair-deck depths 0= if DESPAIR-DECK shuffles to despair-deck then drawcard
+	;
+
+	: scdespairlogic
+		bully-st 1 = if
+			mason-despair
+		then;
+		bully-st 3 = if
+			santa-despair
+		then;
+		bully-st 4 = if
+			evilsanta-despair
+		then;
+		bully-st 10 = if
+			madsci-despair
+		then;
+		bully-st 11 = if
+			catlady-despair
+		then;
+		bully-st 15 = if
+			ninja-despair
+		then;
+		bully-st 25 = if
+			tlb-despair
+		then;
+		bully-st 27 = team-count 1 > and if
+			turkey-despair
+		then;
+		bully-st 29 = if
+			clown-despair
+		then;
+		bully-st 31 = if
+			garf-despair
+		then;
+		bully-st 33 = if
+			gnomey-despair
+		then;
+		bully-st 34 = if
+			horse-despair
+		then;
+		bully-st 36 = if
+			alvis-despair
+		then;
+		bully-st 37 = if
+			oldalvis-despair
+		then;
+		bully-st 52 = if
+			lnk-despair 
+		then;
+		bully-st 53 = if
+			knight-despair
+		then;
+		bully-st 58 = if
+			dsyp-despair
+		then;
+		bully-st 59 = if
+			billy-despair
+		then;
+		despair-deck-draw
+	;
+
+: despair-solo-event 
+	bully-st 0 > if scdespairlogic then;
+	despair-solo-deck depths 0= if DESPAIR-SOLO-DECK shuffles to despair-solo-deck then drawcard 
+;
+
+: despair-oblivious
+	cyoa{ despair-oblivious }
+;
+
+: despair-superdog
+	cyoa{ despair-superdog }
+;
+
+: despair-event 
+	bully-st 0 > if scdespairlogic then;
+	
+	// despair-oblivious is handled before this, in road.df
+
+	bully if
+		bully superpet? bully notpet? or if
+			numhums 1 = bully .health@ 2 < and if
+				despair-superdog
+			then;	
+		then
+		
+		bully ispet? if
+			despair-dog-deck depths 0= if DESPAIR-DOG-DECK shuffles to despair-dog-deck then
+			drawcard
+		then;
+	then
+	
+	// morale-total 1 < if	50 %chance if loss-lost else loss-quietly then then;
+	// Above as an alternate method if loss-lost and loss-quietly are removed from deck
+		
+	despair-deck-draw
+	
+	// Comment above line and uncomment below to hijack it for a specific event
+	// argue-insults
+;
+	
+} }
+
+

@@ -1,0 +1,129 @@
+
+\ Set a current working directory for loading stuff
+"deathforth" to cwd
+
+"clean boot" $anew
+
+0 value starttime
+
+madtime to starttime
+
+: debugcheck DEBUG_BUILD console! ; debugcheck
+1 console!
+
+\ "roomdef.txt" $load-rooms - Old on-start room loader
+
+\ Set up some base words to use for stuff (including a new "load")
+
+load base.df
+
+"" 			to TEST-PREFIX
+"KIDNEY" to BRANCHNAME
+"UNLOCKS" menu_info_text!
+
+\ Check for unclosed vocabulary after loading game code
+: vcheck voc.depth if order abort" VOCABULARY NOT CLOSED" then ;
+: USES uses vcheck ;
+: transcheck "TRANSIENT" find if abort" TRANSIENT ALERT!" then ;
+
+USES locals.df
+USES stackutil.df
+USES vec.df
+USES filesave.df
+USES gstats.df
+USES events.df
+
+USES music.df
+USES globals.df
+
+// Load type definitions for stuff
+load? weapons.df
+load? pets.df
+
+// Now load all the game-related thing spawning defs
+USES sfx.df
+USES particles.df
+USES minimenu.df
+USES lighting.df
+USES loot.df
+USES projectiles.df
+USES things.df
+USES zombies.df
+USES weapondef.df
+USES weaponfilt.df
+
+USES charfilt.df		
+USES charstats.df
+USES charstatmods.df
+USES gamemodes.df
+
+USES carstats.df
+USES charblurb.df
+
+// Map/game generation stuff
+USES roomgen.df 	
+USES mapgen.df 		
+USES locgen.df 		
+USES locations.df 	
+USES regions.df 	
+USES cyoa.df
+
+USES zombopoints.df
+
+USES charmisc.df
+USES doglogic.df
+USES cyoa-charstats.df
+USES charstats-textfill.df
+USES perkdef.df
+
+USES cheevos.df
+
+USES events/car/walklogic.df
+USES mission.df
+USES mission-events.df
+USES mission-events-human.df
+USES car-logic.df
+
+// Mission/road events
+USES road.df
+
+// USES cyoaroad.df
+USES decks.df 			
+
+USES moment.df
+USES events/moments/moment-example.df
+
+USES events/siege/siege.df
+
+// Regions and stuff in testing
+
+vl diningset
+load? kepa/kepa.df
+vl diningset
+
+// GUI, LOAD/SAVE
+USES game-select.df
+USES game-info.df
+USES game-load.df
+USES game-save.df
+USES game-start.df
+
+USES events/finale/end-of-the-road.df
+
+USES bugfix.df
+USES boot-end.df
+
+transcheck
+
+// Reset the namespace use state
+voc.clear definitions
+
+// local hackery
+load? hack/hack.df
+
+"GAME-MARKER" $anew
+
+"LOAD TIME: " type madtime starttime - type " seconds." print
+"READY." print
+
+check-stack-empty

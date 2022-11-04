@@ -1,0 +1,140 @@
+"../deathforth/rooms/bigoffice.txt" $add-rooms
+"events/inner/officeloc.df" $load
+
+cyoa{
+
+cyoa-bridge: npc-wyk-recruit
+	cchar to recruitee goodfx clear-cyoa
+	($ "Should " .. pname .. " recruit " .. cname .. "?" $) text!
+	recruitee .strengthREV recruitee .fitnessREV
+	recruitee .shootingREV
+	recruitee .medicalREV recruitee .mechanicREV
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yesno
+;
+
+cyoa: npc-wykrecruit
+	"Monument of Would You Kindly's Failure" cyoa-title!
+	nearest .character@ choosechar cicon
+	($ pname .. " finds a skeleton. It's moving around, somehow. It reeks of " .. "FAILURE." rainbold $) text!
+	cchar .name@ "GOOBS" $= if
+		"YELLING ALWAYS SOLVES EVERYTHING" pbold
+	then
+	cchar .name@ "Brawli" $= if
+		"IT'S NOT MY BIRTHDAY ... BUT FOR YOU ... IT IS..." pbold
+	then
+	cchar .name@ "The Danamal" $= if
+		"THE DUDE ABIDES..." pbold
+	then
+	cchar .name@ "Romcomm" $= if
+		"I MAY ONLY HAVE ONE HORN, BUT IT'S ALL FOR YOU" pbold
+	then
+	cchar .name@ "Farrington" $= if
+		"CHARGE THE LASERS!" pbold
+	then
+	cchar .name@ "Dagwood" $= if
+		"YOU'RE BONED" pbold
+	then
+	cchar .name@ "Firecrow" $= if
+		"BUT I'M YOUR FRIENDLY NEIGHBORHOOD BARTENDER..." pbold
+	then
+	// "WELL, I GUESS THEY TRIED. BUT IT WASN'T NEARLY GOOD ENOUGH." pbold
+	+crtext
+	"CON: Really terrible recruit, in both life and death." rbold +crtext
+	"PRO: Is a spooky dancing skeleton." bbold +crtext
+		choice( "Ignore for now" )choice
+		choice( "Recruit Him" )choice: npc-wyk-recruit
+;
+
+}
+
+: .wykrecruit args( char )
+	lt .scatter
+	<- char .skelify
+	<- char cyoa{ ' npc-wykrecruit cyoa! }
+	0.1 <- char .ai.wander_chance!
+	drop
+;
+
+: .wykgoobers args( char )
+	"GOOBS" <- char .name!
+	<- char .wykrecruit
+;
+
+: .wykbrawli args( char )
+	"Brawli" <- char .name!
+	<- char .wykrecruit
+;
+
+: .wykdan args( char )
+	"The Danamal" <- char .name!
+	<- char .wykrecruit
+;
+
+: .wykfirecrow args( char )
+	"Firecrow" <- char .name!
+	<- char .wykrecruit
+;
+
+: .wykdagwood args( char )
+	"Dagwood" <- char .name!
+	<- char .wykrecruit
+;
+
+: .wykfarrington args( char )
+	"Farrington" <- char .name!
+	<- char .wykrecruit
+;
+
+: .wykromcomm args( char )
+	"Romcomm" <- char .name!
+	<- char .wykrecruit
+;
+
+locdef{
+		
+location: wyk
+		max-rooms: 4
+		entry-tags: officstart
+		pre-script: set-theme-office
+		script: set-theme-office
+		post-script: 10diff %zombs
+		
+		: wykdoors
+			random-door "trashed" only-with-door
+			random-door "trashed" only-with-door
+			random-door "restroom" only-with-door
+		;
+		
+		: wyk-member
+			still-npc .wykromcomm
+			still-npc .wykfarrington
+			still-npc .wykdagwood
+			still-npc .wykfirecrow
+			still-npc .wykbrawli
+			still-npc .wykdan
+			still-npc .wykgoobers
+			5 for skelscat next
+		;
+		
+		room-choice: officstart
+			room-weight: 80
+			room-count: 1
+			room-script: nad
+			room-post-script: 5 12 rnd femur .scatter wykdoors
+			
+		room-choice: trashed
+			room-weight: 1
+			room-count: 2
+			room-script: nad
+			room-post-script: 10 %zombs 2 7 rnd femur .scatter
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad
+			room-post-script: 10 %zombs wyk-member
+			filter-only
+			
+}

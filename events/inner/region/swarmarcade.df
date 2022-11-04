@@ -1,0 +1,133 @@
+"../deathforth/rooms/arcadegym.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/arcadeloc.df" $load
+
+0 value gachapon
+
+: gachainit 0 5 rnd to gachapon ;
+
+cyoa{
+
+cyoa-choice: gachapon-go
+
+	($ cname .. " smashes the prize machine open. " $) text!
+
+	gachapon case
+		0 of
+			($ cHe .. " stuffs all the gumballs into a sack. They are technically food if you eat a lot of them." $) +crtext 4 trunk-food+
+		endof
+		1 of
+			"The capsules contain rubber balls, tiny plastic novelty spiders, fake barf, and so on. Nice!" +crtext morale++
+		endof
+		2 of
+			"One of the figurines in the capsules was an ULTRA-RARE LIMITED EDITION! Whoa! It's very inspiring." +crtext morale2+ 
+		endof
+		3 of
+			($ "The capsules are all full of MUTAGENIC OOZE that open and splatter on " .. chim .. ".
+			" .. "THIS OOZE IS A DISCONTINUED LIMITED EDITION! A COLLECTORS ITEM!!! WHOAAAAA!" pbold $) +crtext
+			strength++ fitness++ 
+			// 0 cchar .tint.skin.b! 0.4 cchar .tint.skin.r! 
+			cchar .hulkclr
+			1.3 cchar .scale.body.y!
+		endof
+		4 of
+			($ cname .. " collects the candy in the machine. It's " .. chis .. " favorite!" $) +crtext
+			morale++ 3 trunk-food+
+		endof
+		5 of
+			($ cHe .. " takes one of the toy guns, and immediately accidentally shoots " .. chim .. "self in the eye! Ouch!
+			An important lesson about firearms is learned." $) +crtext shooting++
+		endof
+	endcase
+	
+	goodfx 1 nearest .open! clear-cyoa
+;
+
+cyoa: gachapon
+	"Gachapon!" cyoa-title!
+	picon!
+	($ cname .. " finds an unbroken prize machine. You'd use to put in a quarter and get something. Now it's more convenient to just smash it." $) text!
+		
+	gachapon case
+		0 of "The machine is full of gumballs." endof
+		1 of "It contains little capsules full of cheap toys." endof
+		2 of "The prizes are capsules with small figurines." endof
+		3 of "The machine has capsules filled with green fluid." endof
+		4 of "The machine is over half empty, but contains candy." endof
+		5 of "It's full of capsules housing tiny toy guns." endof
+	endcase +crtext
+	
+	choice( "Smash it open!" )choice: gachapon-go
+	choice( "Leave it alone" )choice
+	
+;
+
+}
+
+map{ roomgen{
+
+: gachapon-cyoa
+	gachapon cyoa{ ' gachapon cyoa! }
+;
+
+} }
+
+locdef{
+
+location: swarmarcade
+		max-rooms: 4
+		entry-tags: arcadestart
+		pre-script: set-theme-arcade
+		script: set-theme-arcade
+		
+		: swarmarcadeentry
+		random-door "arcade-play" only-with-door
+		random-door "gacharoom" only-with-door
+		random-door "restroom" only-with-door
+		gachainit
+		;
+		
+		room-choice: arcadestart
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 5diff %zombs swarmarcadeentry
+			filter-only
+			
+		room-choice: arcade-play
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 10diff %zombs
+			filter-only
+			
+		room-choice: gacharoom
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 10diff %zombs
+			filter-only
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: 5diff %zombs
+			filter-only
+
+}	
+regiondef{
+	
+	 region: arcade
+		w: 15
+		h: 12
+		script: timeofday o'clock
+		post-script: inspawn
+
+		inside no-prefab
+		
+		loc-choice: swarmarcade
+			loc-weight: 1
+			loc-count: 1
+
+}

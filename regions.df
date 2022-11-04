@@ -1,0 +1,55 @@
+uses locations.df
+
+regiondef{
+
+// Special region lot-picking stuff
+0 value curbuild
+0 value special-lot
+0 value special-lot-tags
+0 value special-lot-build
+
+// Override region: word to initialize this stuff on start
+: special-lot-reset
+	0 to special-lot
+	0 to special-lot-tags
+	0 to special-lot-build
+;
+
+: region special-lot-reset region ;
+: region: region ' $tags compfield ; 
+
+: inspawn 2 region.zombie_basespawn! 6 region.zombie_nightspawn! ;
+: inside 1 no_outside! ;
+: outside 0 no_outside! ;
+: on-foot 1 on_foot! ;
+: no-rest 1 no_rest! ;
+
+: trade-mode 1 no_rest! 1 start_mode! ;
+
+: no-prefab 1 no_prefab! ;
+
+// : script: parse-line $script ;
+: script: ' $script compfield ;
+
+: post-script: ' $post-script compfield ;
+: loc-pick-script: ' $loc-pre-script compfield ;
+: max-locs: ' def-locs-max! compfield ;
+: loc-choice: ' $locdef-choice compfield ;
+: loc-weight: ' locdef-weight! compfield ;
+: loc-count: ' locdef-count! compfield ;
+: start-mode: ' start_mode! compfield ;
+: no-rest: ' no_rest! compfield ;
+
+: w: parse-line evaluate w! ; 
+: h: parse-line evaluate h! ; 
+
+}
+
+: regionloadstart locdef{ locations-start locations-reset free-all-rooms } ;
+: regionloadend locdef{ locations-end } ;
+
+: $load-region voc.depth args( vocdepth )
+	regionloadstart $load-transient regionloadend
+	<- vocdepth voc.depth <> if abort" VOCABULARY DEPTH MISMATCH AFTER LOAD REGION" then;
+;
+: load-region? token dup $filesize if $load-region else drop then ; 

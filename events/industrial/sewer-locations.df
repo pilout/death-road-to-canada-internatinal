@@ -1,0 +1,115 @@
+
+locations-start
+
+	location
+		tags: sewer-easy
+		max-rooms: 6
+		entry-tags: sewer-entry
+
+		0 value sewerstate
+		0 value sewerdir
+
+		: randew rnd5050 if e else w then ;
+		: randns rnd5050 if n else s then ;
+		
+		: setup-sewer
+			// locseed 3 % 
+			19 loc-ftheme!
+			// 9 % 14 ... also like 4 % 12 or 2 % 14
+			locseed 7 % 10 + loc-wtheme!
+			door-sewer
+			0 to sewerstate
+			randew to sewerdir
+			sfx{ 0.075 0.6 globalecho }
+			// 1 allow-double-doors!
+		;
+
+		: sewerhall
+			rooms-left . "rooms left" print
+			
+			rooms-left 2 < if then;
+			sewerdir dup edge-inc random-edge-door
+			"sewer-hall" with-door
+		;
+
+		: startsewerhall
+			sewerdir dup edge-inc random-edge-door
+			"sewer-hall" with-door
+		;
+
+		: sewerloot
+			rooms-left 2 > if then;
+			rooms-left 2 < if then;			
+			1 allow-inset-doors!
+			randns dup edge-inc random-inset-door
+//			random-door
+			"treasure" only-with-door
+			0 allow-inset-doors!
+		;
+
+		: trysewerend
+			rooms-left 1 > if then;
+			 sewerdir dup edge-inc random-door 
+			"sewer-end" with-door
+		;
+		
+		script: setup-sewer
+		post-script: 10diff %zombs map{ wetfloor } nad ndx
+
+		room-choice: sewer-entry
+			room-weight: 1
+			room-count: 1
+			room-post-script: startsewerhall
+
+		room-choice: treasure
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+		room-choice: sewer-hall
+			room-weight: 1
+			room-count: 3
+			room-post-script: trysewerend sewerhall sewerloot
+			filter-only
+
+		room-choice: sewer-end
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+// Deadlier Sewer
+			
+	location
+		tags: sewer-hard
+		max-rooms: 10
+		entry-tags: sewer-entry
+
+		0 value sewerstate
+		0 value sewerdir
+
+		script: setup-sewer
+		post-script: 10diff %zombs map{ wetfloor } nad ndx
+
+		room-choice: sewer-entry
+			room-weight: 1
+			room-count: 1
+			room-post-script: startsewerhall
+
+		room-choice: treasure
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+		room-choice: sewer-hall
+			room-weight: 1
+			room-count: 7
+			room-post-script: trysewerend sewerhall sewerloot
+			filter-only
+
+		room-choice: sewer-end
+			room-weight: 1
+			room-count: 1
+			filter-only
+						
+locations-end
+

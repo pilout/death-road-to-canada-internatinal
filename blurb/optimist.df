@@ -1,0 +1,114 @@
+	
+: good-weather
+	2nd-char choosechar
+	blurbslot 0= if
+		"It actually turned out to be a nice day today!" blurbsay
+	else
+		blurbslot 2 < if
+			cattitude- if
+				($ "PFFT, WHAT'S SO NICE ABOUT IT?" $) blurbsay
+				"Ain't nothin' nice about zombies!" blurbsay
+				STAT_MORALE 1st-char .stat--
+		else
+			"You're right! What a nice day for a road trip." blurbsay
+			STAT_MORALE me .stat++
+			STAT_MORALE 1st-char .stat++
+		then then
+	then
+;	
+
+: taste-like
+	2nd-char choosechar
+	blurbslot 0= if 
+		"If you close your eyes this cat food almost tastes like tuna!" blurbsay
+	else
+		blurbslot 2 < if
+			cattitude+ not if
+				($ "If you close your eyes it almost tastes like crap!" $) blurbsay
+				STAT_MORALE 1st-char .stat--
+			else
+				STAT_MORALE me .stat++
+		then then
+	then
+;
+	
+: canada-weather
+	2nd-char choosechar
+	blurbslot 0= if 
+		"It may be cold in Canada but I'm looking forward to some cool weather myself!" blurbsay
+	else
+		blurbslot 2 < if
+			cattitude- if
+				($ "Its not like we have a choice! I hate cold weather!" $) blurbsay
+				STAT_MORALE 1st-char .stat--
+			else
+				"I agree, Florida can be unbearable at times without air conditioning." blurbsay
+				STAT_MORALE me .stat++
+		then then
+	then
+;
+	
+	: optimist-oneline1 "I feel pretty good about this. I mean, overall." ;
+	: optimist-oneline2 "I still feel like the odds are good, here." ;
+	: optimist-oneline3 "Luck is on my side!" ;
+	: optimist-oneline4 "The world really isn't so bad. Sure, it could use some improvements..." ;
+	: optimist-oneline5 "I can feel it, we're going to run into something good!" ;
+// VVVVVVVV JONZ BLURBZ VVVVVVVVV
+	: optimist-oneline6 "This cat food doesn't taste that bad!" ;
+	: optimist-oneline7 "I don't think I could ever get tired of canned meat." ;
+	: optimist-oneline8 "If you ignore the zombies it is just like a regular road trip!" ;
+	: optimist-oneline9 "This car should have no problems getting to Canada." ;
+	: optimist-oneline10 "I can't wait to meet other survivors on the way to Canada." ;
+	: optimist-oneline11 "We should have no problems getting to Canada." ;
+	: optimist-oneline12 "It is just smooth sailing from now on!" ;
+	: optimist-oneline13 "It couldn't hurt to team up with more survivors." ;
+	: optimist-oneline14 "It's nice having the whole road to yourself." ;
+	: optimist-oneline15 "I was planning on moving to Canada anyway!" ;
+	: optimist-oneline16 "I'm looking forward to the cold Canadian weather." ;
+	: optimist-oneline17 "I can see myself getting into hockey!" ;
+	: optimist-oneline18 "No food? At least I'll lose some weight by the time I get to Canada!" ;
+	: optimist-oneline19 "I never liked all the mosquitoes in Florida anyway." ;
+	: optimist-oneline20 "I never leave home without my trusty can opener!" ;
+	
+	
+	
+	deck-new
+		card: optimist-oneline1
+		card: optimist-oneline2
+		card: optimist-oneline3
+		card: optimist-oneline4
+		card: optimist-oneline5
+		card: optimist-oneline6
+		card: optimist-oneline7
+		card: optimist-oneline8
+		card: optimist-oneline9
+		card: optimist-oneline10
+		card: optimist-oneline11
+		card: optimist-oneline12
+		card: optimist-oneline13
+		card: optimist-oneline14
+		card: optimist-oneline15
+		card: optimist-oneline16
+		card: optimist-oneline17
+		card: optimist-oneline18
+		card: optimist-oneline19
+		card: optimist-oneline20
+		
+	constant OPTIMIST-ONELINERS
+	OPTIMIST-ONELINERS var optimist-oneliners
+
+: optimist-oneliner
+	optimist-oneliners depths 0= if OPTIMIST-ONELINERS shuffles to optimist-oneliners then
+	blurbslot 0= if
+		drawcard blurbsay
+	then
+;
+
+	deck-new
+		card: good-weather
+		card: taste-like
+		card: canada-weather
+		20 cards: optimist-oneliner
+
+	constant BLURB-DECK-OPTIMIST
+	BLURB-DECK-OPTIMIST var blurb-deck-optimist

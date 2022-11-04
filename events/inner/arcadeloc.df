@@ -1,0 +1,145 @@
+		
+cyoa{		
+
+cyoa-choice: arcade-vidcon2
+	($ cname .. " starts taking the arcade machine apart to see how it runs.
+	After some quick rooting around, " .. che .. " figures out the reason.
+	It turns out all these old arcade machines are gas powered! " .. cname .. " carefully drains the gas out of its compartment." $) cyoa-text!
+	goodfx 40 70 rnd LOOT_GAS spawnloot clear-cyoa
+;
+
+: arcade-names
+	1 6 rnd case
+		1 of "DEATH ROAD TO CANADA" endof
+		2 of "DEATH SPLATTERS" endof
+		3 of "TOUCH OF DEATH" endof
+		4 of "POLYBIUS" endof
+		5 of "DEATHSPLOSIONAL" endof
+		6 of "U*L*T*R*A*D*E*A*T*H" endof
+	endcase
+;
+		
+cyoa-choice: arcade-vidcon1
+	($ cname .. " plays an old arcade game named " .. arcade-names fbold .. " and really gets into it.
+	Like all video games ever made, playing it increases your skills with guns. The critics were right.
+	Before " .. cname .. " knew it, 2 hours had passed." $) cyoa-text!
+		shootingREV shooting++ morale++ goodfx
+		clear-cyoa
+		o'clock@ 2 + o'clock 
+		team-nearby? not if	
+			($ "There was no one around to defend " .. pname .. " during this, so " .. phe .. " had to fend off zombies while playing. Watch out!" $) +crtext
+			7 13 rnd roomgen{ .zombspawn }
+		then
+;
+
+cyoa: arcade-vidcon
+	"Arcade Break" cyoa-title!
+	picon!
+	"This arcade machine seems to be working! It's not very clear how it can run without electricity." cyoa-text!
+	chumany? not if
+		($ pname .. " stares at the arcade machine in confusion. What seperates people from animals is mostly that animals don't play video games. At least, for the most part." $) +crtext
+	then; 
+	team-nearby? not if
+		($ "With no one trustworthy nearby to watch out for zombies, playing it could be dangerous." $) +crtext
+	else
+		($ pname .. " considers taking a videogame break while " .. phe .. " is guarded." $) +crtext
+	then
+		pchar charchoice( " plays the arcade game" )choice: arcade-vidcon1
+		cmechanic+ if
+			pchar charchoice( " dismantles the arcade machine" )choice: arcade-vidcon2
+		then
+	choice( "Leave it for now" )choice
+;
+
+}
+			
+map{ roomgen{
+	
+: gachapon
+	spawn special_objects32_base_id 0x 5
+	+ lt .spriteid! rndflip
+	25 health! bbox openable swolebolt- as-metal
+;
+: gachaempty gachapon opened ;
+	
+: arcademachine
+	spawn special_objects32_base_id 0x 8 + lt .spriteid!
+	30 health! bbox swolebolt+ as-metal
+;
+: gasarcademachine
+	spawn special_objects32_base_id 0x 27 + lt .spriteid!
+	 30 health! bbox swolebolt+ as-metal
+;
+
+
+: arcade-events args( me eventid )
+	<- eventid THING_EVENT_TIMER <> if then;
+
+	// CRT scanlines
+	<- me .pos particle{ new pos!
+		special_objects32_base_id 0x 98 + <- me .anim.state@ + spriteid!
+		<- me .anim.state@ not <- me .anim.state!
+		5 ticks!
+		0.3 clr.a!
+		0.5 clr.r!
+		0.5 clr.g!
+		1 clr.b!
+		0 global_colour!
+	}
+
+	// blink PLAY <ALIEN>
+	<- me .anim.substate@ 1+ dup <- me .anim.substate!
+	4 & if
+		<- me .pos particle{ new pos!
+			special_objects32_base_id 0x 9a + <- me .anim.substate@ 3 >> 1 & + spriteid!
+			5 ticks!
+
+			<- me .anim.substate@ 45 * angle-colour rgb!
+
+			0 global_colour!
+		}
+	then
+
+	5 <- me .timer!
+;
+
+: arcade-on
+	gasarcademachine cyoa{ ' arcade-vidcon cyoa! }
+	' arcade-events events!
+	5 lt .timer!
+;
+
+: smallarcade
+	spawn special_objects32_base_id 0x c + lt .spriteid!
+	15 health! bbox 5bolt as-metal
+;
+
+: clawmachine
+	spawn special_objects32_base_id 0x d 
+	80 %chance if 1 + then
+	+ lt .spriteid! rndflip
+	15 health! bbox 4bolt as-metal
+;
+	
+} }
+
+locdef{ 
+		
+location: arcade
+		max-rooms: 2
+		entry-tags: arcade
+		script: set-theme-arcade
+
+		room-choice: arcade-play
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 10diff %zombs map{ room-garbage }
+			filter-only		
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			
+}

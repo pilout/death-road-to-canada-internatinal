@@ -1,0 +1,182 @@
+uses particles.df
+
+(*
+	REG_STRUCT_INT(THING, hitcheck.dist);
+	REG_STRUCT_INT(THING, hitcheck.hits_allowed);
+	REG_STRUCT_INT(THING, hitcheck.closest_dist);
+	REG_STRUCT_INT(THING, hitcheck.blast);
+	REG_STRUCT_INT(THING, hitcheck.source_id);
+	REG_STRUCT_INT(THING, hitcheck.lasthit_id);
+	REG_STRUCT_INT(THING, hitcheck.closest_id);
+	REG_STRUCT_FLOAT(THING, hitcheck.rad);
+	REG_STRUCT_FLOAT(THING, hitcheck.power);
+	REG_STRUCT_FLOAT(THING, hitcheck.knockback);
+	REG_STRUCT_FLOAT(THING, hitcheck.shoot_thru);
+	REG_STRUCT_FLOAT(THING, hitcheck.dir.x);
+	REG_STRUCT_FLOAT(THING, hitcheck.dir.y);
+	REG_STRUCT_FLOAT(THING, hitcheck.pos.x);
+	REG_STRUCT_FLOAT(THING, hitcheck.pos.y);
+*)
+
+defer ticklight
+
+: xyblast locals( bl )
+	blast -> bl
+	2dup <- bl .pos.y! <- bl .pos.x!
+	<- bl .hitcheck.pos.y! <- bl .hitcheck.pos.x!
+	<- bl
+;
+
+
+// TODO: Add alert using 1 1 <- x <- y alertlcxy
+
+: xypowboomx 0 args( x y p mush bl ) 
+	<- x <- y xyblast -> bl
+
+	48 <- bl .hitcheck.rad!
+	1 <- bl .hitcheck.blast!
+	10 <- bl .hitcheck.knockback!
+	<- p <- bl .hitcheck.power!
+
+	<- mush if
+		<- x <- y 0 particle{ shroomsplosion
+			100 <- x <- y ticklight 2 1 0 <- bl .clr! 0.04 lt .weapon_state.val! 100 lt .item.hint!
+		}
+
+		16 <- x <- y xyloudness * rumble
+
+		sfx{ thump 0.125 fx .pitch! 500 fx .d! 0.25 fx .s! 500 fx .r! 0.75 fx .q! 100 300 rnd fx .i!
+			fx .scale@ 3 * fx .scale!
+		}
+	then
+
+	<- bl last-thing!
+
+	<- x <- y xy-vol
+;
+
+
+// : xypowboom
+
+: xypowboom 1 xypowboomx ;
+
+: xyboom 1 xypowboom ;
+
+
+: xyfart 2dup 1 0 xypowboomx 2dup args( x y ) particle{ 
+
+	8 <- x <- y xyloudness * rumble
+
+	sfx{ noise 1 fx .pitch! 250 fx .d! 0.25 fx .s! 250 fx .r!
+		2000 fx .filt!
+		0.7 fx .q!
+		140 fx .i!
+		5 fx .freq!
+		1 fx .duty!
+		50 0.75 1.5 frnd * fx .freq2! 
+		100 fx .a!
+		fx .scale@ 2 * fx .scale!
+	}
+
+
+//	sfx{ pulse }
+
+	new
+		pos!
+//		glowy
+		20 ticks!
+		5 fade_out!
+		1.025 grow!
+		0.75 scaley!
+		0.75 scale!
+		0.5 clr.r! 0.25 clr.g! 0.0 clr.b!
+		-2 vel.y!
+		
+		particles32_base_id 3 + spriteid!
+
+	// blast ring
+	pcopy
+		0 wait!
+		15 ticks!
+		5 fade_out!
+		0.75 scaley!
+		0.5 scale!
+		1.1 grow!
+		0 vel.y!
+		particles32_base_id 4 + spriteid!
+
+	// mushroom stem
+	pcopy
+		20 ticks!
+		5 fade_out!
+		1 scale!
+		1 grow!
+		0.5 scaley!
+		1.05 growy!
+		-1 vel.y!
+		particles32_base_id 5 + spriteid!
+
+	// Stem ring
+	pcopy
+		pos.z@ 10 + pos.z!
+		10 ticks!
+		1 grow!
+		10 fade_in!
+		2 fade_out!
+		-3 vel.y!
+		8 wait!
+		particles32_base_id 4 + spriteid!
+		0.5 scale!
+
+	// white flash
+	pcopy
+		pos.z@ 15 - pos.z!
+		glowy
+		10 ticks!
+		0 wait!
+		0.75 scaley!
+		0 angle!
+		1 growx!
+		1 growy!
+		1 scalex!
+		4 scale!
+		0.6 grow!
+		0 vel.y!
+		particles32_base_id 1 + spriteid!
+		1 clr.r! 1 clr.g! 1 clr.b!
+
+	pcopy
+		0.5 clr.r! 0.25 clr.g! 0.0 clr.b!
+		nonglowy
+		1 scalex!
+		1 scaley!
+		1 scale!
+		1.01 grow!
+		-0.5 vel.y!
+		particles_base_id 0x 2c + spriteid!
+		0 360 frnd angle!
+		5 rndsign * rotate!
+		30 wait!
+		60 ticks!
+		10 fade_in!
+		30 fade_out!
+
+	// Copied at later times
+	pcopy
+		0 360 frnd angle!
+		5 rndsign * rotate!
+		45 wait!
+		0.9 scale@ * scale!
+
+	pcopy
+		0 360 frnd angle!
+		5 rndsign * rotate!
+		60 wait!
+		0.8 scale@ * scale!
+} ;
+
+
+// : ishere? .mapid
+
+// : thingpowboom curmapsel . cr ;
+

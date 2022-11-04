@@ -1,0 +1,650 @@
+uses base.df
+
+voc{ map
+
+0 value boxl
+0 value boxt
+0 value boxr
+0 value boxb
+0 value curx
+0 value cury
+
+: boxcall args( x y x2 y2 callback )
+
+	<- x >int to boxl
+	<- y >int to boxt
+	<- x2 >int to boxr
+	<- y2 >int to boxb
+
+	<- y2 <- y - 1+ for
+		<- x2 <- x - 1+ for
+
+			<- x i + 1-
+			<- y j + 1-
+
+			2dup to cury to curx
+
+			2dup tile@ if <- callback execute else 2drop then
+		next
+	next
+;
+
+: boxw boxr boxl - 1+ ;
+
+: eboxcall args( x y x2 y2 callback )
+
+	<- x >int to boxl
+	<- y >int to boxt
+	<- x2 >int to boxr
+	<- y2 >int to boxb
+
+	<- y2 <- y - 1+ for
+		<- x2 <- x - 1+ for
+
+		i 1 = j 1 = or
+		i <- x + <- x2 = j <- y + <- y2 = or or
+
+		if
+			2dup to cury to curx
+			2dup tile@ if <- callback execute else 2drop then
+		else
+			2drop
+		then
+	next next
+;
+
+: hline args( x y w call ) <- x <- y <- x <- w + <- y <- call boxcall ;
+: vline args( x y h call ) <- x <- y <- x <- y <- h + <- call boxcall ;
+
+: plotgrass tile@ dup args( t ) 0= if then;
+//	dup LAYER_FLOORTOP 0 .lspriteid!
+	<- t LAYER_FLOOR street_tiles_base_id 0x 7 +
+	<- t LAYER_FLOOR rnd5050 .tile_layer.flipx!
+	rnd5050 if 0 4 rnd + then
+	.lspriteid!
+;
+
+: randflip tile@ dup 0= if drop then;
+	LAYER_FLOOR rnd5050 .tile_layer.flipx!
+;
+
+: flipreset tile@ dup 0= if drop then;
+	LAYER_FLOOR 0 .tile_layer.flipx!
+;
+
+: plotsnow tile@ dup 0= if drop then;
+	TILE_LOT over .id!
+	LAYER_FLOOR street_tiles_base_id 0x 97 + .lspriteid!
+;
+
+voc{ ground
+	0 value basespriteid
+	0 value minframe
+	0 value maxframe
+	0 value variance
+	0 value variance2
+	0 value overlayid
+	0 value offx
+	0 value offy
+
+	: init
+		0 to basespriteid
+		0 to minframe
+		0 to maxframe
+		0 to variance
+		0 to variance2
+		0 to overlayid
+		0 to offx
+		0 to offy
+	;
+
+	: pickbaseid ;
+	: picksurfaceid ;
+}
+
+: plotgravel
+	tile@ dup 0= if drop then;
+	dup LAYER_FLOOR rnd5050 .tile_layer.flipx!
+//	dup LAYER_FLOOR mrand .tile_layer.rot!
+	LAYER_FLOOR street_tiles_base_id 0x 15 + rnd5050 if 0 4 rnd + then .lspriteid!
+;
+
+: plotconc
+	tile@ dup 0= if drop then;
+	LAYER_FLOOR street_tiles_base_id 0x 11 + .lspriteid!
+;
+
+: plotdirt
+	tile@ dup 0= if drop then;
+	dup LAYER_FLOOR street_tiles_base_id 0x 24 + rnd5050 if 0 4 rnd + then .lspriteid!
+	dup LAYER_FLOOR rnd5050 .tile_layer.flipx!
+//	dup LAYER_FLOOR mrand .tile_layer.rot!
+	drop
+;
+
+street_tiles_base_id 0x fd + constant GRASSHOLE
+
+: plotgrasshole 2dup tile@ args( x y t ) <- t 0= if then;
+	<- t LAYER_FLOOR 0 .tile_layer.flipx!
+	<- t LAYER_FLOORTOP
+
+	boxl <- x = if GRASSHOLE  0x 10 +
+		boxt <- y = if 0x 10 - then
+		boxb <- y = if 0x 10 + then
+		.lspriteid!
+	then;
+
+	boxr <- x = if GRASSHOLE 0x 12 +
+		boxt <- y = if 0x 10 - then
+		boxb <- y = if 0x 10 + then
+		.lspriteid!
+	then;
+
+	boxt <- y = if GRASSHOLE 0x 1 + .lspriteid! then;
+	boxb <- y = if GRASSHOLE 0x 21 + .lspriteid! then;
+
+	<- t LAYER_FLOOR rnd5050 .tile_layer.flipx!
+
+	2drop
+;
+
+: flipfloor ' randflip boxcall ;
+: noflipfloor ' flipreset boxcall ;
+: grassbox ' plotgrass boxcall ;
+: gravelbox ' plotgravel boxcall ;
+: dirtbox ' plotdirt boxcall ;
+: concbox ' plotconc boxcall ;
+
+: grasshole ' plotgrasshole boxcall ;
+
+: grass 0 0 w 1- h 1- ' plotgrass boxcall ;
+
+: plotwet tile@ 1 swap .wet! ;
+: wetfloor 0 0 w 1- h 1- ' plotwet boxcall ;
+
+: tile_layer.rndshifts -8 8 rnd -8 8 rnd .tile_layer.off! ;
+: tile_layer.nrndshifts ( tile layer n ) dup -1 * 2dup rnd -rot rnd .tile_layer.off! ;
+
+: plotpave tile@ args( t ) <- t 0= if then;
+
+	<- t LAYER_FLOOR street_tiles_base_id 0x 5 + .lspriteid!
+//	<- t LAYER_FLOORTOP 0 .lspriteid!
+
+	// Damaged pavement junk
+	10 onein if
+		<- t LAYER_FLOOR street_tiles_base_id 0x 40 +
+			4 onein if 0 5 else 6 15 then rnd + .lspriteid!
+		<- t LAYER_FLOOR rnd5050 .tile_layer.flipx!
+	then
+;
+
+: plotpave-nograss tile@ args( t ) <- t 0= if then;
+
+	<- t LAYER_FLOOR street_tiles_base_id 0x 5 + .lspriteid!
+//	<- t LAYER_FLOORTOP 0 .lspriteid!
+
+	// Damaged pavement junk
+	10 onein if
+		<- t LAYER_FLOOR street_tiles_base_id 0x 40 +
+			4 onein if 0 5 else 6 11 then rnd + .lspriteid!
+		<- t LAYER_FLOOR rnd5050 .tile_layer.flipx!
+	then
+;
+
+0 value floorboxtheme
+: fthemecount inside_tiles_doors_id inside_tiles_floors_id - 8 / ;
+: plotfloor locals( t ) tile@ dup 0= if drop then;
+	dup LAYER_FLOOR inside_tiles_floors_id floorboxtheme fthemecount % 0x 8 * + 
+	rnd5050 if 0 3 rnd + then
+	.lspriteid!
+	LAYER_FLOOR 0 .tile_layer.flipx!
+;
+
+: .cleartile
+	dup LAYER_FLOOR 0 .lspriteid!
+	dup LAYER_FLOORTOP 0 .lspriteid!
+	dup LAYER_WALLSIDE 0 .lspriteid!
+	dup LAYER_WALLTOP 0 .lspriteid!
+	LAYER_FINAL 0 .lspriteid!
+;
+
+: pavebox ' plotpave boxcall ;
+: pavebox-nograss ' plotpave-nograss boxcall ;
+: pavement 0 0 w 1- h 1- ' plotpave boxcall ;
+: pavement-nograss 0 0 w 1- h 1- ' plotpave-nograss boxcall ;
+
+// NOTE: Set floorboxtheme to desired floor ID before calling
+: floorbox ( x y x2 y2 ) ' plotfloor boxcall ;
+
+: tanchorxyrad args( xr yr ) tanchorx <- xr - tanchory <- yr - tanchorx <- xr + tanchory <- yr + ;
+: tanchorfloor to floorboxtheme tanchorxyrad floorbox ; // 5 5 0x 13 tanchorfloor
+: boxfloor to floorboxtheme floorbox ; // 2 2 5 5 0x 13 boxfloor
+
+(*
+: plotcanal 2dup tile@ args( x y t )
+	<- x <- y TILE_DEEP_WATER maptile!
+	// <- t .cleartile
+	<- t LAYER_FLOOR street_tiles_base_id 0x f + .lspriteid!
+	1 <- t .wet!
+;
+*)
+
+: plotcanal tile@ TILE_DEEP_WATER over .id! 1 over .wet! drop ;
+: canalbox ' plotcanal boxcall ;
+
+: xyjunkspot?
+	tile@ dup .solid? if drop 0 then;
+	dup .id@ 0= if drop 0 then;
+	LAYER_WALLSIDE .lspriteid@ if 0 then;
+	1
+;
+
+: .junkspot?
+	dup .solid? if drop 0 then;
+	dup .id@ 0= if drop 0 then;
+	LAYER_WALLSIDE .lspriteid@ if 0 then;
+	1
+;
+
+: shiftyflippy 2dup tile_layer.rndshifts rnd5050 .tile_layer.flipx! ;
+
+: plotsjunk locals( t ) tile@ -> t
+
+	<- t .junkspot? not if then;
+
+	10 onein if
+		<- t LAYER_WALLSIDE street_tiles_base_id 0x 30 + 0 14 rnd + .lspriteid!
+		<- t LAYER_WALLSIDE shiftyflippy
+	then
+;
+
+
+: plotsgarbage locals( t ) tile@ -> t
+
+	<- t .junkspot? not if then;
+
+	10 onein if
+		<- t LAYER_WALLSIDE street_tiles_base_id 0x 37 + 0 7 rnd + .lspriteid!
+		<- t LAYER_WALLSIDE shiftyflippy
+	then
+;
+
+
+: plotspapers locals( t ) tile@ -> t
+
+	<- t .junkspot? not if then;
+
+	10 onein if
+		<- t LAYER_WALLSIDE street_tiles_base_id 0x 37 + 0 3 rnd + .lspriteid!
+		<- t LAYER_WALLSIDE shiftyflippy
+	then
+;
+
+
+: plotswreck locals( t ) tile@ -> t
+
+	<- t .junkspot? not if then;
+
+	10 onein if
+		<- t LAYER_WALLSIDE street_tiles_base_id 0x 1c + 0 3 rnd + .lspriteid!
+		<- t LAYER_WALLSIDE shiftyflippy
+	then
+;
+
+
+defer junkspritepicker
+10 value junkchance
+
+: plotsparamjunk tile@ args( t )
+
+	<- t .junkspot? not if then;
+
+	junkchance onein if
+		<- t LAYER_WALLSIDE junkspritepicker .lspriteid!
+		<- t LAYER_WALLSIDE shiftyflippy
+	then
+;
+
+
+: wreck-ok? ( TILE -- true|false )
+	dup .id@ TILE_WRECKAGE = swap .solid? 0= or
+;
+
+: twreckify ( TILE -- ) TILE_WRECKAGE swap .id! ;
+
+// Plot wreckage at TILE
+: tbwreck ( TILE -- )
+	dup 0= if drop then;
+	dup wreck-ok? 0= if drop then;
+	dup twreckify
+	dup LAYER_WALLTOP special_objects32_base_id 0x 19 + 0 2 rnd + .lspriteid!
+	dup LAYER_WALLTOP 4 tile_layer.nrndshifts
+	LAYER_WALLTOP rnd5050 .tile_layer.flipx!
+;
+
+// Plot garbage at TILE
+: tbgarbage ( TILE -- )
+	dup 0= if drop then;
+	dup wreck-ok? 0= if drop then;
+	dup twreckify
+	dup LAYER_WALLTOP special_objects32_base_id 0x 1c + 0 2 rnd + .lspriteid!
+	dup LAYER_WALLTOP 4 tile_layer.nrndshifts
+	LAYER_WALLTOP rnd5050 .tile_layer.flipx!
+;
+
+// Wreckage/garbage at anchor tile position
+: awreck tanchor tile@ tbwreck ;
+: agarbage tanchor tile@ tbgarbage ;
+
+: plotbwreck 
+	tile@ dup .junkspot? not if drop then;
+	10 onein if tbwreck then; drop
+;
+
+: plotbgarbage
+	tile@ dup .junkspot? not if drop then;
+	10 onein if tbgarbage then; drop
+;
+
+: map-extents 0 0 w 1- h 1- ;
+
+: street-junk map-extents ' plotsjunk boxcall ;
+: room-garbage map-extents ' plotsgarbage boxcall ;
+: room-papers map-extents ' plotspapers boxcall ;
+
+: room-junk-picker street_tiles_base_id 0x 37 + 0 5 rnd + ;
+
+: #room-junk
+	to junkchance
+	' room-junk-picker to junkspritepicker
+	map-extents ' plotsparamjunk boxcall
+;
+
+: room-junk 5 #room-junk ;
+
+
+: farm-junk-picker building_misc_tiles_base_id 5 + ;
+
+: farm-junk
+	5 to junkchance
+	' farm-junk-picker to junkspritepicker
+	map-extents ' plotsparamjunk boxcall
+;
+
+: room-guts-picker particles_base_id 0x 20 + 0 6 rnd + ;
+
+: cleanfloorplot tile@
+//	dup LAYER_FLOOR 0 .lspriteid!
+	dup LAYER_FLOORTOP 0 .lspriteid!
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	dup LAYER_FLOORTOP 0 0 .tile_layer.off!
+	dup .solid? if drop then;
+	dup LAYER_WALLSIDE 0 .tile_layer.flipx!
+	dup LAYER_WALLSIDE 0 .lspriteid!
+	LAYER_WALLSIDE 0 0 .tile_layer.off!
+;
+
+: clean-floorbox ' cleanfloorplot boxcall ;
+
+
+: plotsguts tile@ args( t )
+
+	<- t .junkspot? not if then;
+
+	1 if
+		<- t LAYER_FLOORTOP junkspritepicker .lspriteid!
+		<- t LAYER_FLOORTOP tile_layer.rndshifts
+		<- t LAYER_FLOORTOP rnd5050 .tile_layer.flipx!
+		<- t LAYER_WALLSIDE junkspritepicker .lspriteid!
+		<- t LAYER_WALLSIDE tile_layer.rndshifts
+		<- t LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	then
+;
+
+: room-guts
+	1 to junkchance
+	' room-guts-picker to junkspritepicker
+	map-extents ' plotsguts boxcall
+;
+
+: sparamjunk map-extents ' plotsparamjunk boxcall ;
+
+: swreckage map-extents ' plotswreck boxcall ;
+: bwreckage map-extents ' plotbwreck boxcall ;
+: bgarbage map-extents ' plotbgarbage boxcall ;
+
+// : dirs4xy 3 & 90 * anglexy ;
+
+: dirs4xy 3 &
+	case
+		0 of 0 -1 endof
+		1 of 1 0 endof
+		2 of 0 1 endof
+		3 of -1 0 endof
+	endcase
+;
+
+: dirs8xy 7 &
+	case
+		0 of 0 -1 endof
+		1 of 1 -1 endof
+		2 of 1 0 endof
+		3 of 1 1 endof
+		4 of 0 1 endof
+		5 of -1 1 endof
+		6 of -1 0 endof
+		7 of -1 -1 endof
+	endcase
+;
+
+: crap-aroundxy args( x y )
+	<- x <- y tile@ tbwreck
+	8 for
+		i 1 & if rnd5050 else 1 then
+
+		if
+			<- x <- y  i dirs8xy xyadd tile@ 
+			rnd5050 if tbwreck else tbgarbage then
+		then
+	next
+;
+
+// Block a tile location
+: blocked tile@ TILE_BLOCK over .id! drop ;
+
+// Easy words for blocking up doors
+: block-last-door
+	close-last-door
+	last-linkxy crap-aroundxy
+	last-linkxy 1+ crap-aroundxy
+	last-linkxy blocked
+;
+
+: add-blocked-up-door
+	extra-room -1 column-door block-last-door
+;
+
+// Floorblocked, can't move past but bullets fly through
+: floorblocked tile@ TILE_BLOCK_FLOOR over .id! drop ;
+
+: postify
+	lt .sprh 2 / 8 - lt .anim.off.y!
+	4 lt .rad.x!
+;
+
+: treeify
+	immovable 100 %flammability!
+
+	postify
+
+	// Specifically for colliding with tiles, overrides other methods
+	24 lt .wallbox.x!
+	24 lt .wallbox.y!
+
+	rnd5050 lt .flip!
+	1 lt .wind!
+;
+
+
+: tree spawn
+	trees_base_id road_theme@ 5 * + 0 4 rnd + lt .spriteid! treeify
+//	1 lt .no_hit! 
+;
+
+// Old pine
+: oldpine spawn special_objects48_base_id 2 + lt .spriteid! treeify ;
+
+: justpine spawn trees_base_id 10 + 0 2 rnd + lt .spriteid! treeify ;
+: snowpine spawn trees_base_id 20 + 0 2 rnd + lt .spriteid! treeify ;
+
+// Uses road gfx
+: pine tree ;
+
+: lt-vehicle-margin
+	lt .pos.y@ pixelh 120 - > if 120 -32 32 rnd + lt .pos.y! then
+;
+
+: pines args( num ) // exit
+	<- num for pine scatter
+		lt .drift lt-vehicle-margin
+	next
+	<- num 25 > if
+		10 %chance if biglog .scatter then
+		1 %chance if ultimalog .scatter then
+		2 3 rnd for
+			50 %chance if log .scatter then
+		next
+		2 4 rnd for treebranch .scatter next
+	else
+		0 2 rnd for treebranch .scatter next
+		25 %chance if log .scatter then
+	then
+;
+
+: forest grass 32 pines ;
+
+: testp pine pixelw 0.5 * pixelh 0.5 * 16 - lt .pos! ;
+
+
+: bartop LAYER_FINAL swap inside_tiles_shelves_id 0x 20 + + .lspriteid! ;
+: bartile LAYER_WALLSIDE swap inside_tiles_shelves_id 0x 20 + + .lspriteid! ;
+
+: tile_clear_all_offsets
+	dup LAYER_FLOOR 0 0 .tile_layer.off!
+	dup LAYER_FLOORTOP 0 0 .tile_layer.off!
+	dup LAYER_WALLSIDE 0 0 .tile_layer.off!
+	dup LAYER_WALLTOP 0 0 .tile_layer.off!
+	dup LAYER_FINAL 0 0 .tile_layer.off!
+;
+
+: plotbar >r 2dup tile@ r> args( x y t o )
+	TILE_BLOCK <- t .id!
+	<- t LAYER_WALLSIDE 0 0 .tile_layer.off!
+	<- x boxl = if <- t 0 <- o + bartile then;
+	<- x boxr = if <- t 2 <- o + bartile then;
+	<- t 1 <- o + bartile
+
+	<- o if then;
+	boxl boxw 2 / + >int <- x <> if then;
+	<- t 3 <- o + bartop
+;
+
+: plotbar-t 0 plotbar ;
+: plotbar-b 1+ 0x 10 plotbar ;
+
+: makebar 1- args( x y w )
+	<- w 2 / <- x over - <- y <- w ' plotbar-t hline 
+	<- x over - <- y <- w ' plotbar-b hline
+	drop
+;
+
+// No actual CYOA appears
+: tile.eventtakeloot tile@ args( thing eventid t )
+	<- eventid THING_EVENT_ACTION = if
+		<- t .item.lootamount@
+		0 <- t .item.lootamount!
+		<- t .item.lootid@
+		0 <- t .item.lootid!
+		<- thing .character@ .lootamt+
+
+		0 <- t .tile_events!
+	then
+;
+
+: tile.loot! args( amt lootid t )
+	<- lootid <- t .item.lootid!
+	<- amt <- t .item.lootamount!
+	' tile.eventtakeloot <- t .tile_events!
+;
+
+: overhead tile@ args( spriteid t ) <- t LAYER_FINAL <- spriteid .lspriteid! ;
+: wallhang tile@ args( spriteid t ) <- t LAYER_WALLTOP <- spriteid .lspriteid! ;
+: solidwall tile@ args( spriteid t ) <- t LAYER_WALLSIDE <- spriteid .lspriteid! TILE_BLOCK <- t .id! ;
+
+street_tiles_base_id 0x b5 + constant basebarbid
+basebarbid value barbid
+0 value barbcount
+LAYER_WALLTOP value barblayer
+
+: plotbarb 2dup tile@ args( x y t )
+
+	<- t barblayer barbid 1+
+		boxl <- x = if 1-
+			else boxr <- x = if 2 + else
+				barbcount 1 & if 1+ then
+			then
+		then
+		.lspriteid!
+	TILE_BLOCK <- t .id!
+	<- t barblayer 0 .tile_layer.flipx!
+	<- t barblayer 0 0 .tile_layer.off!
+
+	' barbcount ++
+;
+
+: buildbarb args( x1 y1 x2 ) <- x1 <- y1 <- x2 <- x1 - ' plotbarb hline ;
+
+: barbfence args( x1 y1 x2 )
+
+	LAYER_WALLTOP to barblayer
+	basebarbid to barbid
+	<- x1 1 & to barbcount
+	<- x1 <- y1 3 - <- x2 buildbarb
+
+	basebarbid 0x 10 + to barbid
+	<- x1 1 & to barbcount
+	<- x1 <- y1 2 - <- x2 buildbarb
+
+	LAYER_WALLSIDE to barblayer
+
+	basebarbid 0x 20 + to barbid
+	<- x1 1 & to barbcount
+	<- x1 <- y1 1- <- x2 buildbarb
+
+	basebarbid 0x 30 + to barbid
+	<- x1 1 & to barbcount
+	<- x1 <- y1 <- x2 buildbarb
+;
+
+: snowlot 4dup clean-floorbox street_tiles_base_id 0x 86 + spritelot ;
+
+: doorside last-build-doorxy drop tanchorx - last-build-size drop 2 / - sign ;
+
+: floortop >r tile@ LAYER_FLOORTOP street_tiles_base_id r> + .lspriteid! ;
+: wallside >r tile@ LAYER_WALLSIDE street_tiles_base_id r> + .lspriteid! ;
+: walltop >r tile@ LAYER_WALLTOP street_tiles_base_id r> + .lspriteid! ;
+
+: tirestack spawn special_objects32_base_id 0x 5e + lt .spriteid!
+	immovable 75 %flammability!
+	postify 8 lt .rad.x!
+	rnd5050 lt .flip!
+;
+
+: checkdoor tile@ .id@ TILE_LINK_DOOR = if 1+ then ;
+: doors-here 0 0 0 w 1- h 1- ' checkdoor boxcall ;
+
+: igloo spawn special_objects48_base_id 0x d + lt .spriteid!
+	bbox 0 lt .rad.y! lt .rad.x@ 0.75 * lt .rad.x!
+	1 lt .no_hit! immovable rnd5050 lt .flip! ;
+
+}

@@ -1,0 +1,42 @@
+uses paul/region-layout.df
+
+map{ regiondef{
+	// TEMP THEME HACK
+	: theme-generic-building map{ prefab{
+		road_theme@ case
+			0 of rnd5050 if fbuilding else fbuilding2 then endof
+			1 of rnd5050 if cbuilding else cbuilding2 then endof
+			otherwise rnd5050 if building else building2 then
+		endcase } }
+	;
+
+	: make-prefab-building
+		auto-picklocid addloc // Pick a location type for the region, and add a new location for it
+
+		// Pass the location ID in to the following to create a new building
+		map{ prefab{ mrand ( style ) 0 2 rnd 2 * 5 + ( width ) 0 ( depth ) theme-generic-building } }
+	;
+
+
+	: make-prefabs
+			blocks-init
+				7 to blockh
+				2 to maxrows
+				5 to streeth
+				0.35 to greenspace
+				1 3 rnd to grassylots
+			blocks-start
+
+			begin canplot? while
+				try-grassy-lot 0= if
+					make-prefab-building 5 onein if grass-lot walkway else concrete then
+					next-plot
+					canplot? 0= if break then
+
+					block-middle? if LOT_GRASS lastlot = if 1 else 0 then alleyway-plot then
+				then
+			repeat
+		;
+} }
+
+: prefab-setup regiondef{ map{ pavement make-prefabs } } ;

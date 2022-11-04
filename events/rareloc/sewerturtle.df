@@ -1,0 +1,218 @@
+// Change one $add-rooms to $load-rooms if you want to edit them in the room editor directly, but change it back to $add-rooms when done
+
+"../deathforth/rooms/eyeball.txt" $add-rooms
+
+// Uncomment below for easy testing with "events/rareloc/dmv.df" $load-region to-mission in hack.df
+// Also see final lines for turning regiondef on for testing
+
+// "../deathforth/rooms/restroom.txt" $add-rooms
+// "../deathforth/rooms/city.txt" $add-rooms
+
+" 
+:map 1 
+:tags prestairs  
+:size 6 8 
+:off 9 1 
+:tiles 
+222222
+233332
+211112
+211112
+211112
+211112
+222222
+333333
+
+:map 2 
+:tags stairsdown  
+:size 6 18 
+:off 10 0 
+:tiles 
+222222
+233332
+211112
+211112
+211112
+221122
+326623
+026620
+026620
+026620
+026620
+026620
+026620
+026620
+026620
+021120
+022220
+033330
+
+"
+value SEWERTURTLE
+SEWERTURTLE $parse-rooms
+
+cyoa{ 
+
+cyoa-bridge: turt-recruit-ask
+	cchar to recruitee goodfx clear-cyoa
+	($ cname .. " likes the idea of heading to Canada. Mostly because he has been stuck in this sewer for far too long." $) text!
+	recruitee .strengthREV recruitee .fitnessREV
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yesno
+;
+
+cyoa: turt-recruit
+	"Making Friends in the Sewer" cyoa-title!
+	interactee .character@ choosechar cicon
+	"It's a big green animal man. Maybe some kind of green rodent?" text!
+	($ "Hello? Can I help you with something? You're in my house." pbold $) +crtext
+		choice( "Leave him alone for now" )choice
+		choice( "Have him follow you" )choice: turt-recruit-ask
+;
+
+}	
+
+roomgen{
+	
+: .sewer-turt args( char )
+	<- char .turtleify
+	cyoa{ ' turt-recruit cyoa! }
+	
+;
+
+}
+	
+locdef{
+		
+	: tsewerstarter
+		s random-edge-door "tsewer" only-with-door
+	;
+	
+	: tsewerender
+		random-door "thouse" only-with-door
+	;
+	
+	: tostairsdown
+		s random-edge-door "stairsdown" only-with-door
+		e random-edge-door "stairsdown" only-with-door
+		w random-edge-door "stairsdown" only-with-door
+		// random-door "stairsdown" only-with-door
+	;
+		
+	: toprestairs
+		random-door "prestairs" only-with-door
+		random-door "prestairs" only-with-door
+	;
+		
+	: setup-sewer-t
+		19 loc-ftheme!
+		locseed 7 % 10 + loc-wtheme!
+		sfx{ 0.075 0.6 globalecho }
+	;
+		
+	location: sewerturtle
+		max-rooms: 12
+		entry-tags: entry
+		script: set-theme 
+		pre-script: set-theme
+		post-script: 10diff %zombs
+
+		room-choice: entry
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+			filter-only
+
+		"
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath
+
+		room-choice: bedroom
+			room-weight: 50
+			room-count: 2
+			room-script: nad
+			room-post-script: beddoor
+
+		room-choice: kitchen
+			room-weight: 20
+			room-count: 1
+			room-script: nad floor-kitchen
+
+		room-choice: living
+			room-weight: 100
+			room-count: 1
+			room-script: nad
+			room-post-script: toprestairs
+			
+		room-choice: hall
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: toprestairs
+
+		room-choice: prestairs
+			room-weight: 1
+			room-count: 1
+			room-script: nad gcloset-theme
+			room-post-script: tostairsdown
+			filter-only
+			
+		room-choice: stairsdown
+			room-weight: 1
+			room-count: 1
+			room-script: nad gcloset-theme
+			room-post-script: tsewerstarter
+			filter-only
+				
+		room-choice: tsewer
+			room-weight: 1
+			room-count: 1
+			room-script: nad setup-sewer-t
+			room-post-script: 20diff %zombs map{ wetfloor } tsewerender
+			filter-only
+			
+		room-choice: thouse
+			room-weight: 1
+			room-count: 1
+			room-script: nad setup-sewer-t
+			filter-only
+		"
+		constant secretbunker-base
+		secretbunker-base evaluate
+		
+	location: sewerturtle
+		max-rooms: 12
+		entry-tags: open1
+		script: set-theme 
+		pre-script: set-theme
+		post-script: 10diff %zombs
+
+		room-choice: open1
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+			filter-only
+			
+		secretbunker-base evaluate
+}
+
+// Comment the (* and *) lines out for easy testing, see line 6
+// Remove the comments you add before actually putting them in the city generator
+(*
+regiondef{			
+
+	region: sewerturtle
+		script: timeofday o'clock
+
+		inside
+					
+		loc-choice: sewerturtle 
+		loc-weight: 99 
+		loc-count: 1
+
+}
+*)

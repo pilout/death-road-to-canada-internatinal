@@ -1,0 +1,160 @@
+
+// <name> $music-load ( loads the tune immediately )
+// <ticks> <name> $music-fade-switch ( fades out for <ticks> and then loads the tune )
+// <0-1> music-vol!
+
+"Death Road to Canada.mp3" constant MUSIC_DEATHROAD
+"Canada, Ho!.mp3" constant MUSIC_ENDGAME
+"Frankenstein Goes to Jamaica.mp3" constant MUSIC_WALK
+
+"Zombonita Beach.mp3" constant MUSIC_ROAD1
+"Green on Green.mp3" constant MUSIC_ROAD2
+
+"I Think He's Dead.mp3" constant MUSIC_ALVIS
+
+"Lootin'.mp3" constant MUSIC_EASY1
+"Rigor Mortis Rag.mp3" constant MUSIC_EASY2
+"Stop and Smell the Flesh.mp3" constant MUSIC_EASY3
+
+"Half-a-Brain Boogie.mp3" constant MUSIC_HARD1
+"Rotten Shotgun.mp3" constant MUSIC_HARD2
+"Without a Reason.mp3" constant MUSIC_HARD3
+
+// Duodenum Soundtrack
+"Horsemann Shuffle.mp3" constant MUSIC_EASY4
+"What Could Possibly Go Wrong.mp3" constant MUSIC_EASY5
+"How Unfortunate.mp3" constant MUSIC_HARD4
+"Every Step of the Way.mp3" constant MUSIC_ROAD3
+"RNG; MEGA CHEESED.mp3" constant MUSIC_HARD5
+
+"Nobody Cooled It.mp3" constant MUSIC_CARBREAK
+"The City of Lost Hope.mp3" constant MUSIC_LOSTHOPE
+"Four Under the Floor.mp3" constant MUSIC_SPOOKY
+
+"They Can't Be Stopped.mp3" constant MUSIC_DUSK
+
+// Gizzard Extra
+"One More Road.mp3" constant MUSIC_ONEMORE
+
+// Music logic start
+: no-music 0 $music-load ;
+: title-music MUSIC_DEATHROAD $music-load ;
+last to main-event-do-title
+
+// : options-music MUSIC_DEATHROAD $music-load ; last to main-event-do-options
+
+: quiet-vol 0.5 music-vol! ; // formerly 0.4 before Duodenum
+: loud-vol 1 music-vol! ;
+
+// : options-music MUSIC_DEATHROAD $music-load loud-vol ; last to main-event-do-options
+// Why did I do this twice? This has been in here forever
+
+: alvis-music MUSIC_ALVIS $music-load ;
+: death-music MUSIC_DEATHROAD $music-load ;
+: walk-music MUSIC_WALK $music-load quiet-vol ;
+: end-music MUSIC_ENDGAME $music-load ;
+
+: losthope-music MUSIC_LOSTHOPE $music-load ;
+: spooky-music MUSIC_SPOOKY $music-load ;
+: carbreak-music MUSIC_CARBREAK $music-load ;
+
+: dusk-music 600 MUSIC_DUSK $music-fade-load ;
+
+: road-music-choice
+	50 %chance if 
+		50 %chance if 
+			MUSIC_ROAD1
+		else
+			MUSIC_ROAD2
+		then
+	else
+		50 %chance if 
+			MUSIC_ROAD3
+		else
+			MUSIC_ONEMORE
+		then
+	then
+;
+
+: easy-music 
+	20 %chance if
+		MUSIC_EASY1
+	else
+		50 %chance if 
+			50 %chance if 
+				MUSIC_EASY2
+			else
+				MUSIC_EASY3
+			then
+		else
+			50 %chance if 
+				MUSIC_EASY4
+			else
+				MUSIC_EASY5
+			then
+		then
+	then
+;
+
+: easy-music-fade 60 easy-music $music-fade-load ;
+: easy-music-load easy-music $music-load quiet-vol ;
+
+: hard-music 
+	20 %chance if
+		MUSIC_HARD5
+	else
+		50 %chance if
+			50 %chance if
+				MUSIC_HARD1
+			else
+				MUSIC_HARD2
+			then
+		else
+			50 %chance if
+				MUSIC_HARD3
+			else
+				MUSIC_HARD4
+			then
+		then
+	then
+;
+
+: siege-music-choice
+	25 %chance if
+		MUSIC_DEATHROAD
+	else
+		hard-music
+	then
+;
+: siege-music 60 siege-music-choice $music-fade-load ;
+: end-siege-music 35 0 $music-fade-load ;
+
+: hard-music-fade 60 hard-music $music-fade-load quiet-vol ;
+: hard-music-load hard-music $music-load quiet-vol ;
+
+: road-music 
+	80 %chance if 
+		road-music-choice
+	else
+		easy-music
+	then $music-load quiet-vol
+;
+
+: music $music-load ;
+: music-fade 60 swap $music-fade-load ;
+
+(*
+"Rotten Shotgun.mp3" 	constant MUSIC_TITLE
+// "Death Road to Canada.mp3" 	constant MUSIC_TITLE
+"blah.mp3" 				constant MUSIC_DRIVING
+"blah.mp3" 				constant MUSIC_WALKING
+"blah.mp3" 				constant MUSIC_DAYTIME
+"blah.mp3" 				constant MUSIC_EVENING
+"blah.mp3" 				constant MUSIC_DANGER
+"blah.mp3" 				constant MUSIC_ALL_DEAD
+"Canada, Ho!.mp3" 		constant MUSIC_CANADA
+"blah.mp3" 				constant MUSIC_CREDITS
+
+: title-music MUSIC_TITLE music ;
+last to main-event-do-title
+*)

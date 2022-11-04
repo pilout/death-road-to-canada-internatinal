@@ -1,0 +1,67 @@
+
+: find-car-gas
+	50 100 rnd trunk-gas+
+;
+
+cyoa{ road{ 
+
+: carinfo-SUV
+	"SUV's have crappy gas mileage and are slow. They're also very durable, and they break down slowly! Just don't bother taking it off jumps." +crtext
+;
+: carinfo-muscle
+	"Muscle cars like this have slightly worse gas mileage than average and break down fast. They're easy to repair and very fast, take it off a sweet jump!" +crtext
+;
+: carinfo-hybrid
+	"Hybrid cars have amazing gas mileage, but are fairly fragile. They're also very difficult to repair, so enjoy it while you can." +crtext
+;
+: carinfo-little
+	"Smaller cars have good gas mileage. They're also fragile. Don't crash them into anything!" +crtext
+;
+: carinfo-grandpa
+	"They don't make them like this anymore! This older model car is built real sturdy. It's also easy to repair, but has slightly worse gas mileage." +crtext
+;
+: carinfo-van
+	"Vans are big, slow, heavy, and guzzle gas. They break down slowly and are built like tanks! They're also easy to repair." +crtext
+;
+
+cyoa: find-car-SUV
+	image-suv
+	"RUN IT ALL OVER" cyoa-title!
+	choosehuman
+	($ "While walking along the outskirts of town " .. cname .. " finds a small sporting goods store. It's picked clean of loot. Thinking all is lost, " .. cname .. " spots an old SUV in the back of the store." $) cyoa-text! carinfo-SUV CAR_SUV get-car
+		choice( "Start it up!" )choice: find-car-gas
+;
+
+cyoa: find-car-muscle
+	image-sports-car
+	"BURNIN RUBBER" cyoa-title!
+	choosehuman
+	($ "While walking along the road " .. cname .. " spots a gas station in the distance. Not a lot is there other than a cool looking muscle car next to the gas pump. It has the keys sitting on the dash!" $) cyoa-text! carinfo-muscle CAR_MUSCLE2 get-car
+		choice( "Start it up!" )choice: find-car-gas
+;	
+
+0 value gator-ate-key
+
+cyoa: find-car-starter
+	// NEED IMAGE
+	"DEJA VU" cyoa-title!
+	choosehuman
+	($ cname .. " spots a car parked in the middle of the road. They rush over to discover a car that looks suspiciously like the car they started their journey in." $) text!
+	gator-ate-key 1 < if 
+		($ cname .. " takes the keys that " .. che .. " kept from the old car and sticks it into the ignition. It starts." $)
+	else
+		($ cname .. " checks for the car keys. There are none. " .. cHe .. " steps out of the car for a moment and puts " .. chis .. " foot right into some gator poop. There are some keys inside!" $)
+	then
+		+crtext starting-car get-car
+		choice( "Here we go again!" )choice: find-car-gas
+;
+
+cyoa: find-car-hybrid
+	image-hybrid-battery
+	"EM PEE GEES" cyoa-title!
+	choosehuman
+	($ "While wandering through a small town " .. cname .. " discovers a newer hybrid car in front of a store. The battery is dead, but the store turns out to be a car parts store. Finding a working battery was easy!" $) cyoa-text! carinfo-hybrid CAR_HYBRID1 get-car
+		choice( "Start it up!" )choice: find-car-gas
+;	
+	
+} }

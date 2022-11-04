@@ -1,0 +1,94 @@
+"../deathforth/rooms/clinic.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/clinicloc.df" $load
+
+location: hospital
+		max-rooms: 12
+		entry-tags: hospitalstart
+		pre-script: set-theme-hospital
+		script: set-theme-hospital
+		post-script: 10diff %zombs
+
+	: starthospital 
+		random-door "clinichall" only-with-door
+		random-door "clinichall" only-with-door
+		random-door "clinichall" only-with-door
+	;
+	
+	: hospitalrooms
+		rooms-left 3 < if random-door "medstorage" only-with-door then
+		random-door "hospitalbed" only-with-door
+	;	
+	
+		room-choice: hospitalstart
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: starthospital
+			filter-only
+
+		room-choice: clinicbed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: 60 %medlootdrift
+			
+		room-choice: hospitalbed
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+			room-post-script: 45 %medlootdrift 75 %medlootdrift
+			
+		room-choice: clinicexam
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: 50 %medlootdrift
+		
+		room-choice: medstorage
+			room-weight: 5
+			room-count: 1
+			room-script: nad
+			room-post-script: medstorage
+			
+		room-choice: clinichall
+			room-weight: 10
+			room-count: 3
+			room-script: ndx
+			room-post-script: hospitalrooms
+			filter-only
+
+		room-choice: office
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 0 3 rnd roomgen{ officechairs }
+			
+		room-choice: restroom
+			room-weight: 12
+			room-count: 1
+			room-script: nad floor-bath
+		
+		room-choice: restroom
+			room-weight: 12
+			room-count: 1
+			room-script: nad floor-bath		
+			room-post-script: 20 %chance if randommag then
+			
+		
+			
+
+regiondef{			
+
+	region: hospital
+		script: timeofday o'clock
+
+		inside
+					
+		loc-choice: hospital
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 10diff %zombs inspawn
+}

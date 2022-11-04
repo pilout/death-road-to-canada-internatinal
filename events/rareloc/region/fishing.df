@@ -1,0 +1,330 @@
+uses paul/region-layout.df
+
+" 
+:map 2 
+:tags fishing 
+:scriptB fridge -1 movey 
+:scriptC bed 
+:scriptD sink -1 movey 
+:scriptE smalltable 
+:size 9 9 
+:off 10 1 
+:tiles 
+222222222
+233333332
+21C11BD12
+211111112
+211A11E12
+211111112
+211111112
+222222222
+333333333
+"
+value FISHROOM
+FISHROOM $parse-rooms
+0 value fishsign
+
+cyoa{
+
+: fishaway
+	fishsign .pos 32 - particle{
+		new pos!
+		particles_base_id 0x 5a + spriteid!
+		180 ticks!
+		120 fade_out!
+		0.25 vel.x!
+		-0.05 vel.y!
+	}
+
+	fishsign .pos 32 - 20 for
+		particle{ new 2dup pos!
+			particles_base_id 0x f + spriteid!
+			0 360 frnd anglexy 0.5 1 frnd xymul vel!
+			1 2 frnd scale!
+			30 ticks!
+			15 fade_out!
+			1.01 grow!
+			-1 layer!
+		}
+	next
+	2drop
+	sfx{ ruffle 3 fx .pitch! 20 fx .a! 0.25 fx .s! 500 fx .r! 1500 fx .filt_high! 0.5 fx .scale! }
+;
+
+: fishwink text! "The fish does a little wink and jumps back into the water." +crtext goodfx 30 ' fishaway timer_add ;
+
+cyoa-choice: fishing-2
+	($ cname .. " wishes for power!" $) fishwink
+		strength++ fitness++ shooting++ vitality++ health++
+;
+
+: fishweapon
+	0 stack
+		' dolt shove
+		' ak47 shove
+		' uzi shove
+		' autoshot shove
+		' hunting shove
+		' slug shove
+		' knight shove
+		' machete2 shove
+		' minigun shove
+		' flamethrower shove
+	shuffles pops execute drop
+;
+
+: fishpoof fishweapon onplayer -16 lt .pos.z! lt .pos.y@ 16 + lt .pos.y!
+
+	lt .poofme
+;
+
+
+cyoa-choice: fishing-3
+	($ cname .. " wishes for a fancy weapon!" $) fishwink
+	1 ' fishpoof timer_add
+;
+
+cyoa-choice: fishing-1
+	($ cname .. " wishes for food! " .. cHe .. " decides to cook the fish. It's very nutritious!" $) text! badfx
+	25 trunk-food+
+;
+
+cyoa-bridge: fishing-go
+	particles_base_id 0x 5a + cyoa-sprite-icon!
+
+	o'clock@ 3 + o'clock 
+	($ "Hours pass. " .. cname .. " catches a huge fish!
+	The fish has a tiny human face. It speaks: " .. "
+	hey let me go
+	i will grant you a wish" pbold $) text! goodfx
+		choice( "Wish for food" )choice: fishing-1
+		choice( "Wish for power" )choice: fishing-2
+		choice( "Wish for a fancy weapon" )choice: fishing-3
+;
+
+: .break-fishing args( chara )
+	WEAPON_FISHING <- chara .weapona@ = if 0 <- chara .weapona! then;
+	WEAPON_FISHING <- chara .weaponb@ = if 0 <- chara .weaponb! then;
+	WEAPON_FISHING <- chara .weaponc@ = if 0 <- chara .weaponc! then;
+;
+
+: break-one-fishing
+	team-count for i 1- #teamchar .break-fishing if then; next
+	drop	
+;
+
+cyoa: nofishing
+	"No Fishing!" cyoa-title!
+	picon!
+	WEAPON_FISHING roadtrip-has-weapon? if 
+		($ "There's no one to stop " .. cname .. " from fishing here. " .. cHe .. " uses the fishing pole to cast a line into the water." $) text!
+		clear-cyoa
+		choice( "Wait for a fish..." )choice: fishing-go
+	else
+		"The sign says that you can't fish here.
+		You can't because you need a fishing pole." text!
+	then;
+;
+
+}
+
+map{ regiondef{
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+' plotgrass >defer ft
+
+: river tile@
+	dup LAYER_FLOOR particles32_base_id 0x 10 + .lspriteid!
+	dup LAYER_FLOOR 0 0 .tile_layer.off!
+	dup LAYER_FLOOR 0 .tile_layer.flipx!
+
+	dup LAYER_FLOORTOP particles32_base_id 0x 11 + .lspriteid!
+	dup LAYER_FLOORTOP 0 0 .tile_layer.off!
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+
+	TILE_BLOCK_FLOOR over .id!
+	drop
+;
+
+: riveredge
+	2dup river
+	tile@ LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+;
+
+: bank 2dup tile@ args( x y t )
+	<- t LAYER_WALLSIDE street_tiles_base_id 0x 99 + 0 3 rnd + .lspriteid!
+	<- t LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+	<- x <- y riveredge
+;
+
+
+: bushy >r tile@
+	// dup LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 89 + 0 3 rnd + .lspriteid!
+	LAYER_WALLSIDE 0 r> .tile_layer.off!
+;
+
+: logbridge >r tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x 79 + r> + .lspriteid!
+;
+
+: cliff 2dup floorblocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x a9 + 0 3 rnd + .lspriteid!
+;
+
+: cliffedge 2dup floorblocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x ba + 0 3 rnd + .lspriteid!
+;
+
+: curb tile@
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 2e + .lspriteid!
+	LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: fishhut1 "fishing" ;
+: fishhut2 "fishnoloot" ;
+
+0 stack
+	' fishhut1 shove
+	' fishhut2 shove
+	' fishhut2 shove
+constant FISH-OPTIONS
+
+0 var fish-options
+		
+: pick-fish-hut fish-options pops nip execute ;
+
+: bldg tanchor! map{ 
+	// "fishing" $picklocid addloc prefab{ 1 7 1 shop } 
+	pick-fish-hut $picklocid addloc prefab{ 7 cabin } 
+	} ;
+
+: fishloot 
+	fishing .drift skelscat
+	commonranged LLmisc LLammo
+;
+
+location: fishing
+		max-rooms: 1
+		entry-tags: fishing
+		pre-script: set-theme-cabin
+		script: set-theme-cabin
+		post-script: 
+		
+		room-choice: fishing
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: 10diff %zombs fishloot
+			filter-only
+			
+location: fishnoloot
+		max-rooms: 1
+		entry-tags: fishing
+		pre-script: set-theme-cabin
+		script: set-theme-cabin
+		post-script: 
+		
+		room-choice: fishing
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: 20diff %zombs 3 for skelscat next
+			filter-only
+
+: grassedge
+	tile@ dup LAYER_FLOORTOP street_tiles_base_id 0x 71 + .lspriteid!
+	LAYER_FLOORTOP 0 0 -3 rnd .tile_layer.off!
+;
+
+: nofishing
+	spawn 1- tile>pos lt .pos! 
+	special_objects32_base_id 0x 63 + lt .spriteid! postify immovable as-metal
+	cyoa{ ' nofishing cyoa! }
+	lt to fishsign
+;
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char { = if xyp.x to bfx then;
+	xyp.i char } = if bfx xyp.y xyp.x barbfence then;
+	xyp.i char s = if xyp.x to snx xyp.y to sny then;
+	xyp.i char S = if snx sny xyp.x xyp.y snowlot then;
+	xyp.i char g = if ' plotgrass to ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char p = if ' plotpave to ft then;
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char d = if xyp.x plotdirt then;
+	xyp.i char ^ = if xyp.xy river then;
+	xyp.i char v = if xyp.xy riveredge then;
+	xyp.i char \ = if xyp.xy cliff then;
+	xyp.i char / = if xyp.xy cliffedge xyp.xy -4 -5 rnd bushy then;
+	xyp.i char | = if xyp.xy bank then;
+	xyp.i char o = if xyp.xy -8 -7 rnd bushy then;
+	xyp.i char b = if xyp.xy 0 bushy then;
+	xyp.i char B = if xyp.xy 0 bushy xyp.xy floorblocked then;
+	xyp.i char L = if xyp.xy 1 logbridge then;
+	xyp.i char l = if xyp.xy 0 logbridge then;
+	xyp.i char O = if xyp.xy 2 logbridge then;
+	xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char c = if ' plotpave to ft xyp.xy ft xyp.xy grassedge xyp.xy curb then;
+	xyp.i char $ = if xyp.xy grassedge then;
+	xyp.i char F = if xyp.xy nofishing then;
+;
+
+"G.......................
+........................
+........................
+........................
+..@......@......@.......
+........................
+..........LLLL..........
+//////////llll//////////
+\\\\\\\\\\llll\\\\\\\\\\
+\\\\\\\\\\llll\\\\\\\\\\
+||||||||||llll||||||||||
+^^^^^^^^^^llll^^^^^^^^^^
+^^^^^^^^^^llll^^^^^^^^^^
+^^^^^^^^^^llll^^^^^^^^^^
+ooooooooooOOOOoooooooooo
+...............F........
+{.....}..........{.....}
+........................
+........................
+c$c$c$c$c$c$c$c$c$c$c$c$
+........................
+........................
+........................
+........................"
+constant maplayout
+
+: testtest
+	0 0 maplayout xyplot: pt
+;
+
+
+: site-setup
+	FISH-OPTIONS shuffles to fish-options
+	pavement
+	testtest
+	5diff %zombs
+;
+
+region: canada border
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	loc-choice: fishing
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

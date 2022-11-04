@@ -1,0 +1,193 @@
+uses base.df
+
+locgen{
+
+(*
+: start
+	// "LOCGEN START" print
+	// Reset all of the variables we use
+;
+
+: end
+	// "ROOMGEN END" print
+;
+*)
+
+// 8 value floor-stride
+// 20 value floor-max
+
+}
+
+// Theme helper words
+
+// Calculations into tile sheet
+: floor-carpet locseed
+	3 % 		// 3 carpet tiles in a row in the sheet
+	9 + 		// ...starting at the 9th tile (0-based)
+	loc-ftheme!	// now set the location's theme
+;
+
+: wall-wood 1 loc-wtheme! ;
+
+: floor-wood locseed 6 % 13 + loc-ftheme! ;
+: floor-dark-wood locseed 5 % 13 + loc-ftheme! ;
+: floor-dank-wood locseed 2 % 16 + loc-ftheme! ;
+: floor-mart locseed 2 % if 1 else 20 then loc-ftheme! ;
+: wall-mart locseed 2 % 2 * 4 + loc-wtheme! ;
+: door-mart locseed 4 % 4 +  loc-dtheme! ;
+: wall-cinderblock 0x 18 loc-wtheme! ;
+: floor-concrete 0x 13 loc-ftheme! ;
+: drywall 0x 14 loc-wtheme! ;
+
+: floor-bath
+	locseed 3 %
+
+	// Map resulting values from 0 - 2 to tile offsets, using case:
+	case
+		0 of 2 endof
+		1 of 3 endof
+		2 of 6 endof
+		otherwise // you can do a default of case here
+	endcase
+	loc-ftheme!
+;
+
+: floor-kitchen
+	// only 2 tile types I want to use starting at theme 0
+	locseed 2 % 2 * loc-ftheme!
+;
+
+: floor-sewer
+	locseed 3 % 4 loc-ftheme!
+;
+
+: floor-kitchentile ;
+: floor-hospital ;
+
+: floor-industrial 
+	locseed 3 %
+	case
+		0 of 4 endof
+		1 of 5 endof
+		2 of 19 endof
+	endcase loc-ftheme!
+;
+
+: door-industrial 
+	locseed 3 % 5 + loc-dtheme!
+;
+
+: door-sewer 8 loc-dtheme! ;
+
+: wall-industrial
+	locseed 9 % 
+	case
+		0 of 4 endof
+		1 of 5 endof
+		2 of 6 endof
+		3 of 8 endof
+		4 of 10 endof
+		5 of 11 endof
+		6 of 12 endof
+		7 of 13 endof
+		8 of 14 endof
+	endcase loc-wtheme!
+;
+
+: factory-theme
+	floor-industrial
+	wall-industrial
+	door-industrial
+	0 4 rnd to theme-num
+;
+
+: floor-overwatch
+	12 loc-ftheme!
+;
+
+: yall-theme floor-mart wall-mart door-mart ;
+
+: set-theme-house
+
+	rnd5050 if floor-carpet else floor-wood then
+
+	0 3 rnd loc-wtheme!
+	0 4 rnd loc-dtheme!
+	0 5 rnd to theme-num 
+
+;
+: set-theme set-theme-house ;
+
+: set-theme-cabin
+
+	floor-wood
+	wall-wood
+	0 4 rnd loc-dtheme!
+	0 5 rnd to theme-num 
+
+;
+
+: set-theme-bunker
+
+	floor-concrete
+	wall-cinderblock
+	0 4 rnd loc-dtheme!
+	0 5 rnd to theme-num 
+;
+
+: set-theme-police
+	0x 14 loc-ftheme!
+	0x 16 loc-wtheme!
+	0 4 rnd loc-dtheme!
+	0 5 rnd to theme-num 
+;
+: set-theme-hospital
+	locseed 5 % 1 + loc-ftheme!
+	0x 5 loc-wtheme!
+	0 4 rnd loc-dtheme!
+	0 5 rnd to theme-num 
+;
+: set-theme-arcade yall-theme ;
+: set-theme-restaurant yall-theme ;
+: set-theme-furnstore
+	yall-theme
+	0 5 rnd to theme-num
+;
+: set-theme-bookstore
+	floor-wood
+	15 loc-wtheme!
+;
+: floor-office
+	locseed 3 %
+	case
+		0 of 20 endof
+		1 of 21 endof
+		2 of 5 endof
+	endcase loc-ftheme!
+;
+: set-theme-office
+	floor-office
+	locseed 3 %
+	case
+		0 of 0x 7 endof
+		1 of 0x 9 endof
+		2 of 0x 15 endof
+	endcase loc-wtheme!
+	0 4 rnd loc-dtheme!
+	0 5 rnd to theme-num 
+;
+
+: set-theme-museum
+	0 4 rnd loc-dtheme!
+	0 5 rnd to theme-num
+	locseed 3 % 17 + loc-wtheme!
+	locseed 5 % 13 + loc-ftheme!	
+;
+
+
+: wall-cinderblock 0x 18 loc-wtheme! ;
+: floor-concrete 0x 13 loc-ftheme! ;
+: drywall 0x 14 loc-wtheme! ;
+: gas-theme 0x 17 loc-wtheme! 4 loc-ftheme! ;
+: gbath-theme gas-theme floor-bath ;
+: gcloset-theme gas-theme floor-concrete wall-cinderblock ;

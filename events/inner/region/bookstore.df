@@ -1,0 +1,125 @@
+"../deathforth/rooms/bigstore.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+: #bookpile
+	for book scatter next
+;
+
+: bookhere randombook scatter ;
+: main map{ room-papers } 8 12 rnd #bookpile 
+	random-door "storage" only-with-door
+	2 for random-door "restroom" only-with-door next
+;
+: storage 5 8 rnd #bookpile ;
+: rest 2 4 rnd #bookpile ;
+
+location
+		tags: yallmart
+		max-rooms: 4
+		entry-tags: nocart 		
+		
+		script: set-theme-bookstore
+		
+		post-script: 10diff %zombs 0 3 rnd for skelscat next
+	
+		room-choice: nocart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: main  
+			filter-only
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath		
+			room-post-script: rest bookhere
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath		
+			room-post-script: rest
+			
+		room-choice: storage
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: storage
+
+location
+		tags: yallmart
+		max-rooms: 4
+		entry-tags: nocart
+		
+		script: set-theme-bookstore
+
+		post-script: 10diff %zombs 0 3 rnd for skelscat next
+	
+		room-choice: nocart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: main bookhere
+			filter-only
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 2
+			room-script: nad floor-bath		
+			room-post-script: rest
+			
+		room-choice: storage
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: storage
+	
+location
+		tags: yallmart
+		max-rooms: 5
+		entry-tags: nocart
+		
+		script: set-theme-bookstore
+
+		post-script: 10diff %zombs 0 3 rnd for skelscat next
+	
+		room-choice: nocart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: main
+			filter-only
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 2
+			room-script: nad floor-bath		
+			room-post-script: rest
+			
+		room-choice: storage
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: storage bookhere
+
+// "events/exterior/yall-maker.df" $load // temporary for testing, I want this to be inside
+			
+regiondef{
+
+//	2 1000 tone
+
+	 region: yallmart
+		w: 26
+		h: 30
+		script: timeofday o'clock
+
+		// no-prefab
+		inside
+		
+		loc-choice: yallmart
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 5diff %zombs inspawn
+}

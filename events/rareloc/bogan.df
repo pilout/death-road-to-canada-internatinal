@@ -1,0 +1,54 @@
+
+cyoa{
+
+cyoa-bridge: npc-bogan-recruit
+	cchar to recruitee goodfx clear-cyoa
+	($ "He fwinks out his claws with a little " .. "fwiiiiiink" pbold .. " noise.
+	" .. "Let's hit the road, BUB!" pbold .. "
+		-- " .. cname $) text!
+	recruitee .strengthREV recruitee .fitnessREV
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	team-count 3 > if
+		($  rname .. " needs a surprising amount of room in the car. You'll have to get rid of someone:" $) +crtext ' recruit-replace cyoa-team-choice
+	else
+		recruited
+		choice( "You're my new best friend, " .. rname .. "!" )choice
+	then
+;
+
+cyoa: npc-bogan
+	"Fierce Small Hairy Man" cyoa-title!
+	interactee .character@ choosechar cicon
+	($ "It looks like a small hairy man. Maybe some sort of new gnome species? It's weird that gnomes never were seen before the zombocalypse.
+	Sorry, I got off-topic." $) text!
+	($ "What do you want, BUB?" pbold .. "
+		-- " .. cname $) +crtext
+		choice( "Leave him alone for now" )choice
+		choice( "Recruit him" )choice: npc-bogan-recruit
+;
+
+}
+
+: .bogan args( char )
+	<- char .boganify
+	<- char cyoa{ ' npc-bogan cyoa! }
+	drop
+;
+
+locdef{
+		
+location
+		tags: bogan
+		max-rooms: 2
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+			room-post-script: still-npc .bogan
+			filter-only
+			
+}

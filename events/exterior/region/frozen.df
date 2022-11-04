@@ -1,0 +1,226 @@
+uses paul/region-layout.df
+
+map{ regiondef{
+
+cyoa{
+
+cyoa-choice: caveman-recruit
+	clear-cyoa recruit-yes 0 nearest .unseen! 
+	recruitee .strengthREV recruitee .fitnessREV
+;
+
+: caveman-done "The caveman runs off to enjoy the zombie future." +crtext goodfx deleteme ;
+
+cyoa-choice: caveman-reward1
+	($ rname .. " teaches " .. cname .. " some ancient fighting secrets that were lost to time!" $) text!
+	caveman-done
+	($ cname .. "'s MAXIMUM STRENGTH INCREASED!" rbold $) +crtext
+	1 STAT_STRENGTH cchar .bonus+
+	vitality++
+;
+
+cyoa-choice: caveman-reward2
+	($ rname .. " teaches " .. cname .. " some ancient techniques in medicine and conserving energy!" $) text!
+	caveman-done
+	($ cname .. "'s MAXIMUM DEXTERITY INCREASED!" rbold $) +crtext
+	1 STAT_FITNESS cchar .bonus+
+	medical++
+;
+
+cyoa: caveman-chat
+	nearest .character@ to recruitee
+	recruitee choosechar cicon
+	"Prehistoric Pal" cyoa-title!
+	"I overslept! Urghhghhg..." pbold text!
+	($ "The " .. rname .. " doesn't understand the mysterious ways of the future/present, and can't fire guns.
+	She is capable of " .. "very high" rbold .. " amounts of maximum strength and fitness! She needs several training sessions to reach her full potential." $) +crtext
+	choice( "Leave her for now" )choice
+	choice( "Recruit her to team" )choice: caveman-recruit
+	pchar charchoice( ": Ask for fighting tips" )choice: caveman-reward1
+	pchar charchoice( ": Ask for survival tips" )choice: caveman-reward2
+	
+;
+
+cyoa-blank: frozen-ice
+	"Breaking the Ice" cyoa-title!
+	"A caveman is frozen in this giant hunk of ice!
+	There's really no way to get the caveman out without blasting the ice into chunks. Preferably with guns.
+	This could take awhile, unless you have strong weapons!" text!
+;
+
+}
+
+
+: open-caveman-act args( activator me )
+	<- activator if <- activator <- me container-loot-act then
+	<- me new-npc lt .character@ .cavemanify 0 lt .flammability! 1 lt .unseen!
+	cyoa{ ' caveman-chat lt .cyoa! } lt .pop-outta
+;
+
+
+: break-caveman-events args( me eventid )
+	<- me <- eventid mission{ break-container }
+
+	<- eventid THING_EVENT_WAS_HIT = if
+
+		<- me .hitpoints@ 66 > if special_objects48_base_id 0x 50 + <- me .spriteid! then;
+		<- me .hitpoints@ 33 > if special_objects48_base_id 0x 51 + <- me .spriteid! then;
+
+		<- me .hitpoints@ 1 < if
+			special_objects48_base_id 0x 53 + <- me .spriteid!
+		then;
+
+		special_objects48_base_id 0x 52 + <- me .spriteid! 
+	then;
+
+	<- eventid THING_EVENT_BREAK <> if then;
+
+	10 <- me .smashybits
+	-1 <- me .vel.y!
+	spawn special_objects48_base_id 0x 53 + lt .spriteid! <- me lt-to-thing
+	1 lt .vel.y!
+	-2 lt .vel.z!
+	lt killit
+	sfx{ glass <- me .adjust-vol 0.5 pitch! 0.125 duty! 40 state! }
+
+	0 ( no activator ) <- me open-caveman-act
+
+	-2 lt .vel.z!
+	30 lt .shudder!
+	120 lt .stun!
+	0.025 lt .character@ .ai.wander_chance!
+;
+
+root{
+	
+	: cavemanfrozen
+		spawn special_objects48_base_id 0x 50 + lt .spriteid! bbox
+		100 health!
+//		2 health!
+		immovable
+		// ' open-weird-act lt .action! noloot
+		cyoa{ ' frozen-ice lt .cyoa! }
+		mission{ ' break-caveman-events } lt .events!
+	;
+	
+}
+
+0 value digstart
+0 value digend
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+' plotgravel >defer ft
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+: grassstart xyp.y to sy ;
+: grassend map{ -1 sy w xyp.y grasslot } ;
+
+' plotgrass value groundtype
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx gby xyp.xy 1 min-layer! snowlot then;
+	
+	xyp.i char 1 = if xyp.y to digstart then;
+	xyp.i char 2 = if xyp.y to digend then;
+	
+	xyp.i char F = if cavemanfrozen lt-here then;
+	
+	xyp.i char w = if justpine lt-here drift then;
+	xyp.i char W = if snowpine lt-here drift then;
+	xyp.i char B = if 0 3 rnd #boulder scatter lt .pos.y@ 100 - lt .pos.y! then;
+		
+;
+
+
+: domap
+"
+................................
+....W....W.....WB....W..B.W.....
+.B....<.........................
+...W........................W...
+..........W.........W...........
+..B......1......................
+.....W.....................W.B..
+...............F................
+...W........................W...
+....B.................2.........
+...W........................W...
+.B............................B.
+..........W..........W..........
+.....W.....................W....
+................W...............
+.B...W.....................W....
+.............................B..
+................W........>......
+..W....W.................W......
+................................
+.....w....w.....W....w..........
+.............................B..
+........w........w......w....w..
+....w.......w...................
+..B..................w.....w....
+........w.......................
+.....w....w....w.....w.....w....
+..w....w.................w......
+................B...............
+.....w....w..........w.....B....
+................................
+......B.w........w......w....w..
+....w.......w...................
+.................B...w.....w....
+........w.......................
+.....w....w....w.....w.....wB...
+...B............................
+................................
+................................
+................................
+................................
+................................
+................................
+................................
+................................"
+;
+domap constant maplayout
+
+: makemap
+	domap to maplayout
+	0 0 maplayout xyplot: pt
+;
+
+: cavemandig-diff
+	12 1 difficulty / >int 2 6 clamp *
+;
+
+: docavemandig
+	
+	2 map{ w 3 - } rnd digstart digend rnd tile>pos xyzombdig
+	40 cavemandig-diff 80 cavemandig-diff rnd timer_dur! timer_retrigger
+
+;
+
+: site-setup
+	makemap
+	-1 -1 w 1 + h 7 - grasslot
+
+	2diff %zombs
+	60 6 * ' docavemandig timer_add
+;
+
+region: frozen
+	script: timeofday o'clock
+
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	post-script: site-setup
+
+} }

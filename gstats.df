@@ -1,0 +1,328 @@
+(* USAGE:
+	- put whatever stats you want into gstats-dump for saving
+	- to save the stats, use gstats{ save }
+	- to load, gstats{ load }
+	- modify stats easily using ' the-stat ++ or 123 ' the-stat +! etc.
+*)
+
+voc{ gstats } filesave{ gstats{
+
+"gstats.save" constant STATS_FILENAME
+
+: STATS_FILE savename-prefix STATS_FILENAME .. ;
+
+// Save these
+0 value total-kills
+0 value total-med+
+0 value total-mech+
+0 value total-shoot+
+0 value total-fit+
+0 value total-str+
+0 value total-heal
+0 value toilets-opened
+
+0 value total-losses
+0 value total-dead
+
+0 value tutorial-done
+
+0 value wyk-highscore
+
+0 value wins-normal
+0 value wins-long
+0 value wins-special
+0 value wins-family
+0 value wins-specialEX
+0 value wins-familyEX
+0 value wins-kepa
+0 value wins-short
+0 value wins-marathon
+0 value wins-deadlier
+
+0 value wins-endless
+0 value wins-opp
+0 value wins-quickdeath
+
+0 value best-endless
+
+0 value wins-4jerks
+0 value wins-4jerksEX
+
+0 value wins-streak
+0 value wins-normal-streak
+0 value wins-long-streak
+0 value wins-special-streak
+0 value wins-family-streak
+0 value wins-specialEX-streak
+0 value wins-familyEX-streak
+0 value wins-kepa-streak
+0 value wins-short-streak
+0 value wins-marathon-streak
+0 value wins-deadlier-streak
+
+0 value wins-endless-streak
+0 value wins-opp-streak
+0 value wins-quickdeath-streak
+
+0 value wins-4jerks-streak
+0 value wins-4jerksEX-streak
+
+0 stack var cheevo-list
+
+// Bugfix flags
+0 value bugfix-misplaced-files
+
+// Moving to the new trait/perk system
+0 value oldstats-transfer
+
+// oldstats
+
+0 value old-total-kills
+0 value old-total-med+
+0 value old-total-mech+
+0 value old-total-shoot+
+0 value old-total-fit+
+0 value old-total-str+
+0 value old-total-heal
+
+// Zombo Points for unlocks
+0 value zombo-point
+10 value ZOMBOP_CAP
+
+// KIDNEY and onward Challenge Stuff
+
+0 value challenge-statue1
+
+// Finer tracking for perk/trait unlocking
+
+1 value perk-healthcare
+1 value perk-mechanic
+1 value perk-athlete
+1 value perk-fighter
+1 value perk-surgeon
+1 value perk-gungineer
+1 value perk-guncrazy
+1 value perk-carnut
+1 value perk-megabuff
+1 value perk-ultrafit
+1 value perk-bruiser
+1 value perk-martialartist
+1 value perk-dogfriend
+1 value perk-explorer
+
+0 value perk-pathfinder
+0 value perk-haggler
+0 value perk-hiddenpotential
+0 value perk-exwrestler
+0 value perk-trademark
+0 value perk-naturalshot
+0 value perk-tstc
+0 value perk-shieldofhope
+0 value perk-archer
+
+// Add saves below for later
+0 value perk-barbarian
+0 value perk-homerun
+0 value perk-fierce // Maybe a trait instead
+
+0 value trait-specialist
+0 value trait-animefan
+0 value trait-travellight
+0 value trait-grappler
+0 value trait-herotype
+0 value trait-soundsleep
+0 value trait-cityseek
+0 value trait-tinyeat
+0 value trait-gourmand
+0 value trait-phoenix
+0 value trait-fireproof
+// 0 value trait-
+// 0 value perk-
+
+0 value ugnome-unlocks
+0 value ugnome-found
+0 value ugnome-jerkstore
+0 value ugnome-trader
+0 value ugnome-toilet
+0 value ugnome-extraZP
+
+0 value ugnome-raretrader
+0 value ugnome-rarelocs
+
+0 value twitter-1
+0 value twitter-2
+0 value twitter-f
+
+0 value newschecked
+
+// Just like the other save file stuff, save your global stats by using saveval etc.
+// - per-game stats can just be saved along with the EXISTING save game stuff
+: gstats-dump
+	' total-kills save-val
+	' total-med+ save-val
+	' total-mech+ save-val
+	' total-shoot+ save-val
+	' total-fit+ save-val
+	' total-str+ save-val
+	' total-heal save-val
+	' total-losses save-val
+	' total-dead save-val
+	
+	' wyk-highscore save-val
+	
+	' toilets-opened save-val
+	' tutorial-done save-val
+
+	' wins-normal save-val
+	' wins-long save-val
+	' wins-special save-val
+	' wins-family save-val
+	' wins-specialEX save-val
+	' wins-familyEX save-val
+	' wins-kepa save-val
+	' wins-short save-val
+	' wins-marathon save-val
+	' wins-deadlier save-val
+	
+	' wins-endless save-val
+	' wins-opp save-val
+	' wins-quickdeath save-val
+	
+	' wins-4jerks save-val
+	' wins-4jerksEX save-val
+	
+	' best-endless save-val
+	
+	' wins-streak save-val
+	' wins-normal-streak save-val
+	' wins-long-streak save-val
+	' wins-special-streak save-val
+	' wins-family-streak save-val
+	' wins-specialEX-streak save-val
+	' wins-familyEX-streak save-val
+	' wins-kepa-streak save-val
+	' wins-short-streak save-val
+	' wins-marathon-streak save-val
+	' wins-deadlier-streak save-val
+	
+	' wins-endless-streak save-val
+	' wins-opp-streak save-val
+	' wins-quickdeath-streak save-val
+	
+	' wins-4jerks-streak save-val
+	' wins-4jerksEX-streak save-val
+
+	' cheevo-list save-val
+
+	' bugfix-misplaced-files save-val
+	
+	' oldstats-transfer save-val
+	' old-total-kills save-val
+	' old-total-med+ save-val
+	' old-total-mech+ save-val
+	' old-total-shoot+ save-val
+	' old-total-fit+ save-val
+	' old-total-str+ save-val
+	' old-total-heal save-val
+	
+	// Zombo Points
+	
+	' zombo-point save-val
+	' ZOMBOP_CAP save-val
+	
+	// New tracking for perk levels and trait unlocks
+	
+	' perk-healthcare save-val
+	' perk-mechanic save-val
+	' perk-athlete save-val
+	' perk-fighter save-val
+	' perk-surgeon save-val
+	' perk-gungineer save-val
+	' perk-guncrazy save-val
+	' perk-carnut save-val
+	' perk-megabuff save-val
+	' perk-ultrafit save-val
+	' perk-bruiser save-val
+	' perk-martialartist save-val
+	' perk-dogfriend save-val
+	' perk-explorer save-val
+	
+	' perk-pathfinder save-val
+	' perk-haggler save-val
+	
+	' perk-hiddenpotential save-val
+	' perk-exwrestler save-val
+	
+	' perk-trademark save-val
+	' perk-naturalshot save-val
+	' perk-tstc save-val
+	' perk-shieldofhope save-val
+	' perk-archer save-val
+	
+	' trait-specialist save-val
+	' trait-animefan save-val
+	' trait-travellight save-val
+	' trait-grappler save-val
+	' trait-herotype save-val
+	' trait-soundsleep save-val
+	' trait-cityseek save-val
+	' trait-tinyeat save-val
+	' trait-gourmand save-val
+	' trait-phoenix save-val
+	' trait-fireproof save-val
+	
+	' ugnome-unlocks save-val
+	' ugnome-found save-val
+	' ugnome-jerkstore save-val
+	' ugnome-trader save-val
+	' ugnome-toilet save-val
+	' ugnome-extraZP save-val
+	
+	' ugnome-raretrader save-val
+	' ugnome-rarelocs save-val
+	
+	' twitter-1 save-val
+	' twitter-2 save-val
+	' twitter-f save-val
+	' newschecked save-val
+	
+	' challenge-statue1 save-val
+
+	// special characters found
+;
+
+
+// : write-out savestr STATS_FILE $swrite ;
+: write-out STATS_FILE $strbuf-write ;
+
+: save
+	save-start
+		gstats-dump
+	save-end
+	write-out
+;
+
+: load STATS_FILE $load-savefile ;
+
+// : load ' loadraw runr if "ERROR" print else "OK!" print then ;
+
+// : load ' loadraw execute ;
+
+: gstats-clear "" STATS_FILE $swrite ;
+
+
+} }
+
+// TODO: Keep this here, or put it somewhere else where you want to load the stats if it matters
+gstats{ load }
+
+gstats{
+
+: zombop+! args( num )
+	<- num ' zombo-point +! 
+		zombo-point ZOMBOP_CAP > if
+			ZOMBOP_CAP to zombo-point
+		then
+;
+
+}

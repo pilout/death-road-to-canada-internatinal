@@ -1,0 +1,117 @@
+// uses hack/region-downtown-test.df
+uses paul/region-layout.df
+
+"../deathforth/rooms/reststop.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+"events/exterior/rest-maker.df" $load	
+
+location: reststop
+		max-rooms: 4
+		entry-tags: rest-entry
+		script: set-theme-cabin
+		post-script: 5diff %zombs
+		
+		room-choice: rest-entry
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: startrest
+			filter-only
+		
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 10 %chance if randommag then
+			
+		room-choice: rest-info
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: map{ room-papers } restloot carkeys
+
+location: reststop
+		max-rooms: 4
+		entry-tags: rest-entry
+		script: set-theme-cabin
+		post-script: 5diff %zombs
+
+		room-choice: rest-entry
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: startrest
+			filter-only
+		
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: restloot carkeys
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad	
+			
+		room-choice: rest-info
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: map{ room-papers } 10 %chance if randommag then	
+
+map{ regiondef{
+
+"
+P.......................
+........................
+........................
+........................
+<c.c.c.c.c....c.c.c.c.cg
+........................
+..T..{...............T..
+........................
+........................
+..t..................t..
+........................
+..T..................T..
+......*.................
+.................}......
+..t.....t.(....t.....t..
+........................
+Pc.c.c.c.c....c.c.c.c.c>
+............)...........
+........................
+............S...........
+........................"
+constant maplayoutbig
+
+: restbig
+	0 -1 maplayoutbig xyplot: restmaker-pt
+;
+			
+: bigsite-setup
+	pavement
+	restbig
+	resetcarkeys
+	5diff %zombs
+;
+
+region: reststop
+	w: maplayoutbig layoutw
+	h: maplayoutbig layouth 5 +
+	script: timeofday o'clock
+
+	loc-choice: reststop
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: bigsite-setup
+
+} }

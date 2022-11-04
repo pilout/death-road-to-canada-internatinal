@@ -1,0 +1,231 @@
+"../deathforth/rooms/duodenum.txt" $load-rooms
+"../deathforth/rooms/city.txt" $add-rooms
+
+// Inferno house doors
+
+0 stack
+	"bathroom" shove
+	"bathroom" shove
+	"kitchen" shove
+	"bedroom" shove
+	"bedroom" shove
+	"burnhall" shove	
+	"burnopen" shove
+value infernohall-doors-base
+infernohall-doors-base shuffles var infernohall-doors
+
+: infernohall-doors-pick infernohall-doors depths 0= if then; pops nip ;
+
+: infernohalldoors
+	2 for random-door infernohall-doors-pick only-with-door next
+;
+
+// Burning house doors
+
+0 stack
+	"bathroom" shove
+	"bathroom" shove
+	"kitchen" shove
+	"living" shove	
+	"bedroom" shove
+	"bedroom" shove
+	"burnhall" shove
+value burnhall-doors-base
+burnhall-doors-base shuffles var burnhall-doors
+
+
+: burnhall-doors-pick
+	burnhall-doors depths 0= if then;
+	// burnhall-doors depths 0= if burnhall-doors-base shuffles to burnhall-doors then
+	pops nip
+;
+
+: burnhalldoors
+	2 for random-door burnhall-doors-pick only-with-door next
+;
+
+location: burninghouse
+		max-rooms: 11
+		entry-tags: burnopen
+		script: set-theme-house
+		pre-script: set-theme-house
+		// post-script: 10diff %zombs
+		
+		: burnopendoors
+			3 for random-door "burnhall" only-with-door next
+			// random-door "gym-entry" only-with-door
+		;
+	
+		: infernohouseloot
+			25 %chance if fire .scatter then
+			25 %chance if blowtorch scatter then
+			10 %chance if hotpoker .scatter then
+			70 %chance if 
+				napalm scatter
+			else
+				firelink .scatter
+			then 3 6 rnd for skelscat next 10diff %zombs
+		;
+	
+		: burnhouseloot
+			25 %chance if fire .scatter then
+			25 %chance if blowtorch scatter then
+			70 %chance if
+				1 3 rnd for molscat next
+				25 50 rnd sgas
+			else
+				70 %chance if
+					hotpoker .scatter 3 6 rnd for molscat next
+				else
+					flamethrower .scatter 30 60 rnd sgas
+				then
+			then 1 3 rnd for skelscat next 10diff %zombs 
+			// Put asbestos spray chance somewhere in here later or in the empty bathroom
+		;
+			
+		: burnbathloot 10 %chance if randommag else looseloot then 10diff %zombs ;
+		
+		room-choice: burnopen
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: 5diff %zombs burnopendoors
+	
+		room-choice: kitchen
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-kitchen
+			room-post-script: 1 3 rnd sfood 10diff %zombs
+			filter-only
+	
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: burnbathloot
+			filter-only
+			
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: 5diff %zombs
+			filter-only
+		
+		room-choice: burnhall
+			room-weight: 10
+			room-count: 4
+			room-script: nad
+			room-post-script: 10diff %zombs hallset burnhalldoors
+			filter-only
+					
+		room-choice: bedroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad		
+			room-post-script: new-rescue-npc
+			filter-only
+			
+		room-choice: bedroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad		
+			room-post-script: burnhouseloot
+			filter-only
+			
+		room-choice: living
+			room-weight: 10
+			room-count: 1
+			room-script: nad		
+			room-post-script: looseloot
+			filter-only
+			
+location: infernohouse
+		max-rooms: 15
+		entry-tags: burnopen
+		script: set-theme-house
+		pre-script: set-theme-house
+				
+		: infernoopendoors
+			3 for random-door "burnhall" only-with-door next
+			random-door "living" only-with-door
+			random-door "bedroom" only-with-door
+		;
+		
+		: infernolivingdoors
+			random-door "infernoend" only-with-door
+			random-door "bedroom" only-with-door
+		;
+				
+		room-choice: burnopen
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+			room-post-script: 5diff %zombs infernoopendoors
+			filter-only
+	
+		room-choice: kitchen
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-kitchen
+			room-post-script: 2 4 rnd sfood 10diff %zombs
+			filter-only
+	
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: burnbathloot
+			filter-only
+			
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: 5diff %zombs
+			filter-only
+		
+		room-choice: burnhall
+			room-weight: 10
+			room-count: 4
+			room-script: nad
+			room-post-script: 10diff %zombs hallset infernohalldoors
+			filter-only
+					
+		room-choice: bedroom
+			room-weight: 10
+			room-count: 4
+			room-script: nad		
+			room-post-script: looseloot
+			filter-only
+			
+		room-choice: living
+			room-weight: 10
+			room-count: 1
+			room-script: nad		
+			room-post-script: looseloot infernolivingdoors
+			filter-only
+			
+		room-choice: infernoend
+			room-weight: 10
+			room-count: 1
+			room-script: nad		
+			room-post-script: infernohouseloot
+			filter-only
+			
+regiondef{			
+
+: burn-diff
+	12 1 difficulty / >int 3 8 clamp * // Multiplied directly to timer
+	// 1 difficulty / - when it was 120 to 360 rnd, lower diff increased the timer
+;
+
+: doburnadd
+
+	// zomb-count maxzombs < if
+		2 map{ w 3 - } rnd 2 map{ h 3 - } rnd tile>pos xyzombceil
+	// then
+
+	40 burn-diff 100 burn-diff rnd timer_dur! timer_retrigger
+
+; }

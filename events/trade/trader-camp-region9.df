@@ -1,0 +1,193 @@
+uses paul/region-layout.df
+
+"../deathforth/events/trade/loothut.txt" $load-rooms
+
+locdef{
+
+location: camphut
+		max-rooms: 1
+		entry-tags: camphut
+		pre-script: set-theme-cabin
+		script: set-theme-cabin
+		post-script: 
+		
+		room-choice: camphut
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: tradecamploot
+			filter-only
+
+}
+
+map{ regiondef{
+
+trade-camp-reset
+
+: bldg tanchor!
+	"camphut" $picklocid addloc prefab{ 7 cabin } 
+;
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+
+: river tile@
+	dup LAYER_FLOOR particles32_base_id 0x 10 + .lspriteid!
+	dup LAYER_FLOOR 0 0 .tile_layer.off!
+	dup LAYER_FLOOR 0 .tile_layer.flipx!
+
+	dup LAYER_FLOORTOP particles32_base_id 0x 11 + .lspriteid!
+	dup LAYER_FLOORTOP 0 0 .tile_layer.off!
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+
+	TILE_BLOCK over .id!
+	drop
+;
+
+: riveredge
+	2dup river
+	tile@ LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+;
+
+: cliff 2dup blocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x a9 + 0 3 rnd + .lspriteid!
+;
+
+: cliffedge 2dup blocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x ba + 0 3 rnd + .lspriteid!
+;
+
+: bank 2dup tile@ args( x y t )
+	<- t LAYER_WALLSIDE street_tiles_base_id 0x 99 + 0 3 rnd + .lspriteid!
+	<- t LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+	<- x <- y riveredge
+;
+
+: curb tile@
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 2e + .lspriteid!
+	LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: bushy >r tile@
+	// dup LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 89 + 0 3 rnd + .lspriteid!
+	LAYER_WALLSIDE 0 r> .tile_layer.off!
+;
+
+: logbridge >r tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x 79 + r> + .lspriteid!
+;
+
+' plotgrass >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char { = if xyp.x to bfx then;
+	xyp.i char } = if bfx xyp.y xyp.x barbfence then;
+	xyp.i char s = if xyp.x to snx xyp.y to sny then;
+	xyp.i char g = if ' plotgrass to ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char p = if ' plotpave to ft then;
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char d = if ' plotdirt to ft then;
+	xyp.i char x = if ' plotgravel to ft then;
+	xyp.i char ^ = if xyp.xy river then;
+	xyp.i char v = if xyp.xy riveredge then;
+	xyp.i char \ = if xyp.xy cliff then;
+	xyp.i char / = if xyp.xy cliffedge xyp.xy -4 -5 rnd bushy then;
+	xyp.i char | = if xyp.xy bank then;
+	xyp.i char o = if xyp.xy -8 -7 rnd bushy then;
+	xyp.i char b = if xyp.xy 0 bushy then;
+	xyp.i char B = if xyp.xy 0 bushy xyp.xy blocked then;
+	xyp.i char L = if xyp.xy 1 logbridge then;
+	xyp.i char l = if xyp.xy 0 logbridge then;
+	xyp.i char O = if xyp.xy 2 logbridge then;
+	xyp.i char c = if ' plotpave to ft xyp.xy ft xyp.xy grassedge xyp.xy curb then;
+	xyp.i char $ = if xyp.xy grassedge then;
+	xyp.i char W = if trader-weapon-buyer then;
+
+	xyp.i char w = if wooded then;
+	xyp.i char V = if tradercarhere then;
+	xyp.i char t = if pictable1 lt-here 8 rdrift then;	
+	xyp.i char f = if campfirehere then;	
+	xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char T = if traderhere then;
+	xyp.i char S = if trader-food-for-gas then;
+	xyp.i char * = if ttenthere then;
+	xyp.i char Z = if tnomey-spawn then;
+
+	xyp.i char [ = if dirtstart then;
+	xyp.i char ] = if gravelendw then;
+	xyp.i char ( = if dirtstart then;
+	xyp.i char ) = if dirtend then;
+	xyp.i char < = if grassstart2 then;
+	xyp.i char > = if grassend2 then;
+;
+
+"G........................
+.........................
+..w..w..w..w..w..w..w.w..
+.........................
+.w.........w...........w.
+.........................
+...t.................t...
+.....@.......@...........
+.........................
+.........................
+.....T......T......T.....
+.........................
+............Z............
+.........L.....L.........
+/////////l/////l/////////
+\\\\\\\\\l\\\\\l\\\\\\\\\
+|||||||||l|||||l|||||||||
+^^^^^^^^^l^^^^^l^^^^^^^^^
+^^^^^^^^^l^^^^^l^^^^^^^^^
+^^^^^^^^^l^^^^^l^^^^^^^^^
+oooooooooOoooooOooooooooo
+.........................
+.........................
+....W.............S......
+........................x
+$$$$$$$$$$$$$$$$$$$$$$$$$
+.........................
+.........................
+.........................
+........................."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	7 14 rnd o'clock
+
+	' plotgrass to ft
+
+	30 %chance if 0 0.5 frnd weather! -1 2 frnd wind_force! else -1 1 frnd wind_force! then
+
+	plotmap
+	mission{ no-edge-spawns }
+
+	// Put char and chars in middle of map
+	12 %mv-up
+	30 %chars-up
+;
+
+region: campsite9
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+
+	post-script: site-setup
+
+} }

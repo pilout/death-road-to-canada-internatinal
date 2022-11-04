@@ -1,0 +1,95 @@
+// uses hack/region-downtown-test.df
+// uses paul/region-layout.df
+
+"../deathforth/rooms/reststop.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+"events/exterior/rest-maker.df" $load	
+
+locdef{
+
+location: reststop
+		max-rooms: 4
+		entry-tags: rest-entry
+		script: set-theme-cabin
+		post-script: 5sdiff %zombs
+
+		room-choice: rest-entry
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: startrest
+			filter-only
+		
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 30 %chance if restloot then
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			
+		room-choice: rest-info
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: map{ room-papers } new-rescue-npc
+
+location: reststop
+		max-rooms: 4
+		entry-tags: rest-entry
+		script: set-theme-cabin
+		post-script: 5sdiff %zombs
+
+		room-choice: rest-entry
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: startrest
+			filter-only
+		
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: new-rescue-npc
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			
+		room-choice: rest-info
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: map{ room-papers } 30 %chance if restloot then
+
+}
+			
+map{ regiondef{
+			
+: site-setup
+	pavement
+	restsmall
+	mission{ siege-start-dig }
+	5sdiff %zombs
+;
+
+region: reststop
+	w: restmaker-layout layoutw
+	h: restmaker-layout layouth 4 -
+	script: timeofday o'clock
+
+	on-foot
+	
+	loc-choice: reststop
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

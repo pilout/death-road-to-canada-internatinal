@@ -1,0 +1,657 @@
+// uses base.df
+// uses charblurb.df
+
+
+(* TODO:
+
+*)
+
+// : .statup
+
+// 50% chance if skill = skillcheck... Ex: Character with 2 Strength, cchar .strength@ 2 skillcheck? ... Skill one lower means 33%, higher means 60%, 66%, etc.
+// Search for "statroll" below for a bunch of convenience words.
+
+: skillcheck? ( amt checkamt -- true|false )
+
+	0 max swap 0 max swap
+
+	DEBUG if
+		2dup swap "SKILL " type type " vs CHECK " type type " (" type
+	then
+
+	// Ratio
+	over + /
+
+	DEBUG if
+		dup type " vs roll of " type
+	then
+
+	// Roll
+	0 1 frnd
+
+	DEBUG if
+		dup type cr "... GOT " type
+	then
+
+	// Compare
+	>
+
+	DEBUG if
+		dup type
+
+		dup if
+			" (rolled less or equal, SUCCESS)" else " (rolled over, FAIL)"
+		then print
+	then
+;	
+
+// Words that you really don't need to use, just used for below shortcut words.
+
+: ?false; if r> drop 0 exit then ;
+
+0 value charsel
+
+: .reveal ( STAT char -- )
+	2dup .knownstat@ if 2drop exit then
+	2dup 1 -rot .knownstat! report-reveal
+;
+
+// : .stat+ ( amt STAT char -- )
+
+: .stat++ ( STAT char -- )
+	2dup .stat@ CHAR_STAT_MAX = if 2drop exit then
+	1 -rot 3dup .stat+ report-statchg
+;
+
+: .stat-- ( STAT char -- )
+	2dup .stat@ CHAR_STAT_MIN = if 2drop exit then
+	-1 -rot 3dup .stat+ report-statchg
+;
+
+: .stat2+ ( STAT char -- )
+	2dup .stat@ CHAR_STAT_MAX = if 2drop exit then
+	2 -rot 3dup .stat+ report-statchg
+;
+
+: .stat2- ( STAT char -- )
+	2dup .stat@ CHAR_STAT_MIN = if 2drop exit then
+	-2 -rot 3dup .stat+ report-statchg
+;
+
+: .stat3+ ( STAT char -- )
+	2dup .stat@ CHAR_STAT_MAX = if 2drop exit then
+	3 -rot 3dup .stat+ report-statchg
+;
+
+: .stat4+ ( STAT char -- )
+	2dup .stat@ CHAR_STAT_MAX = if 2drop exit then
+	4 -rot 3dup .stat+ report-statchg
+;
+
+: .stat3- ( STAT char -- )
+	2dup .stat@ CHAR_STAT_MIN = if 2drop exit then
+	-3 -rot 3dup .stat+ report-statchg
+;
+
+: .stat4- ( STAT char -- )
+	2dup .stat@ CHAR_STAT_MIN = if 2drop exit then
+	-4 -rot 3dup .stat+ report-statchg
+;
+
+// Shortcuts for increasing, decreasing, or revealing stats. Example: choicechar .morale2- to take the character chosen by CYOA and reduce their morale by 2.
+
+: .morale-- STAT_MORALE swap .stat-- ;
+: .morale2- STAT_MORALE swap .stat2- ;
+: .morale3- STAT_MORALE swap .stat3- ;
+: .morale4- STAT_MORALE swap .stat4- ;
+
+: .dexterity++ STAT_DEXTERITY swap .stat++ ;
+: .vitality++ STAT_VITALITY swap .stat++ ;
+
+: .attitude-- STAT_ATTITUDE swap .stat-- ;
+: .temper-- STAT_COMPOSURE swap .stat-- ;
+: .loyalty-- STAT_LOYALTY swap .stat-- ;
+: .wits-- STAT_WITS swap .stat-- ;
+
+: .strength-- STAT_STRENGTH swap .stat-- ;
+: .medical-- STAT_MEDICAL swap .stat-- ;
+: .mechanic-- STAT_MECHANICAL swap .stat-- ;
+: .shooting-- STAT_SHOOTING swap .stat-- ;
+: .fitness-- STAT_FITNESS swap .stat-- ;
+
+: .morale++ STAT_MORALE swap .stat++ ;
+: .morale2+ STAT_MORALE swap .stat2+ ;
+: .morale3+ STAT_MORALE swap .stat3+ ;
+: .morale4+ STAT_MORALE swap .stat4+ ;
+
+: .attitude++ STAT_ATTITUDE swap .stat++ ;
+: .temper++ STAT_COMPOSURE swap .stat++ ;
+: .loyalty++ STAT_LOYALTY swap .stat++ ;
+: .wits++ STAT_WITS swap .stat++ ;
+
+defer stat-cheevs
+
+: .strength++ STAT_STRENGTH swap .stat++ gstats{ ' total-str+ ++ } stat-cheevs ;
+: .medical++ STAT_MEDICAL swap .stat++ gstats{ ' total-med+ ++ } stat-cheevs ;
+: .mechanic++ STAT_MECHANICAL swap .stat++ gstats{ ' total-mech+ ++ } stat-cheevs ;
+: .shooting++ STAT_SHOOTING swap .stat++ gstats{ ' total-shoot+ ++ } stat-cheevs ;
+: .fitness++ STAT_FITNESS swap .stat++ gstats{ ' total-fit+ ++ } stat-cheevs ;
+
+: .attitudeREV STAT_ATTITUDE swap .reveal ;
+: .temperREV STAT_COMPOSURE swap .reveal ;
+: .loyaltyREV STAT_LOYALTY swap .reveal ;
+: .witsREV STAT_WITS swap .reveal ;
+
+: .strengthREV STAT_STRENGTH swap .reveal ;
+: .medicalREV STAT_MEDICAL swap .reveal ;
+: .mechanicREV STAT_MECHANICAL swap .reveal ;
+: .shootingREV STAT_SHOOTING swap .reveal ;
+: .fitnessREV STAT_FITNESS swap .reveal ;
+
+: .witsattREV .witsREV .attitudeREV ;
+: .aholeREV .loyaltyREV .temperREV ;
+
+// choicechar versions of the above, just remove the . at beginning of previous.
+
+
+: .showitall STAT_COUNT for i 1- over .reveal next drop ;
+: bigreveal ' .showitall foreach-team-char ; 
+' bigreveal 0 hotkey!
+
+: shootingREVall ' .shootingREV foreach-team-char ;
+
+: .cmorale+ .morale high ;
+: .cattitude+ .attitude high ;
+: .cloyalty+ .loyalty high ;
+: .ctemper+ .composure high ;
+: .cwits+ .wits high ;
+
+: .cstrength+ .strength high ;
+: .cmedical+ .medical high ;
+: .cmechanic+ .mechanical high ;
+: .cshooting+ .shooting high ;
+: .cfitness+ .fitness high ;
+
+: .cmorale- .morale low ;
+: .cattitude- .attitude low ;
+: .cloyalty- .loyalty low ;
+: .ctemper- .composure low ;
+: .cwits- .wits low ;
+
+: .cstrength- .strength low ;
+: .cmedical- .medical low ;
+: .cmechanic- .mechanical low ;
+: .cshooting- .shooting low ;
+: .cfitness- .fitness low ;
+
+
+// ========================
+// LOOT STUFF
+// ========================
+
+: ammosearch1 12 22 rnd LOOT_BULLET trunk.loot+ 50 %chance if 9 16 rnd LOOT_RIFLE_SHELL trunk.loot+ then 30 %chance if 8 12 rnd LOOT_SHOTGUN_SHELL trunk.loot+ then ;
+: ammosearch2 20 35 rnd LOOT_BULLET trunk.loot+ 70 %chance if 13 25 rnd LOOT_RIFLE_SHELL trunk.loot+ then 50 %chance if 12 16 rnd LOOT_SHOTGUN_SHELL trunk.loot+ then ;
+
+: homesearch1 4 7 rnd LOOT_FOOD trunk.loot+ 50 %chance if 2 5 rnd LOOT_MEDICAL trunk.loot+ then 30 %chance if 20 40 rnd LOOT_GAS trunk.loot+ then ;
+: homesearch2 7 10 rnd LOOT_FOOD trunk.loot+ 70 %chance if 3 7 rnd LOOT_MEDICAL trunk.loot+ then 50 %chance if 30 60 rnd LOOT_GAS trunk.loot+ then ;
+
+: trunk-food LOOT_FOOD trunk.loot@ ;
+: trunk-food+ LOOT_FOOD trunk.loot+ ;
+: trunk-shotgun-shell LOOT_SHOTGUN_SHELL trunk.loot@ ;
+: trunk-shotgun-shell+ LOOT_SHOTGUN_SHELL trunk.loot+ ;
+: trunk-gas LOOT_GAS trunk.loot@ ;
+: trunk-gas+ LOOT_GAS trunk.loot+ ;
+: trunk-medical LOOT_MEDICAL trunk.loot@ ;
+: trunk-medical+ LOOT_MEDICAL trunk.loot+ ;
+: trunk-bullet LOOT_BULLET trunk.loot@ ;
+: trunk-bullet+ LOOT_BULLET trunk.loot+ ;
+: trunk-rifle-shell LOOT_RIFLE_SHELL trunk.loot@ ;
+: trunk-rifle-shell+ LOOT_RIFLE_SHELL trunk.loot+ ;
+
+
+// ===========================
+// COMMON LOGIC
+// ===========================
+
+// General common logic things
+
+: morale++all ' .morale++ foreach-team-char ;
+: morale--all ' .morale-- foreach-team-char ;
+: morale++all-except ' .morale++ foreach-team-char-except ;
+: morale--all-except ' .morale-- foreach-team-char-except ;
+: morale2-all-except ' .morale2- foreach-team-char-except ;
+: morale2-all ' .morale2- foreach-team-char ;
+: morale3-all ' .morale3- foreach-team-char ;
+: morale2+all ' .morale2+ foreach-team-char ;
+: morale3+all ' .morale3+ foreach-team-char ; // DKT3
+: morale4+all ' .morale4+ foreach-team-char ;
+
+// Recruitment shortcuts
+
+// Logic for getting hurt or healing
+
+: .nonfatal .health@ 1 > ;
+: .alive? .health@ 0 > ;
+
+: .health-- dup .health@ 1- swap .health! ;
+// : .health++ dup .health@ 1+ swap .health! gstats{ ' total-heal ++ } ;
+
+defer stat-heal
+
+: .fullheal dup .vitality@ swap .health! gstats{ ' total-heal ++ } stat-heal ;
+
+: hit'n'die? dup .health-- .health@ 0= ;
+
+: damage dup .vitality@ swap .health@ - ; 
+
+: .health++ args( chara )
+	<- chara damage 0 > if
+		<- chara .health@ 1+ <- chara .health! gstats{ ' total-heal ++ } stat-heal
+	then
+;
+
+: .health++nostat args( chara )
+	<- chara damage 0 > if
+		<- chara .health@ 1+ <- chara .health!
+	then
+;
+
+: hurtcheck checkchar damage pickchar damage > ;
+: most-hurt ' hurtcheck pick-team-char ;
+
+: sum-damage damage + ;
+: team-damage 0 ' sum-damage foreach-team-char ;
+
+: groupheal
+	for 
+		most-hurt damage 0 > if
+				most-hurt .health++ 
+		then
+	next
+;
+
+(*
+// Example using locals for fun
+: .effstat locals( stat chara )
+	set chara set stat
+	get stat get chara .stat@
+	get stat get chara .bonus@ +
+;
+*)
+
+// Stat and Skill checks, returns highest into a stack
+
+: .histat 0 0 args( ch hival histat ) STAT_SKILLS for
+		i 1 = if break then // Skip MORALE
+		i 1- <- ch .effstat dup <- hival > if -> hival i 1- -> histat else drop then
+	next
+
+	<- histat
+;
+
+: .lostat 0 0 args( ch hival histat ) STAT_SKILLS for
+		i 1 = if break then // Skip MORALE
+		i 1- <- ch .effstat dup <- hival < if -> hival i 1- -> histat else drop then
+	next
+
+	<- histat
+;
+
+: sappend depths for pops swap >r shove r> next drop ;
+	
+: .hiskill 0 0 args( ch hival histat ) STAT_VITALITY for
+		i STAT_SKILLS = if break then
+		i 1- <- ch .effstat dup <- hival > if -> hival i 1- -> histat else drop then
+	next
+
+	<- histat
+;
+
+: .hiskill-stack dup .hiskill args( ch histat ) 0 stack
+	STAT_VITALITY for i STAT_SKILLS = if break then
+		i 1- <- ch .effstat <- histat <- ch .effstat = if i 1- shove then
+	next
+;
+		
+: .histat-stack dup .histat args( ch histat ) 0 stack
+	STAT_SKILLS for i 1- <- ch .effstat <- histat <- ch .effstat = if i 1- shove then next
+;
+
+: .lostat-stack dup .lostat args( ch histat ) 0 stack
+	STAT_SKILLS for i 1- <- ch .effstat <- histat <- ch .effstat = if i 1- shove then next
+;
+
+: .hilostat-stack dup .histat-stack swap .lostat-stack sappend ; // Not used now
+
+: .xstat 0 0 args( ch hival xstat ) STAT_SKILLS for
+		i 1- STAT_MORALE = if break then // Skip MORALE
+		i 1- STAT_CHARM <> if
+			i 1- <- ch .effstat 3 - abs dup <- hival > if -> hival i 1- -> xstat else drop then
+		then
+	next
+
+	<- xstat
+;
+		
+: .xtreme-stat-stack dup .xstat args( ch xstat ) 0 stack
+	STAT_SKILLS for
+		i 1- STAT_MORALE = if break then
+		i 1- STAT_CHARM <> if
+			i 1- <- ch .effstat 3 - abs <- xstat <- ch .effstat 3 - abs = if i 1- shove then
+		then
+	next
+;
+
+// Death count per game
+
+0 value dead-this-game
+
+: deadtally
+	gstats{ ' total-dead ++ ugnome-extraZP 3 > if 1 zombop+! then }
+	road{ ' dead-this-game ++ }
+;
+
+// Shield of Hope stuff, mostly for team-attacked but also used for death checks
+
+: shieldofhopeblurb args( chara )
+	<- chara .morale 3 > if
+		" is too PUMPED UP to get killed!"
+	else
+		<- chara .morale 1 < if
+			" lives, but enters into despair!"
+		else
+			<- chara .morale 2 < if
+				" resists death, but morale wavers!"
+			else
+				" refuses to die!"
+			then
+		then
+	then
+;
+
+: morale--hopeshield args( chara )
+	gstats{ perk-shieldofhope } 3 >= if
+		<- chara .morale2-
+	else
+		gstats{ perk-shieldofhope } 2 >= if
+			<- chara .morale3-
+		else
+			<- chara .morale4-
+		then
+	then
+;
+
+2 constant SHIELDOFHOPE_MIN
+
+// Hero Type checks, for team-attacked
+
+0 value hero-picked
+
+: isherotype? args( chara ) <- chara .trait@ "Hero Type" $= ;
+: herotype-except? args( chara )
+	<- chara team-stack-except ' isherotype? stack-filter nip ;
+
+: numherotype team-stack ' isherotype? stack-filter nip ;
+: herotype? numherotype 0 > ;
+
+: herotypecheck checkchar isherotype? ;
+: someherotype ' herotypecheck pick-team-char to hero-picked ;
+  
+ : hero-usedup
+	"Loyal Pal" hero-picked .trait!
+	// -1 STAT_VITALITY hero-picked .stat--
+	
+ ;
+ 
+ : .phoenixify args( chara )
+	"Phoenix Arisen!" <- chara .trait!
+	<- chara .fullheal
+	<- chara .specialbody@ 78 = not if
+		78 <- chara .specialbody!
+		($ "is now a HALF-HUMAN, HALF-SKELETON, HALF-PHOENIX, back for vengeance!" $) <- chara .job!
+	else
+		78 <- chara .specialhead!
+		($ "is now a HALF-SKELETON, HALF-PHOENIX, after a series of major blunders." $) <- chara .job!
+	then
+;
+ 
+: .death-shared args( chara )
+	<- chara herotype-except? if 
+		someherotype			
+		($ ICON_UP textclr$ .. <- chara .name@ .. " is heroically saved by " .. hero-picked .name@ .. "!" ..
+		0 textclr$ $) blurbevent ICON_UP blurbicon
+		<- chara .fullheal
+		<- chara .health@ 2 > if
+			<- chara .health--
+		then
+		hero-usedup
+	else
+		<- chara .trait@ "Phoenix" $= if
+			($ ICON_SKULL textclr$ .. <- chara .name@ .. " rises from the grave!" .. 0 textclr$ $) blurbevent ICON_UP blurbicon
+			<- chara .phoenixify
+		else
+			($ ICON_SKULL textclr$ .. <- chara .name@ .. " is KILLED!" .. 0 textclr$ $)
+
+			blurbevent blurbskullicon
+
+			sfx{ creepy 30 fx .delay! }
+
+			<- chara .weapons-to-trunk
+			TEAM_STATUS_DIED <- chara .decruit // Needs a REASON when decruiting
+			deadtally
+		then
+	then
+;
+ 
+: .kill	args( chara ) 0 <- chara .health! 
+	<- chara .death-shared
+;
+ 
+: team-attacked args( chara )
+	<- chara .health@ 0= if exit then;
+	<- chara hit'n'die? if
+		<- chara .perk@ "Shield of Hope" $= <- chara .morale SHIELDOFHOPE_MIN > and if
+			
+			<- chara morale--hopeshield
+			
+			($ ICON_UP textclr$ .. <- chara .name@ .. <- chara shieldofhopeblurb ..
+			0 textclr$ $) blurbevent ICON_UP blurbicon
+			
+			1 <- chara .health!
+		else
+			<- chara .death-shared			
+		then
+	else
+		<- chara .health@ 0 > if
+			($ ICON_DOWN textclr$ .. <- chara .name@ .. " is HURT!" ..
+				0 textclr$ $) blurbevent ICON_DOWN blurbicon
+		then
+	then
+	<- chara blurbchar blurb-last-to-cyoa
+;
+
+: .ouch-- team-attacked ;
+: .ouch2- dup team-attacked team-attacked ;
+: ouch--all ' .ouch-- foreach-team-char ;
+: ouch2-all ' .ouch2- foreach-team-char ;
+
+: .sting-- dup .nonfatal if .ouch-- else drop then ;
+: .sting2- dup 2 for .sting-- next ;
+: sting--all ' .sting-- foreach-team-char ;
+
+: .ouch01rnd-- 50 %chance if .ouch-- then ;
+: .ouch12rnd-- 50 %chance if .ouch-- else .ouch2- then ;
+: .sting12rnd-- 50 %chance if .sting-- else .sting2- then ;
+
+: ouch01rnd--all ' .ouch01rnd-- foreach-team-char ;
+: ouch12rnd--all ' .ouch12rnd-- foreach-team-char ;
+: sting12rnd--all ' .sting12rnd-- foreach-team-char ;
+
+// Losing weapons and supplies
+
+// Unlock weapon slot if you are clearing it
+: .weapona! over 0= if 0 over .weapon_nodropa! then .weapona! ;
+: .weaponb! over 0= if 0 over .weapon_nodropb! then .weaponb! ;
+: .weaponc! over 0= if 0 over .weapon_nodropc! then .weaponc! ;
+
+: givebats // mostly for testing
+	8 0 #teamchar .weapona! 
+	8 1 #teamchar .weapona! 	
+	8 2 #teamchar .weapona! 
+	8 3 #teamchar .weapona! 
+	8 0 #teamchar .weaponb! 
+	8 1 #teamchar .weaponb! 	
+	8 2 #teamchar .weaponb! 
+	8 3 #teamchar .weaponb! 
+;
+
+: takeweapona 0 over .weapona! ;
+: takeweaponb 0 over .weaponb! ; 
+: takeweaponc 0 over .weaponc! ; 
+: takeweapons takeweapona takeweaponb takeweaponc ;
+: 0aweaponsall ' takeweapona foreach-team-char ;
+: 0bweaponsall ' takeweaponb foreach-team-char ;
+: 0weaponsall ' takeweapons foreach-team-char ;
+
+: supplyloss1
+	trunk-food 3 > 
+		if -2 -4 rnd trunk-food+
+	else
+		trunk-food 1 > if -1 -2 rnd trunk-food+ then
+	then
+	trunk-medical 3 >
+		if -2 -4 rnd trunk-medical+
+	else
+		trunk-medical 1 > if -1 -2 rnd trunk-medical+ then
+	then	
+;
+
+: supplyloss2
+	supplyloss1
+	trunk-bullet 20 > 
+		if -10 -21 rnd trunk-bullet+
+	else
+		trunk-bullet 10 > if -3 -10 rnd trunk-bullet+ then
+	then
+	trunk-rifle-shell 20 > 
+		if -10 -21 rnd trunk-rifle-shell+
+	else
+		trunk-rifle-shell 10 > if -3 -10 rnd trunk-rifle-shell+ then
+	then
+	trunk-shotgun-shell 12 > 
+		if -5 -13 rnd trunk-shotgun-shell+
+	else
+		trunk-shotgun-shell 6 > if -2 -7 rnd trunk-shotgun-shell+ then
+	then
+;
+
+: nosupplyloss2? 
+	trunk-bullet 11 < trunk-rifle-shell 11 < trunk-shotgun-shell 7 <
+	trunk-food 4 < trunk-medical 3 < and and and and
+;
+
+// Eating checks used for camping / resting
+
+: eat-all trunk-food -1 * trunk-food+ ;
+
+// vvv PAUL VERSION vvv
+: food-required 0 0 args( chow chara )
+	team-stack depths for
+		pops -> chara 
+		<- chara .pet@ <- chara .trait@ "Tiny Eater" $= or if
+			<- chara .trait@ "Gourmand" $= if
+				2 
+			else
+				1
+			then
+		else 
+			<- chara .trait@ "Gourmand" $= if
+				3
+			else
+				2
+			then
+		then // Pets only take one ration
+		<- chow + -> chow
+	next
+	drop
+	<- chow
+;
+
+: chowday
+	// Eat a full meal if possible
+	trunk-food food-required >= if food-required neg trunk-food+ then;
+
+	// Eat half rations if possible
+	trunk-food team-count >= if team-count neg trunk-food+ then;
+
+	// Eat remaining food
+	trunk-food neg trunk-food+
+;
+// ^^^ PAUL VERSION ^^^
+
+: fullmeal trunk-food food-required >= ;
+: halfmeal trunk-food team-count >= ;
+
+: .cmorale-recover args( chara )
+	<- chara .cmorale- if
+		<- chara .cattitude+ if
+			<- chara .morale2+ <- chara .attitudeREV
+		else
+			<- chara .morale++
+		then	
+	then
+	<- chara .trait@ "Gourmand" $= if
+		<- chara .morale++
+	then
+;
+
+: .morale--gourmand args( chara )
+	<- chara .trait@ "Gourmand" $= if
+		<- chara .morale--
+	then
+;
+
+
+// PERSONALITY NUMBERS, 8 types
+// Just compare a character's .my_type to another character's .friend_type etc. to see if the other likes them
+// ETC. NOTE: can add more of these, just add 3 to the first number each time until you hit 28
+
+5 constant PERSONALITY_TYPES // Don't do more than 8, or 0
+
+: ptype PERSONALITY_TYPES % ;
+
+: .my_type .seed@ 		ptype ;			// My personality type number (0 to PERSONALITY_TYPES - 1)
+: .friend_type .seed@ 	3 	>> ptype ;	// Personality type that I like (buddies)
+: .enemy_type .seed@ 	6 	>> ptype ;	// Personality type that I hate (enemies)
+: .love_type .seed@ 	9 	>> ptype ;	// Personality type that I love (ROMANCE)
+: .topic_type .seed@ 	12 	>> ptype ;	// Personality type that I love (ROMANCE)
+
+: pcheck args( other self checkword ) // -- 0, 1, or 2 for NONE, MATCH, or MUTUAL
+	0 <- other .my_type <- self <- checkword execute = not if then;
+	1+ <- self .my_type <- other <- checkword execute = not if then;
+	1+
+;
+
+0 enum PTYPE_NONE
+enum PTYPE_ONE_WAY
+enum PTYPE_MUTUAL
+drop
+
+: .friendcheck ( other self ) 	' .friend_type pcheck ;
+: .enemycheck					' .enemy_type pcheck ;
+: .lovecheck					' .love_type pcheck ;
+
+// Example combos
+: .likesme?	 	swap .friendcheck ;
+: .bffs?	 	.friendcheck PTYPE_MUTUAL = ;
+
+: .hatesme?		swap .enemycheck ;
+: .feud? 		.enemycheck PTYPE_MUTUAL = ;
+
+: .lovesme? 	swap .lovecheck ;
+: .inlove? 		.lovecheck PTYPE_MUTUAL = ;
+
+: .friendzone?	args( other self )
+	<- other <- self .lovecheck PTYPE_ONE_WAY = 
+	<- other <- self .likesme? and
+;

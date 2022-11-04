@@ -1,0 +1,556 @@
+// Gnome Costs
+
+10 constant GNOMECOST_1
+20 constant GNOMECOST_2
+30 constant GNOMECOST_3
+50 constant GNOMECOST_5
+
+gstats{
+
+: gnome-unlocktally
+// 0
+//	trait-specialist 0 > if 1 else 0 then +
+;
+
+// Increase this number as more unlocks are added
+: gnome-unlockcalc
+	24 ugnome-unlocks -
+;
+
+: gnome-remaining
+	gnome-unlockcalc 0 > if ($ " UNLOCKS LEFT: " pbold .. gnome-unlockcalc $) +text then
+;
+
+: gnome-stockleft
+	gnome-unlockcalc
+;
+
+}
+
+: gnome-buy! args( name cost ) 
+	($ "YOU UNLOCKED: " .. <- name pbold $) text!
+	gstats{ ' ugnome-unlocks ++ }
+	<- cost zp-buy!	goodfx
+;
+
+: gnome-confirm! args( name cost handler exit )
+	<- name cyoa-title!
+	// ($ <- name .. ": " $) text!
+	choice( "BACK" )choice <- exit cyoa-choice-handler!
+	gstats{ zombo-point } <- cost 1 - > if
+		choice( "Unlock " .. <- name pbold .. "! - " .. <- cost .. " ZP" pbold )choice <- handler cyoa-choice-handler!
+	then 
+		($ "Costs " .. <- cost .. " ZP to unlock!" $) rbold +crtext zptally
+;
+
+(*
+cyoa: ugnome--buy
+	gstats{ to ugnome- }
+	ugnome- gnome-buy!
+	"" cyoa-title!
+	"" +crtext ;
+cyoa-blank: ugnome--view
+	"" pbold text!
+	($ "Increases your maximum ZP to 15!
+	" .. "NOTE:" pbold .. " You can unlock this for free by winning the game in any mode." $) +crtext
+	ugnome- ' ugnome--buy ' gnomeback gnome-confirm! ;
+*)
+
+: gnomewallet-say
+	"I MADE YOU A LITTLE WALLET
+	THAT WILL LET YOU HOLD MORE ZOMBO POINTS
+	IT'S MORE OF A COINPURSE" pbold text!
+;
+: gnomewallet-buysay
+	"MAXIMUM ZOMBO POINT INCREASE!" cyoa-title!
+	"Zombo Point Cap Increased!" +crtext
+;
+	
+: ugnome-max1 "Max ZP Increase (15)" GNOMECOST_1 ;
+: ugnome-max2 "Max ZP Increase (20)" 15 ;
+: ugnome-max3 "Max ZP Increase (30)" GNOMECOST_2 ;
+: ugnome-max5 "Max ZP Increase (50)" GNOMECOST_3 ;
+: ugnome-maxC "Cheevos to Max ZP" GNOMECOST_5 ;
+: ugnome-toilet1 "Toilet Upgrade I" GNOMECOST_1 ;
+: ugnome-toilet2 "Toilet Upgrade II" GNOMECOST_2 ;
+: ugnome-toilet3 "Toilet Upgrade III" GNOMECOST_3 ;
+: ugnome-toilet4 "Toilet Upgrade ULTIMATE" GNOMECOST_5 ;
+: ugnome-trader1 "Trader Camp Gnome" GNOMECOST_1 ;
+: ugnome-trader2 "Trader Gnome Upgrade" GNOMECOST_2 ;
+: ugnome-trader3 "Trader Gnome ULTIMATE" GNOMECOST_3 ;
+: ugnome-extraZP1 "Extra ZP I" 5 ;
+: ugnome-extraZP2 "Extra ZP II" GNOMECOST_1 ;
+: ugnome-extraZP3 "Extra ZP III" 15 ;
+: ugnome-extraZP4 "Extra ZP ULTIMATE" GNOMECOST_2 ;
+: ugnome-raretrader1 "More Rare Traders I" GNOMECOST_1 ;
+: ugnome-raretrader2 "More Rare Traders II" GNOMECOST_2 ;
+: ugnome-raretrader3 "More Rare Traders III" GNOMECOST_3 ;
+: ugnome-raretrader4 "More Rare Traders MAX" GNOMECOST_5 ;
+: ugnome-rarelocs1 "Rare Finder I" GNOMECOST_2 ;
+: ugnome-rarelocs2 "Rare Finder II" GNOMECOST_3 ;
+: ugnome-rarelocs3 "Rare Finder III" GNOMECOST_5 ;
+: ugnome-rarelocs4 "Rare Finder ULTIMATE" GNOMECOST_5 ;
+: ugnome-jerkstore1 "Challenge Hut" GNOMECOST_3 ;
+	
+cyoa: ugnome-ZPmax1-buy
+	gstats{ 15 to ZOMBOP_CAP }
+	ugnome-max1 gnome-buy!
+	gnomewallet-buysay ;
+cyoa-blank: ugnome-ZPmax1
+	gnomewallet-say
+	($ "Increases your maximum ZP to 15!
+	" .. "NOTE:" pbold .. " You can unlock this for free by winning the game in any mode." $) +crtext
+	ugnome-max1 ' ugnome-ZPmax1-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-ZPmax2-buy
+	gstats{ 20 to ZOMBOP_CAP }
+	ugnome-max2 gnome-buy!
+	gnomewallet-buysay ;
+cyoa-blank: ugnome-ZPmax2
+	gnomewallet-say
+	($ "Increases your maximum ZP to 20!
+	" .. "NOTE:" pbold .. " You can unlock this for free by winning the game in Deadlier Road mode!" $) +crtext
+	ugnome-max2 ' ugnome-ZPmax2-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-ZPmax3-buy
+	gstats{ 30 to ZOMBOP_CAP }
+	ugnome-max3 gnome-buy!
+	gnomewallet-buysay ;
+cyoa-blank: ugnome-ZPmax3
+	"I MADE YOU A BIGGER WALLET
+	THAT WILL LET YOU HOLD MORE ZOMBO POINTS
+	IT'S NEARLY A PURSE" pbold text!
+	($ "Increases your maximum ZP to 30! The most expensive Trait or Perk is well under 30 points, but Unomey caters to a more upscale clientele." $) +crtext
+	ugnome-max3 ' ugnome-ZPmax3-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-ZPmax5-buy
+	gstats{ 50 to ZOMBOP_CAP }
+	ugnome-max5 gnome-buy!
+	gnomewallet-buysay ;
+cyoa-blank: ugnome-ZPmax5
+	"YOU SEEMED TO LIKE THE LAST PURSE I MADE YOU
+	SO HERE'S A BETTER PURSE
+	VERY FASHIONABLE" pbold text!
+	($ "Increases your maximum ZP to 50! This lets you buy Unomey's most expensive unlocks." $) +crtext
+	ugnome-max5 ' ugnome-ZPmax5-buy ' gnomeback gnome-confirm! ;
+
+cyoa: ugnome-toilet1-buy
+	gstats{ 1 to ugnome-toilet }
+	ugnome-toilet1 gnome-buy!
+	"TOILET POWER INCREASED!" cyoa-title!
+	"Toilets may now have 2 gas!" +crtext ;
+cyoa-blank: ugnome-toilet1-view
+	"I HEARD HUMANS WERE OBSESSED WITH TOILETS" pbold text!
+	($ "Unomey gives you a look of pure disgust.
+	Upgrades toilets. Now they'll have 2 gas instead of 1. Maybe it adds up?" $) +crtext
+	ugnome-toilet1 ' ugnome-toilet1-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-toilet2-buy
+	gstats{ 2 to ugnome-toilet }
+	ugnome-toilet2 gnome-buy!
+	"ENVIRONMENTAL STORYTELLING" cyoa-title!
+	($ "Toilets may now have 2 bullets!
+	Famous game designer Ken Levine calls this " .. "environmental storytelling" pbold .. ".
+	Every toilet with bullets in it tells a story." $) +crtext ;
+cyoa-blank: ugnome-toilet2-view
+	"WOW LOOK AT YOU GO WITH THE TOILET UPGRADES" pbold text!
+	($ "Unomey scrunches up his nose in an even more exaggerated look of disgust.
+	Toilets can contain 2 bullets. Every little bit helps." $) +crtext
+	ugnome-toilet2 ' ugnome-toilet2-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-toilet3-buy
+	gstats{ 3 to ugnome-toilet }
+	ugnome-toilet3 gnome-buy!
+	"TOILET SKELETONS" cyoa-title!
+	($ "Toilets may now have rare and mysterious toilet loot!
+	This may include skeletons, which elevates the quality of " .. "Toilet-Based Environmental Storytelling" pbold .. " even further.
+	Toilets will also now have a higher loot chance!" $) +crtext ;
+cyoa-blank: ugnome-toilet3-view
+	"DISGUSTING" pbold text!
+	($ "Unomey just has a look of blank contempt towards you at this point.
+	Toilets may rarely contain something mysterious. Toilets also will get a 30% chance to contain toilet loot, up from the default 20%" $) +crtext
+	ugnome-toilet3 ' ugnome-toilet3-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-toilet4-buy
+	gstats{ 4 to ugnome-toilet }
+	ugnome-toilet4 gnome-buy!
+	"HEAVEN'S TOILET: THE ULTIMATE TOILET" cyoa-title!
+	"Toilets have ascended to their final form!" fbold +crtext
+	($ "Toilet Genies now occur every 50 opened toilets!
+	Death Road to Canada represents the ULTIMATE in " .. "Toilet-Based Interactive Fiction!" pbold .. " Enjoy!" $) +crtext ;
+cyoa-blank: ugnome-toilet4-view
+	"SO DO HUMANS WORSHIP THE TOILETS OR WHAT
+	IS OPENING THEM A RITUAL?
+	WHAT IS WRONG WITH YOU" pbold text!
+	($ "With this final toilet upgrade, you only need to open 50 toilets to summon the Toilet Genie, instead of 100!
+	" .. "NOTE:" pbold .. " I'm being serious." $) +crtext
+	ugnome-toilet4 ' ugnome-toilet4-buy ' gnomeback gnome-confirm! ;
+		
+cyoa: ugnome-trader1-buy
+	gstats{ 1 to ugnome-trader }
+	ugnome-trader1 gnome-buy!
+	"TNOMEY THE TRADE GNOME UNLOCKED" cyoa-title!
+	"Unlock 20 Zombo Point options by upgrading him!" +crtext ;
+cyoa-blank: ugnome-trader1-view
+	"MY PAL TNOMEY WILL GIVE YOU A GOOD DEAL
+	HE'LL START LOITERING AROUND TRADER CAMPS!" pbold text!
+	($ "Lets you buy a little bit of extra supplies from Tnomey, the Trade Gnome. He takes ZP as currency, and you may buy one thing from him per game. Besides supplies, he may also sell an extra recruit!" $) +crtext
+	ugnome-trader1 ' ugnome-trader1-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-trader2-buy
+	gstats{ 2 to ugnome-trader }
+	ugnome-trader2 gnome-buy!
+	"TNOMEY THE TRADE GNOME UPGRADED" cyoa-title!
+	"Unlock a 30 ZP tier of items in his final upgrade!" +crtext ;
+cyoa-blank: ugnome-trader2-view
+	"HOW DOES HE SELL THESE RODENTS?
+	HE HAS THEM ALL STUFFED INTO A SACK" pbold text!
+	($ "This will upgrade the Trade Gnome to carry items worth 20 ZP. This will be an extra option in every shop, in addition to his 10 ZP item. He may sell cheap weapons and battle rodents!" $) +crtext
+	ugnome-trader2 ' ugnome-trader2-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-trader3-buy
+	gstats{ 3 to ugnome-trader }
+	ugnome-trader3 gnome-buy!
+	"ULTIMATE TRADE GNOME DELUXE ULTRA" cyoa-title!
+	"Tnomey has reached his ultimate form!" fbold +crtext ;
+cyoa-blank: ugnome-trader3-view
+	"SOMEONE'S A BIG SPENDER
+	WITH A NOSE FOR GNOMISH DEALS
+	IT'S YOUUUUU" pbold text!
+	($ "This will upgrade the Trade Gnome to also carry items worth 30 ZP. He may sell some new weapons and random rare characters!" $) +crtext
+	ugnome-trader3 ' ugnome-trader3-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-extraZP1-buy
+	gstats{ 1 to ugnome-extraZP }
+	ugnome-extraZP1 gnome-buy!
+	"HERO OF THE ZOMBOCALYPSE" cyoa-title!
+	"You now get 1 ZP for every successful rescue!" +crtext ;
+cyoa-blank: ugnome-extraZP1-view
+	"WHEN YOU RESCUE SOMEONE
+	YOU SHOULD PROBABLY SHAKE THEM DOWN
+	FOR THEIR SWEET ZOMBO POINTS" pbold text!
+	($ "Get 1 ZP every time you rescue a person or dog!
+	" .. "NOTE:" pbold .. " For normal rescues only, rare rescues don't count." $) +crtext
+	ugnome-extraZP1 ' ugnome-extraZP1-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-extraZP2-buy
+	gstats{ 2 to ugnome-extraZP }
+	ugnome-extraZP2 gnome-buy!
+	"BUYER REWARDS PROGRAM" cyoa-title!
+	"You now get 1 ZP for each sale to the weapons buyers!" +crtext ;
+cyoa-blank: ugnome-extraZP2-view
+	"I HAVE A SPECIAL DEAL WITH THE WEAPON BUYERS
+	SO THEY AND TNOMEY CAN BOTH RIP YOU OFF BETTER
+	IT IS WHAT GNOMES CALL A WIN-WIN" pbold text!
+	($ "Get 1 ZP every time you sell an item to the weapons buyers!" $) +crtext
+	ugnome-extraZP2 ' ugnome-extraZP2-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-extraZP3-buy
+	gstats{ 3 to ugnome-extraZP }
+	ugnome-extraZP3 gnome-buy!
+	"MAKING NEW FRIENDS" cyoa-title!
+	"You now get 1 ZP for each time you get a new recruit!" +crtext ;
+cyoa-blank: ugnome-extraZP3-view
+	"ZOMBO POINTS FLOW THROUGH ALL LIFE
+	THEY ARE EXACTLY LIKE MIDI-CHLORIANS
+	GNOMES LOVE THE STAR WARS PREQUELS" pbold text!
+	($ "Get 1 ZP every time you recruit someone or something!" $) +crtext
+	ugnome-extraZP3 ' ugnome-extraZP3-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-extraZP4-buy
+	gstats{ 4 to ugnome-extraZP }
+	ugnome-extraZP4 gnome-buy!
+	"MAKING NEW SKELETONS" cyoa-title!
+	"You now get 1 ZP for each time an ally dies!" +crtext 
+	"THE ULTIMATE ZP GENERATOR" fbold +crtext ;
+cyoa-blank: ugnome-extraZP4-view
+	"I COULD START GIVING YOU A ZOMBO POINT
+	WHENEVER SOMEONE ON YOUR TEAM GETS KILLED
+	THIS SEEMS LIKE A PRETTY GOOD IDEA" pbold text!
+	($ "Get 1 ZP every time an ally dies!" $) +crtext
+	ugnome-extraZP4 ' ugnome-extraZP4-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-raretrader1-buy
+	gstats{ 1 to ugnome-raretrader }
+	ugnome-raretrader1 gnome-buy!
+	"WEIRDER TRADERS" cyoa-title!
+	"Rare Trader chance increased!
+	The chance has gone from 1/30 to 1/27!" +crtext ;
+cyoa-blank: ugnome-raretrader1-view
+	"IN TRADER CAMPS
+	SOMETIMES A REAL WEIRDO CAN SHOW UP
+	RARE TRADERS HAVE RARE DEALS" pbold text!
+	"Normal chance of a Rare Trader is 1/30
+	This will increase the chance to 1/27!" +crtext
+	ugnome-raretrader1 ' ugnome-raretrader1-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-raretrader2-buy
+	gstats{ 2 to ugnome-raretrader }
+	ugnome-raretrader2 gnome-buy!
+	"EVEN WEIRDER TRADERS" cyoa-title!
+	"Rare Trader chance increased!
+	The chance has gone from 1/27 to 1/24!" +crtext ;
+cyoa-blank: ugnome-raretrader2-view
+	"THERE ARE MANY RARE TRADERS
+	I HAVE SEEN A WITCH ONCE ALSO A WIZARD
+	SOME CAN BE RECRUITED FOR A BRIBE" pbold text!
+	"Rare Traders chance will increase to 1/24!" +crtext
+	ugnome-raretrader2 ' ugnome-raretrader2-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-raretrader3-buy
+	gstats{ 3 to ugnome-raretrader }
+	ugnome-raretrader3 gnome-buy!
+	"MORE WEIRDERER TRADERS" cyoa-title!
+	"Rare Trader chance increased!
+	The chance has gone from 1/24 to 1/21!" +crtext ;
+cyoa-blank: ugnome-raretrader3-view
+	"I'M PASSING OUT LOTS OF FLYERS
+	I DREW THEM WITH COLORED PENCILS
+	THIS WILL BRING THE BEST TRADERS IN" pbold text!
+	"Rare Traders chance will increase to 1/21!" +crtext
+	ugnome-raretrader3 ' ugnome-raretrader3-buy ' gnomeback gnome-confirm! ;
+
+cyoa: ugnome-raretrader4-buy
+	gstats{ 4 to ugnome-raretrader }
+	ugnome-raretrader4 gnome-buy!
+	"MOST WEIRDEST TRADERS" cyoa-title!
+	"Rare Trader chance increased!
+	The chance has gone from 1/21 to 1/18!" +crtext
+	"You now have a higher chance of finding more than one Rare Trader per game!" fbold +crtext ;
+cyoa-blank: ugnome-raretrader4-view
+	"I CAN HIRE A GNOMISH SIGN SPINNER
+	LOTS MORE WEIRD TRADERS WILL SHOW UP
+	IT HEIGHTENS THE SHOPPING EXPERIENCE!" pbold text!
+	"Rare Traders chance will increase to 1/18!" +crtext
+	ugnome-raretrader4 ' ugnome-raretrader4-buy ' gnomeback gnome-confirm! ;
+
+cyoa: ugnome-rarelocs1-buy
+	gstats{ 1 to ugnome-rarelocs }
+	ugnome-rarelocs1 gnome-buy!
+	"EXOTIC LOCALES" cyoa-title!
+	"Chance of Rare Locations has increased from roughly 3/55 to 4/55!
+	You may also now find up to 4 Rare Locations in one game, up from 3!" +crtext ;
+cyoa-blank: ugnome-rarelocs1-view
+	"I'M SELLING THESE SPECIAL MAPS
+	I DREW THEM WITH COLORED PENCILS" pbold text!
+	($ "Chance of Rare Locations will slightly increase! You may also find one extra Rare Location in a game!
+	" .. "NOTE:" pbold .. " Rare Locations can be identified by their flashing text." $) +crtext
+	ugnome-rarelocs1 ' ugnome-rarelocs1-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-rarelocs2-buy
+	gstats{ 2 to ugnome-rarelocs }
+	ugnome-rarelocs2 gnome-buy!
+	"STRANGE DAYS ON THE DEATH ROAD" cyoa-title!
+	"Chance of Rare Events has increased from roughly 2/55 to 3/55!
+	You may also now find up to 3 Rare Events in one game, up from 2!" +crtext ;
+cyoa-blank: ugnome-rarelocs2-view
+	"ALL SORTS OF NONSENSE CAN HAPPEN ON THE ROAD
+	YOU SHOULD JUST ROLL WITH IT" pbold text!
+	($ "Chance of Rare Road Events will slightly increase!
+	You may also find an extra Rare Event in a game!" $) +crtext
+	ugnome-rarelocs2 ' ugnome-rarelocs2-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-rarelocs3-buy
+	gstats{ 3 to ugnome-rarelocs }
+	ugnome-rarelocs3 gnome-buy!
+	"LOCATION, LOCATION, LOCATION" cyoa-title!
+	"Chance of Rare Locations has increased from roughly 4/55 to 5/55!
+	You may also now find up to 5 Rare Locations in one game, up from 4!" +crtext ;
+cyoa-blank: ugnome-rarelocs3-view
+	"I'M SELLING DELUXE TOUR GUIDES NOW
+	THEY'RE THE OLD ONES
+	BUT I PUT STICKERS ON THEM" pbold text!
+	($ "Chance of Rare Locations will slightly increase! You may also find one extra Rare Location in a game!" $) +crtext
+	ugnome-rarelocs3 ' ugnome-rarelocs3-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-rarelocs4-buy
+	gstats{ 4 to ugnome-rarelocs }
+	ugnome-rarelocs4 gnome-buy!
+	"A VERY WEIRD JOURNEY" cyoa-title!
+	"Chance of Rare Events has increased from roughly 3/55 to 4/55!
+	You may also now find up to 4 Rare Events in one game, up from 3!" +crtext ;
+cyoa-blank: ugnome-rarelocs4-view
+	"WEIRD AND WONDROUS EVENTS CAN HAPPEN
+	IF YOU BELIEVE IN THE POWER OF FRIENDSHIP" pbold text!
+	($ "Chance of Rare Road Events will increase further!
+	You may also find another extra Rare Event in a game!" $) +crtext
+	ugnome-rarelocs4 ' ugnome-rarelocs4-buy ' gnomeback gnome-confirm! ;
+
+cyoa: ugnome-jerkstore1-buy
+	gstats{ 1 to ugnome-jerkstore }
+	ugnome-jerkstore1 gnome-buy!
+	"A CHALLENGING HUT" cyoa-title!
+	"You've unlocked a new building, where you can see new challenges and unlock cosmetic features!" +crtext ;
+cyoa-blank: ugnome-jerkstore1-view
+	"A MAGICAL HUT OF CHALLENGES
+	ALSO CONTAINS A *VERY* SPECIAL STORE" pbold text!
+	($ "Unlocks a new building where you can view special challenges!
+	Beating these challenges can unlock new cosmetic features!" $) +crtext
+	ugnome-jerkstore1 ' ugnome-jerkstore1-buy ' gnomeback gnome-confirm! ;
+	
+		
+cyoa: unlockgnome gstats{
+	"UNOMEY THE UNLOCK GNOME" cyoa-title!
+	
+	ugnome-found 1 < if
+		1 to ugnome-found save
+		"I'M UNOMEY, THE UNLOCK GNOME
+		YOU FOUND ME!
+		I'LL SELL YOU UNLOCKS FROM NOW ON
+		GET OUT OF MY HOUSE YOU NERD!" text!
+	else
+	
+		"HELLO I'M UNOMEY
+		DON'T YOU KNOW ME?" text!
+		
+		ugnome-unlocks 2 > if
+			"UNLOCKS ARE A BIG PART
+			OF GNOME SOCIETY!
+			WHOEVER HAS THE MOST UNLOCKS IS KING" text!
+		then
+		
+		gnome-stockleft 18 < if
+			"GNOMES INVENTED UNLOCKS!
+			WE CALL THEM 'UNCKS' FOR SHORT
+			IT SAVES A LOT OF TIME TO CALL THEM THIS" text!
+		then
+				
+		gnome-stockleft 14 < if
+			"MORE UNLOCKS
+			MORE PROBLEMS
+			-- GNOMISH PROVERB" text!
+		then
+		
+		gnome-stockleft 10 < if
+			"NO ONE CAN GET ENOUGH
+			OF THESE UNCKS
+			'UNCKS' MEANS UNLOCKS" text!
+		then
+		
+		gnome-stockleft 7 < if
+			"I HOPE YOU ENJOYED THESE UNCKS
+			AS MUCH AS I ENJOYED STANDING HERE
+			FOR DAYS" text!
+		then
+		
+		gnome-stockleft 4 < if
+			"I'M RUNNING OUT OF STUFF FOR NOW!
+			I WILL HAVE A LOT MORE THINGS LATER
+			MAYBE EVEN ANOTHER TOILET FOR YOU" text!
+		then
+		
+		gnome-stockleft 1 < if
+			"I'M OUT OF UNLOCKS!
+			CHECK BACK NEXT UPDATE
+			I'LL HAVE MORE, MAYBE!" text!
+		then
+				
+	then
+		
+	// 15 ugnome-unlocks total
+	// plus 7 added in Eyeball
+	// now 24 total
+	
+	+cr zptally gnome-remaining
+	choice( "Leave this thing be" )choice
+	
+	// Upgrade series for rare events and flashing locations
+	
+	// Upgrade series for reducing normal traders versus rare, 4 upgrades with 3 less per upgrade
+		
+	ugnome-extraZP 1 < if
+		ugnome-extraZP1 ' ugnome-extraZP1-view perk-view!
+	then
+	ugnome-extraZP 1 = if
+		ugnome-extraZP2 ' ugnome-extraZP2-view perk-view!
+	then
+	ZOMBOP_CAP 15 < if 
+		ugnome-max1 ' ugnome-ZPmax1 perk-view!
+	then
+	ugnome-trader 1 < if
+		ugnome-trader1 ' ugnome-trader1-view perk-view!
+	then
+	ugnome-raretrader 1 < if
+		ugnome-raretrader1 ' ugnome-raretrader1-view perk-view!
+	then
+	ugnome-toilet 1 < if
+		ugnome-toilet1 ' ugnome-toilet1-view perk-view!
+	then
+	
+	ugnome-extraZP 2 = if
+		ugnome-extraZP3 ' ugnome-extraZP3-view perk-view!
+	then
+	ZOMBOP_CAP 20 < ZOMBOP_CAP 10 > and if
+		ugnome-max2 ' ugnome-ZPmax2 perk-view!
+	then
+	
+	ugnome-trader 1 = if
+		ugnome-trader2 ' ugnome-trader2-view perk-view!
+	then
+	ugnome-extraZP 3 = if
+		ugnome-extraZP4 ' ugnome-extraZP4-view perk-view!
+	then
+	ugnome-rarelocs 1 < if
+		ugnome-rarelocs1 ' ugnome-rarelocs1-view perk-view!
+	then
+	ugnome-raretrader 1 = if
+		ugnome-raretrader2 ' ugnome-raretrader2-view perk-view!
+	then
+	ZOMBOP_CAP 30 < ZOMBOP_CAP 15 > and if
+		ugnome-max3 ' ugnome-ZPmax3 perk-view!
+	then
+
+	// hat trader
+	ugnome-toilet 1 = if
+		ugnome-toilet2 ' ugnome-toilet2-view perk-view!
+	then
+	
+	ugnome-trader 2 = if
+		ugnome-trader3 ' ugnome-trader3-view perk-view!
+	then
+	ugnome-rarelocs 1 = if
+		ugnome-rarelocs2 ' ugnome-rarelocs2-view perk-view!
+	then
+	ugnome-raretrader 2 = if
+		ugnome-raretrader3 ' ugnome-raretrader3-view perk-view!
+	then
+
+	ZOMBOP_CAP 50 < ZOMBOP_CAP 20 > and if
+		ugnome-max5 ' ugnome-ZPmax5 perk-view!
+	then
+	ugnome-jerkstore 1 < if
+		ugnome-jerkstore1 ' ugnome-jerkstore1-view perk-view!
+	then
+	ugnome-toilet 2 = if
+		ugnome-toilet3 ' ugnome-toilet3-view perk-view!
+	then
+	
+	// unlock challenge hut
+	// max zp CHEEVO - The cheevo based one
+	// jerk store II - Finish Construction
+	ugnome-rarelocs 2 = if
+		ugnome-rarelocs3 ' ugnome-rarelocs3-view perk-view!
+	then
+	ugnome-raretrader 3 = if
+		ugnome-raretrader4 ' ugnome-raretrader4-view perk-view!
+	then
+	ugnome-toilet 3 = if
+		ugnome-toilet4 ' ugnome-toilet4-view perk-view!
+	then
+	ugnome-rarelocs 3 = if
+		ugnome-rarelocs4 ' ugnome-rarelocs4-view perk-view!
+	then
+	// jerk store ULTIMATE - Add some extras
+	// Gnomey House Upgrade - When everything else is bought
+
+
+	(*
+	SOMETHING 1 < if
+		ugnome-max1 ' ugnome-ZPmax1 perk-view!
+	then
+	*)
+	
+} ;
+	
+' unlockgnome to gnomeback
+

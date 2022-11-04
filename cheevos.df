@@ -1,0 +1,618 @@
+voc{ cheevo
+
+0 stack var cheevo-list
+
+"cheevos.save" constant CHEEVO_FILENAME
+
+: CHEEVO_FILE savename-prefix CHEEVO_FILENAME .. ;
+
+: save
+	save-start
+		' cheevo-list save-val
+	save-end
+	CHEEVO_FILE $strbuf-write
+;
+
+: load CHEEVO_FILE filesave{ $load-savefile } ;
+
+: delete "" CHEEVO_FILE $swrite 0 stack to cheevo-list ;
+
+: fail 0 ;
+: pass fail not ;
+
+: fail; fail postpone literal postpone then; ; immediate
+: pass; pass postpone literal postpone then; ; immediate
+
+: desc last >body ! ;
+
+0 value cheevcharval
+
+: check args( ch )
+
+	// Not even a cheevo lol :eyeroll:
+	<- ch >voc ' cheevo{ v= not if <- ch >name " " swap .. " " .. "quoted " is not a cheevo" .. $abort then;
+
+	// Already in the list?
+	cheevo-list depths for
+		i picks <- ch v= if drop 0 to cheevcharval then; // Yes, so bye
+	next
+
+	// Call cheevo and exit if it fails
+	<- ch execute 0= if drop 0 to cheevcharval then;
+
+	// It passed, so add to the list
+	<- ch shove drop
+
+	save
+
+	<- ch >name cheevo_post
+
+	250	// duration in ticks, was 150
+
+	cheevcharval if
+		cheevcharval
+		<- ch >body @ popup_dis
+		1 popup_mode!
+	else
+		0	// icon (default laughing skull)
+		<- ch >body @ popup_dis
+	then
+
+
+
+	0 to cheevcharval 
+;
+
+: post-all
+
+	cheevo-list depths
+	for
+		i picks >name cheevo_post
+	next
+	drop
+;
+
+}
+
+: cheevo: cheevo{ postpone cheevo{ (')
+	compile? if
+		postpone check
+	else
+		check
+	then
+	postpone } }
+; immediate
+
+: cheevochar character# cheevo{ to cheevcharval } ;
+
+: popup-test 0 1 "TEST" popup_dis 1 popup_mode! ;
+
+// =================== //
+// Cheevo definitions //
+// =================== //
+
+cheevo{
+
+: test-cheev
+	0 if fail; // some fail logic
+	pass
+; "You achieved the test cheevo!" desc
+
+
+: test-cheev2
+	0 if fail; // some fail logic
+	pass
+; "You achieved the test cheevo #2!" desc
+
+// RARE CHARACTER WINS
+
+: TLB
+	25 stpick if cheevochar pass;
+	fail
+; "TOO SWOLE TO CONTROL: Beat game with T*L*B!" desc
+
+: fencer
+	30 stpick if cheevochar pass;
+	fail
+; "COUP DE GRACE: Beat game with the Fencer!" desc
+
+: mason
+	stpick-mason if cheevochar pass;
+	fail
+; "MR POPULAR: Beat game with Mason!" desc
+
+: santa
+	3 stpick if cheevochar pass;
+	4 stpick if cheevochar pass;
+	fail
+; "MERRY CHRISTMAS: Won with a Santa!" desc
+
+: alvis
+	36 stpick if cheevochar pass;
+	37 stpick if cheevochar pass;
+	fail
+; "THANKYAVERYMUCH: Beat game with Alvis!" desc
+
+: elsatan
+	8 stpick if cheevochar pass;
+	fail
+; "LUCHADORE: Beat game with El Satan!" desc
+
+: boxer
+	9 stpick if cheevochar pass;
+	fail
+; "WORLD CHAMP: Beat game with Boxer!" desc
+
+: clown
+	29 stpick if cheevochar pass;
+	fail
+; "HA! HA!: Beat game with Clown!" desc
+
+: valkyrie
+	7 stpick if cheevochar pass;
+	fail
+; "VALHALLA: Beat game with Valkyrie!" desc
+
+: turkey
+	27 stpick if cheevochar pass;
+	fail
+; "HAPPY THANKSGIVING: Win with Turkey!" desc
+
+: horse
+	34 stpick if cheevochar pass;
+	fail
+; "MY LOVELY HORSE: Beat game with Horse!" desc
+
+: gnomey
+	33 stpick if cheevochar pass;
+	fail
+; "GNOME POWER: Beat game with Gnomey!" desc
+
+: panda
+	35 stpick if cheevochar pass;
+	fail
+; "THE LAST PANDA: Beat game with Panda!" desc
+
+: gordo
+	49 stpick if cheevochar pass;
+	fail
+; "HL3: Beat game with Gordo!" desc
+
+: witch
+	81 stpick if cheevochar pass;
+	fail
+; "WITCH'S BREW: Beat game with Witch!" desc
+
+: wizard
+	61 stpick if cheevochar pass;
+	fail
+; "ABRACADABRA: Beat game with Wizard!" desc
+
+: vampire
+	82 stpick if cheevochar pass;
+	83 stpick if cheevochar pass;
+	fail
+; "BWAUGH!: Beat game with Vampire!" desc
+
+: garf
+	31 stpick if cheevochar pass;
+	fail
+; "G#RFENING: Beat game with G#rf!" desc
+
+: lnk
+	52 stpick if cheevochar pass;
+	fail
+; "DA NA NA NAA: Beat game with L#nk!" desc
+
+: catlady
+	11 stpick if cheevochar pass;
+	fail
+; "CAT FANCY: Beat game with Cat Lady!" desc
+
+: debutante
+	12 stpick if cheevochar pass;
+	fail
+; "ZOMBIE FASHION: Win with Debutante!" desc
+
+: sumo
+	6 stpick if cheevochar pass;
+	fail
+; "SUMO SOLUTION: Win with sumo wrestler!" desc
+
+: fairy
+	13 stpick if cheevochar pass;
+	fail
+; "FAE FOLK: Win with Fairy Queen!" desc
+
+: rollerderby
+	14 stpick if cheevochar pass;
+	fail
+; "DERBY CHAMP: Win with Roller Derby Woman!" desc
+
+: hermit
+	2 stpick if cheevochar pass;
+	fail
+; "GRIZZLED HERMIT: Beat game with Hermit!" desc
+
+: kepa? args( chara ) <- chara .trait@ "IS KEPA" $= ;
+
+// Make this show Kepa head? Wasn't successful in this
+: kepa
+    team-stack ' kepa? stack-filter nip 0 > if pass;
+	fail
+; "DON'T LET ME DIE: Beat Kepa Mode with Kepa!" desc
+
+: caaarl? args( chara )	<- chara .trait@ "CARL!" $= ;
+: caaarl
+    team-stack ' caaarl? stack-filter nip 0 > if pass;
+	fail
+; "CAAAAAARL!: Carl! Caaaaarl!" desc
+
+// DUODENUM
+: americaday
+	104 stpick if cheevochar pass;
+	105 stpick if cheevochar pass;
+	fail
+; "AMERICA DAY: Beat game America style!" desc
+
+: canadaday
+	77 stpick if cheevochar pass;
+	fail
+; "CANADA DAY: Beat game with beaver!" desc
+
+: piratecap
+	108 stpick if cheevochar pass;
+	fail
+; "CANNONBALL: Beat game with pirate!" desc
+
+: caveman
+	102 stpick if cheevochar pass;
+	fail
+; "CAVEMAN CRUSH: Beat game with caveman!" desc
+
+: renbard
+	88 stpick if cheevochar pass;
+	fail
+; "SONG OF ZOMBO: Beat game with bard!" desc
+
+: madsci
+	10 stpick if cheevochar pass;
+	fail
+; "SCIENTIFIC: Beat game with scientist!" desc
+
+// CONDITIONAL WINS
+
+: skeleton? args( chara )
+	<- chara .specialtype@ 78 =
+	<- chara .specialhead@ 78 = or 
+	<- chara .specialbody@ 78 = or
+;
+: skeletoncheck team-stack ' skeleton? stack-filter nip ;
+
+: skeletons
+	skeletoncheck 0 > if pass;
+	fail
+; "I HATE SKELETONS: Win with a skeleton!" desc
+
+: berserk? args( chara ) <- chara .trait@ "BERSERK!" $= ;
+: berserker
+	team-stack ' berserk? stack-filter nip 0 > if pass;
+	fail
+; "BERSERKER: Won with BERSERK! character" desc
+
+: fullteam
+	team-count-alive 4 = if pass;
+	fail
+; "NO JERK LEFT BEHIND: Won with a full team!" desc
+
+: dogsquad
+	numdogs 4 = if pass;
+	fail
+; "DOG SQUAD: Won with a car full of dogs!" desc
+
+: catattack
+	numcats 0 > if pass;
+	fail
+; "CAT ATTACK: Won the game with a cat!" desc
+
+: goatwin
+	team-stack ' goat? stack-filter nip 0 > if pass;
+	fail
+; "GOATAL VICTORY: Won with a goat!" desc
+
+: pigwin
+	team-stack ' pig? stack-filter nip 0 > if pass;
+	fail
+; "SOME PIG: Won with a pig!" desc
+
+: allsolo
+	game-recruits-count 2 < if pass;
+	fail
+; "THE LONELIEST ROAD: Pure solo victory!" desc
+
+: nodeaths
+	dead-this-game 1 < if pass;
+	fail
+; "NO ONE LEFT BEHIND: Win with no ally deaths!" desc
+
+// MODE WINS
+
+: wins-normal
+	gstats{ wins-normal } 0 > if pass;
+	fail
+; "FIRST TRIP TO CANADA: Won Normal Mode!" desc
+
+: wins-long
+	gstats{ wins-long } 0 > if pass;
+	fail
+; "ARE WE THERE YET: Beat Long Winding Road!" desc
+
+: wins-special
+	gstats{ wins-special } 0 > if pass;
+	fail
+; "BUNCHA WEIRDOS: Beat Rare Characters Mode!" desc
+
+: wins-family
+	gstats{ wins-family } 0 > if pass;
+	fail
+; "HELP FROM MY PALS: Beat Familiar Chars Mode!" desc
+
+: wins-specialEX
+	gstats{ wins-specialEX } 0 > if pass;
+	fail
+; "EXTREME WEIRDOS: Beat Rare Chars EXTREME!" desc
+
+: wins-familyEX
+	gstats{ wins-familyEX } 0 > if pass;
+	fail
+; "BONDS OF STEEL: Beat Familiar Chars EXTREME!" desc
+
+: wins-kepa
+	gstats{ wins-kepa } 0 > if pass;
+	fail
+; "THE KEPANING: Beat K*E*P*A Mode!" desc
+
+: wins-short
+	gstats{ wins-short } 0 > if pass;
+	fail
+; "LITTLE VACATION: Beat Short Trip to Heck!" desc
+
+: wins-marathon 
+	gstats{ wins-marathon } 0 > if pass;
+	fail
+; "GRUELING VICTORY: Beat Marathon Mode!" desc
+
+: wins-deadlier
+	gstats{ wins-deadlier } 0 > if pass;
+	fail
+; "COULD BE WORSE: Beat Deadlier Road!" desc
+
+: wins-all10
+	gstats{ wins-normal } 1 < if fail;
+	gstats{ wins-long } 1 < if fail;
+	gstats{ wins-special } 1 < if fail;
+	gstats{ wins-family } 1 < if fail;
+	gstats{ wins-specialEX } 1 < if fail;
+	gstats{ wins-familyEX } 1 < if fail;
+	gstats{ wins-kepa } 1 < if fail;
+	gstats{ wins-short } 1 < if fail;
+	gstats{ wins-marathon } 1 < if fail;
+	gstats{ wins-deadlier } 1 < if fail;
+	pass
+; "MODE MASTER: Won first 10 game modes!" desc
+
+// SPECIAL EVENTS
+
+: alvis-leftbuilding
+	0 if fail;
+	pass
+; "HAS LEFT THE BUILDING: Goodbye, Alvis" desc
+
+: cooling-it
+	0 if fail;
+	pass
+; "COOLING IT: I can't believe that worked" desc	
+
+: anime-boom
+	0 if fail;
+	pass
+; "ANIME SYNDROME: Anime Girl anime'd the car" desc
+
+: knight-leave
+	0 if fail;
+	pass
+; "GALLANT KNIGHT: Knight left group alive" desc
+
+: clown-swarm
+	0 if fail;
+	pass
+; "DAY OF THE CIRCUS: ????" desc
+
+: pm-killer
+	0 if fail;
+	pass
+; "NICE ONE HOSER: Killed your chance of victory" desc
+
+: ramcrossing
+	0 if fail;
+	pass
+; "RAMMING SPEED: Crash car in final map" desc
+
+: freechicken
+	0 if fail;
+	pass
+; "FREE CHICKEN: Rescued a chicken" desc
+
+: ghostfound
+	0 if fail;
+	pass
+; "PARANORMAL: Found a spooky ghost" desc
+
+// GSTAT ANTICS
+
+: zomb100k
+	gstats{ total-kills } 99999 > if pass;
+	fail
+; "ZOMBILLION: Splatted 100,000 zombs!" desc
+
+: medtotal
+	gstats{ total-med+ } 49 > if pass;
+	fail
+; "HUMAN REPAIR: Trained medical 50 times" desc
+
+: mechtotal
+	gstats{ total-mech+ } 49 > if pass;
+	fail
+; "CAR REPAIR: Trained mechanical 50 times" desc
+
+: shoottotal
+	gstats{ total-shoot+ } 74 > if pass;
+	fail
+; "TARGET PRACTICE: Trained shooting 75 times" desc
+
+: fittotal
+	gstats{ total-fit+ } 74 > if pass;
+	fail
+; "GETTING IN SHAPE: Trained fitness 75 times " desc
+
+: strtotal
+	gstats{ total-str+ } 99 > if pass;
+	fail
+; "GOTTA GET HUGE: Trained strength 100 times " desc
+
+: healtotal
+	gstats{ total-heal } 74 > if pass;
+	fail
+; "PATCH ME UP: Healed teammates 75 times" desc
+
+: toilettotal
+	gstats{ toilets-opened } toilets-opened-check > if pass;
+	fail
+; "Magical Wishing Toilet: Opened 100 toilets" desc
+
+// Streaks
+
+: streak5
+	gstats{ wins-streak } 4 > if pass;
+	fail
+; "Five Game Streak: 5 wins in a row!" desc
+
+: streakall
+	gstats{ wins-normal-streak } 1 < if fail;
+	gstats{ wins-long-streak } 1 < if fail;
+	gstats{ wins-special-streak } 1 < if fail;
+	gstats{ wins-family-streak } 1 < if fail;
+	gstats{ wins-specialEX-streak } 1 < if fail;
+	gstats{ wins-familyEX-streak } 1 < if fail;
+	gstats{ wins-kepa-streak } 1 < if fail;
+	gstats{ wins-short-streak } 1 < if fail;
+	gstats{ wins-marathon-streak } 1 < if fail;
+	gstats{ wins-deadlier-streak } 1 < if fail;
+	pass
+; "Omega Streak: Streaked first 10 modes!" desc
+
+}
+
+// Call example
+(*
+
+cheevo: test-cheev
+
+thechar cheevochar cheevo: test-cheev2
+
+*)
+
+: cheevcheck-end
+	// special characters
+	cheevo: TLB
+	cheevo: fencer
+	cheevo: mason
+	cheevo: santa
+	cheevo: alvis
+	cheevo: elsatan
+	cheevo: boxer
+	cheevo: clown
+	cheevo: valkyrie
+	cheevo: turkey
+	cheevo: horse
+	cheevo: gnomey
+	cheevo: panda
+	cheevo: gordo
+	cheevo: witch
+	cheevo: wizard
+	cheevo: vampire
+	cheevo: garf
+	cheevo: lnk
+	cheevo: catlady
+	cheevo: debutante
+	cheevo: sumo
+	cheevo: fairy
+	cheevo: rollerderby
+	cheevo: hermit
+	cheevo: caaarl
+	cheevo: americaday
+	cheevo: canadaday
+	cheevo: piratecap
+	cheevo: caveman
+	cheevo: renbard
+	cheevo: madsci	
+	// conditional wins
+	cheevo: skeletons
+	cheevo: berserker
+	cheevo: fullteam
+	cheevo: dogsquad
+	cheevo: catattack
+	cheevo: goatwin
+	cheevo: pigwin
+	cheevo: allsolo
+	cheevo: nodeaths
+;
+
+: cheevcheck-mode
+	cheevo: wins-normal
+	cheevo: wins-long
+	cheevo: wins-special
+	cheevo: wins-family
+	cheevo: wins-specialEX
+	cheevo: wins-familyEX
+	cheevo: wins-kepa
+	cheevo: wins-short
+	cheevo: wins-marathon 
+	cheevo: wins-deadlier
+	cheevo: wins-all10
+	cheevo: streak5
+	cheevo: streakall
+;
+
+: cheevcheck-stat
+	cheevo: medtotal
+	cheevo: mechtotal
+	cheevo: shoottotal
+	cheevo: fittotal
+	cheevo: strtotal
+;
+
+' cheevcheck-stat to stat-cheevs
+
+: healcheck-stat
+	cheevo: healtotal
+;
+
+' healcheck-stat to stat-heal
+
+: toiletcheck-stat
+	cheevo: toilettotal
+;
+
+' toiletcheck-stat to stat-toilet
+
+: cooling-it-check
+	cheevo: cooling-it
+;
+
+' cooling-it-check to cooling-it-cheevo
+
+: cheevo-freechicken cheevo: freechicken ;
+' cheevo-freechicken to freechicken-cheevo
+
+cheevo{ load }

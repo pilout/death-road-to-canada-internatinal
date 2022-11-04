@@ -1,0 +1,115 @@
+uses base.df
+
+(*
+	FILESAVE TODO:
+
+	+ discover "path" to deathforth words
+	- decompile a stack using the above
+		- detect stack value types ( FWORD or other )
+	- generate code to set C-side values via "C API" words
+	- hex blob read/write
+
+	- <'stackvalue> savestack
+	- <'value> saveval
+	- "property" saveprop
+*)
+
+voc{ filesave
+
+: tickpath "" 0 args( t path nest )
+	<- t begin dup >voc >type FS_NIL <> while
+		dup >voc >name " " $cat <- path $cat ( PRINTSTACK ) -> path
+		<- nest 1+ -> nest
+		>voc
+	repeat drop
+	<- path "' " $cat <- t >name $cat
+	<- nest for " }" $cat next
+;
+
+: val$ dup >type FS_WORDREF = if tickpath then;
+	dup >type FS_STRING = if "quoted then;
+	dup >type FS_INT = if then;
+	dup >type FS_FLOAT = if then;
+	($ "ILLEGAL save-val type of " .. over $typeof .. " (" .. over >type .. ")" $) $abort
+;
+
+// "" value savestr
+
+: <s shove ;
+
+// : $sprint savestr swap $cat cr$ $cat to savestr ;
+// : $stype savestr swap $cat to savestr ;
+// : scr savestr cr$ $cat to savestr ;
+
+// Using internal string buffer
+: $sprint cr$ $cat $strbuf-cat ;
+: $stype $strbuf-cat ;
+: scr cr$ $strbuf-cat ;
+
+: sstack "0 stack" $sprint depths
+	for 0 i - picks
+		val$ $stype " <s" $sprint
+	next drop
+;
+
+: sspace " " $stype ;
+
+// }
+
+// : savestart filesave{ "" to savestr } ;
+// : saveend ; // TODO: Write to file
+
+"dummy" value SAVENAME
+
+: savestart strbuf-clear ;
+: $savestart to SAVENAME strbuf-clear ;
+
+: saveend ;
+
+// TODO:
+// : saveend SAVENAME $strbuf-write "dummy" to SAVENAME ;
+
+: savestack_ dup >body sstack val$ $stype " <to" $sprint ;
+
+: saveval dup >body @ >type FS_STACK = if savestack_ then;
+	dup >body @ val$ $stype sspace val$ $stype " <to" $sprint
+;
+
+: saveprop args( prop )
+	<- prop "@" $cat evaluate val$ $stype sspace
+	<- prop "!" $cat $sprint
+;
+
+: savecmd args( pstr ) val$ $stype sspace <- pstr $sprint ;
+
+: svoc_
+	"" voc.depth for
+		i 1- voc.pick >name $cat " " $cat
+	next
+	cr$ $cat
+;
+
+: _svoc
+	"" voc.depth for " }" $cat next
+	cr$ $cat
+;
+
+: svoc( svoc_ compile? if postpone literal postpone $stype then; $stype ; immediate
+: )svoc _svoc compile? if postpone literal postpone $stype then; $stype ; immediate
+
+: $load-savefile $sread if postpone filesave{ evaluate postpone } then ;
+
+}
+
+// TODO: Switch to this
+// : $save-start filesave{ $savestart } ;
+: save-start filesave{ savestart } ;
+: save-end filesave{ saveend } ;
+: save-val filesave{ saveval } ;
+: save-prop filesave{ saveprop } ;
+: save-cmd filesave{ savecmd } ;
+: save-voc( filesave{ postpone svoc( } ; immediate
+: )save-voc filesave{ postpone )svoc } ; immediate
+: save-prop: token postpone literal postpone save-prop ; immediate
+
+// : save-game MAIN_EVENT_DO_SAVE main-post-event ;

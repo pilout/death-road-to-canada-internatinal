@@ -1,0 +1,533 @@
+(*
+	TODO: WORK IN PROGRESS! Don't go nuts using all of these make-a-* things everywhere yet
+	- chainlink fence lot divisions
+	
+*)
+
+map{ regiondef{
+
+0
+	enum LOT_DEFAULT
+	enum LOT_GRASS
+	enum LOT_CONCRETE
+	enum LOT_PAVEMENT
+	enum LOT_GRAVEL
+	1- enum LOT_COVER
+	enum LOT_DIRT
+drop
+
+	// TODO: constrain construction to inside of this box
+	0 value tb.x
+	0 value tb.y
+	w 1- value tb.x2
+	h 1- value tb.y2
+
+	: tb.w tb.x2 tb.x - 1+ ;
+	: tb.h tb.y2 tb.y - 1+ ;
+	: tb.midx tb.x tb.x2 + 1 >> ;
+	: tx.midy tb.y tb.y2 + 1 >> ;
+
+	0 value blocky
+	0 value blockx2-temp
+	0 value blockx1-temp
+	0 value blockx2
+	0 value blockx1
+	5 value blockh
+	1 value maxrows
+	0 value blockrow
+	0 value lotcount
+	0 value lotmax
+	3 value lotsperblock
+	5 value streeth
+	5 value streetw
+	0 value yoff
+	0 value lastlot
+	0 value curlot
+	0 value boxx
+	0 value boxy
+	0 value boxx2
+	0 value boxy2
+	0 value emptylotw
+	0 value greenspace // TODO: Don't use
+	0 value greenspace%
+	0 value treemax
+	0 value lastbuild
+	1 value grassylots
+	0 value grassylot%
+
+	: try-special-build
+		special-lot-build not if false then;		// No build is set
+		special-lot curbuild <> if false then; 	// Is it the desired lot?
+
+		special-lot-tags $picklocid addloc
+		special-lot-build execute
+
+		true
+	;
+
+	// EXAMPLES: Probably don't use these, copy and tweak for your own purposes in your region layout code
+	: make-a-cabin ( locationid ) prefab{ 5 cabin } ; // 5 width
+	: make-yallmart ( locationid ) w 2 / 15 - h 2 - anchor! prefab{ 6 5 yallmart } ;
+	: make-gable-house ( locationid ) prefab{ mrand 7 house2 } ;
+	: make-2storey-house ( locationid ) prefab{ mrand 6 house3 } ;
+	: make-bungalow ( locationid ) prefab{ mrand 6 house1 } ;
+	: make-generic-building ( locationid ) prefab{ mrand 5 8 rnd 0 building } ;
+
+	: make-gym
+		"blah" $picklocid addloc
+		"MUSCLE! BOMB!! GYM!!" sign-text!
+		0.5 0.5 0.5 sign-border!
+		0.1 0.1 0.1 sign-bg!
+		1 0.5 0.5 sign-fg!
+		prefab{ mrand 8 0 building2 }
+	;
+
+	: make-carolina-building
+		prefab{ mrand 7 0 rnd5050 if cbuilding else cbuilding2 then }
+	;
+
+	: make-florida-building
+		( locationid )
+		1 1 0.5 sign-fg!
+		0 0.5 1 sign-bg!
+		1 1 1 sign-border!
+		prefab{ mrand 5 7 rnd 0 rnd5050 if fbuilding else fbuilding2 then }
+	;
+
+	: make-pub
+		( locationid )
+		"MOE'S PUB" sign-text!
+		prefab{ 2 3 rnd 9 0 shop }
+	;
+
+	: make-diner
+		( locationid )
+		"JOE'S DINER" sign-text!
+		1 1 1 sign-fg!
+		0.5 0.125 0.35 sign-bg!
+		0.25 0.125 0.15 sign-border!
+		prefab{ 1 9 2 shop }
+	;
+
+	: make-hs
+		( locationid )
+		"BUTTBURG HIGH" sign-text!
+		prefab{ 0 9 0 shop }
+	;
+
+	: make-pd
+		( locationid )
+		0x 12 $chr " FRICKTON P.D." .. sign-text!
+		1 1 1 sign-fg!
+		0.25 0.25 0.75 sign-bg!
+		1 1 1 sign-border!
+		w 2 / 3 - h 2 - anchor!
+		prefab{ 2 4 rnd 9 2 shop }
+	;
+
+	(* TODO:
+		- plot misc buildings in rows
+		- determine required lot sizes for multiple buildings
+
+		- row/column start
+			- total up w run of buildings
+			- plot containing grass/concrete lot underneath
+	*)
+
+	: blocks-start
+		lotsperblock maxrows * to lotmax
+		blockx2 blocky blockh 1- + tanchor!
+	;
+
+	: rnd-block-start
+		lotcount if
+			-1 -3 rnd to blockx1
+		else
+			0 3 rnd to blockx1
+		then
+		blockx1 1+ to blockx2
+		blockx2 0 < if 0 to blockx2 then
+
+		blocks-start
+	;
+
+	: blocks-init
+		0 to blocky
+		0 to blockrow
+		5 to streetw
+		5 to streeth
+		5 to blockh
+		1 to maxrows
+		0 to yoff
+		3 to lotsperblock
+		0 to emptylotw
+		0 lotsperblock 1- rnd to lotcount
+		0 to lastlot
+		0 to lastbuild
+		0 to greenspace%
+		0 to treemax
+		1 to grassylots
+		0 to curlot
+
+		rnd-block-start
+	;
+
+	: rowsleft maxrows blockrow - ;
+
+	: greenspace? greenspace% %chance ;
+	: block-growx ' blockx2 +! blockx2 tanchorx! ;
+	: block-end? lotcount lotsperblock >= ;
+	: plots-left lotsperblock lotcount - ;
+	: next-block? lotcount lotsperblock 1- >= ;
+
+	: last-build-growx last-build-size drop block-growx ;
+
+	: next-lot ' lotcount ++ emptylotw if
+			emptylotw block-growx 0 to emptylotw
+		else
+			last-build-growx
+		then
+
+		' curlot ++
+	;
+
+	// TODO: Different lot ground options
+	: plotblock baselot-empty ;
+
+	: plot-block blockx1 blocky blockx2 blocky blockh + plotblock ;
+
+	: setup-next-block
+		0 to lotcount
+		// Set up position of next block
+		blockx2 streetw + to blockx1
+		blockx1 1+ to blockx2
+		blockx2 tanchorx!
+	;
+
+	: next-block
+		lotsperblock to lotcount next-lot
+		plot-block setup-next-block
+		0 to lastlot
+		0 to lastbuild
+	;
+
+	: next-row
+		blocky blockh + streeth + to blocky
+		0 lotsperblock 2 - rnd to lotcount
+		0 to lastlot
+		0 to lastbuild
+
+		rnd-block-start
+
+		blockx2 blocky blockh + 1- tanchor!
+		' blockrow ++
+	;
+
+	: vshift dup to yoff tanchory + tanchory! ;
+
+	: next-plot
+		yoff neg vshift 0 to yoff
+
+		next-block? if next-block else next-lot then
+
+		// check if off edge of map
+		blockx2 w 4 - >= if next-block next-row then
+
+		0 to emptylotw
+	;
+
+	: block-start? blockx2 blockx1 - 1 = ;
+
+	: end-plots blockrow maxrows < if plot-block then ;
+
+	: drawrnd rndpicks execute ;
+
+	: plotwalk tile@ dup 0= if drop then;
+		tile_clear_all_offsets LAYER_FLOORTOP street_tiles_base_id 0x 80 + .lspriteid! ;
+
+	0 value wlayer
+	0 value wspriteid
+	0 value woffx
+	0 value woffy
+
+	: plotwall tile@ dup 0= if drop then;
+		dup wlayer woffx woffy .tile_layer.off!
+		TILE_BLOCK over .id!
+		wlayer wspriteid .lspriteid! ;
+
+	: plotdivcurb tile@ dup 0= if drop then;
+		tile_clear_all_offsets LAYER_FLOORTOP street_tiles_base_id 0x 2d + .lspriteid! ;
+
+	: plotw emptylotw if emptylotw else last-build-size drop then ;
+	: lot-lcorner tanchorx tanchory yoff - 1+ ;
+	: lot-bounds lot-lcorner blockh - tanchorx plotw + 1- tanchory yoff - 1+ ;
+	: lot-boundsw lot-lcorner swap 1- swap blockh - tanchorx plotw + tanchory yoff - 1+ ;
+	: lot-start-pos lot-bounds 2drop ;
+	: lot-end-pos lot-bounds rot drop rot drop ;
+	: lot-bounds-tight lot-start-pos swap 1+ swap lot-end-pos swap 1- swap ;
+
+	: walkway last-build-doorxy 2dup or 0= if 2drop then;
+		2dup drop blockh blocky + 1- ' plotwalk boxcall ;
+
+	: divcurb lot-bounds nip swap 1+ swap 1- 2 pick swap ' plotdivcurb boxcall ;
+
+	: store-bounds lot-bounds to boxy2 to boxx2 to boxy to boxx ;
+	: get-bounds boxx boxy boxx2 boxy2 ;
+	: new-lot to emptylotw ;
+
+	: backjoin lot-start-pos swap 1- swap over lot-end-pos nip clean-floorbox ;
+	: backdefer lot-start-pos swap 1- swap over lot-end-pos nip clean-floorbox ;
+	: backclear lot-start-pos over lot-end-pos nip clean-floorbox ;
+
+	: grasslot2 grasslot ;
+
+	: lot-bounds-1 lot-start-pos 1 1 xyadd lot-end-pos -1 -1 xyadd ;
+
+	: flippydo lot-bounds flipfloor ;
+	: noflippydo lot-bounds noflipfloor ;
+	: flippydo-edged lot-bounds-1 flipfloor ;
+
+	: grass-lot lot-bounds ( 4dup clean-floorbox ) LAYER_FLOORTOP max-layer! grasslot flippydo-edged
+		lastlot LOT_GRASS = if backjoin then
+		LOT_GRASS to lastlot
+	;
+
+	: grass-lotw lot-boundsw 4dup clean-floorbox LAYER_WALLSIDE max-layer! grasslot flippydo-edged
+		lastlot LOT_GRASS = if backjoin then
+		LOT_GRASS to lastlot
+	;
+
+	: concrete-lot lot-bounds ( 4dup clean-floorbox ) LAYER_FLOORTOP max-layer! conclot LOT_CONCRETE to lastlot ;
+	: concrete-lotw lot-boundsw ( 4dup clean-floorbox ) LAYER_FLOORTOP max-layer! conclot
+		lastlot LOT_CONCRETE = if backjoin then
+		lastlot LOT_CONCRETE < if backdefer else backclear then
+		LOT_CONCRETE to lastlot
+	;
+
+	: shortenh 1- rot 1+ -rot ;
+
+	: paved-boxw lot-boundsw pavebox LOT_PAVEMENT to lastlot ;
+
+	: paved-lot lot-bounds ( 4dup clean-floorbox ) LAYER_FLOORTOP max-layer! pavedlot flippydo-edged
+		lastlot LOT_PAVEMENT = if backjoin then
+		lastlot LOT_PAVEMENT < if backdefer then
+		LOT_PAVEMENT to lastlot
+	;
+
+	: paved-lotw lot-boundsw ( 4dup clean-floorbox ) LAYER_FLOORTOP max-layer! pavedlot flippydo-edged
+		lastlot LOT_PAVEMENT = if backjoin then
+		lastlot LOT_PAVEMENT < if backdefer else backclear then
+		LOT_PAVEMENT to lastlot
+	;
+
+	: gravel-lot lot-bounds gravelbox LOT_GRAVEL to lastlot flippydo-edged ;
+
+	: gravel-lotw lot-boundsw LAYER_FLOORTOP max-layer! gravellot flippydo-edged
+		lastlot LOT_GRAVEL = if backjoin then
+		lastlot LOT_GRAVEL < if backdefer else backclear then
+		LOT_GRAVEL to lastlot
+	;
+
+	: dirt-lot lot-bounds LAYER_FLOORTOP max-layer! dirtbox flippydo-edged
+		lastlot LOT_DIRT < if backdefer else backclear then
+		LOT_DIRT to lastlot
+ 	;
+
+	: dirt-lotw lot-boundsw LAYER_FLOORTOP max-layer! dirtbox flippydo-edged
+		lastlot LOT_DIRT < if backdefer else backclear then
+		LOT_DIRT to lastlot
+ 	;
+
+	: lot-back-bounds lot-start-pos lot-end-pos blockh - 1 + ;
+	: lot-back-bounds+ args( val ) lot-start-pos swap <- val - swap lot-end-pos swap <- val + swap blockh - 1 + ;
+
+	: blocked tile@ TILE_BLOCK over .id! drop ;
+
+	: fenceup2 args( x y s )
+		2 for
+			<- x <- y tile@ if
+				<- x <- y <- s i 1- 0x 10 * + wallside
+				<- x <- y tile@ LAYER_WALLSIDE 0 0 .tile_layer.off!
+				<- x <- y tile@ LAYER_WALLSIDE 0 .tile_layer.flipx!
+				<- x <- y blocked
+				<- y 1- -> y
+			then
+		next
+	;
+
+	: lot-empty-cracked lot-bounds emptylot noflippydo ;
+
+	: back-ok-here? lot-start-pos nip 3 > ;
+
+	: lot-back-fence back-ok-here? not if then; lot-back-bounds emptylot ;
+	: lot-back-fence+ back-ok-here? not if then; lot-back-bounds+ emptylot ;
+
+	: fence-loop2 args( x1 y1 x2 y2 s )
+		<- x2 <- x1 - 1+ for
+			<- x1 i 1- + <- y2 <- s <- x1 i + 1 & not + fenceup2
+		next
+	;
+
+	: fence-loop args( x1 y1 x2 y2 s )
+		<- x2 <- x1 - 1+ for
+			<- x1 i 1- + <- y2 <- s fenceup2
+		next
+	;
+
+	: wreck-loop args( x1 y1 x2 y2 )
+		<- x2 <- x1 - 1+ for
+			<- x1 i 1- + <- y2 tile@ tbwreck
+		next
+	;
+
+	: box-midy args( x1 y1 x2 y2 )
+		<- y2 <- y1 - 2 / <- y1 + -> y2
+		<- x1 <- y1 <- x2 <- y2
+	;
+
+	: lot-back-chain+ lot-back-bounds+ 1+ 0x b1 fence-loop2 ;
+	: fencex-chain 0x b1 fence-loop2 ;
+	: fencex-corr 3 fence-loop ;
+	: fencex-cind 0x be fence-loop ;
+	: fencex-conc 4 fence-loop ;
+	: fencex-wreck wreck-loop ;
+
+	: lot-back-corr+ lot-back-bounds+ 1+ 3 fence-loop ;
+	: lot-back-cind+ lot-back-bounds+ 1+ 0x be fence-loop ;
+	: lot-back-conc+ lot-back-bounds+ 1+ 4 fence-loop ;
+	: lot-back-wreck lot-back-bounds wreck-loop ;
+
+	: lot-mid-cust+y >r >r lot-back-bounds+ blockh 2 / + r> + r> fence-loop ;
+	: lot-mid-chain+y >r lot-back-bounds+ blockh 2 / + r> + 0x b1 fence-loop2 ;
+
+	: lot-mid-corr+y 3 lot-mid-cust+y ;
+	: lot-mid-corr+y 3 lot-mid-cust+y ;
+	: lot-mid-conc+y 4 lot-mid-cust+y ;
+	: lot-mid-cind+y 0x be lot-mid-cust+y ;
+
+	: add-a-path 2 new-lot ' lotcount -- ;
+	: add-a-path+ 1 + new-lot ' lotcount -- ;
+	: not-a-plot ' lotcount -- ;
+
+//	: conc-alleyway-plot add-a-path+ concrete-lotw rnd5050 if 1 lot-back-fence+ then next-plot ;
+//	: paved-alleyway-plot add-a-path+ paved-lot rnd5050 if 1 lot-back-fence+ then next-plot ;
+
+(*
+	: conc-alleyway-plot add-a-path+ concrete-lotw rnd5050 if 1 -1 lot-mid-conc+y then next-plot ;
+	: grass-alleyway-plot add-a-path+ grass-lotw rnd5050 if 1 -1 lot-mid-chain+y then next-plot ;
+	: paved-alleyway-plot add-a-path+ paved-lotw rnd5050 if 1 -1 lot-mid-cind+y then next-plot ;
+	: dirt-alleyway-plot add-a-path+ dirt-lotw rnd5050 if 1 -1 lot-mid-corr+y then next-plot ;
+	: gravel-alleyway-plot add-a-path+ gravel-lotw rnd5050 if 1 -1 lot-mid-corr+y then next-plot ;
+*)
+
+	: conc-alleyway-plot add-a-path+ concrete-lotw ;
+	: grass-alleyway-plot add-a-path+ grass-lotw ;
+	: paved-alleyway-plot add-a-path+ paved-lotw ;
+	: dirt-alleyway-plot add-a-path+ dirt-lotw ;
+	: gravel-alleyway-plot add-a-path+ gravel-lotw ;
+
+	: plot-a-tree-here
+		anchorx 0 emptylotw 2 - rnd 16 * -4 4 rnd + +
+		anchory 1 blockh 2 - rnd 16 * -4 0 rnd + -
+		pine lt .pos!
+	;
+
+	: grassylot-plot 3 10 rnd new-lot grass-lotw rnd5050 1 or if
+			0 treemax rnd for plot-a-tree-here next
+		then
+		rnd5050 if lot-back-fence then next-plot
+	;
+
+	: block-middle? block-end? block-start? or 0= ;
+
+	: try-grassy-lot
+		grassylots 0= if 0 then;
+		grassylot% %chance 0= if 0 then;
+		' grassylots --
+		grassylot-plot
+		1
+	;
+
+	: non-edge-plot? tanchorx 2 > tanchorx w 2 - < and ;
+	: canplot? blockrow maxrows < ;
+
+	: try-add-alley lotcount plots-left 1 > and if next-plot canplot? if add-a-path then then ;
+
+	// MAP LAYOUT PLOTTER
+	0 value xyp.i
+	0 value xyp.l
+	0 value xyp.t
+	0 value xyp.x
+	0 value xyp.y
+
+	: xyp.xy xyp.x xyp.y ;
+
+	: plotsetxy
+		to xyp.y xyp.y to xyp.t
+		to xyp.x xyp.x to xyp.l
+	;
+
+0 value do-cr
+0 value cr-size
+
+	: xyp over $len ( l t ) 0 args( str w len do-cr )
+		plotsetxy
+		0 to xyp.i
+
+		depth >r
+
+		<- len for
+			<- str <- len i - $asc
+
+			case
+				// Next line
+				LF of
+					<- do-cr 0= if xyp.l to xyp.x ' xyp.y ++ 1 -> do-cr then
+				endof
+				CR of
+					<- do-cr 0= if xyp.l to xyp.x ' xyp.y ++ 1 -> do-cr then
+				endof
+
+				TAB of endof // Ignore
+
+				dup otherwise to xyp.i
+					0 -> do-cr
+					xyp.x xyp.y tile@ if <- w execute then
+					' xyp.x ++
+			endcase
+
+			depth 1 rpick - dup if "PLOT STACK DIRTY " type PRINTSTACK then remove
+		next
+		r> drop
+	;
+
+	: xyplot: postpone ' postpone xyp ; immediate
+
+	: layoutw $$len 0 0 args( str len w x ) 0 to cr-size
+		<- len for
+			<- str <- len i - $asc
+			LF = if
+				<- w <- x max -> w
+				0 -> x
+			else
+				<- x 1+ -> x
+			then
+		next
+
+		<- w
+
+		<- str 0x d $chr $strstr $len if ' cr-size ++ then
+		<- str 0x a $chr $strstr $len if ' cr-size ++ then
+
+		cr-size 1- -
+	;
+
+	: layouth $$len 1 args( str len h )
+		<- len for
+			<- str <- len i - $asc LF = if	<- h 1+ -> h then
+		next
+
+		<- h 1-
+	;
+
+} }

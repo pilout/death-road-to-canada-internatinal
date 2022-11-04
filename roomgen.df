@@ -1,0 +1,100 @@
+uses base.df
+
+// TODO: UGH
+
+namespace roomgen
+
+EDGE_TOP constant n
+EDGE_RIGHT constant e
+EDGE_LEFT constant w
+EDGE_BOTTOM constant s
+
+EDGE_TOP constant up
+EDGE_BOTTOM constant down
+EDGE_LEFT constant left
+EDGE_RIGHT constant right
+
+roomgen{
+
+0 value anchors
+0 value anchor
+0 value chosen
+0 value seed
+
+// Deferred words for changing directional room anchor scripts
+defer later-n
+defer later-s
+defer later-e
+defer later-w
+
+: start
+	// "ROOMGEN START" print
+	// Reset all of the variables we use
+	0 to anchors
+	0 to anchor
+	0 to chosen
+	mrand to seed
+
+	depth 1 >
+	if
+		"WARNING, stack is " type .s " BEFORE roomgen: " type tags type ", mapid #" type mapid print
+		depth remove
+		6 1000 debug-tone
+	then
+;
+
+: end
+	// "ROOMGEN END" print
+	// check-stack-empty
+	depth 1 >
+	if
+		"WARNING, stack is " type .s " AFTER roomgen: " type tags type ", mapid #" type mapid print
+		depth remove
+		4 1000 debug-tone
+	then
+
+	' noop to later-n
+	' noop to later-s
+	' noop to later-e
+	' noop to later-w
+;
+
+: rand-anchor 1 anchors rnd to chosen ;
+
+: only-chosen;
+
+	// Pick a random anchor if not done already
+	chosen 0= if rand-anchor then
+
+	// Compare current anchor to one chosen, exit calling word if no
+	// match
+	anchor 1+ chosen <> if r> drop exit then
+;
+
+}
+
+// Convenience words for room scripts
+
+// If pick fails, will will default to pool room or random box 
+: with-door
+	DEBUG if "WITH DOOR " type dup print then
+	pick-room last-link! ;
+
+// Will only construct a door if room type is matched
+: only-with-door
+	dup last-edge peek-room 0= if revert-door drop then;
+	with-door
+;
+
+: random-door 1 random-doors ;
+
+// Don't access null tiles
+: .set-state map{ dup if .state! else 2drop then } ;
+
+: extra-room rooms-created rooms-max max 1+ rooms-max! ;
+: broken-doorxy map{ tile@ -1 swap .set-state } ;
+: open-doorxy map{ tile@ 0 swap .set-state } ;
+: close-doorxy map{ tile@ 1 swap .set-state } ;
+: close-last-door last-linkxy close-doorxy ;
+: open-last-door last-linkxy open-doorxy ;
+: broken-last-door last-linkxy broken-doorxy ;

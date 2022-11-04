@@ -1,0 +1,84 @@
+"../deathforth/rooms/bigstore.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/exterior/yall-maker.df" $load
+
+location
+		tags: yallmart
+		max-rooms: 4
+		entry-tags: yallmart
+		
+		script: yall-theme 
+
+		post-script: 10diff %zombs 0 2 rnd for skelscat next
+		
+	: hardloot
+		0 2 rnd for skelscat next
+		2 for 
+		1 6 rnd case
+			1 of wrench .scatter endof
+			2 of 90 %chance if sledge else megamaul then .scatter endof
+			3 of screwdriver .scatter endof
+			4 of clawhammer .scatter endof
+			5 of 90 %chance if ballpeen else blackhammer then .scatter endof
+			6 of 50 %chance if mallet else woodsaw then .scatter endof
+		endcase 
+		next
+		3 6 rnd for 2x4 .scatter next
+		50 %chance if nail .scatter then
+		20 %chance if 
+			50 %chance if pickaxe else pitchfork then 
+		.scatter then
+		30 %chance if metal .scatter then
+		30 %chance if 20 30 rnd sgas then 
+		20 30 rnd sgas
+		30 %chance if crowbar .scatter then
+		5 %chance if blowtorch scatter then
+		20 %chance if branchtrim .scatter then
+		15 %chance if 
+			70 %chance if chainsaw else echainsaw lt then
+		.scatter then
+		30 %chance if 
+			70 %chance if whacker else ewhacker lt then
+		.scatter then
+		30 %chance if
+			70 %chance if blower else eblower lt then
+		.scatter then
+		30 %chance if
+			50 %chance if shovel else snowshovel then 
+		.scatter then
+		30 %chance if
+			50 %chance if rake else hoe then
+		.scatter then
+	;
+
+		room-choice: yallmart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: hardloot hardloot
+			filter-only
+
+		room-choice: restroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath	
+			
+		room-choice: storage
+			room-script: nad
+			room-weight: 1
+			room-count: 1
+			room-post-script: hardloot
+
+regiondef{
+
+//	2 1000 tone
+
+	 region: yallmart
+		w: 26
+		h: 30
+		script: timeofday o'clock
+
+		no-prefab
+
+		post-script: setup-hardware 5diff %zombs
+}

@@ -1,0 +1,47 @@
+"../deathforth/rooms/restroom.txt" $load-rooms
+"../deathforth/rooms/bigstore.txt" $add-rooms
+"events/exterior/yall-maker.df" $load
+
+: yallgas 25 40 rnd sgas ;
+
+location
+		tags: yallmart
+		max-rooms: 4
+		entry-tags: yallmart
+		
+		script: yall-theme 
+
+		post-script: 10diff yall-zombsplit floorjunk
+
+		room-choice: yallmart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: LLkitchen LLammo LLkitchen LLmisc skelscat skelscat
+			filter-only
+
+		room-choice: restroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath
+			room-post-script: floortrash scatterpoo
+
+		room-choice: storage
+			room-script: nad
+			room-weight: 1
+			room-count: 1
+			room-post-script: LLkitchen	LLmisc LLmisc yallgas
+
+regiondef{
+
+//	2 1000 tone
+
+	 region: yallmart
+		w: 26
+		h: 30
+		script: timeofday o'clock
+
+		no-prefab
+
+		post-script: setup-yallmart 5diff yall-zombsplit
+}

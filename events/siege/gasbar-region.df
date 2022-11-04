@@ -1,0 +1,46 @@
+map{ regiondef{
+
+: gbcanopy tanchor map{ prefab{ add-gasbar } } ;
+
+: anchorx anchor drop ;
+: anchory anchor nip ;
+
+: doorside map{ last-build-doorxy drop tanchorx - last-build-size drop 2 / - sign } ;
+
+: tile>pos 16 xymul 8 + swap 8 + swap ;
+
+: gas-station locals( x y ) prefab{
+		tanchor tile>pos -> y -> x
+		tanchorx 5 - tanchorx!
+		auto-picklocid addloc
+		// "gasstation" $picklocid addloc
+
+		mission{ 0 mission-right-leave! 0 mission-left-leave! 0 mission-top-leave! }
+
+		"GOT GAS?" sign-text!
+		0.75 0.70 0.75 sign-bg!
+		0.235 0.447 0.317 sign-border!
+		0.235 0.447 0.317 sign-fg!
+
+		3 11 1 shop2nogable
+
+		tanchory 3 - tanchory!
+
+		doorside 0 < if tanchorx last-build-size drop 4 - + tanchorx! then
+
+		gbcanopy
+
+		pumps tanchorx 16 * 16 2 * + tanchory 16 * 16 5 * + lt .pos!
+		41 100 rnd pumpgas
+
+		// vending machines
+		1 1.5 frnd
+		0 2 rnd for
+			last-build-doorxy tile>pos 8 + gasvend lt .pos!
+			dup doorside neg * movex 1.25 +
+		next drop
+
+		// bbq propane tanks around the side
+		<- x doorside 90 * + <- y 25 -
+		0 2 rnd for 2dup bbqtank lt .pos! drift next 2drop
+} ;

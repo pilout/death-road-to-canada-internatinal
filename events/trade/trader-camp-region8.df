@@ -1,0 +1,113 @@
+uses paul/region-layout.df
+
+" 
+:map 1
+:tags camphut
+:scriptA regiondef{ traderinside }
+:scriptB kfridge -1 movey 
+:scriptC only-chosen; bed
+:scriptD only-chosen; sink -1 movey
+:scriptE smalltable 
+:size 11 11 
+:off 10 1 
+:tiles 
+22222222222
+23333333332
+21CDCDCDC12
+21111111112
+21111111112
+21111A11112
+21111111112
+21111111112
+21111111112
+22222222222
+33333333333
+"
+value CAMPHUT
+CAMPHUT $parse-rooms
+
+locdef{
+
+location: camphut
+		max-rooms: 1
+		entry-tags: camphut
+		pre-script: set-theme-cabin
+		script: set-theme-cabin
+		post-script: 
+		
+		room-choice: camphut
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			filter-only
+
+}
+
+map{ regiondef{
+
+trade-camp-reset
+
+: bldg tanchor!
+	"camphut" $picklocid addloc prefab{ mrand 7 house1 } 
+;
+
+' plotdirt >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+
+	xyp.i char t = if wooded then;
+	xyp.i char [ = if dirtstart then;
+	xyp.i char ] = if gravelendw then;
+	xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char Z = if tnomey-spawn then;
+;
+
+"
+...........................
+..........t...t...t........
+......t.............t......
+...t.t........t............
+.t........t.............t..
+...t.t...........t....t....
+.t.....tttttttt.ttt.ttt....
+...........................
+...........................
+..@.......@.......@........
+[................Z.........
+...........................
+...........................
+...........................
+...........................
+..........................]"
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	7 14 rnd o'clock
+
+	40 %chance if 1 2 frnd weather! -1 -2 frnd wind_force! else -1 1 frnd wind_force! then
+
+	' plotgrass to ft
+	plotmap
+	mission{ no-edge-spawns }
+
+	// Put char and chars in middle of map
+	15 %mv-up
+	30 %chars-up
+;
+
+region: campsite8
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+
+	post-script: site-setup
+
+} }

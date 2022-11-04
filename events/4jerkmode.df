@@ -1,0 +1,569 @@
+uses paul/region-layout.df
+
+" 
+:map 1
+:tags familiar  
+:scriptA opp-familiar 
+:scriptB rareparty4 
+:size 19 21 
+:off 4 0 
+:tiles 
+2222222222222222222
+2333333333333333332
+2AAAAAAAAAAAAAAAAA2
+2A111111111111111A2
+2A111111111111111A2
+2A1AAAAAAAAAAAAA1A2
+2A1A22222222222A1A2
+2A1A23333333332A1A2
+2A1A21111111112A1A2
+2A1A21111111112A1A2
+2A1A21111111112A1A2
+2A1A21111111112A1A2
+2A1A21111B11112A1A2
+2A1A21111111112A1A2
+2A1A21111111112A1A2
+2A1A21111111112A1A2
+2A113111111111311A2
+2111111111111111112
+2222211111111122222
+3333222222222223333
+0000333333333330000
+
+:map 2 
+:tags experimental  
+:scriptA rarepartyX 
+:scriptB rarepartyM 
+:size 15 17 
+:off 7 0 
+:tiles 
+222222222222222
+233323333323332
+2111211B1121112
+212121111121212
+212131111131212
+212111111111212
+212222222222212
+212333333333212
+213111111111312
+211111111111112
+2221111A1111222
+332111111111233
+002111111111200
+002111111111200
+002111111111200
+002222222222200
+003333333333300
+"
+value OPPMODEROOMS
+OPPMODEROOMS $parse-rooms
+
+cyoa{
+
+0 value OPP-recruit-count
+
+cyoa: opp-recruit-yes2
+	team-full? if
+		($ "The group is full.
+		Who would you like to replace to make room for " .. rname .. "?" $) cyoa-text!
+		' recruit-replace cyoa-team-choice
+	then;
+	ricon
+	($ "So OP!" $) cyoa-text! 2 300 tone
+		recruited
+;
+
+cyoa: opp-recruit-yes
+	clear-cyoa 0.25 recruitee .ai.wander_chance! 0 nearest .unseen!
+	opp-recruit-yes2
+	' OPP-recruit-count ++
+	recruitee .name@ "L@nk" $= if road{ 1 2 rnd to lnk-countdown } then;
+	recruitee .name@ "Ninja" $= if road{ 6 8 rnd to ninja-countdown } then;
+	recruitee .name@ "???" $= if road{ 2 3 rnd to mason-countdown 1 to mason-curse } then;
+	recruitee .name@ "Knight" $= if road{ 4 6 rnd to knight-countdown } then;
+	recruitee .name@ "Anime-chan" $= if road{ 2 to anime-countdown } then;
+;
+
+: OPP-recruit-left 4 OPP-recruit-count - rbold ;
+
+cyoa: opp-recruit
+	nearest .character@ choosechar cchar to recruitee ricon
+	($ "HELLO I AM " .. rname $) text!
+	
+	recruitee .specialmode@ 0 > if
+		"WARNING: EXTREMELY BUGGY" fbold +crtext
+		recruitee .specialtype@ 1 = if
+			"MECHAMOUNTIE IS ESPECIALLY BUGGY! USE AT OWN RISK!" rbold +crtext
+		then
+	then
+	
+	OPP-recruit-count 3 > if ($ "You've recruited enough overpowered characters! I'm cutting you off!" bbold $) +crtext then;
+	($ "You can recruit " bbold .. OPP-recruit-left .. " more overpowered characters!" bbold $) +crtext
+	choice( "Leave " .. rname .. " for now" )choice
+	choice( "Ask " .. rname .. " to join" )choice: opp-recruit-yes	
+;
+
+}
+
+: opp-familiar-last lt .character@ args( ch )
+	regiondef{ ' trader-event lt .events!
+	1 lt .timer!
+
+	camprecruit-drawpair-familiar }
+	lt .cyoa! <- ch swap execute
+
+;
+
+: opp-camper
+	regiondef{ new-camp-npc } lt .character@ args( ch )
+	185 rnd5050 + lt .aim_angle!
+	0.025 <- ch .ai.wander_chance!
+	50 <- ch .ai.safety_leash!
+	
+;
+
+: opprecruit-in
+	still-npc cyoa{ ' opp-recruit cyoa! }
+	// ' trader-event lt .events! 1 lt .timer!
+;
+
+: rename 
+	lt .character@ .name!
+;
+
+locdef{
+
+: tradermallsetup random-door map{ block-last-door } ;
+
+location: familiar
+		max-rooms: 1
+		entry-tags: familiar
+		pre-script: yall-theme
+		script: yall-theme
+		post-script: 
+		
+		room-choice: familiar
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: 
+			filter-only
+			
+location: experimental
+		max-rooms: 1
+		entry-tags: experimental
+		pre-script: yall-theme
+		script: yall-theme
+		post-script: 
+		
+		room-choice: experimental
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: 
+			filter-only
+			
+}
+
+map{ roomgen{
+
+	: trademallwindow
+		special_objects64_base_id 50 %chance if 0x a else 0x b then + tanchor 1- wallhang
+	;
+
+: opp-familiar familiar-stack depths 0= if drop then;
+	opp-camper opp-familiar-last
+	// regiondef{ new-familiar-recruit }
+;
+	
+} }
+
+roomgen{
+
+
+: .opp-santafy args( chara )
+	3 <- chara .specialtype!
+	"Santa" <- chara .name!
+	4 <- chara .shooting! 0 <- chara .female! 6 <- chara .morale!
+;
+
+: .opp-evilsantafy args( chara )
+	<- chara .opp-santafy
+	"Evil Santa" <- chara .name! 4 <- chara .specialtype!
+;
+
+: .opp-turkeyfy args( chara )
+	"Turkey" <- chara .name!
+	27 <- chara .specialtype!
+;
+
+: .opp-garfy args( chara )
+	"G***" <- chara .name!
+	31 <- chara .specialtype!
+	6 <- chara .morale!
+	0 <- chara .attitude! 
+	-4 STAT_MORALE <- chara .bonus!
+;
+
+: .opp-gordon args( char )
+	49 <- char .specialtype!
+	"Gordo" <- char .name!
+	WEAPON_CROWBAR <- char .weapona!
+	WEAPON_SHOTGUN <- char .weaponb!
+	WEAPON_DOLT <- char .weaponc!
+	42 LOOT_BULLET <- char .lootamt!
+	5 <- char .strength!
+	5 <- char .fitness!
+	5 <- char .shooting!
+	4 <- char .vitality!
+	4 <- char .health!
+	5 <- char .mechanical!
+	3 <- char .attitude!
+	3 <- char .wits!
+	3 <- char .loyalty!
+	3 <- char .composure!
+	"seems quiet, or possibly has no personality whatsoever." <- char .job!
+	0 <- char .female!
+;
+
+: .opp-fairy args( char )
+	13 <- char .specialtype!
+	"Fairy Queen" <- char .name!
+	5 <- char .shooting!
+	4 <- char .strength!
+	6 <- char .fitness!
+	1 <- char .female!
+	0 <- char .loyalty!
+	4 <- char .medical!
+	"is the Queen of all Fae Folk." <- char .job!
+;
+
+: .opp-panda args( char )
+	35 <- char .specialtype!
+	"Panda" <- char .name!
+	WEAPON_FIERCE <- char .weapon_default!
+	2 STAT_STRENGTH <- char .bonus!
+	6 <- char .strength!
+	6 <- char .fitness!
+	1 <- char .female!
+	1 <- char .carrying.slot_count!
+	"is a panda. Real cute unless angered." <- char .job!
+;
+
+: .opp-george args( char )
+	"George" <- char .name!
+	26 <- char .specialtype!
+	6 <- char .wits! 0 <- char .attitude! 
+	0 <- char .composure! 6 <- char .loyalty!
+	2 <- char .morale! 6 <- char .shooting! 
+	6 <- char .medical! 6 <- char .mechanical!
+;
+
+: .opp-hermit args( char )
+	2 <- char .specialtype!
+	5 <- char .shooting!
+	4 <- char .strength!
+	4 <- char .fitness!
+	4 <- char .vitality!
+	4 <- char .health!
+	"Hermit" <- char .name!
+	0 <- char .female!
+	0 <- char .attitude!
+	0 <- char .composure!
+	"was surprised that he even joined the team, being a hermit and all." <- char .job!
+	WEAPON_SHOTGUN <- char .weapona!
+	WEAPON_FIRE <- char .weaponb!
+	40 LOOT_SHOTGUN_SHELL <- char .lootamt!
+;
+
+: .opp-clown args( char )
+	"Clown" <- char .name!
+	"is a funny clown!" <- char .job!
+	29 <- char .specialtype!
+	6 <- char .morale! 
+	0 <- char .attitude!
+	-1 STAT_MORALE <- char .bonus!
+;
+
+: rareparty4
+
+	opprecruit-in .opp-hermit -4 movey
+	opprecruit-in .sagutsify -4 movey 2 movex
+	opprecruit-in .bryuify -4 movey 4 movex
+	opprecruit-in .opp-clown -4 movey -2 movex
+	opprecruit-in .broomify -4 movey -4 movex
+
+	opprecruit-in .gerbilfy
+	opprecruit-in .gnomify "Gnomey" rename 2 movex
+	opprecruit-in .gnomify2 "Also Gnomey" rename 4 movex
+	opprecruit-in .barbarify -2 movex
+	opprecruit-in .cleanerify -4 movex
+
+	opprecruit-in .animeify "Anime-chan" rename -2 movey
+	opprecruit-in .opp-turkeyfy -2 movey 2 movex
+	opprecruit-in .horsify "Horse" rename -2 movey 4 movex
+	opprecruit-in .opp-santafy -2 movey -2 movex
+	opprecruit-in .opp-evilsantafy -2 movey -4 movex
+	
+	opprecruit-in .doggify 2 movey
+	opprecruit-in .doggify 2 movey 2 movex
+	opprecruit-in .puppykittify 2 movey 4 movex
+	opprecruit-in .doggify 2 movey -2 movex
+	opprecruit-in .doggify 2 movey -4 movex
+	
+	opprecruit-in .catify 4 movey
+	opprecruit-in .catify 4 movey 2 movex
+	opprecruit-in .pigify 3.5 movey 4 movex
+	opprecruit-in .catify 4 movey -2 movex
+	opprecruit-in .catify 4 movey -4 movex
+
+;
+
+: rarepartyX
+
+	opprecruit-in .lynnify 
+	opprecruit-in .chickenify "Cluck-cluck" rename 2 movex
+	opprecruit-in .pqify "Punchzerker" rename 4 movex
+	opprecruit-in .skelify "Sans Undertale" rename -2 movex
+	opprecruit-in .grimreaperify -4 movex
+
+	opprecruit-in .mountiefy "Mountie" rename -2 movey
+	opprecruit-in .genieify "Genie" rename -2 movey 3 movex
+	// opprecruit-in . -2 movey 4 movex
+	// opprecruit-in . -2 movey -2 movex
+	opprecruit-in .moosify -2 movey -3 movex
+	
+	opprecruit-in .fly "The Fly" rename 2 movey
+	opprecruit-in .oscarcatify 2 movey 2 movex
+	opprecruit-in .sambyoolify 2 movey 4 movex
+	opprecruit-in .flyhead "Fly" rename 2 movey -2 movex
+	opprecruit-in .flybody "The" rename 2 movey -4 movex
+	
+;
+
+: rarepartyM
+	opprecruit-in .mechamountify "Mecha Mountie" rename
+;
+	
+}
+
+map{ regiondef{
+
+trade-camp-reset
+
+: bldg tanchor!
+	"familiar" $picklocid addloc 
+		prefab{
+		BLUE "FAMILIAR LOUNGE" .. sign-text!
+		1 1 1 sign-bg!
+		0 1 1 sign-border!
+		1 1 1 sign-fg!
+		1 sign-glow!
+		0 3 rnd 11 4 shop }
+;
+
+: bldg2 tanchor!
+	"experiment" $picklocid addloc 
+		prefab{
+		BLUE "EXPERIMENTAL - USE AT OWN RISK" .. sign-text!
+		1 1 1 sign-bg!
+		0 1 1 sign-border!
+		1 1 1 sign-fg!
+		1 sign-glow!
+		0 3 rnd 11 4 shop }
+;
+
+: opprecruit
+	opprecruit-in lt-here
+;
+
+: rareparty1
+	opprecruit .opp-gordon -4 movey -4 movex
+	opprecruit .opp-garfy -4 movey -2 movex	
+	opprecruit .opp-fairy "Fairy Queen" rename -4 movey
+	opprecruit .opp-panda -4 movey 2 movex
+	opprecruit .opp-george -4 movey 4 movex
+	
+	opprecruit .renfairify
+	opprecruit .dsypify "DSYP" rename 2 movex
+	opprecruit .valkify "Valkyrie" rename 4 movex
+	opprecruit .tlbify "T*L*B" rename -2 movex
+	opprecruit .bortify -4 movex
+	
+	opprecruit .fencify "Fencer" rename -2 movey
+	opprecruit .alvify "Alvis" rename -2 movey 2 movex
+	opprecruit .wrestify "El Satan" rename -2 movey 4 movex
+	opprecruit .rickify -2 movey -2 movex
+	opprecruit .debutantify "Debutante" rename -2 movey -4 movex
+	
+	opprecruit .lnkify "L@nk" rename 2 movey
+	opprecruit .masonify "???" rename 2 movey 2 movex
+	opprecruit .octodadify "Some Guy" rename 2 movey 4 movex
+	opprecruit .boxerify "Champ" rename 2 movey -2 movex
+	opprecruit .madscify 2 movey -4 movex
+;
+
+: rareparty2
+
+	opprecruit .sumoify "Sumo" rename
+	opprecruit .rambify "Rambeaux" rename 2 movex
+	opprecruit .billify "Redonk" rename 4 movex
+	opprecruit .ninjaify "Ninja" rename -2 movex
+	opprecruit .cupidify -4 movex
+
+	opprecruit .farmshotify -2 movey
+	opprecruit .beaverify -2 movey 2 movex
+	opprecruit .moodguyify -2 movey 4 movex
+	opprecruit .dogmanify -2 movey -2 movex
+	opprecruit .witchify -2 movey -4 movex
+	
+	opprecruit .wizardify 2 movey
+	opprecruit .dracufy 2 movey 2 movex
+	opprecruit .woodwomanify 2 movey 4 movex
+	opprecruit .turtleify 2 movey -2 movex
+	opprecruit .mariaify 2 movey -4 movex
+
+;
+
+: rareparty3
+
+	opprecruit .piratify
+	opprecruit .goatify "Goat" rename 2 movex
+	opprecruit .sportify 4 movex
+	opprecruit .skelknightify -2 movex
+	opprecruit .nimbusify -4 movex
+
+	opprecruit .kaijuify -2 movey
+	opprecruit .boganify -2 movey 2 movex
+	opprecruit .hnkify -2 movey 4 movex
+	opprecruit .firemanify -2 movey -2 movex
+	opprecruit .unclesamify -2 movey -4 movex
+	
+	opprecruit .knightify "Knight" rename 2 movey
+	opprecruit .rollerify 2 movey 2 movex
+	opprecruit .cavemanify 2 movey 4 movex
+	opprecruit .gigaguyify 2 movey -2 movex
+	opprecruit .beemanify 2 movey -4 movex
+
+;
+
+: rareparty0
+
+	opprecruit . 
+	opprecruit . 2 movex
+	opprecruit . 4 movex
+	opprecruit . -2 movex
+	opprecruit . -4 movex
+
+	opprecruit . -2 movey
+	opprecruit . -2 movey 2 movex
+	opprecruit . -2 movey 4 movex
+	opprecruit . -2 movey -2 movex
+	opprecruit . -2 movey -4 movex
+	
+	opprecruit . 2 movey
+	opprecruit . 2 movey 2 movex
+	opprecruit . 2 movey 4 movex
+	opprecruit . 2 movey -2 movex
+	opprecruit . 2 movey -4 movex
+
+;
+	
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+' plotpave >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx 1- gby xyp.xy swap 1+ swap gravellot then;
+	xyp.i char ( = if xyp.xy to gby2 to gbx2 then;
+	xyp.i char ) = if gbx2 1- gby2 xyp.xy swap 1+ swap gravellot then;
+		
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	
+	xyp.i char x = if ' plotdirt to ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char $ = if xyp.xy grassedge then;
+	xyp.i char { = if dirtstart then;
+	xyp.i char } = if dirtend then;
+
+	xyp.i char t = if pictable2 lt-here 8 rdrift then;		
+	xyp.i char w = if pine lt-here drift then;
+	xyp.i char V = if tradercarhere then;
+	// xyp.i char f = if opp-familiar then; // campfirehere new-recruit new-familiar-recruit
+	
+	xyp.i char 1 = if rareparty1 then;
+	xyp.i char 2 = if rareparty2 then;
+	xyp.i char 3 = if rareparty3 then;
+	// xyp.i char X = if rarepartyX then;
+	
+	xyp.i char S = if opprecruit .samedify then;
+	xyp.i char C = if opprecruit .catladyify then;
+		
+	// xyp.i char W = if trader-weapon-buyer then;
+	xyp.i char Z = if tnomey-spawn then;
+	
+	xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char X = if xyp.xy bldg2 then;
+;
+
+"
+P(.............................
+...............................
+...............................
+...............................
+...............................
+...............1...............
+...............................
+...............................
+@...................X.........)
+...............................
+...............................
+...Z...........................
+...............................
+G$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+.........{.....................
+..C.........................S..
+..........2.........3..........
+...............f...............
+.....................}.........
+..............................."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	8 18 rnd o'clock
+
+	' plotdirt to ft
+
+	30 %chance if 0 0.2 frnd weather! -1 2 frnd wind_force! else -1 1 frnd wind_force! then
+
+	plotmap
+	mission{ no-edge-spawns }
+
+	// Put char and chars in middle of map
+	50 %mv-up
+	48 %chars-up
+	
+	map{ street-junk }
+;
+
+region: specialcamp-3
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+	// Formerly start-mode: 1 for this and all the trader camps
+
+	post-script: site-setup
+
+} }

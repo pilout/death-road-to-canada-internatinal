@@ -1,0 +1,406 @@
+
+events{ road{
+	
+// Day-plan types
+	
+: newbie-day
+	
+	// 15 %chance if 5 else 7 then to road-countdown // A countdown for number of events to process, 15% chance of it being an extra event
+	
+	4 to road-countdown // Actually 1 less than the number due to how countdown works
+	
+	// For normal days with events and blurbs, even number means a blurb, then an event, repeating until it gets to a final blurb at 1 countdown and then a camp event at 0.
+	// 6 to road countdown - 3 blurbs, 2 events, camping
+	// 8 to road countdown - 5 blurbs, 3 events, camping
+;
+
+: 3cyoa-day-nofam // 3 events, double common CYOA
+	8 to road-countdown "3CYOA-DAY" print
+	3CYOA-DECK shuffles to daily-deck
+;
+
+: 3cyoa-day // 3 events, double common CYOA
+	familiar-stack depths- if
+		10 to road-countdown "INNER-DAY-FAMILIAR" print
+		3CYOA-FAM-DECK shuffles to daily-deck
+	then;
+	3cyoa-day-nofam // no familiar recruit option
+;
+
+: inner-day-nofam // 2 events, one is an inner location
+	6 to road-countdown "INNER-DAY" print
+	INNERDAY-DECK shuffles to daily-deck
+;
+
+: inner-day-nofam-day // adds a 20% chance for 3cyoa-day-nofam
+	20 %chance if 3cyoa-day-nofam then;
+	inner-day-nofam
+;
+
+: inner-day // 2 events, one is an inner location
+	20 %chance if 3cyoa-day then;
+	familiar-stack depths- if 
+		8 to road-countdown "INNER-DAY-FAMILIAR" print
+		INNERDAY-FAM-DECK shuffles to daily-deck
+	then;
+	inner-day-nofam // added so there's an inner day option that doesn't use familiar recruits
+;
+
+: easyinner-day // 2 events, one is an inner location
+	6 to road-countdown "EASYINNER-DAY" print
+	EASYINNERDAY-DECK shuffles to daily-deck
+;
+
+: easycity-day // Formerly 8 because it did an easyinnerevent before
+	6 to road-countdown "EASYCITY-DAY" print
+	EASYCITYDAY-DECK shuffles to daily-deck
+;
+
+: city-day // Formerly 8 as it did an innervent before
+	6 to road-countdown "CITY-DAY" print
+	CITYDAY-DECK shuffles to daily-deck
+;
+
+: trade-day // 3 events, one is a trading event
+	8 to road-countdown "TRADE-DAY" print
+	TRADEDAY-DECK shuffles to daily-deck
+;
+
+: recruit-day // 3 events, one is a recruiting
+	8 to road-countdown "RECRUIT-DAY" print
+	RECRUITDAY-DECK shuffles to daily-deck
+;
+
+// Sorter that shuffles and balances the days you get
+
+	deck-new // You'll always start the game with this day-pick-deck
+		// card: inner-day
+		// card: inner-day
+		// card: easyinner-day
+		card: easycity-day
+	constant START-DAY-DECK
+	START-DAY-DECK var day-pick-deck
+
+	deck-new
+		card: inner-day
+		card: city-day
+	constant DAY-PICK-DECK1
+	
+	deck-new
+		card: 3cyoa-day
+	constant DAY-PICK-DECK2
+	
+	// maybe add a 3cyoa-day-nofam day-pick-deck after adding more events
+	
+	deck-new
+		card: recruit-day
+	constant DAY-PICK-DECK3
+	
+	deck-new
+		card: city-day
+		card: recruit-day
+	constant DAY-PICK-DECK4
+	
+	deck-new
+		card: recruit-day
+		card: city-day
+		card: inner-day-nofam-day // Changed to nofam to reduce familiar recruits a little
+	constant DAY-PICK-DECK5
+	
+	deck-new
+		card: trade-day
+	constant DAY-PICK-DECK6
+	
+: day-pick-1 DAY-PICK-DECK1 shuffles to day-pick-deck "DAY-PICK-DECK1" print ;
+: day-pick-2 DAY-PICK-DECK2 shuffles to day-pick-deck "DAY-PICK-DECK2" print ;
+: day-pick-3 DAY-PICK-DECK3 shuffles to day-pick-deck "DAY-PICK-DECK3" print ;
+: day-pick-4 DAY-PICK-DECK4 shuffles to day-pick-deck "DAY-PICK-DECK4 SC" print ; // formerly special character?
+: day-pick-5 DAY-PICK-DECK5 shuffles to day-pick-deck "DAY-PICK-DECK5 RECRUIT" print ;
+: day-pick-6 DAY-PICK-DECK6 shuffles to day-pick-deck "DAY-PICK-DECK6 TRADE" print ;
+	
+	deck-new
+		card: day-pick-1
+		card: day-pick-2
+		card: day-pick-3
+		card: day-pick-4
+		card: day-pick-5
+		card: day-pick-6
+	constant DAY-SHUFFLE-DECK
+	DAY-SHUFFLE-DECK var day-shuffle-deck
+	
+	DAY-SHUFFLE-DECK shuffles to day-shuffle-deck
+	
+: day-pick-shuffle
+	day-shuffle-deck depths 0= if DAY-SHUFFLE-DECK shuffles to day-shuffle-deck then
+	drawcard
+;
+	
+: day-pick
+	day-pick-deck depths 0= if day-pick-shuffle then
+	drawcard
+;
+
+// "BOSS" days
+	
+: boss0-day 
+	12 to road-countdown "EASY-HAZARD-DAY" print
+	EASYHAZARDDAY-DECK to daily-deck
+;
+	
+: boss1-day // 5 events, not shuffled, last one is a big mandatory challenge. Formerly 12.
+	10 to road-countdown "HAZARD-DAY" print
+	HAZARDDAY-DECK to daily-deck // puts the cards in the deck in order	
+;
+
+: canada-day
+	// 8
+	3 to road-countdown "CANADA-DAY" print
+	CANADADAY-DECK to daily-deck
+;
+
+: precanada-day
+	10 to road-countdown "PRECANADA-DAY" print
+	PRECANADA-DECK to daily-deck
+;
+
+: new-day-diffset
+	road-trip-days 3 = if diff-scalar 0.8 * to road-difficulty then;
+	road-trip-days 5 = if diff-scalar 0.9 * to road-difficulty then;
+	road-trip-days 7 = if diff-scalar to road-difficulty then;
+	road-trip-days 11 = if diff-scalar 1.1 * to road-difficulty then;
+	road-trip-days 14 = if diff-scalar 1.2 * to road-difficulty then;
+	road-trip-days 17 = if diff-scalar 1.3 * to road-difficulty then;
+	road-trip-days 20 = if diff-scalar 1.4 * to road-difficulty then;
+	road-trip-days 23 = if diff-scalar 1.5 * to road-difficulty then;
+	road-trip-days 26 = if diff-scalar 1.6 * to road-difficulty then;
+	road-trip-days 31 = if diff-scalar 1.7 * to road-difficulty then;
+	road-trip-days 34 = if diff-scalar 1.8 * to road-difficulty then;
+	road-trip-days 37 = if diff-scalar 1.9 * to road-difficulty then;
+	road-trip-days 40 = if diff-scalar 2.0 * to road-difficulty then;
+	road-trip-days 43 = if diff-scalar 2.1 * to road-difficulty then;
+	road-trip-days 46 = if diff-scalar 2.2 * to road-difficulty then;
+	road-trip-days 49 = if diff-scalar 2.3 * to road-difficulty then;
+	road-trip-days 52 = if diff-scalar 2.4 * to road-difficulty then;
+	road-trip-days 55 = if diff-scalar 2.5 * to road-difficulty then;
+	road-trip-days 58 = if diff-scalar 2.6 * to road-difficulty then;
+	road-trip-days 61 = if diff-scalar 2.7 * to road-difficulty then;
+	road-trip-days 64 = if diff-scalar 2.8 * to road-difficulty then;
+	road-trip-days 67 = if diff-scalar 2.9 * to road-difficulty then;
+	road-trip-days 70 = if diff-scalar 3.0 * to road-difficulty then;
+	// Probably do 10 jumps at this point in end
+	road-trip-days 80 = if diff-scalar 3.1 * to road-difficulty then;
+	road-trip-days 90 = if diff-scalar 3.2 * to road-difficulty then;
+	road-trip-days 100 = if diff-scalar 3.3 * to road-difficulty then;
+	// At 100 above line, probably do 20 jumps
+	road-trip-days 120 = if diff-scalar 3.4 * to road-difficulty then;
+	road-trip-days 140 = if diff-scalar 3.5 * to road-difficulty then;
+	road-trip-days 160 = if diff-scalar 3.6 * to road-difficulty then;
+	road-trip-days 180 = if diff-scalar 3.7 * to road-difficulty then;
+	road-trip-days 200 = if diff-scalar 3.8 * to road-difficulty then;
+	// At 200 here, probably do 50 jumps?
+	road-trip-days 250 = if diff-scalar 3.9 * to road-difficulty then;
+	road-trip-days 300 = if diff-scalar 4.0 * to road-difficulty then;
+	road-trip-days 350 = if diff-scalar 4.1 * to road-difficulty then;
+	road-trip-days 400 = if diff-scalar 4.2 * to road-difficulty then;
+	road-trip-days 450 = if diff-scalar 4.3 * to road-difficulty then;
+	road-trip-days 500 = if diff-scalar 4.4 * to road-difficulty then;
+	road-trip-days 550 = if diff-scalar 4.5 * to road-difficulty then;
+	road-trip-days 600 = if diff-scalar 4.6 * to road-difficulty then;
+	road-trip-days 650 = if diff-scalar 4.7 * to road-difficulty then;
+	road-trip-days 700 = if diff-scalar 4.8 * to road-difficulty then;
+	road-trip-days 750 = if diff-scalar 4.9 * to road-difficulty then;
+	road-trip-days 800 = if diff-scalar 5.0 * to road-difficulty then;
+	road-trip-days 850 = if diff-scalar 5.1 * to road-difficulty then;
+	road-trip-days 900 = if diff-scalar 5.2 * to road-difficulty then;
+	road-trip-days 950 = if diff-scalar 5.3 * to road-difficulty then;
+	// Above ends at 950 once the true numbers are in, below are for testing
+	(* road-trip-days 139 = if diff-scalar 5.4 * to road-difficulty then;
+	road-trip-days 142 = if diff-scalar 5.5 * to road-difficulty then;
+	road-trip-days 145 = if diff-scalar 5.6 * to road-difficulty then;
+	road-trip-days 148 = if diff-scalar 5.7 * to road-difficulty then;
+	road-trip-days 151 = if diff-scalar 5.8 * to road-difficulty then;
+	road-trip-days 154 = if diff-scalar 5.9 * to road-difficulty then;
+	road-trip-days 157 = if diff-scalar 6.0 * to road-difficulty then;
+	road-trip-days 160 = if diff-scalar 6.1 * to road-difficulty then;
+	road-trip-days 163 = if diff-scalar 6.2 * to road-difficulty then;
+	road-trip-days 166 = if diff-scalar 6.3 * to road-difficulty then;
+	road-trip-days 169 = if diff-scalar 6.4 * to road-difficulty then;
+	road-trip-days 172 = if diff-scalar 6.5 * to road-difficulty then;
+	road-trip-days 175 = if diff-scalar 6.6 * to road-difficulty then;
+	road-trip-days 178 = if diff-scalar 6.7 * to road-difficulty then;
+	road-trip-days 181 = if diff-scalar 6.8 * to road-difficulty then;
+	road-trip-days 184 = if diff-scalar 6.9 * to road-difficulty then;
+	road-trip-days 187 = if diff-scalar 7.0 * to road-difficulty then;
+	road-trip-days 190 = if diff-scalar 7.1 * to road-difficulty then;
+	road-trip-days 193 = if diff-scalar 7.2 * to road-difficulty then;
+	road-trip-days 196 = if diff-scalar 7.3 * to road-difficulty then;
+	road-trip-days 199 = if diff-scalar 7.4 * to road-difficulty then;
+	road-trip-days 202 = if diff-scalar 7.5 * to road-difficulty then;
+	road-trip-days 205 = if diff-scalar 7.6 * to road-difficulty then;
+	road-trip-days 208 = if diff-scalar 7.7 * to road-difficulty then;
+	road-trip-days 211 = if diff-scalar 7.8 * to road-difficulty then;
+	road-trip-days 214 = if diff-scalar 7.9 * to road-difficulty then;
+	road-trip-days 217 = if diff-scalar 8.0 * to road-difficulty then;
+	road-trip-days 220 = if diff-scalar 8.5 * to road-difficulty then;
+	road-trip-days 225 = if diff-scalar 9.0 * to road-difficulty then;
+	road-trip-days 230 = if diff-scalar 9.5 * to road-difficulty then;
+	road-trip-days 235 = if diff-scalar 10.0 * to road-difficulty then; *)
+;
+
+(* Old difficulty 
+	road-trip-days 3 = if diff-scalar 0.9 * to road-difficulty then
+	road-trip-days 5 = if diff-scalar to road-difficulty then
+	road-trip-days 7 = if diff-scalar 1.1 * to road-difficulty then
+	road-trip-days 9 = if diff-scalar 1.2 * to road-difficulty then
+	road-trip-days 11 = if diff-scalar 1.3 * to road-difficulty then
+	road-trip-days 13 = if diff-scalar 1.4 * to road-difficulty then
+	road-trip-days 15 = if diff-scalar 1.5 * to road-difficulty then
+	road-trip-days 17 = if diff-scalar 1.6 * to road-difficulty then
+	road-trip-days 19 = if diff-scalar 1.7 * to road-difficulty then
+	road-trip-days 21 = if diff-scalar 1.8 * to road-difficulty then
+	road-trip-days 23 = if diff-scalar 1.9 * to road-difficulty then
+	road-trip-days 25 = if diff-scalar 2 * to road-difficulty then
+	
+	: old-day-diffset // No longer used anywhere
+	road-trip-days 3 = if diff-scalar 0.8 * to road-difficulty then
+	road-trip-days 6 = if diff-scalar 0.9 * to road-difficulty then
+	road-trip-days 9 = if diff-scalar to road-difficulty then
+	road-trip-days 12 = if diff-scalar 1.1 * to road-difficulty then
+	road-trip-days 15 = if diff-scalar 1.2 * to road-difficulty then
+	road-trip-days 18 = if diff-scalar 1.3 * to road-difficulty then
+	road-trip-days 21 = if diff-scalar 1.4 * to road-difficulty then
+	road-trip-days 24 = if diff-scalar 1.5 * to road-difficulty then
+	road-trip-days 27 = if diff-scalar 1.6 * to road-difficulty then
+;
+*)
+
+: road-trip-quarter
+	nearcanada-day 1 + 4 / 0.5 + >int
+;
+
+: new-day-tileset
+	road-trip-days road-trip-quarter = if
+		1 road_theme!
+	then
+	road-trip-days road-trip-quarter 2 * = if
+		2 road_theme!
+	then	
+	road-trip-days road-trip-quarter 3 * = if
+		3 road_theme!
+	then
+;
+
+: days-left road{ nearcanada-day 1 + road-trip-days - } ;
+
+: road-days-report
+	($ GREEN .. days-left .. WHITE .. " JOURS DE CONDUITE JUSQU'AU " .. BLUE .. "CANADA!" $)
+	60 3 *
+	view_w 0.5 * 16
+	msgtickxy
+;
+	
+
+: new-day // Logic for what happens every new day
+	0 to outofmedsblurb
+	' road-trip-days ++
+	gamedef{ ' endlessmode gamemode? } if
+		road-trip-days
+	else
+		days-left
+	then travel_days!
+	' calendar-days ++
+	80 %chance if 0 weather! -1 1 frnd wind_force! then
+	road-trip-days 2 < if 
+		diff-scalar 0.7 * to road-difficulty
+		newbie-day // no day 0 due to how increments work
+	then; 
+	new-day-diffset
+	new-day-tileset
+	road-trip-days 3 = if
+		boss0-day then;
+	road-trip-days nearcanada-day = if
+		precanada-day then;
+	road-trip-days nearcanada-day > if
+		canada-day then;
+	road-trip-days 7 = road-trip-days 11 = or if // 6, 9
+		boss1-day then;
+	road-trip-days 15 = road-trip-days 19 = or if // 12, 15
+		boss1-day then;
+	road-trip-days 23 = road-trip-days 27 = or if // 18, 21
+		boss1-day then;
+	// Endless below
+	road-trip-days 31 = if boss1-day then;
+	road-trip-days 34 > road-trip-days 120 < and if
+		road{ road-trip-days 5 / dup >int = } if boss1-day then;
+	then
+	road-trip-days 119 > road-trip-days 210 < and if
+		road{ road-trip-days 6 / dup >int = } if boss1-day then;
+	then
+	road-trip-days 209 > road-trip-days 336 < and if
+		road{ road-trip-days 7 / dup >int = } if boss1-day then;
+	then
+	road-trip-days 335 > road-trip-days 504 < and if
+		road{ road-trip-days 8 / dup >int = } if boss1-day then;
+	then
+	road-trip-days 503 > road-trip-days 720 < and if
+		road{ road-trip-days 9 / dup >int = } if boss1-day then;
+	then
+	road-trip-days 719 > if
+		road{ road-trip-days 10 / dup >int = } if boss1-day then;
+	then
+	// Should land on 1000
+	day-pick
+;
+
+: end-demo cyoa-new "You won the demo! But the Death Road continues much further!" cyoa-text! 0 cyoa-image-icon! 1 500 tone
+	delete-the-game
+	choice( "OK" )choice: quit-to-title ;
+
+: end-demo-old cyoa-new "You won for now! Send us a message via Kickstarter if you noticed anything break or the game crashed!" cyoa-text! 0 cyoa-image-icon! 1 500 tone
+	delete-the-game
+	choice( "OK" )choice: quit-to-title ;
+	
+: dog-driver cyoa-new "More Victims for the Death Road" cyoa-title! ($ "With no idea how to drive a car, " .. somename .. " drives it into a ditch and wanders off. The journey to Canada is over." $) cyoa-text! 0 cyoa-image-icon! 1 500 tone
+	// This one's no longer used, on launch of the game you'd lose for only having dogs.
+	delete-the-game
+	choice( "DANG IT" )choice: quit-to-title ;
+	
+: petnodrivetext
+	ccat? if
+		"THAT DARN CAT"
+	else
+		"LA FIN .. VRAIMENT?"
+	then
+;
+	
+: no-driver cyoa-new "Plus de victimes pour la route de la mort" cyoa-title! ($ "Avec plus personne" vehicle.which@
+	if .. " pour conduire la voiture" then .. ", le voyage vers le Canada touche a sa fin." $) cyoa-text!
+	0 cyoa-image-icon! 1 500 tone
+	choosepet
+	cpet? if
+		($ "Oh, attendez... il y a encore un" .. cyoa{ cdogcat } .. " en vie." $) +crtext
+		cdog? if
+			($ cname .. " pense a un mot dans l'esprit animal primitif de " .. chis .. ": " .. "CANADA" rbold $) +crtext
+			vehicle.which@ if
+				($ cname .. " recupere les cles, les met dans le contact de la voiture et la demarre. En avant vers le Canada!!" $)
+			else
+				($ cname .. " court en petit cercle pendant un moment, puis commence a marcher vers le nord. En avant vers le Canada!" $)
+			then +crtext goodfx cchar .dogtosuperdog goodfx
+		else
+			ccat? if 
+				($ cname .. " travaille une boule de poils." $)
+			else
+				($ cname .. " eternue." $)
+			then
+				+crtext
+				($ " " .. cHe .. " est vraiment pas intéressé par ce non-sens du Canada, et s'égare." $) +text
+				clear-streak delete-the-game
+				choice( petnodrivetext )choice: quit-to-title
+		then			
+	else
+		clear-streak delete-the-game
+		choice( "DANG IT" )choice: quit-to-title
+	then
+;
+		
+} }

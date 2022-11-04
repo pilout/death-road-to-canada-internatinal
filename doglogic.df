@@ -1,0 +1,293 @@
+// ======================
+// DOG TIME
+// ======================
+
+: ispet? .pet@ 0 > ;
+: cpet? cchar ispet? ;
+: dog? .pet@ 1 = ;
+: goat? args( char ) <- char .pet@ 2 = <- char .bodytype@ 13 = and ;
+: pig? args( char ) <- char .pet@ 2 = <- char .bodytype@ 12 = and ;
+: cat? args( char ) <- char .pet@ 2 = <- char .bodytype@ 12 < and ;
+: cdog? cchar dog? ;
+: ccat? cchar cat? ;
+: cgoat? cchar goat? ;
+: cpig? cchar pig? ;
+: notpet? .pet@ 0= ;
+: cnotpet? cchar notpet? ;
+: pet? .pet@ ;
+: superpet? statmod{ .superdog? } ;
+: isdogpal? statmod{ .dogpal? } ;
+: csuperpet? cchar superpet? ;
+: dogcheck checkchar dog? ; // Not used yet
+: petcheck checkchar ispet? ;
+: dogpalcheck checkchar isdogpal? ;
+: nondogcheck checkchar superpet? checkchar notpet? or ;
+: chumany? cchar superpet? cchar notpet? or ;
+
+: numdogpal team-stack ' isdogpal? stack-filter nip ;
+: dogpal? numdogpal 0 > ;
+
+: somehuman
+ ' nondogcheck pick-team-char
+ 0= if false then;
+ pickchar true
+;
+
+: somepet
+ ' petcheck pick-team-char
+ 0= if false then;
+ pickchar true
+;
+
+: somedogpal
+ ' dogpalcheck pick-team-char
+ 0= if false then;
+ pickchar true
+;
+
+: choosepet somepet if choosechar then ;
+: choosedogpal somedogpal if choosechar then ;
+: choosehuman
+	somehuman if choosechar then
+;
+
+
+// : .dogpal MOD_DOGPAL swap .setmod ;
+// : .dogpal? MOD_DOGPAL swap .ismod? ;
+
+: numhumfilt args( chara )
+	<- chara superpet? <- chara notpet? or
+	<- chara .health@ 0 > and
+;
+: numdogfilt args( chara ) <- chara dog? ;
+: numcatfilt args( chara ) <- chara cat? ;
+: numpetfilt args( chara ) <- chara ispet? ;
+
+: numdogs team-stack ' numdogfilt stack-filter nip ;
+: numcats team-stack ' numcatfilt stack-filter nip ;
+: numhums team-stack ' numhumfilt stack-filter nip ;
+: numpets team-stack ' numpetfilt stack-filter nip ;
+
+: solohuman numhums 2 < ;
+: solopet numpets 2 < ;
+: notsolohuman numhums 1 > ;
+
+: .dogtosuperdog args( chara )
+	<- chara dog? if
+		statmod{ <- chara .superdog <- chara .undog }
+	else
+		// statmod{ .unpet }
+		// Decided against WEIRD METHODS preventing pets from driving, but use this if we want to make something absolutely incapable of driving
+		statmod{ <- chara .superpet <- chara .unpet }
+	then
+;
+
+: dog-me-up
+	soloer notpet? if
+		soloer .doggify beep
+	then;
+	soloer statmod{ .superdog? } if "ALREADY SUPERDOG" print bitefx then;
+	soloer ispet? if
+		soloer statmod{ dup .superdog .undog } goodfx
+	then
+
+;
+
+: humany? dup superpet? swap notpet? or ;
+
+// : pets ' pet? stack-filter drop ;
+: petfilt ' ispet? stack-filter drop ; 
+: humanfilt ' humany? stack-filter drop ; 
+
+: cyoa-human-choice team-stack humanfilt cyoa-char-stack-choice ;
+: #cyoa-human-choice #team-stack-shuffled humanfilt cyoa-char-stack-choice ;
+: cyoa-pet-choice team-stack petfilt cyoa-char-stack-choice ;
+
+: foreach-human-char ( ' word -- ) team-stack humanfilt swap popeach ;
+: foreach-pet-char ( ' word -- ) team-stack petfilt swap popeach ;
+
+// moved from charfilt
+: strength-total 0 ' sum-strengths foreach-human-char ;
+: shooting-total 0 ' sum-shoots foreach-human-char ;
+: medical-total 0 ' sum-medical foreach-human-char ;
+: mechanic-total 0 ' sum-mechanic foreach-human-char ;
+: strength-average strength-total team-count / ;
+: shooting-average shooting-total team-count / ;
+: medical-average medical-total team-count / ;
+: mechanic-average mechanic-total team-count / ;
+
+
+0 value petgrow-checker
+
+cyoa{
+
+: cpetderp
+	cdog? if 
+		($ cname .. " sits there, panting, not understanding what to do, at all." $)
+	else
+		($ cname .. " horks something up and otherwise does nothing of value." $)
+	then
+;
+
+: fingspaws
+	superpet? if "paws" else "fingers" then
+	// account for other animals later?
+;
+
+: growlhiss args( chara )
+	<- chara dog? if 
+		"growl" 
+	else 
+		<- chara cat? if 
+			"angry meow" 
+		else
+			"snort"
+		then
+	then
+;
+
+: snarlhiss args( chara )
+	<- chara dog? if 
+		"snarl" 
+	else 
+		<- chara cat? if 
+			"hiss" 
+		else
+			"stomp"
+		then
+	then
+;
+
+: petbite args( chara )
+	<- chara dog? if 
+		"bite" 
+	else 
+		<- chara cat? if 
+			"claw" 
+		else
+			"maul"
+		then
+	then
+;
+	
+: barkmeow args( chara )
+	<- chara dog? if 
+		"bark" 
+	else 
+		<- chara cat? if 
+			"meow" 
+		else
+			"sneeze"
+		then
+	then
+;
+
+: dogcat args( chara )
+	<- chara dog? if 
+		"dog" 
+	else 
+		<- chara cat? if 
+			"cat" 
+		else
+			<- chara goat? if
+				"goat"
+			else
+				"critter"
+			then
+		then
+	then
+;
+
+: teethclaws args( chara )
+	<- chara dog? if 
+		"teeth" 
+	else 
+		<- chara cat? if 
+			"claws" 
+		else
+			"rage"
+		then
+	then
+;
+
+: Dogcat args( chara )
+	<- chara dog? if 
+		"Dog" 
+	else 
+		<- chara cat? if 
+			"Cat" 
+		else
+			<- chara goat? if 
+				"Goat"
+			else
+				"Critter"
+			then		
+		then
+	then
+;
+
+: cDogcat cchar Dogcat ;
+: cdogcat cchar dogcat ;
+
+: cdogcat cchar dogcat ;
+: cgrowlhiss cchar growlhiss ;
+: csnarlhiss cchar snarlhiss ;
+: cpetbite cchar petbite ;
+: cbarkmeow cchar barkmeow ;
+: cfingspaws cchar fingspaws ;
+: cteethclaws cchar teethclaws ;
+
+: pet-grow-up args( pet )
+
+	<- pet .trait@ "GROWING PET" $= if
+		<- pet choosechar cicon
+		<- pet dog? if
+			<- pet .bodytype@ 18 = if 0 <- pet .bodytype! then
+			<- pet .bodytype@ 19 = if 3 <- pet .bodytype! then
+			WEAPON_CLAW <- pet .weapon_default!
+		then
+		<- pet cat? if
+			<- pet .bodytype@ 10 = if 0 <- pet .bodytype! then
+			<- pet .bodytype@ 11 = if 2 <- pet .bodytype! then
+			WEAPON_FIERCE <- pet .weapon_default!
+		then
+		
+		0 <- pet .speed_bonus!
+		"GROWN PET" <- pet .trait!
+		-1 STAT_MORALE <- pet .bonus+
+		<- pet .morale@ 1 < if 
+			1 <- pet .morale! 
+		then
+
+	then
+;
+
+cyoa: pet-grow 
+	"Pets Grow Up Fast" cyoa-title!
+	
+	' pet-grow-up foreach-pet-char
+	
+	($ "It seems really sudden, but " .. cname .. " has grown into a full sized " .. cdogcat .. "!" $) text!
+	goodfx
+	0 to petgrow-checker
+;
+
+ cyoa-choice: testtest
+  "TESTY Night" cyoa-title!
+  ($ cname .. ", HI!" $) cyoa-text!
+	' .morale++ foreach-human-char
+ ;
+
+ cyoa: test
+ "TEST" cyoa-title!
+ "TEST" cyoa-text!
+
+  ' testtest cyoa-human-choice
+;
+
+}
+
+: pet-grow 	
+	petgrow-checker 0 > if ' petgrow-checker ++ then
+	petgrow-checker 6 > if cyoa{ ' pet-grow stack-road-action } then 
+;

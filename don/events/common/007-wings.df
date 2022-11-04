@@ -1,0 +1,51 @@
+cyoa{ road{ 
+
+(*
+------------------------------------------------------------------------------------------------------------------------
+	007 - "Wings for DAYS" - Don Thacker
+	The group happens onto a cargo container full of freshly cooked chicken wings.
+	So they win, right?
+------------------------------------------------------------------------------------------------------------------------
+*)
+
+: ouch-wings-all args( chara )
+	<- chara isfireproof? if
+		($ <- chara .name@ pbold .. " is loving this sauce!" $) +crtext
+		<- chara .morale2+
+	else
+		<- chara .ouch--
+	then
+;
+
+// GET THOSE WINGS!
+cyoa-choice: don-common-wings-get
+    image-crate-of-wings
+	($  Thegroup .. " approaches the cargo container. " .. gThey .. " open" .. g1s .. " the door and GIANT AMOUNTS of boiling hot sauce pours out in a tidal wave." $) text!
+		' ouch-wings-all foreach-team-char
+	choosehuman alive? if
+		($ Thegroup .. " takes what " .. gthey .. " figure" .. g1s .. " " .. gthey .. " can eat before the chicken wings spoil on the road. It was all worth it!" $) +crtext
+			team-count 8 * trunk-food+ goodfx morale3+all
+	else
+		($ "Yet another case of super spicy chicken wings causing deaths! You never hear about this due to the " .. "BIG CHICKEN" rbold .. " industry." $) +crtext
+	then
+;
+
+// Leave the wings. Man that sucks.
+cyoa-choice: don-common-wings-leave
+    ($ Thegroup .. " decides it's too risky, even for wings." $) cyoa-text!
+    ($ "Man, they sure smelled good, though." $) +crtext
+;
+
+// The group comes across an overturned cargo container. OF WINGS.
+cyoa: don-common-wings
+    image-crate-of-wings
+    "Wings for DAYS!" cyoa-title!
+    ($ Thegroup .. " finds a " .. "strange looking cargo container" pbold .. " flipped onto its side, lying in the middle of the road. " $) cyoa-text! basic-tone
+    ($ "It's got a valved exhaust port sticking out of it, venting steam and the smell of " .. "fresh hot wings" fbold .. ". " $) +crtext
+
+    choice( "GET WINGS - WARNING: HOT" )choice: don-common-wings-get
+    choice( "Leave it" )choice: don-common-wings-leave
+;
+
+
+} }

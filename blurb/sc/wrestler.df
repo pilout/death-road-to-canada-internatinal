@@ -1,0 +1,136 @@
+: wrestler-sharp1
+	2nd-char choosechar
+	blurbslot 0= if
+		"Wrestling is not just a sport, it is an art!" blurbsay
+	else
+		blurbslot 2 < if
+			cwits+ cattitude- or if
+				($ "The art of wasting furniture!" $) blurbsay
+				"Wrestling is so fake!" blurbsay
+				STAT_MORALE 1st-char .stat--
+		else
+			"I agree!" blurbsay
+			STAT_MORALE 1st-char .stat++
+		then then
+	then
+;
+
+: wrestler-tude1
+	2nd-char choosechar
+	blurbslot 0= if
+		"AIN'T NO ZOMBIES PINNING DOWN EL SATAN!" blurbsay
+	else
+		blurbslot 2 < if
+			cattitude- or if
+				($ "Why do you got to pile drive things all the time?" $) blurbsay
+				"Why can't you just use a gun?!" blurbsay
+				STAT_MORALE 1st-char .stat++
+		else
+			"DARN STRAIGHT!" blurbsay
+			STAT_MORALE 1st-char .stat++
+		then then
+	then
+;
+
+
+: wrestler-carriedaway
+	blurbslot 0= if
+		"TIME FOR THE EL SATAN FIERY INFERNO FINISHER!" blurbsay
+		"Oh, sorry, I got carried away there." blurbsay
+	then
+;
+
+: wrestler-beingunmasked
+	blurbslot 0= if
+		"I'm really not too afraid of being eaten by zombs." blurbsay
+		"My biggest fear is being unmasked." blurbsay
+		qmsg ($ me .name@ .. " sheds a single manly tear." $) txt
+	then
+;
+
+: wrestler-suethreat
+	blurbslot 0= if
+		"The EL SATAN ATOMIC PUNCH used to be called the EL SATAN **** ******." blurbsay
+		"I had to change it when another wrestler threatened to sue." blurbsay
+	then
+;
+
+	: WRESTLER-oneline1 "I'd like to people say wrestling isn't real NOW." ;
+	: WRESTLER-oneline2 "I hope to make a wrestling move that deserves to be called ULTIMATE." ;
+	: WRESTLER-oneline3 "Wish referees were still around so zombs could get disqualified for biting." ;
+	: WRESTLER-oneline4 "Even after the world ended, wrestling lives on. Makes you think." ;
+	: WRESTLER-oneline5 "I like to think that the wrestlers from my old crew are out there, somewhere." ;
+	: WRESTLER-oneline6 "In the ring and out of the ring, chairs are the ultimate weapon." ;
+	: WRESTLER-oneline7 "If I could get my hands on a really big ladder as a weapon... man..." ;
+	: WRESTLER-oneline8 "These zombs haven't been training or eating their veggies." ;
+	: WRESTLER-oneline9 "The real source of power of a wrestling move is the move's name." ;
+	: WRESTLER-oneline10 "If we get through this, I'm starting my own wrestling league." ;
+	: WRESTLER-oneline11 "Wooden ladders are great and everything, I just prefer aluminium ladders." ;
+	: WRESTLER-oneline12 "The wrestling moves I use have been passed down from my family for generations!" ;
+	: WRESTLER-oneline13 "I'm not worried about the zombies! I'm worried about my championship title!" ;
+	: WRESTLER-oneline14 "I'd like to see these zombies survive in the wrestling ring!" ;
+	: WRESTLER-oneline15 "I've been through worse! This is nothing compared to a cage match!" ;
+	
+	deck-new
+		card: WRESTLER-oneline1
+		card: WRESTLER-oneline2
+		card: WRESTLER-oneline3
+		card: WRESTLER-oneline4
+		card: WRESTLER-oneline5
+		card: WRESTLER-oneline6
+		card: WRESTLER-oneline7
+		card: WRESTLER-oneline8
+		card: WRESTLER-oneline9
+		card: WRESTLER-oneline10
+		card: WRESTLER-oneline11
+		card: WRESTLER-oneline12
+		card: WRESTLER-oneline13
+		card: WRESTLER-oneline14
+		card: WRESTLER-oneline15
+	constant WRESTLER-ONELINERS
+	WRESTLER-ONELINERS var wrestler-oneliners
+	WRESTLER-ONELINERS shuffles to wrestler-oneliners
+
+: wrestler-oneliner
+	wrestler-oneliners depths 0= if WRESTLER-ONELINERS shuffles to wrestler-oneliners then
+	blurbslot 0= if
+		drawcard blurbsay
+	then
+;
+
+	
+	: wrestler-emote1 " carefully adjusts mask so his identity isn't revealed." ;
+	: wrestler-emote2 " adjusts his championship wrestling belt." ;
+	: wrestler-emote3 " talks about the best ladder manufacturers." ;
+	: wrestler-emote4 " talks about a few of his rivals." ;
+	
+	deck-new
+		card: wrestler-emote1
+		card: wrestler-emote2
+		card: wrestler-emote3
+		card: wrestler-emote4
+
+	constant wrestler-EMOTES
+	wrestler-EMOTES var wrestler-emotes
+	wrestler-EMOTES shuffles to wrestler-emotes
+
+: wrestler-emote
+	wrestler-emotes depths 0= if wrestler-EMOTES shuffles to wrestler-emotes then
+	blurbslot 0= if
+		qmsg ($ me .name@ .. wrestler-emotes drawcard $) txt
+	then
+;
+
+
+	deck-new
+	card: wrestler-carriedaway
+	card: wrestler-suethreat
+	card: wrestler-beingunmasked
+	card: wrestler-sharp1
+	card: wrestler-tude1
+	15 cards: wrestler-oneliner
+	4 cards: wrestler-emote
+
+	constant BLURB-WRESTLER-DECK
+	BLURB-WRESTLER-DECK var blurb-wrestler-deck
+	BLURB-WRESTLER-DECK shuffles to blurb-wrestler-deck

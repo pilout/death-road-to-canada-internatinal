@@ -1,0 +1,157 @@
+"../deathforth/rooms/industrial.txt" $load-rooms
+"../deathforth/rooms/bigoffice.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/officeloc.df" $load
+
+	location
+		tags: factory
+		max-rooms: 16
+		entry-tags: indust-start
+		
+		2 value indroomcountdown
+		
+		: restdoor random-door "restroom" only-with-door ;		
+		: extraindloot
+			30 %chance if random-door "treasure" only-with-door then 
+			20 %chance if random-door "death" only-with-door then 
+		;
+		
+		: smallmystery
+			mystfactory case
+				0 of 2 3 rnd for cardboard .scatter next endof
+				1 of 2 3 rnd for 15 sbullet next endof
+				2 of 2 3 rnd for 8 sshot next endof
+				3 of 2 3 rnd for 12 srifle next endof
+				4 of 2 3 rnd for 20 sgas next endof
+				5 of 4 5 rnd smed endof
+				6 of 6 7 rnd sfood endof
+				7 of 
+					2 3 rnd for umbrella .scatter next
+					beach .scatter
+				endof
+				8 of 2 3 rnd for golf .scatter next endof
+			endcase
+			extraindloot
+		;
+		
+		: mysteryloot
+			mystfactory case
+				0 of 10 15 rnd for cardboard .scatter next endof
+				1 of 7 8 rnd for 15 sbullet next endof
+				2 of 7 8 rnd for 8 sshot next endof
+				3 of 7 8 rnd for 12 srifle next endof
+				4 of 6 7 rnd for 20 sgas next endof
+				5 of 10 12 rnd smed endof
+				6 of 14 16 rnd sfood endof
+				7 of 
+					10 15 rnd for umbrella .scatter next
+					2 4 rnd for beach .scatter next
+				endof
+				8 of 10 15 rnd for golf .scatter next endof
+			endcase
+			extraindloot
+		;
+		
+		: factoryhall
+			factorylloot
+			random-door "indust-room" only-with-door
+			extraindloot
+		;
+
+		: startfactoryhall
+			3 for random-door "indust-hall" only-with-door next
+		;
+		
+		: tryfactoryend
+			factorylloot
+			' indroomcountdown --
+			indroomcountdown 1 < if 
+				random-door "execsafe" only-with-door
+				random-door "emplounge" only-with-door
+				extraindloot restdoor
+			then;
+			smallmystery
+			random-door "indust-hall" with-door
+		;
+		
+		script: factory-theme 
+		post-script: 10diff %zombs map{ room-papers 25 %chance if swreckage then 15 %chance if room-garbage then } nad ndx
+
+		
+		room-choice: indust-start
+			room-weight: 1
+			room-count: 1
+			room-post-script: startfactoryhall
+			filter-only
+		
+		room-choice: indust-room
+			room-weight: 1
+			room-count: 2
+			room-post-script: tryfactoryend
+			filter-only
+			
+		room-choice: execsafe
+			room-weight: 10
+			room-count: 1
+			room-script: floor-office
+			room-post-script: execloot 
+			filter-only
+		
+		room-choice: emplounge
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: officefood restdoor	
+			filter-only			
+
+		room-choice: indust-room
+			room-weight: 10
+			room-count: 1
+			room-post-script: mysteryloot
+			filter-only
+			
+		room-choice: indust-room
+			room-weight: 10
+			room-count: 1
+			room-script: combonote
+			filter-only
+
+		room-choice: treasure
+			room-weight: 1
+			room-count: 3
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+		
+		room-choice: death
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+		room-choice: indust-hall
+			room-weight: 1
+			room-count: 4
+			room-post-script: factoryhall 
+			filter-only
+
+regiondef{
+
+	region: industry
+		w: 40
+		h: 23
+		max-locs: 1
+		script: timeofday o'clock resetsafe
+		post-script: 10diff %zombs inspawn
+
+		inside no-prefab
+
+		"REGION LOCATIONS" print
+					
+		loc-choice: factory
+			loc-weight: 99
+			loc-count: 1
+
+}

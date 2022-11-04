@@ -1,0 +1,211 @@
+// uses events/city/building-pick-layout.df - Commented because special-lots already loads this. Also currently using test/loctestlayout instead.
+
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+: smallloot 
+	looseloot looselootgasmed LLweapon skelscat 2 for 50 %chance if skelscat then next
+;
+
+// Formerly 40 pipe, 50 grenade, 50 molotov
+: throwloot 
+	skelscat 
+	66 %chance if 
+		3 4 rnd for pipescat next
+	else 
+		99 %chance if 
+			2 3 rnd for grenscat next
+		else 
+			2 3 rnd for molscat next
+		then
+	then
+;
+
+: bigloot 
+	LLammo LLammo looselootgasmed niceranged .drift skelscat skelscat 2 for 50 %chance if skelscat then next
+;
+
+
+
+location
+		tags: trashed
+		max-rooms: 1
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			filter-only
+
+location
+		tags: canada-loot
+		max-rooms: 1
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: smallloot
+			filter-only
+			
+location
+		tags: throw-loot
+		max-rooms: 1
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: throwloot
+			filter-only
+			
+location
+		tags: propane-loot
+		max-rooms: 1
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: bbqtank bbqtank bbqtank
+			filter-only
+			
+location
+		tags: canada-bigloot
+		max-rooms: 1
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: bigloot
+			filter-only
+
+map{ regiondef{
+
+	: pick-building
+
+		' curbuild ++
+		try-special-build if then;
+
+		(* rowsleft 3 >= 40 %chance and if 0 else // Old defunct style
+			rowsleft 2 <= 75 %chance and if 0 else auto-picklocid then
+		then *)
+		
+		(* rowsleft 3 >= if  // For a 4x3 city
+			50 %chance if 0 else auto-picklocid then
+		else
+			rowsleft 2 = if 
+				75 %chance if 0 else auto-picklocid then
+			else
+				curbuild 10 < if
+					25 %chance if 0 else auto-picklocid then
+				then
+				curbuild 9 > if auto-picklocid then
+			then
+		then *)
+		
+		rowsleft 2 = if 
+			10 %chance if 0 else auto-picklocid then
+		else
+			curbuild 7 < if
+				25 %chance if 0 else auto-picklocid then
+			then
+			curbuild 6 > if auto-picklocid then
+		then
+				
+		trashed-apartment-maker
+	;
+
+	: pick-lots
+		blocks-init
+			6 to blockh
+			2 to maxrows // was 3
+			7 to streeth
+			55 to greenspace%
+			3 5 rnd to grassylots
+		blocks-start
+
+		pavement
+
+		begin canplot? while
+
+			pick-building next-plot
+
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat
+
+		street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		2sdiff %zombs pavement pick-lots
+	;
+	
+} }
+
+regiondef{
+
+	: runme
+	//	special-lot-setup-example
+		mission{ all-leaving siege-start-noclear }
+		building-pick-setup
+		50 70 rnd for skelscat next
+		3 4 rnd for LLammo next 
+		LLweapon LLweapon
+		road{ diff-scalar } 1.3 < if
+			walk-music
+		else
+			losthope-music
+		then
+	;
+
+	 region: new-locations-test
+		w: 32
+		h: 24
+		// h: 38
+		script: timeofday o'clock
+		on-foot no-rest
+
+		loc-choice: canada-bigloot
+			loc-weight: 40
+			loc-count: 1
+
+			loc-pick-script: make-apartments
+
+		loc-choice: canada-loot
+			loc-weight: 30
+			loc-count: 3
+			loc-pick-script: make-apartments
+			
+		loc-choice: throw-loot
+			loc-weight: 30
+			loc-count: 2
+			loc-pick-script: make-apartments
+		
+		loc-choice: propane-loot
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-apartments
+
+		post-script: runme
+}

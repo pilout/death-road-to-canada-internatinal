@@ -1,0 +1,369 @@
+cyoa{ road{ regiondef{
+
+cyoa: info-dingus
+	"wugh" cyoa-title!
+	"Hi, I'm the Info Dingus" text!
+;
+
+uses events/unlock/perktrait.df
+uses events/unlock/perk1.df
+uses events/unlock/perk2.df
+uses events/unlock/perk3.df
+uses events/unlock/trait1.df
+uses events/unlock/gnome.df
+uses events/unlock/twitter.df
+
+: challenge-gamemodecheck
+	gstats{
+	wins-normal 0 > if 1 else 0 then
+	wins-long  0 > if 1 else 0 then
+	wins-special  0 > if 1 else 0 then
+	wins-family  0 > if 1 else 0 then
+	wins-specialEX 0 > if 1 else 0 then
+	wins-familyEX 0 > if 1 else 0 then
+	wins-kepa 0 > if 1 else 0 then
+	wins-short 0 > if 1 else 0 then
+	wins-marathon 0 > if 1 else 0 then
+	wins-deadlier 0 > if 1 else 0 then
+	wins-endless 0 > if 1 else 0 then
+	wins-opp 0 > if 1 else 0 then
+	wins-quickdeath 0 > if 1 else 0 then
+	wins-4jerks 0 > if 1 else 0 then
+	wins-4jerksEX 0 > if 1 else 0 then
+	} + + + + + + + + + + + + + +
+;
+
+cyoa: challenge-statue1
+	gstats{ challenge-statue1 } 1 < if
+		"CHALLENGE OF MODES I" cyoa-title!
+		challenge-gamemodecheck 8 < if
+			($ "Beat 8 different game modes to " .. "unlock" rainbold .. " an assortment of " .. "9 NEW HATS" rainbold .. " for the Custom Character Maker!" $) text!
+			($ "Game Modes Beaten: " bbold .. challenge-gamemodecheck $) +crtext
+		else
+			($ "You've beaten 8 different game modes!
+			" .. "CHALLENGE COMPLETE!" rainbold $) text!
+			goodfx gstats{ 1 to challenge-statue1 } filesave{ save-global-stats }
+			"New hats are permanently unlocked. Check them out in the Custom Character Maker!" +crtext
+		then
+	else
+		"CHALLENGE OF MODES I - COMPLETE!" cyoa-title!
+		($ "After beating 8 different game modes, you have earned a batch of 9 new hats for the Custom Character Maker! This includes much sought after hats such as:
+		" .. "TOILET TANK WITH LID
+		HORSE HEAD HOOD
+		GOLDEN CROWN" rbold .. "
+		AND MORE!
+		" fbold $) text!
+	then
+	choice( "BACK" )choice
+;
+
+cyoa: challenge-statue2
+	gstats{ challenge-statue1 } 2 < if
+		"CHALLENGE OF MODES II" cyoa-title!
+		challenge-gamemodecheck 12 < if
+			($ "Beat 12 different game modes to " .. "unlock" rainbold .. " an assortment of " .. "6 NEW HATS" rainbold .. " for the Custom Character Maker!" $) text!
+			($ "Game Modes Beaten: " bbold .. challenge-gamemodecheck $) +crtext
+		else
+			($ "You've beaten 12 different game modes!
+			" .. "CHALLENGE COMPLETE!" rainbold $) text!
+			goodfx gstats{ 2 to challenge-statue1 } filesave{ save-global-stats }
+			"New hats are permanently unlocked. Check them out in the Custom Character Maker!" +crtext
+		then
+	else
+		"CHALLENGE OF MODES II - COMPLETE!" cyoa-title!
+		($ "After beating 12 different game modes, you have earned a batch of 6 new hats for the Custom Character Maker! This includes much sought after hats such as:
+		" .. "PRINCESS HAT (unisex)
+		DUNCE CAP
+		DISGUSTING BIRD" rbold .. "
+		AND MORE!
+		" fbold $) text!
+	then
+	choice( "BACK" )choice
+;
+
+cyoa: jerk-dingus
+	"The Jerk Store Called" cyoa-title!
+	"YOU'RE A JERK
+	OK, THAT'LL BE FIVE DOLLARS!
+	
+	THANKS FOR SHOPPING
+	AT THE JERK STORE" text!
+	choice( "THEY'RE ALL OUT OF YOU" )choice
+;
+
+cyoa: roaming-capyrun
+	"The Roaming Rodent" cyoa-title!
+	($ "The rodent thing " .. "(Capybara? Very large gerbil?)" pbold .. " flees when you approach it.
+	It runs to the " .. "NORTH-EAST!" rainbold $) text!
+	clear-cyoa deleteme
+;
+
+cyoa: ugnome-note
+	"From the Desk of Unomey" cyoa-title!
+	($ "The note reads as follows:" $) cyoa-text! 
+	"GET OUT OF MY HOUSE, YOU NERD!" pbold +crtext
+;
+
+// : tutorial-repeat 0 saveslot! MAIN_EVENT_NEW main-post-event "events/tutorial.df" $load-region to-mission ;
+: tutorial-repeat 0 saveslot! gstats{ 0 to tutorial-done save } sys_reset ;
+
+cyoa: tutorial
+	"Tutorial" $upper cyoa-title!
+	someicon
+	($ "You can repeat the tutorial here!
+	This is handy if you missed info on things like dropping weapons, or throwing furniture.
+	This option will put you back on the title screen, just hit START to go into the tutorial again." $) cyoa-text! basic-tone
+	
+		choice( "EXIT" )choice
+		choice( "Repeat Tutorial" )choice: tutorial-repeat
+;
+
+: dingus-deleted-dialog
+	FLASHY "BELETED!" .. $cyoa-ok-dialog "Dingus" $upper cyoa-title!
+;
+
+: deletedata-gstats gstats{ gstats-clear } sys_reset 5 0.95 2dup rumble-camera rumble-gui sfx{ rumble } dingus-deleted-dialog ;
+: deletedata-custchars filesave{ custchars-clear save-custchars load-custchars } dingus-deleted-dialog sfx{ creepy } ;
+: deletedata-both deletedata-custchars deletedata-gstats ;
+
+cyoa-blank: deletedata-gstats-confirm
+	"Are you sure you want to delete your stats, perks, and traits? This will also delete things such as game mode progress." text!
+	"NOTE: Selecting this option will quit to the title screen." pbold +crtext
+	choice( "NO" )choice
+	choice( "YES, DELETE THEM" )choice: deletedata-gstats
+;
+
+cyoa-blank: deletedata-custchars-confirm
+	"Are you sure you want to delete all your custom characters?" text!
+	choice( "NO" )choice
+	choice( "YES, DELETE THEM" )choice: deletedata-custchars
+;
+
+cyoa-blank: deletedata-both-confirm
+	"Are you sure you want to delete stats, perks, traits, and your custom characters? This will also delete things such as game mode progress." text!
+	"NOTE: Selecting this option will quit to the title screen." pbold +crtext
+	choice( "NO" )choice
+	choice( "YES, DELETE ALL" )choice: deletedata-both
+;
+
+// Do ARE YOU SURE? choices too
+cyoa: deletedata
+	"Data Clear" $upper cyoa-title!
+	"I'M THE DATA DELETION DINGUS
+	I WILL DELETE ALL OF YOUR DATA!" rbold text!
+	"The skeleton makes rattling noises.
+	You can delete your game data here! Though, you probably shouldn't." +crtext
+	choice( "EXIT" )choice
+	choice( "Custom Characters" )choice: deletedata-custchars-confirm
+	choice( "Stats and Perks" )choice: deletedata-gstats-confirm
+	choice( "Clear Both" )choice: deletedata-both-confirm
+; 
+
+cyoa-blank: freeZP-give-go
+	iicon
+	"ZOMBO POINTS increased to 99!" rainbold text!
+	goodfx gstats{ 99 to zombo-point save }
+	
+;
+
+cyoa: freeZP-give
+	"Zombo Point Giveaway!" cyoa-title! iicon
+	"WELL IT'S THE TESTING BRANCH
+	SO I CAN GIVE YOU SOME ZOMBO POINTS" bbold text!
+	gstats{ zombo-point } 99 < if 
+		choice( "Give me those Zombo Points" )choice: freeZP-give-go
+	else
+		"COME BACK WHEN YOU HAVE LESS THAN 99 ZP!" bbold
+	then +crtext
+	choice( "Leave for now" )choice
+	
+;
+
+} } }
+
+map{ regiondef{
+
+: info-dingus
+	nomove-npc
+	40 lt .character@ .specialtype!
+	' infostats lt .cyoa!
+;
+
+: tutorial-dingus
+	nomove-npc
+	10 lt .character@ .specialtype!
+	' tutorial lt .cyoa!
+;
+
+: delete-dingus
+	nomove-npc
+	78 lt .character@ .specialtype!
+	' deletedata lt .cyoa!
+;
+
+: perk-event args( me eventid perk ) THING_EVENT_TIMER <- eventid <> if then;
+
+	<- me .cyoa@ 0= if then; // Just time out, don't display icon anymore
+
+	15 <- me .repeating_timer
+
+	<- me .nearest? if "" <- me .report then;
+
+	// <- me .loot@ dup 0= if drop 1 GREEN "$" .. else looticon then
+	// <- me GREEN "11" .. looticon - a ?
+	
+	<- perk 1 < if
+		<- me "?" pbold
+	else
+		<- me <- perk bbold
+	then 1 swap <- me .reportdurnow
+;
+
+
+(*
+	EXAMPLE USAGE: Create a new event handler for the specified value
+
+	gstats{ toilets-opened } pe: perk-event-toilet
+*)
+
+: pe: token $create last >body ! does> @ execute perk-event ;
+
+: gstat: postpone gstats{ postpone ' postpone } ;
+
+gstats{ ' perk1-stockleft } pe: perk1-stockleft-event
+gstat: perk2-stockleft pe: perk2-stockleft-event
+gstat: perk3-stockleft pe: perk3-stockleft-event
+gstat: trait1-stockleft pe: trait1-stockleft-event
+gstat: gnome-stockleft pe: gnome-stockleft-event
+gstat: twitter-twitsleft pe: twitter-twitsleft-event
+
+: total-unlocktally gstats{ perk1-unlocktally perk2-unlocktally perk3-unlocktally trait1-unlocktally + + + } ;
+// 14 right now without any unlocked, has to be increased if new perks are added that are pre-unlocked
+
+: total-upgradetally gstats{ perk1-upgradetally perk2-upgradetally perk3-upgradetally + + } ;
+// 23 with nothing unlocked currently.
+// Need to upgrade zombotown.df if either upgradetally or unlocktally changes.
+
+: unlocker-shared
+	// new-camper
+	nomove-npc
+	// 0.01 lt .character@ .ai.wander_chance!
+	1 lt .timer!
+;
+
+: perk-dingus unlocker-shared
+		
+	57 lt .character@ .specialtype!
+	' perk1-stockleft-event lt .events!
+	' perk-dingus lt .cyoa!
+;
+
+: perk1-dingus unlocker-shared
+		
+	12 lt .character@ .specialtype!
+	' perk1-stockleft-event lt .events!
+	' perk1-dingus lt .cyoa!
+;
+
+: perk2-dingus unlocker-shared
+		
+	25 lt .character@ .specialtype!
+	' perk2-stockleft-event lt .events!
+	' perk2-dingus lt .cyoa!
+;
+
+: perk3-dingus unlocker-shared
+		
+	46 lt .character@ .specialtype!
+	' perk3-stockleft-event lt .events!
+	' perk3-dingus lt .cyoa!
+;
+
+: trait1-dingus unlocker-shared
+		
+	24 lt .character@ .specialtype!
+	' trait1-stockleft-event lt .events!
+	' trait1-dingus lt .cyoa!
+;
+
+: jerk-dingus
+	// new-camper
+	nomove-npc
+	21 lt .character@ .specialtype!
+	
+	' trader-event lt .events!
+	1 lt .timer!
+
+	' jerk-dingus lt .cyoa!
+;
+
+: challenge-statue1 
+	spawn special_objects48_base_id 0x 24 + 0 1 rnd + lt .spriteid! bbox immovable
+	' challenge-statue1 lt .cyoa!
+;
+
+: challenge-statue2
+	spawn special_objects48_base_id 0x 24 + 2 3 rnd + lt .spriteid! bbox immovable
+	' challenge-statue2 lt .cyoa!
+;
+
+: generalinfo-duder
+	nomove-npc
+	' gameinfo lt .cyoa!
+;
+
+: unlockgnome unlocker-shared
+	lt .character@ .gnomify2
+	' gnome-stockleft-event lt .events!
+	' unlockgnome lt .cyoa!	
+;
+
+: ugnome-note wrotenote cyoa{ ' ugnome-note cyoa! } ;
+
+: unlockgnome-hut gstats{ ugnome-found } 1 < if unlockgnome else ugnome-note then ;
+: capy-gnort args( me )
+	<- me ($ "*GNORT*" rbold $) <- me
+	.sprayit
+	// statmod{ .report } clear-cyoa
+	sfx{ sing 500 fx .d! 2.25 fx .pitch! 0.9 fx .q! <- me .adjust-vol } 
+;
+
+: capy-chat args( me )
+	gstats{ ugnome-found } 0 > if
+		<- me capy-gnort
+	else
+		cyoa{ roaming-capyrun }
+	then
+	; 
+
+: roaming-capybara
+	new-camper lt .character@ .gerbilfy
+	// 0.06 lt .character@ .ai.wander_chance!
+	' capy-chat lt .cyoa!
+;
+
+: hut-capybara
+	new-npc lt .character@ .gerbilfy
+	' capy-gnort lt .cyoa!
+;
+
+: freeZP-dingus
+	nomove-npc 
+	40 lt .character@ .specialtype!
+	
+	' trader-event lt .events!
+	1 lt .timer!
+	' freeZP-give lt .cyoa!
+;
+
+: twitter-chicken
+	nomove-npc
+	lt .character@ .chickenify
+	300 angle-colour 2 rgb* lt .clr!
+
+	' twitter-twitsleft-event lt .events!
+	1 lt .timer!
+	' twitterbird lt .cyoa!
+;
+
+} }

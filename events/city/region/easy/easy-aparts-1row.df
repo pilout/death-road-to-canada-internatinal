@@ -1,0 +1,66 @@
+
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+load? events/city/city-locations.df
+
+map{ regiondef{
+
+	: pick-building
+
+		' curbuild ++ try-special-build if then;
+
+		curbuild 2 <= if 
+			60 %chance if 0 else auto-picklocid then
+		else
+			curbuild 2 > curbuild 5 < and if
+				70 %chance if 0 else auto-picklocid then
+			else
+				auto-picklocid
+			then
+		then
+			
+		trashed-apartment-maker
+	;
+
+	: pick-lots
+		blocks-init
+			6 to blockh
+			1 to maxrows
+			5 to streeth
+			13 to greenspace%
+			0 1 rnd to grassylots
+		blocks-start
+
+		pavement 		
+		begin canplot? while
+			pick-building next-plot
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		5diff %zombs pavement pick-lots
+	;
+	
+} }
+
+regiondef{
+
+	: runme
+		building-pick-setup
+	;
+
+	 region: new-locations-test
+		w: 54
+		h: 13
+		script: timeofday o'clock
+
+easyregcity
+		
+		post-script: runme
+}

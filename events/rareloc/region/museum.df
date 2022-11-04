@@ -1,0 +1,250 @@
+// "../deathforth/events/rareloc/weird.txt" $load-rooms
+"../deathforth/rooms/bigoffice.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/officeloc.df" $load
+
+"
+:map 1
+:tags museumhall  
+:scriptA painting1 
+:scriptB painting2 
+:size 17 10 
+:off 9 2 
+:tiles 
+22222222222222222
+23333333333333332
+21A11B11A11B11A12
+21111111111111112
+21111111111111112
+21111111111111112
+21111111111111112
+21111111111111112
+22222222222222222
+33333333333333333
+
+:map 2 
+:tags museumhall  
+:scriptA painting1 
+:scriptB painting2 
+:size 16 17 
+:off 9 0 
+:tiles 
+2222222222222222
+2333333333333332
+211B11A11A11B112
+2111111111111112
+2111111111111112
+2111111111111112
+2222221111222222
+3333321111233333
+0000021111200000
+2222221111222222
+2333331111333332
+211A11111111A112
+2111111111111112
+2111111111111112
+2111111111111112
+2222222222222222
+3333333333333333
+
+:map 3 
+:tags museumhall  
+:scriptA painting1 
+:scriptB painting2 
+:size 16 15 
+:off 9 0 
+:tiles 
+2222222222222222
+2333333333333332
+211B11B11B11B112
+2111111111111112
+2111111111111112
+2111222222221112
+2111233333321112
+2111200000021112
+2111222222221112
+2111333333331112
+211111A11A111112
+2111111111111112
+2111111111111112
+2222222222222222
+3333333333333333
+
+:map 4 
+:tags museumhall  
+:scriptA painting1 
+:scriptB painting2 
+:size 15 14 
+:off 9 0 
+:tiles 
+222222222222222
+233333333333332
+2111B11A11B1112
+211111111111112
+211222111222112
+211333111333112
+2111A11111A1112
+211111111111112
+211111222111112
+211111333111112
+2111111B1111112
+211111111111112
+222222222222222
+333333333333333
+
+:map 5 
+:tags museumhall  
+:scriptA painting1 
+:scriptB painting2 
+:size 16 15 
+:off 9 1 
+:tiles 
+2222222222222222
+2333333333333332
+211A11A11A11A112
+2111111111111112
+2111111111111112
+2111222112221112
+2111323113231112
+2111121111211112
+2111222112221112
+2111333113331112
+21111B1111B11112
+2111111111111112
+2111111111111112
+2222222222222222
+3333333333333333
+
+:map 6 
+:tags museumhall  
+:scriptA painting1 
+:scriptB painting2 
+:size 18 16 
+:off 8 1 
+:tiles 
+222222200002222222
+233333200002333332
+21B1B12000021B1B12
+211111200002111112
+211111222222111112
+211111333333111112
+2111111A11A1111112
+211111111111111112
+211111111111111112
+211111111111111112
+211111222222111112
+211111233332111112
+211111200002111112
+211111200002111112
+222222200002222222
+333333300003333333
+
+:map 7 
+:tags museumprize  
+:scriptA painting1 
+:scriptB painting2 
+:scriptC museumloot 
+:size 19 13 
+:off 3 0 
+:tiles 
+0000000004000000000
+0000022222222200000
+0000023333333200000
+0000021111111200000
+000002111C111200000
+2222221111111222222
+2333331111111333332
+21BA11111111111AB12
+2111111111111111112
+2111111111111111112
+2111111111111111112
+2222222222222222222
+3333333333333333333
+"
+value MUSEUMROOMS
+MUSEUMROOMS $parse-rooms
+
+		: museumloot
+			museumtype case
+				0 of 6 8 rnd for otaku .scatter next truekatana .drift endof
+				1 of
+					minigun .drift 
+					2 for shotgun .scatter huntcowboy .scatter pistol .scatter next
+					dolt .scatter snubnose .scatter 
+				endof
+				2 of 2 for gauntlet .scatter next 8 10 rnd for hatchet .scatter next medieval .drift endof
+				3 of 16 22 rnd sfood endof
+			endcase
+		;
+
+locdef{
+
+location: museum
+		max-rooms: 7
+		entry-tags: officstart
+		script: set-theme-museum
+		pre-script: set-theme-museum
+		post-script: 10diff %zombs nad
+		
+		3 value museumcountdown
+				
+		: museumdown
+			' museumcountdown --
+			museumcountdown 1 < if
+				2 for random-door "museumprize" only-with-door next				
+			then;
+			random-door "museumhall" only-with-door
+			museumcountdown 2 < if
+				random-door "emplounge" only-with-door
+			then;
+		;
+		
+		: museumstart
+			random-door "restroom" only-with-door
+			random-door "museumhall" only-with-door
+		;
+		
+		room-choice: officstart
+			room-weight: 1
+			room-count: 1
+			room-post-script: museumstart
+			filter-only
+
+		room-choice: emplounge
+			room-weight: 10
+			room-count: 1
+			room-post-script: officefood
+			filter-only
+			
+		room-choice: museumhall
+			room-weight: 10
+			room-count: 3
+			room-post-script: museumdown
+			filter-only
+			
+		room-choice: museumprize
+			room-weight: 10
+			room-count: 1
+			filter-only
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			filter-only
+					
+}		
+
+regiondef{			
+
+	region: museum
+		script: timeofday o'clock
+
+		inside
+					
+		loc-choice: museum
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 5diff %zombs inspawn
+}

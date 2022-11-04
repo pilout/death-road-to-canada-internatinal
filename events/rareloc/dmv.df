@@ -1,0 +1,128 @@
+// Change one $add-rooms to $load-rooms if you want to edit them in the room editor directly, but change it back to $add-rooms when done
+
+"../deathforth/rooms/eyeball.txt" $add-rooms
+"events/inner/officeloc.df" $load // Pretty much just for the office counter
+
+// Uncomment below for easy testing with "events/rareloc/dmv.df" $load-region to-mission in hack.df
+// Also see final lines for turning regiondef on for testing
+
+// "../deathforth/rooms/restroom.txt" $add-rooms
+
+cyoa{
+
+: dmv-cool-namer args( chara )
+	"Cool " <- chara .name@ $cat <- chara .name!
+;
+
+: dmv-text-1
+	($ cname .. "'s name is now " $) text!
+;
+
+: dmv-text-2
+	($ cname .. "! The driver's license says so! It's legally binding!" $) +text clear-cyoa
+;
+
+: dmv-text-badname
+	cchar dsyp? if
+		($ cname .. " doesn't really mind the name too much. It's kind of fitting!" $) +crtext goodfx
+		morale++ vitality++ statmod{ -5 to dsyp-farted }
+	then;
+	($ cname .. " instantly forms a massive chip on " .. chis .. " shoulder. " .. cHe .. " enters a permanent state of simmering rage!" $) +crtext strength++ fitness++ morale-- temper-- badfx
+;
+
+cyoa-choice: dmv-machine-1
+	dmv-text-1 "Smellbert" pchar .name! dmv-text-2
+	"What a completely awful new name!" +crtext dmv-text-badname
+;
+
+cyoa-choice: dmv-machine-2
+	dmv-text-1 "Fartfart" pchar .name! dmv-text-2
+	($ "This is still better than " .. chis .. " previous name." $) +crtext dmv-text-badname
+;
+
+cyoa-choice: dmv-machine-3
+	dmv-text-1 "Harry Ham" pchar .name! dmv-text-2
+	$( cname .. " was the most popular name for centuries in the Late Medieval era, for both girls and boys. It was thought that it provided a blessing of good health." $) +crtext
+	vitality++ goodfx
+;
+
+cyoa-choice: dmv-machine-4
+	dmv-text-1 pchar dmv-cool-namer dmv-text-2
+	($ cname .. " feels way past cool with " .. chis .. " new name!" $) +crtext
+	morale3+ goodfx
+;
+
+cyoa-bridge: dmv-machine-go
+	"What should the name be on the driver's license?" text!
+	choice( "Smellbert" )choice: dmv-machine-1
+	choice( "Fartfart" )choice: dmv-machine-2
+	choice( "Harry Ham" )choice: dmv-machine-3
+	choice( "Cool " .. pchar .name@ )choice: dmv-machine-4
+;
+
+cyoa: dmv-machine
+	"A License... to Drive" cyoa-title! picon!
+	"I can't believe you skipped the line! Very rude!
+	This is a machine used to print driver's licenses.
+	It can print one final license before running out of supplies." text!
+	($ pname .. " could use a new one, " .. phis .. " license is about to expire!" $) +crtext
+		choice( "Leave it for now" )choice
+		choice( "Print new license" )choice: dmv-machine-go
+;
+
+}
+
+map{ roomgen{ : dmv-machine hospitalmachine swolebolt cyoa{ ' dmv-machine cyoa! } ; } }
+
+locdef{
+		
+location: dmv
+		max-rooms: 4
+		entry-tags: dmvstart
+		pre-script: set-theme-office
+		script: set-theme-office
+				
+		: dmvdoors
+			random-door "dmvend" only-with-door
+			random-door "restroom" only-with-door
+			random-door "restroom" only-with-door
+		;
+		
+		room-choice: dmvstart
+			room-weight: 80
+			room-count: 1
+			room-script: nad
+			room-post-script: dmvdoors 5diff %zombs
+			
+		room-choice: dmvend
+			room-weight: 1
+			room-count: 1
+			room-script: nad
+			room-post-script: 10diff %zombs
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad
+			room-post-script: 20diff %zombs
+			filter-only
+			
+}
+
+// Comment the (* and *) lines out for easy testing, see line 6
+// Remove the comments you add before actually putting them in the city generator
+(*
+regiondef{			
+
+	region: dmv
+		script: timeofday o'clock
+
+		inside
+					
+		loc-choice: dmv 
+		loc-weight: 99 
+		loc-count: 1
+
+}
+*)

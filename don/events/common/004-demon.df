@@ -1,0 +1,151 @@
+cyoa{ road{ 
+
+(*
+------------------------------------------------------------------------------------------------------------------------
+	004 - "The Unsummoned" - Don Thacker
+	One of the group becomes posessed by the demon HEKTATRIUS. He wants PIZZA and SMOKES.
+	That's cool, right? I mean he sounds pretty rad.
+------------------------------------------------------------------------------------------------------------------------
+*)
+
+// The group kicks the character TO THE CURB
+cyoa-choice: don-common-demon-offload
+	victim to cchar
+	($ notcname .. " kicks " .. vname .. " out through the passenger door. 
+	As " .. vhe .. " falls, " .. vhe .. " explodes into a swarm of tiny black bats." $) cyoa-text!
+	victim .kill
+	morale--all
+;
+
+: don-common-demonify
+	victim .morale-- 
+	0 victim .tint.skin.g!
+	0 victim .tint.skin.b!
+	victim .strength++ victim .fitness++
+	victim ispet? if 
+		0 victim .pet! victim statmod{ .undog } 0 3 rnd victim .bodytype! 73 victim .specialhead!
+		WEAPON_FIERCE victim .weapon_default!
+	else
+		victim .weapons-to-trunk
+		WEAPON_DEVILFORK victim .weapona!
+		1 victim .weapon_nodropa!
+	then
+;
+
+cyoa-choice: don-common-demon-pizza-refuse
+// Victim was necessary to carry the character selected at the start all the way to here. Otherwise the intermediary cyoa: would have cleared it. Could have also gotten around this using the vortex-003 example of not using cyoa: and using cyoa-start instead, but it would have been really clumsy and prone to breaking.
+	($ "UGH, WELL, THANKS ANYWAY I GUESS.
+	" rbold .. "The demon releases " .. vname .. ", who is changed by the experience." $) cyoa-text!
+	don-common-demonify sfx{ creepy }
+;
+
+: don-common-demon-pizzaboost dup .strength++ dup .fitness++ dup .morale-- ;
+
+cyoa-choice: don-common-demon-pizza2
+	($ "THANKS FOR THE SOOOUUUUUUUUL.
+	" rbold .. "All the survivors are infused with demonic power." $) cyoa-text!
+	cchar .kill
+	cchar ' don-common-demon-pizzaboost foreach-team-char-except
+;
+
+cyoa-bridge: don-common-demon-pizza2-4
+	someicon
+	"Who should be sacrificed to HEKATRIUS?" cyoa-text!
+	' don-common-demon-pizza2 cyoa-team-choice
+;
+
+cyoa: don-common-demon-pizza
+
+image-demon
+solo if
+	soloer choosechar
+	($ "THANKS A BUNCH, DINGUS.
+	" rbold .. "The demon blasts " .. cname .. " with spooky powers, then vanishes!" $) cyoa-text!
+	cchar to victim
+	don-common-demonify sfx{ creepy }
+else
+	($ "The chips were pizza flavored. GOOD ENOUGH." .. " HEKATRIUS" rbold .. " asks for a soul to wash it down with.
+	" .. "WHO WILL BE SACRIFICED?" rbold $) cyoa-text!
+	team-count 3 > if
+		' don-common-demon-pizza2 2 #cyoa-team-choice
+		choice( "Pick someone else" )choice: don-common-demon-pizza2-4
+	else
+		' don-common-demon-pizza2 3 #cyoa-team-choice
+	then
+	choice( "Uh, sacrifice no one." )choice: don-common-demon-pizza-refuse	
+then
+	-1 trunk-food+
+;	
+
+
+cyoa-choice: don-common-demon-facepunch
+	
+	($ "CURSE YOU HUMAN! CURSE YOU!
+	" pbold .. "HEKATRIUS" rbold .. " vanishes. " .. cname .. " feels pretty good about this." $) cyoa-text!
+		($ "What a miracle punch!" $) +crtext
+		morale2+ strengthREV strength++ temperREV goodfx
+
+;	
+
+cyoa-choice: don-common-demon-freakout
+	// the group freaks out, causing the demon to freak out - you all freak out together
+	// the demon leaves and you have essentially lost a person for nothing
+	// maybe don't freak out next time
+	
+	($ Thegroup .. " freaks out!" rbold $) text!
+	notsolo if
+		($ "HEKATRIUS" rbold .. " freaks out for awhile! He then morphs back into " .. vname .. ", who then explodes!" $) +crtext
+		victim .kill
+	else
+		($ "HEKATRIUS" rbold .. " freaks out for awhile, then vanishes into a poof of smoke! It's very traumatizing!" $) +crtext
+		morale--
+	then badfx
+;	
+		
+	
+: don-common-demon-angrypunch 
+	most-angrystrong if
+		choice( "Punch his face" )choice: don-common-demon-facepunch
+	then
+;	
+
+: don-common-demon-choiceblock
+		trunk-food 0 > if
+			choice( "Offer him a bag of chips - 1 food" )choice: don-common-demon-pizza	
+		then
+		choice( "Freak out" )choice: don-common-demon-freakout
+;
+
+: don-common-demon-transmutetext
+	($ cname .. "'s eyes roll back and " .. che .. " starts to convulse! " .. cHe .. " shakes and screams in arcane tongues." $) +crtext
+	($ "In " .. vname .. "'s place now sits " .. "THE DEMON HEKATRIUS" rbold .. ". He asks if you have pizza. He could really use a hot slice." $) +crtext
+	
+	don-common-demon-choiceblock
+;	
+	
+// Enter HEKTATRIUS
+cyoa: don-common-demon
+	"The Unsummoned" cyoa-title!
+	($ Thegroup .. " notices a foul smell coming from the floorboards. Sulfur. Rotting mutton. Candy corn." $) cyoa-text! basic-tone 
+	($ "A flash of light and the sound of a " .. "thousand whales exploding" pbold .. " fills the car." $) +crtext
+	
+	solo if // alone
+		image-demon
+		soloer choosechar
+		($ "The smoke clears to reveal " .. "THE DEMON HEKATRIUS" rbold .. "." $) +crtext
+		($ "He asks if you have pizza. He could use a hot slice." $) +crtext	
+		don-common-demon-angrypunch 
+		don-common-demon-choiceblock
+		
+	else // not alone
+		someicon
+		cchar to victim 
+		// added cchar to victim here so it's really easy to keep track of who turned into a demon. This lets me use victim and vname up above, instead of having to constantly keep track of cname.
+			don-common-demon-transmutetext
+	then
+	
+
+	
+;
+
+} }

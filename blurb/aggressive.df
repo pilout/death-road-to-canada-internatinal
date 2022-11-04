@@ -1,0 +1,178 @@
+
+: aggressive-sharp1
+	2nd-char choosechar
+	blurbslot 0= if
+		"Une fois, j'ai frappé un zombie si fort qu'il a explosé !" blurbsay
+	else
+		blurbslot 2 < if
+			cwits+ cattitude- or if
+				($ "Je ne te crois pas, " .. 1st-char .name@ .. "." $) blurbsay
+				"Vous êtes un FRAUDULEUR!" blurbsay
+				STAT_MORALE 1st-char .stat--
+		else
+			"Sérieux! Trop COOL!" blurbsay
+			STAT_MORALE 1st-char .stat++
+		then then
+	then
+;		
+
+: aggressive-pessi1
+	2nd-char choosechar
+	blurbslot 0= if
+		"Et si on attachait des armes blanches à l'extérieur de la voiture ?" blurbsay
+	else
+		blurbslot 2 < if
+			cattitude- if
+				($ "ça marchera jamais, " .. 1st-char .name@ .. "!" $) blurbsay
+				"It's a bad idea!" blurbsay
+				STAT_MORALE 1st-char .stat--
+		else
+			"Ouais! une voiture piquante qui roule !!" blurbsay
+			STAT_MORALE 1st-char .stat++
+		then then
+	then
+;
+	
+: aggressive-passpess1
+	2nd-char choosechar
+	blurbslot 0= if
+		"Hé! Si vous allez prendre autant de temps pour tirer sur quelque chose, donnez-moi une partie de vos munitions!" blurbsay
+	else
+		blurbslot 2 < if
+			ctemper+ cattitude- or if
+				($ "Take some, " .. 1st-char .name@ .. "." $) blurbsay
+				"Je raterais probablement de toute façon." blurbsay
+				STAT_MORALE me .stat--
+		else
+			"Ta gueule! C'est mes munitions." blurbsay
+			STAT_MORALE 1st-char .stat--
+		then then
+	then
+;	
+
+: aggressive-carmageddon
+	2nd-char choosechar
+	blurbslot 0= if
+		"Allons écraser des zombies avec la voiture!" blurbsay
+	else
+		blurbslot 2 < if
+			ctemper- not if
+				($ "That's a horrible idea, " .. 1st-char .name@ .. "." $) blurbsay
+				"On ne peut pas risquer d'abîmer la voiture pour des raisons stupides !" blurbsay
+				STAT_MORALE 1st-char .stat--
+		else
+			"OUAIS!! en plus on économiserait les munitions!" blurbsay
+			STAT_MORALE me .stat++
+			STAT_MORALE 1st-char .stat++
+		then then
+	then
+;		
+
+: aggressive-passpess2
+	2nd-char choosechar
+	blurbslot 0= if
+		"J'ai besoin de plus d'armes!! Donnez-moi toutes les armes!!!" blurbsay
+	else
+		blurbslot 2 < if
+			ctemper+ cattitude- or if
+				($ "Ok.. prends les miennes, " .. 1st-char .name@ .. "." $) blurbsay
+				"Enfaite, non, j'en veux pas" blurbsay
+				STAT_MORALE me .stat--
+		else
+			"Non! Nous devons répartir les armes équitablement!" blurbsay
+			STAT_MORALE 1st-char .stat--
+		then then
+	then
+;	
+
+: aggressive-topic 1 11 rnd case
+	1 of "their favorite weapons" endof
+	2 of "their narrow escapes" endof
+	3 of "their best zombie kills" endof
+	4 of "how high they can kick" endof
+	5 of "how well they can drive" endof
+	6 of "how well they can use a gun" endof
+	7 of "how much they can bench press" endof
+	8 of "a car they once owned" endof
+	9 of "a sweet jump they once did on a bicycle" endof
+	10 of "how good they are at board games" endof
+	11 of "their video game speed runs" endof
+	endcase ;
+
+: aggressive-brag
+	blurbslot 0= if
+		qmsg ($ me .name@ .. " brags about " .. aggressive-topic .. "." $) txt
+	else
+		blurbslot 3 < if
+			STAT_MORALE me .stat--
+		then
+	then
+;
+
+
+
+	: aggressive-oneline1 "We should run these zombies down with the car!" ;
+	: aggressive-oneline2 "It's always worth trying to loot a place. Or else we could starve." ;
+	: aggressive-oneline3 "We should try to kill every zombie we can!" ;
+	: aggressive-oneline4 "I need to get in my zombie splattering practice." ;
+	: aggressive-oneline5 "Let's try to find a faster car! This is taking forever." ;
+// VVVVVVVV JONZ BLURBZ VVVVVVVVV
+	: aggressive-oneline6 "I can't wait to fight some more zombies!" ;
+	: aggressive-oneline7 "My weapons are a lot cleaner than they should be." ;
+	: aggressive-oneline8 "Can this car go any faster?" ;
+	: aggressive-oneline9 "I wish I had a bigger gun!" ;
+	: aggressive-oneline10 "We need more lootin' so we can do some more shootin'." ;
+	: aggressive-oneline11 "Let's take the car off some sweet jumps!" ;
+	: aggressive-oneline12 "Let's go some place with a lot of zombies." ;
+	: aggressive-oneline13 "It would be great if we were in a tank right now." ;
+	: aggressive-oneline14 "We can just run over zombies with the car!" ;
+	: aggressive-oneline15 "We should go shoot something!" ;
+	: aggressive-oneline16 "We don't need to slow down!" ;
+	: aggressive-oneline17 "Just drive on the side of the road if you have to." ;
+	: aggressive-oneline18 "Run over that zombie, yeah!" ;
+	: aggressive-oneline19 "Who cares if you're tired? Just keep swinging your weapon at all times!" ;
+	: aggressive-oneline20 "The bigger the weapon the more things I can hit in one swing!" ;
+
+	deck-new
+		card: aggressive-oneline1
+		card: aggressive-oneline2
+		card: aggressive-oneline3
+		card: aggressive-oneline4
+		card: aggressive-oneline5
+		card: aggressive-oneline6
+		card: aggressive-oneline7
+		card: aggressive-oneline8
+		card: aggressive-oneline9
+		card: aggressive-oneline10
+		card: aggressive-oneline11
+		card: aggressive-oneline12
+		card: aggressive-oneline13
+		card: aggressive-oneline14
+		card: aggressive-oneline15
+		card: aggressive-oneline16
+		card: aggressive-oneline17
+		card: aggressive-oneline18
+		card: aggressive-oneline19
+		card: aggressive-oneline20	
+		
+	constant AGGRESSIVE-ONELINERS
+	AGGRESSIVE-ONELINERS var aggressive-oneliners
+
+: aggressive-oneliner
+	aggressive-oneliners depths 0= if AGGRESSIVE-ONELINERS shuffles to aggressive-oneliners then
+	blurbslot 0= if
+		drawcard blurbsay
+	then
+;
+
+	deck-new
+		card: aggressive-brag
+		card: aggressive-sharp1
+		card: aggressive-pessi1
+		card: aggressive-carmageddon
+		card: aggressive-passpess1
+		card: aggressive-passpess2
+		20 cards: aggressive-oneliner
+
+	constant BLURB-DECK-AGGRESSIVE
+	BLURB-DECK-AGGRESSIVE var blurb-deck-aggressive

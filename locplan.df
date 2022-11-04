@@ -1,0 +1,220 @@
+0 var 3-loc-stack
+
+: cyoa-3-locs
+	3-loc-stack sizes for 3-loc-stack drawcard next drop
+
+	// cyoa-add-choice "KEEP DRIVING OR SOMETHING" cyoa-choice-text!
+;
+
+: test-bar cyoa-add-choice "bar" cyoa-choice-text! ;
+: test-mart cyoa-add-choice "minimart" cyoa-choice-text! ;
+: test-gunshop cyoa-add-choice "gunshop" cyoa-choice-text! ;
+: test-dingus choice( "Gravel Road" )choice: roadloot-gravel ;
+
+: fchoice-card: fbold choice-card: ;
+: rchoice-card: rbold choice-card: ;
+
+deck-new
+	"Untouched Grocery Store" fchoice-card: grocery-death
+	"Hunting Lodge" fchoice-card: cabin1-huntlodge
+	"Hazardous Materials" fchoice-card: rare1-hazmat
+	"Danger Rangers" fchoice-card: rare1-rangers
+	"Kung Fu Master" fchoice-card: rare1-bruce
+	"UFO Landing Site" fchoice-card: rare1-ufo
+	"Hermit's Cabin" fchoice-card: rare1-hermit
+	"Giant Animal" fchoice-card: rare1-hotdog
+	"Malicious House" fchoice-card: rare1-altar
+	"Mystery Factory" fchoice-card: rare1-factory
+	"Museum" fchoice-card: rare1-museum
+	"Fishing Cabins" fchoice-card: rare1-fish
+	"Junkyard Pals" fchoice-card: rare1-junk
+	"Concrete Bunker" fchoice-card: rare1-bunker
+	"Ominous Labs" fchoice-card: rare1-lab
+	"Spooky Graveyard" fchoice-card: rare2-draculagrave
+	"Raging Inferno" fchoice-card: rare2-inferno
+	"Gothic Farm" fchoice-card: rare2-farm
+	"Haunted Mansion" fchoice-card: rare2-ghostmansion
+	"Frozen Friend" fchoice-card: rare2-caveman
+value loc-pick-rare-base
+
+loc-pick-rare-base shuffles var loc-pick-rare
+
+: get-a-rare-loc loc-pick-rare
+	depths 0= if loc-pick-rare-base shuffles to loc-pick-rare then
+pops nip ;
+
+// Maybe make the above draw nothing if it runs out? Or could have it draw a normal location instead, see trader shuffler for a defer example. Currently not changing it, as it's an impossible situation right now. Will change when we do endless.
+
+: get-and-execute-rare-loc get-a-rare-loc execute ;
+
+: rare-loc-number 3 gstats{ ugnome-rarelocs } 0 > if // 3 if no upgrades, up to 5 if maxed
+	gstats{ ugnome-rarelocs } 2 > if 2 else 1 then else 0 then + ;
+
+deck-new
+	"Big House" choice-card: inner7-cyoa
+	"Swarmed Apartment" choice-card: inner8-cyoa // sorta hard, but not fully...
+	"Prepper Cabin" choice-card: cabin1-stash
+	"Stash in the Woods" choice-card: cabin1-night
+	"Busy Hotel" choice-card: inner4-cyoa
+	"Bullet-Ridden House" choice-card: inner6-cyoa
+	"Lost Stronghold" rchoice-card: card4-cyoa // Same as Swarmed Apartment but harder
+	"Gas Station Siege" rchoice-card: siege1-gas
+	"Police Headquarters" rchoice-card: policeHQ-cyoa
+	"Hospital Raid" choice-card: hospital-cyoa
+	"Big Office Complex" choice-card: doubleoffice-cyoa
+	"Fancy Office" choice-card: safeoffice-cyoa
+	"Fancy House" choice-card: safeinhouse-cyoa
+	"Riled Up House" rchoice-card: maginhouse-cyoa // Designated hard due to aggression
+	"Riled Up Apartment" rchoice-card: maginapt-cyoa
+	"Gym Apartment" choice-card: gymapt-cyoa // Formerly Big Apartment, this is more descriptive
+	"Dead Arcade" choice-card: bigarcade-cyoa
+	"Grocery Store" choice-card: grocery1
+	"Big Grocery Store" choice-card: grocery2
+	"Packed Grocery Store" rchoice-card: grocery3
+	"Hardware Store" choice-card: hardware
+	"Crowded Yall-Mart" choice-card: yallmart-mid
+	"Deadly Yall-Mart" rchoice-card: yallmart-hard
+	"Bookstore" choice-card: bookstore
+	"Sporting Goods Store" choice-card: sporting
+	"Fancy Factory" choice-card: indust-safe // actually Successful Factory
+	"Commercial Row" choice-card: 4commercial-cyoa
+	"Small Suburb" choice-card: 4suburb-cyoa
+	"Apartment Row" choice-card: 4apartment-cyoa
+	"Apartment Rescue" rchoice-card: rescueapt-cyoa
+	"House Rescue" rchoice-card: rescuehouse-cyoa
+	"Grocery Rescue" rchoice-card: rescuegrocery
+	"Factory Rescue" rchoice-card: rescueindust
+	"Sewer Rescue" rchoice-card: rescuesewer
+	"Roadside Rescue" rchoice-card: siege1-rescuerest
+	"Cabin Rescue" rchoice-card: siege1-rescuecabin
+	"Gas Station Rescue" rchoice-card: siege1-rescuegas
+	"Mall Rescue" rchoice-card: rescuemall
+	"Shopping Mall" rchoice-card: malltest
+	"Swarmed Gym" rchoice-card: swarmgym-cyoa
+	"Swarmed Arcade" rchoice-card: swarmarcade-cyoa
+	"Rest Stop" choice-card: rest-stop 
+	"Swarmed Rest Stop" rchoice-card: rest-death // Roadside Nightmare
+	"Rest Stop with Car" choice-card: rest-car // Roadside Car Stop
+	"Junkyard with Car" choice-card: junk-car // Junkyard Car Parking
+	"Junkyard" choice-card: junk-loot
+	"Secure Junkyard" choice-card: junk-safe
+	"Cabin with Car" choice-card: cabin1-car // Car Rental Cabin
+	"City Row with Car" choice-card: houserow-car // Free Car!
+	"Burning House" rchoice-card: burnhouse
+	"Quiet Farm" choice-card: farm-toolbarn
+	"Barn Rescue" rchoice-card: farm-pigbarn
+	"Dark Mansion" rchoice-card: darkmansion
+	rare-loc-number cards: get-and-execute-rare-loc
+value loc-pick-stack-base
+
+loc-pick-stack-base shuffles var loc-pick-stack
+
+deck-new
+	"Quiet Hotel" choice-card: inner3-cyoa
+	"House on the Road" choice-card: inner5-cyoa
+	"Rest Stop" choice-card: rest-easy
+	"Yall-Mart" choice-card: yallmart-easy
+	"Quiet Factory" choice-card: indust-easy
+value easyloc-pick-stack-base
+
+easyloc-pick-stack-base shuffles var easyloc-pick-stack
+
+: get-a-loc loc-pick-stack
+	depths 0= if loc-pick-stack-base shuffles to loc-pick-stack then
+pops nip ;
+
+: get-a-loc-easy easyloc-pick-stack
+	depths 0= if easyloc-pick-stack-base shuffles to easyloc-pick-stack then
+pops nip ;
+
+: explorer-pick
+	explorer? if drop 3 else drop 
+		10 %chance if 3 else 2 then
+	then 
+;
+
+: pick-3-locs 
+	explorer-pick stack sizes for get-a-loc shove next to 3-loc-stack
+	cyoa-3-locs
+;
+
+: pick-3-locs-easy 3 stack sizes for get-a-loc-easy shove next to 3-loc-stack
+	cyoa-3-locs
+;
+
+: locpick-redrawcost road{ car-guzzle 2.5 * } >int ;
+
+: explorer-redrawcost 
+	gstats{ perk-explorer } 3 >= if
+		road{ car-guzzle 1.5 * } >int
+	else 
+		gstats{ perk-explorer } 2 >= if
+			road{ car-guzzle 2 * } >int
+		else
+			locpick-redrawcost
+		then
+	then
+;
+
+: locpick-repick
+	cyoa-start
+	"Driving All Over" cyoa-title!
+	($ Thegroup .. " decides to burn some gas in hopes of finding more interesting places. " .. gThey .. " find" .. g1s .. " some new locations: " $) text!
+	locpick-redrawcost -1 * trunk-gas+ -1 car-tune+
+	pick-3-locs
+	gas-skip
+;
+
+: explorer-repick
+	cyoa-start
+	"Careful Exploration" cyoa-title!
+	($ Thegroup .. " takes more time to explore. " .. gThey .. " find" .. g1s .. " some new locations: " $) text!
+	explorer-redrawcost -1 * trunk-gas+ -1 car-tune+
+	pick-3-locs
+	gas-skip
+;
+
+: locpick
+	cyoa-start
+	"Always Be Looting" cyoa-title!
+	($ "While driving on the Death Road, " .. thegroup .. " decides to make a stop for supplies: " $) text!
+	pick-3-locs
+	explorer? if drop
+		trunk-gas explorer-redrawcost 1 - > if
+			choice( "Explorer: " pbold .. "Drive More - " .. explorer-redrawcost .. " gas"  )choice: explorer-repick
+		else
+			gas-skip
+		then
+	else drop
+		trunk-gas locpick-redrawcost 1 - > if
+			choice( "Drive Around More - " .. locpick-redrawcost .. " gas"  )choice: locpick-repick
+		else
+			gas-skip
+		then
+	then
+;
+
+: easylocpick
+	cyoa-start
+	"Embarking on the Death Road" cyoa-title!
+	($ "To start the journey, " .. thegroup .. " decides to grab some supplies from a nearby location.
+		In order to survive the Death Road, you'll need to hoard as many supplies as you can! You will also need to find ways to train and grow your team." $) text!
+	// Temp Testing
+	// choice( "Frozen Friend" fbold )choice: rare2-caveman
+	pick-3-locs-easy
+	explorer? if drop
+		easyloc-pick-stack drawcard
+	then
+;
+	
+(* AUTO CHOICE DECK EXAMPLE
+
+deck-new 
+	"Rest Stop" choice-card: beep ( <- the choice handler, i.e. rest-stop )
+value choices-list
+
+: test-cyoa cyoa-start choices-list drawcard ;
+
+;
+
+*)

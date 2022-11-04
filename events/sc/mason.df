@@ -1,0 +1,76 @@
+uses base.df
+uses charfilt.df
+uses charstats.df
+uses road.df
+
+cyoa{ road{
+
+: mason-missing 1 5 rnd case
+	1 of " must have wandered off." endof
+	2 of " vanished off the face of the earth." endof
+	3 of " probably is fine." endof
+	4 of " most likely gave up." endof
+	5 of "'ll probably turn up." endof
+endcase ;
+
+: mason-sad
+	($ "Too sad to continue, he wanders off to the nearest abandoned summer park and sulks for years until more people show up." $) +cr +text badfx
+		decruit-bad-silent
+;
+: mason-kill
+	notcchar to victim
+	($ "Also, " .. vname .. " is missing. " .. victim xHe .. mason-missing .. "
+	" .. vname .. " has left the team!" $) +cr +text badfx
+		victim .weapons-to-trunk TEAM_STATUS_DIED victim .decruit morale2+ deadtally
+;
+
+cyoa: mason-alive
+	char-gen to recruitee "???" recruitee .name! 4 recruitee .morale! recruitee .masonify
+	ricon 2 3 rnd to mason-countdown 1 to mason-curse someone choosechar
+		($ "Your friend is back, alive and well! You thought he was a goner, but no, he's right there in the car! You're so lucky!" $) text!
+	team-count 0 > if
+		($ "Also, looks like " .. cname .. " is gone from the team. " .. cHe .. mason-missing $) +crtext
+		cchar .kill
+	then
+		recruitee .strengthREV recruitee .fitnessREV recruited goodfx
+;
+
+cyoa: mason-camp
+	sc-camper choosechar cicon
+	"Memories of Camp Bloodkill" cyoa-title!
+	($ "While camping for the night, " .. cname .. " has a lot of fond memories about his last time at summer camp!" $) cyoa-text!
+	mason-kill +cr fullcamp
+;
+
+cyoa: mason-timeup
+	stpick-mason if choosechar cicon else ($ "Mason Snoorhes" pbold .. " was going to get up to some " .. "WACKY ANTICS" fbold .. " but it looks like he was the one to disappear, for a change." $) text! exit then
+	solo if 
+		"The Ultimate Genki" cyoa-title!
+		($ cname .. " feels all alone in the world.
+		But he can't let it get him down! If he keeps on going, he knows that he'll meet new friends!" $) cyoa-text!
+		morale++
+	else
+	notcchar to victim
+	"At least someone has a positive outlook" cyoa-title!
+	($ cname .. " suddenly seems to get a big boost in morale!" $) cyoa-text!
+		mason-kill
+	then
+	3 4 rnd to mason-countdown
+;
+
+cyoa: mason-despair
+	bully choosechar
+	cicon
+	solo if 
+		"Return to Camp Bloodkill 2: The Return" cyoa-title!
+		($ cname .. " feels really lonely without his friends." $) cyoa-text!
+		mason-sad
+	then;
+	"He's just really optimistic" cyoa-title!
+	($ cname .. " is feeling really down in the dumps but then suddenly feels better!" $) cyoa-text!
+		mason-kill
+;
+
+} }
+
+

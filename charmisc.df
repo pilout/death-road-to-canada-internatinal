@@ -1,0 +1,1760 @@
+// General character words for rescues and common action mode CYOA
+
+0 value rescue
+0 value safecombo
+
+: is-specialchar: constant does> @ over .specialtype@ = swap .specialmode@ 0= and ;
+: is-specialmodechar: constant does> @ over .specialtype@ = swap .specialmode@ and ;
+
+// Will drop weapons/loot to group at mission end
+: .party-familiar args( chara )
+	1 <- chara .party!
+	TEAM_STATUS_FAMILIAR <- chara .team_status!
+;
+
+
+: #c #character ;
+: c# character# ;
+
+: team-full? team-count TEAM_MAX >= ;
+
+: resetsafe 0 to safecombo ;
+
+: .liedown .thing@ args( self )
+	ANIM_ANGLE <- self .anim.state! 
+	-90 <- self .flipx * <- self .angle!
+;
+
+: .thing_liedown args( self )
+	ANIM_ANGLE <- self .anim.state! 
+	-90 <- self .flipx * <- self .angle!
+;
+
+: .getup .thing@ args( self )
+	0 <- self .anim.state! 
+	0 <- self .angle!
+;
+
+: .wakeup dup .getup 0.25 over .ai.wander_chance! 1 over .ai.attack_chance! dup .yestake drop ;
+: rescueget
+//	beep nearest . interactee . cr
+	0.25 rescue .ai.wander_chance! 1 rescue .party-familiar 0 nearest .unseen! clear-cyoa goodfx ;
+: nearestget 0.25 nearest .character@ .ai.wander_chance! 1 nearest .character@ .party-familiar 0 nearest .unseen! clear-cyoa goodfx ;
+: ccharget 0.25 cchar .ai.wander_chance! 1 cchar .party-familiar 0 nearest .unseen! clear-cyoa goodfx ;
+
+: ctakeweapons cchar .weapons-to-trunk ;
+
+: .char-droploot dup .thing@ args( chara thing )
+	LOOT_COUNT for
+		i 1- <- chara .lootamt@ if i 1- <- chara .lootamt@ i 1- spawnloot
+			<- thing lt-to-thing lt-droploot-vel lt-bulk-lootsprite
+		then
+		0 i 1- <- chara .lootamt!
+	next
+;
+
+: #new-npc #character args( chara )
+	<- chara character# spawn lt .charid!
+	lt .as-human
+	lt .id@ <- chara .cur_thingid!
+	0 360 frnd lt .aim_angle!
+;
+
+: new-npc
+	char-gen character# #new-npc
+	0 lt .character@ .ai.flock_dist!
+;
+
+: new-npc@ new-npc lt .character@ ;
+
+: savechar-raw-list
+	0 stack CUSTOM_CHARS_MAX
+	for i 1+ // skip the #1 char since that's the currently edited one
+		slot>savechar# dup if shove else drop then
+	next
+;
+
+: chardupcheck args( char1 char2 )
+	<- char1 .seed@ <- char2 .seed@ =
+	<- char1 .name@ <- char2 .name@ $=
+	or
+;
+
+: savecharteamfilt #savechar-clone #character args( char1 )
+	team-count for
+		team-count i - #teamchar <- char1 chardupcheck
+		if <- char1 char-free 0 then; // Matches existing char, so don't keep.
+	next
+	<- char1 char-free 1
+;
+
+: savechars-filter-vs-team ' savecharteamfilt stack-filter ;
+: savechar#-list savechar-raw-list savechars-filter-vs-team drop ;
+
+
+// : .dead-drunk dup .liedown 0 over .ai.wander_chance! 0 over .ai.attack_chance! drop ;
+// 1 character party!
+// lt .character@ .alive?
+
+: .has-weapon? args( wid chara )
+	<- wid <- chara .weapona@ = if 1 then;
+	<- wid <- chara .weaponb@ = if 1 then;
+	<- wid <- chara .weaponc@ = if 1 then;
+	0
+;
+
+: team-has-weapon?
+	team-count for dup i 1- #teamchar .has-weapon? if drop 1 then; next
+	drop 0
+;
+
+: pchar-weapon? pchar .has-weapon? ;
+: roadtrip-has-weapon? dup team-has-weapon? swap trunk.weapon@ or ;
+
+: check-weapontype team-has-weapon? | ;
+: check-pchar-weapontype pchar-weapon? | ;
+
+: team-has-weapontype? 0 swap ' check-weapontype foreach drop ;
+: pchar-has-weapontype? 0 swap ' check-pchar-weapontype foreach drop ;
+
+: check-trunk-weapontype trunk.weapon@ 0= not | ;
+
+: trunk-has-weapontype?
+	0 swap ' check-trunk-weapontype foreach drop
+;
+
+: team-has-breakin? WEAPON_LIST_BREAKIN team-has-weapontype? ;
+
+: roadtrip-has-weapontype? dup team-has-weapontype? swap trunk-has-weapontype? or ;
+
+: roadtrip-has-firearm? WEAPON_LIST_FIREARM roadtrip-has-weapontype? ;
+: roadtrip-has-umbrella? WEAPON_LIST_UMBRELLA roadtrip-has-weapontype? ;
+
+: calmshot-check most-calmshot roadtrip-has-firearm? and ;
+: longshot-check most-calmshot WEAPON_LIST_RIFLE roadtrip-has-weapontype? and ;
+
+cyoa{
+
+0 value bookmagtype
+
+: bookmaggain
+	bookmagtype 4 > if
+		bookmagtype 5 - to bookmagtype
+	then
+	bookmagtype case
+		0 of dup .strength++ .strengthREV endof
+		1 of dup .fitness++ .fitnessREV endof
+		2 of dup .medical++ .medicalREV endof
+		3 of dup .mechanic++ .mechanicREV endof
+		4 of dup .shooting++ .shootingREV endof
+	endcase
+;
+
+: bookmagtitle
+	bookmagtype case
+		0 of "SWOLE" endof
+		1 of "COOL RUNNINGS" endof
+		2 of "MEDICINE TODAY" endof
+		3 of "CARS-N-GADGETS" endof
+		4 of "MODERN HUNTER" endof
+		
+		5 of "COMPLETE GUIDE TO LIFTING" endof
+		6 of "1001 EXERCISES ANYWHERE" endof
+		7 of "MORON'S GUIDE TO SURGERY" endof
+		8 of "THE HANDYMAN'S BIBLE" endof
+		9 of "THE SCIENCE OF SHOOTING" endof
+	endcase pbold
+;
+
+: bookormag
+	bookmagtype 4 > if "book" else "magazine" then
+;
+
+}
+
+: npc@rescue lt .character@ to rescue ;
+
+: rescue-weapon
+	0 stack
+		WEAPON_BASEBALL shove
+		WEAPON_CANE shove
+		WEAPON_HATCHET shove
+		WEAPON_SLEDGE shove
+		WEAPON_WRENCH shove
+		WEAPON_MACHETE1 shove
+		WEAPON_HOCKEY shove
+		WEAPON_GOLF shove
+		WEAPON_FRYING shove
+		WEAPON_METAL shove
+		WEAPON_CROWBAR shove
+		WEAPON_CLEAVER shove
+		WEAPON_CRICKET shove
+		WEAPON_UMBRELLA shove
+		WEAPON_KITCH shove
+		WEAPON_TENNIS shove
+		WEAPON_PADDLE shove
+		WEAPON_POOLCUE shove
+		WEAPON_FIREPOKER shove
+		WEAPON_SHIV shove
+		WEAPON_PURSE shove
+		WEAPON_CLAWHAMMER shove
+		WEAPON_BALLPEEN shove
+		WEAPON_MALLET shove
+		WEAPON_ICEPICK shove
+		WEAPON_SCREWDRIVER shove
+		WEAPON_FIRE shove
+	shuffles pops nip
+;
+
+: sports-weapon
+	0 stack
+		WEAPON_BASEBALL shove
+		WEAPON_HOCKEY shove
+		WEAPON_GOLF shove
+		WEAPON_CRICKET shove
+		WEAPON_TENNIS shove
+		WEAPON_PADDLE shove
+	shuffles pops nip
+;
+
+: gun-weapon
+	0 stack
+		WEAPON_SHOTGUN shove
+		WEAPON_RIFLE shove
+		WEAPON_PISTOL shove
+	shuffles pops nip
+;
+
+: crap-weapon
+	0 stack
+		WEAPON_CANE shove
+		WEAPON_FRYING shove
+		WEAPON_UMBRELLA shove
+		WEAPON_KITCH shove
+		WEAPON_REBAR shove
+		WEAPON_WOOD shove
+		WEAPON_KNITTING shove
+		WEAPON_BROOM shove
+		WEAPON_MOP shove
+	shuffles pops nip
+;
+
+: new-veryferaldog map{ selected } . cr new-npc@ .doggify ;
+
+: .mountiefy
+	38 over .specialtype!
+	6 over .strength!
+	6 over .fitness!
+	4 over .vitality!
+	4 over .health!
+	0 over .female!
+	drop
+;
+
+: .alien
+	51 over .specialtype!
+	4 over .strength!
+	4 over .fitness!
+	1 over .female!
+	"Grey" over .name!
+	WEAPON_RAYGUN over .weapona!
+	200 over .stackeda!
+	skeletons_base_id 9 + over .skeleton_spriteid!
+	statmod{ dup .nocarry dup .notake dup .noswap }
+
+	// 1 over .weapon_nodropa!
+	
+	drop
+;
+
+: .gerbilfy args( chara )
+	<- chara .nocarry
+	<- chara .noweapon
+	<- chara .notake
+	"GNORT!" <- chara .perk!
+	76 <- chara .specialtype!
+	WEAPON_CLAW <- chara .weapon_default!
+	6 <- chara .fitness!
+	0 <- chara .strength!
+	2 <- chara .vitality!
+	2 <- chara .health!
+	1 <- chara .carrying.slot_count!
+	"Tiny Eater" <- chara .trait!
+	0.2 <- chara .speed_bonus!
+	50 %chance if "R*O*U*S" else "Gnort" then <- chara .name!
+	skeletons_base_id 11 + <- chara .skeleton_spriteid!
+	"is a freakishly large, gnomeless rodent. I think it's some kind of... gerbil." <- chara .job!
+	3 <- chara .skincolour!
+;
+
+: .beaverify ( chara )
+	dup .gerbilfy
+	77 over .specialtype!
+	3 over .skincolour!
+	"Canada Day" over .perk!
+	"Beaver" over .name!
+	"is some kind of Canadian gerbil? I don't know, this is hard to keep track of." over .job!
+	drop
+;
+
+: .beaver? .specialtype@ 77 = ;
+
+: .moosify ( chara ) statmod{ 
+	3 over .pet!
+
+	skeletons_base_id 10 + over .skeleton_spriteid!
+
+	"MOOSE" over .name!
+
+	0.25 over .bounceval!
+	18 over .footoff.y!
+	4 over .footoff.x!
+	10 over .health!
+	WEAPON_ANTLERS over .weapon_default!
+	50 over .fitness!
+	-0.75 over .breathescale!
+	dup .nocarry 
+	dup .notake 
+	dup .noswap 
+//	MOD_MOO over .setmod 
+	drop
+} ;
+
+: .skelbody
+	78 over .specialbody!
+	WEAPON_CLAW over .weapon_default!
+	1 over .vitality!
+	1 over .health!
+	"is now a HALF-HUMAN, HALF-SKELETON!" over .job!
+drop ;
+
+: .skelify 
+	78 over .specialtype!
+	WEAPON_CLAW over .weapon_default!
+	0 over .fitness!
+	0 over .strength!
+	0 over .mechanical!
+	0 over .medical!
+	0 over .shooting!
+	0 over .wits!
+	0 over .attitude!
+	1 over .morale!
+	1 over .vitality!
+	1 over .health!
+	"is now a spooky dancing skeleton, no doubt after some blunder." over .job!
+ drop ;
+
+: .mallcop1
+	69 over .specialtype!
+	4 over .strength!
+	0 over .female!
+	"Mall Cop" over .name!
+	WEAPON_NIGHTSTICK over .weapona!
+	1 over .weapon_nodropa!
+	drop
+;
+
+: .mallcop2
+	70 over .specialtype!
+	4 over .shooting!
+	0 over .female!
+	"Mall Cop" over .name!
+	WEAPON_PISTOL over .weapona!
+	1 over .weapon_nodropa!
+	30 over LOOT_BULLET swap .lootamt!
+	statmod{ dup .nocarry dup .notake dup .noswap }
+	drop
+;
+
+
+// Turn char to hulk colour
+: .hulkclr args( chara )
+	0 <- chara .skincolour! // LILY WHITE BASE SKIN
+	12 <- chara .haircolour! // LILY WHITE BASE HAIR
+
+	0.0 <- chara .tint.skin.r!
+	0.8 <- chara .tint.skin.g!
+	0.25 <- chara .tint.skin.b!
+
+	0.5 <- chara .tint.hair.r!
+	0.0 <- chara .tint.hair.g!
+	1.0 <- chara .tint.hair.b!
+;
+
+: .stoneclr args( chara )
+	0 <- chara .skincolour!
+	12 <- chara .haircolour!
+
+	0.5 0.5 0.5 <- chara .tint.skin!
+	0.5 0.5 0.5 <- chara .tint.hair!
+	0.5 0.5 0.5 <- chara .tint.body!
+;
+
+// Become a dogtaur
+: .dogtaur args( chara )
+	WEAPON_CLAW <- chara .weapon_default!
+	73 <- chara .specialbody!
+	0 <- chara .specialtype!
+	skeletons_base_id 2 + <- chara .skeleton_spriteid!
+
+	// Copy char's hair colour to body tint so that dogtaur body hair matches
+	<- chara .hair-rgb <- chara .tint.body!
+;
+
+// THE FLY
+: .flyhead args( chara )
+	74 <- chara .specialhead!
+	1 <- chara .voice.ex!
+	0.15 <- chara .voice.pitch!
+	1 <- chara .voice.k!
+	0.015 <- chara .voice.duty!
+	1 <- chara .voice.vol!
+	10000 <- chara .voice.flo!
+	1000 <- chara .voice.fhi! // Doesn't seem to do anything
+	0.98 <- chara .voice.q!
+;
+
+: .flybody args( chara )
+	WEAPON_CLAW <- chara .weapon_default!
+	1 1 1 <- chara .tint.body!
+	74 <- chara .specialbody!
+;
+
+: .fly args( chara )
+	WEAPON_CLAW <- chara .weapon_default!
+	1 1 1 <- chara .tint.body!
+	<- chara .specialhead@
+		<- chara .flyhead
+		74 <- chara .specialtype!
+	<- chara .specialhead!
+;
+
+: .punkinhead 80 swap .specialhead! ;
+
+: .witchify args( chara ) 81 <- chara .specialtype!
+	2 <- chara .headoff.y!
+	"Witch" <- chara .name!
+	"remains angry that she couldn't bring her cauldron." <- chara .job!
+	WEAPON_CLAW <- chara .weapon_default!
+	WEAPON_WITCH <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	WEAPON_UZI <- chara .weaponb!
+	1 <- chara .weapon_nodropb!
+	50 LOOT_BULLET <- chara .lootamt!
+	1 <- chara .female!
+	0 <- chara .loyalty!
+	5 <- chara .medical!
+	0 <- chara .attitude!
+	0 <- chara .composure!
+	0 <- chara .specialhead!
+	0 <- chara .specialbody!
+	// TODO: Wand?
+;
+
+: .wizardify args( chara ) 61 <- chara .specialtype!
+	0 <- chara .female!
+	"The Wiz" <- chara .name!
+	"is a wizard." <- chara .job!
+	WEAPON_WIZSTICK <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	6 <- chara .wits!
+	1 <- chara .strength!
+	2 <- chara .fitness!
+;
+
+// COUNT DINKULA
+// =============
+
+: .nofloat
+	0 over .floatval!
+	0 over .floatheight!
+	drop
+;
+
+
+defer dracbat
+defer batdrac
+
+: drac-thing-events args( me teid )
+
+	<- me .character@ .dead? if then;
+
+	<- teid THING_EVENT_TIMER = if
+		<- me .character@ .specialtype@ 83 <> if then;
+		<- me .character@ batdrac
+		0 <- me .nocollide!
+		RED "BLAH!" .. <- me .yellmsglong
+	then;
+
+	<- teid THING_EVENT_WAS_HIT = if
+		<- me .character@ .specialtype@ 82 <> if then;
+		<- me .character@ dracbat
+		60 <- me .invincible_counter!
+		1 <- me .nocollide!
+		RED "NOW I AM IN A BAT MOOD!" .. <- me .yellmsglong
+		60 7 * <- me .timer! // 7 seconds, formerly 13
+
+		// TODO: Drop weapons & set slot count to 1?
+	then;
+;
+
+: drac-main-events ( teid ) args( chara eventid )
+
+	<- eventid MAIN_EVENT_MISSION_START = if <- chara batdrac then; // In case we're a bat
+	<- eventid MAIN_EVENT_DRIVING_START = if <- chara batdrac then; // In case we're a bat
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) drac-thing-events
+;
+
+: .dracufy args( chara )
+	"Count Dinkula" <- chara .name!
+	"skulks around going BLAH for some reason." <- chara .job!
+	82 <- chara .specialtype!
+	WEAPON_CLAW <- chara .weapon_default!
+	<- chara .nofloat
+
+	6 <- chara .fitness!
+	0 <- chara .speed_bonus!
+	' drac-main-events <- chara .main_events!
+	skeletons_base_id 3 + <- chara .skeleton_spriteid!
+
+	<- chara .thing@ if
+		<- chara .thing@ .poofmescary
+		15 <- chara .thing@ .fade!
+	then
+;
+
+last to batdrac
+
+: .batify
+	83 over .specialtype!
+	12 over .floatval!
+	10 over .floatheight!
+	10 over .floattoggle!
+	skeletons_base_id 4 + over .skeleton_spriteid!
+
+	drop
+;
+
+: .dracubatify
+	dup .dracufy
+	dup .batify
+	1 over .speed_bonus!
+	drop
+;
+
+last to dracbat
+
+: .grimreaperify args( chara )
+	"Grim Reaper" <- chara .name!
+	84 <- chara .specialtype!
+	2 <- chara .floatval!
+	8 <- chara .floatheight!
+	180 <- chara .floattoggle!
+	WEAPON_REAPER <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	10 <- chara .vitality!
+	10 <- chara .health!
+	10 <- chara .fitness!
+	100 STAT_FITNESS <- chara .bonus!
+	10 <- chara .strength!
+	100 STAT_STRENGTH <- chara .bonus!
+	<- chara .nocarry 
+	<- chara .notake 
+	<- chara .noswap 
+	<- chara .nopickups
+	0 <- chara .ai.loot_chance!
+;
+
+
+: dogman-death-handler dup .thing@ args( chara thing )
+	// Don't die!
+	3 <- chara .health!
+	1 <- thing .hitpoints!
+	
+	<- chara .char-droploot
+	// Drop weapon word like .char-droploot?
+
+	0 <- chara .specialtype!
+	0 <- chara .specialhead!
+	0 <- chara .specialbody!
+
+	<- chara .doggify
+	3 <- chara .bodytype! // PUG
+
+	// Spit out 2 dogs
+	2 for
+		new-npc lt .character@ .doggify		// Spawn a new npc and turn it into a dog
+		<- thing lt-to-thing				// Place it where we are
+		<- thing lt .follow					// And follow us
+		-2 lt .vel.z!
+
+		team-count 4 < if
+			lt .character@ .recruit
+		then
+		
+		// - check if there is room in the group, and if so, lt .character@ .recruit the new dog
+		// - otherwise, special post-mission event?
+	next
+
+	<- thing .pos.z@ 8 - <- thing .pos.z!
+	-2 <- thing .vel.z!
+	36000 <- thing .angle! 
+
+	"Aw, WOOF it" <- thing statmod{ .yellmsglong }
+
+	// Don't do this again on death
+	0 <- chara .main_events!
+;
+
+: dogman-main-events args( chara eventid )
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	// Thing events
+	( teid )
+
+	THING_EVENT_DIED ?( <- chara dogman-death-handler );
+
+	
+;
+
+: .dogmanify args( chara )
+	0 <- chara .pet!
+	22 <- chara .specialtype!
+	"Woof" <- chara .name!
+	WEAPON_CLAW <- chara .weapon_default!
+	3 <- chara .composure!
+	2 <- chara .health!
+	2 <- chara .vitality!
+	" is uh... I'm not sure." <- chara .job!
+	' dogman-main-events <- chara .main_events!
+;
+
+
+
+// Cat Lady
+
+: catladycat args( body )
+	new-npc lt .character@ .catify
+	<- body lt .character@ .bodytype!
+	lt .character@ .default-ai-setup
+;
+
+: catladysummon args( lady )
+	1 8 rnd catladycat
+	1 lt .character@ .party-familiar
+	<- lady lt-to-thing drift // Put the cat near the cat lady
+;
+
+: catladysummonpoof catladysummon lt mission{ .smokepoof } ;
+
+: catlady-thing-events args( me teid )
+
+	<- me .character@ .dead? if then;
+
+	<- teid THING_EVENT_WAS_HIT = if
+		<- me .character@ .specialtype@ 11 <> if then;
+		RED "SAVE ME, KITTIES!" .. <- me .yellmsglong
+		<- me catladysummonpoof
+	then;
+;
+
+: catlady-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+
+	<- eventid MAIN_EVENT_MISSION_START = if <- chara .thing@ catladysummon then;
+	<- eventid MAIN_EVENT_DRIVING_START = if then;
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) catlady-thing-events
+;
+
+: .catladyify dup .thing@ args( chara lady )
+	11 <- chara .specialtype!
+	1 <- chara .female!
+	0 <- chara .wits!
+	6 <- chara .attitude!
+	"Cat Lady" <- chara .name!
+	"loves cats! She loves cats far more than any other thing, person, or concept." <- chara .job!
+	WEAPON_CLAW <- chara .weapon_default!
+	
+	' catlady-main-events <- chara .main_events!
+
+	7 for
+		i catladycat 				// Spawn cat number for 7 down to 1
+		<- lady lt .follow 			// lt (cat) follows the lady
+		<- lady lt-to-thing drift	// Position around lady and drift them away a bit
+	next 
+
+;
+
+: .mariaify args( chara )
+	"Maria" <- chara .name!
+	19 <- chara .specialtype!
+	1 <- chara .female!
+	WEAPON_MEGAFRY <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	"is a farmer from Colombia. She is bulging with muscle. She has a tiny hat." <- chara .job!
+	// WEAPON_SCYTHE <- chara .weaponb!
+	// 1 <- chara .weapon_nodropb!
+	4 <- chara .fitness!
+	2 STAT_STRENGTH <- chara .bonus!
+	6 <- chara .strength!
+;
+
+// Cold Steel CEO
+
+0 stack
+	"All these zombies are good for business! " trollface .. shove
+	RAINBOW 0x dd $chr .. "*soundtrack: guitars thrashing/wailing*"  .. 0x de $chr .. shove
+	RAINBOW 0x dd $chr .. " COLD STEEEEEEL! "  .. 0x de $chr .. shove
+	"You put one of these by your front door, and you're going to be a power to reckon with." 3 $chr .. shove
+	"How could anyone use the inferior weapons of my competitors? " DX .. shove
+	"This greatsword cuts through 4 zombies at once!" shove
+	"COLD STEEL KNIVES!" shove
+	"You won't believe how light this is!" shove
+	"You could do pull-ups with this thing, no problem!" shove
+	"Easily chops skateboards *and* surfboards in half!" shove
+	"The sword world continues to overlook the majesty of this greatsword!" shove
+	"For what you get, six pounds of sword, it's very reasonably priced!" shove
+	"Built by Cold Steel, it'll hold its own cutting with any sword in the world!" shove
+	"Flick, flick, flick! And up comes apart a group of zombies!" shove
+	"The greatsword is underappreciated, in my opinion." shove
+	"A big sword like this, can make it look easy to make that difficult cut." shove
+	"Zombies are no match for the greatsword, though!" shove
+	"That was absolutely effortless!" shove
+	"If you're strong enough to wield a greatsword, it's an enormous advantage." shove
+	"This thing is a room wrecker, a yard wrecker, a street wrecker..." shove
+	"It's just unbelievable, the cutting power and this beautiful sword." shove
+	"Having this sword in the zombocalypse? I've clearly enjoyed that." shove
+	"This is why you buy a greatsword, because you can make those huge cuts." shove
+	"Man, this thing just sails through zombies." shove
+	"No one is going to be able to take advantage of you when you have a greatsword in your house!" shove
+	"What more do you want from a sword?" shove
+	"How do you beat this? Tremendous reach, cuts an ENORMOUS FLIPPIN' HOLE!" shove
+	"What more can I do to convince you to buy a greatsword?" shove
+	"Buy a Cold Steel greatsword. Don't be ripped off by my competitors!" shove
+	"Don't be ripped off by my competitors selling you absolute junk!" shove
+	"You'll praise my name, you're going to love this sword." shove
+value random-coldsteel-base
+random-coldsteel-base shuffles var random-coldsteel
+
+: random-coldsteel-saying
+	random-coldsteel depths 0= if random-coldsteel-base shuffles to random-coldsteel then
+	pops nip
+;
+
+: lynn-thing-events args( me teid )
+
+	<- me .character@ .dead? if then;
+	
+	<- teid THING_EVENT_TIMER = <- me .character@ .seed@ 555 = and if
+		60 6 10 rnd * <- me .timer!
+		RED random-coldsteel-saying .. <- me .yellmsglong
+	then;
+
+;
+
+: lynn-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+
+	<- eventid MAIN_EVENT_MISSION_START = if 
+		60 5 8 rnd * <- chara .thing@ .timer! 
+		555 <- chara .seed!
+	then;
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) lynn-thing-events
+		
+;
+
+: .lynnify args( chara )
+	"Lynn" <- chara .name!
+	79 <- chara .specialtype!
+	0 <- chara .female!
+	0 <- chara .seed!
+	WEAPON_DEMOZWEI <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	"C. Thompson is the CEO of Cold Steel Knives. He's giving you a live product demo!" <- chara .job!
+	1 <- chara .carrying.slot_count!
+	4 <- chara .fitness!
+	4 STAT_STRENGTH <- chara .bonus!
+	5 <- chara .strength!
+	
+	' lynn-main-events <- chara .main_events!
+;
+
+
+: goat-main-events args( chara eventid )
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	THING_EVENT_SWING ?(
+		sfx{ goat <- chara .thing@ .adjust-vol pitch@ 1.25 * pitch! 250 d!
+			freq@ 1.5 * freq!
+		}
+
+		0.375 ($ PURPLE .. FLICKER .. "baa." $) <- chara .thing@ .reportdur
+	);
+
+	drop
+;
+
+
+: .goatify args( chara )
+	<- chara .petify
+		
+	13 <- chara .bodytype!
+	WEAPON_BUTT <- chara .weapon_default!
+	0.2 <- chara .bounceval!
+	-0.75 <- chara .breathescale!
+	
+	0 <- chara .loyalty!
+	0 <- chara .attitude!
+	
+	"is a goat. You don't own it, it's just following you by its own free will." <- chara .job!
+	
+	skeletons_base_id 10 + <- chara .skeleton_spriteid!
+
+	' goat-main-events <- chara .main_events!
+;
+
+: sports-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_MISSION_START = if
+		WEAPON_SPORTSHORN <- chara .weapona@ = if 60 <- chara .stackeda! then
+	then;
+;
+
+: .sportify args( chara )
+	"Sports" <- chara .name!
+	1 3 rnd <- chara .hattype!
+	WEAPON_SPORTSHORN <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	60 <- chara .stackeda!
+	"SPORTS" <- chara .trait!
+	"SPORTS" <- chara .perk!
+	WEAPON_FOAMHAND <- chara .weaponb!
+	1 <- chara .weapon_nodropb!
+	"is the ultimate sports fan." <- chara .job!
+	2 <- chara .carrying.slot_count!
+		
+	' sports-main-events <- chara .main_events!
+;
+
+: .skelknightify args( chara )
+	"Sir Boney" <- chara .name!
+	96 <- chara .specialtype!
+	0 <- chara .female!
+	6 <- chara .fitness!
+	5 <- chara .strength!
+	5 <- chara .vitality!
+	5 <- chara .health!
+	0 <- chara .loyalty!
+	"BONE" <- chara .trait!
+	"ZONE" <- chara .perk!
+	<- chara .nodeathdrop
+	"wears a thick suit of plate armor. He lost the helmet, making him vulnerable." <- chara .job!
+	WEAPON_SKULLMACE <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	// WEAPON_GLADIUS <- chara .weaponb!
+;
+
+: .bortify args( chara )
+	"Bort" <- chara .name!
+	0 <- chara .female!
+	0 <- chara .loyalty!
+	0 <- chara .strength!
+	0 <- chara .fitness!
+	"BORT" <- chara .trait!
+	"SAMSON" <- chara .perk!
+	92 <- chara .specialtype!
+	WEAPON_BORTBOARD <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	"was summoned in a dark ritual of antique can sacrifice." <- chara .job!
+;
+
+: .nimbusify args( chara )
+	"Nimbus Ordeal" <- chara .name!
+	0 <- chara .female!
+	6 <- chara .loyalty!
+	0 <- chara .strength!
+	0 <- chara .fitness!
+	93 <- chara .specialtype!
+	WEAPON_GUSTER <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	"is fleeing from a ..... mysterious past............" <- chara .job!
+	1 <- chara .carrying.slot_count!
+;
+
+: .kaijuify args( chara )
+	"Kaiju" <- chara .name!
+	1 <- chara .female!
+	4 <- chara .strength!
+	4 <- chara .fitness!
+	91 <- chara .specialtype!
+	"is someone in a giant monster costume. You can see the zipper." <- chara .job!
+	1 <- chara .carrying.slot_count!
+	WEAPON_CLAW <- chara .weapon_default!
+	4 <- chara .vitality!
+	4 <- chara .health!
+;
+
+: .boganify args( chara )
+	"Bogan" <- chara .name!
+	0 <- chara .female!
+	3 <- chara .strength!
+	3 <- chara .fitness!
+	1 STAT_FITNESS <- chara .bonus!
+	1 STAT_STRENGTH <- chara .bonus!
+	"Dadamantium Claws" <- chara .perk!
+	"Gnome Regen" <- chara .trait!
+	97 <- chara .specialtype!
+	2 <- chara .carrying.slot_count!
+	2 <- chara .vitality!
+	2 <- chara .health!
+	"is some sort of hairy gnome? Has gnomish healing factor." <- chara .job!
+	WEAPON_FIERCE <- chara .weapon_default!
+;
+
+: .hnkify args( chara )
+	0 4 rnd case
+		0 of "HANK" endof
+		1 of "HONK" endof
+		2 of "HINK" endof
+		3 of "HENK" endof
+		4 of "HYNK" endof
+	endcase <- chara .name!
+	0 <- chara .female!
+	0 <- chara .loyalty!
+	6 <- chara .shooting!
+	5 <- chara .fitness!
+	4 <- chara .strength!
+	80 LOOT_BULLET <- chara .lootamt!
+	95 <- chara .specialtype!
+	WEAPON_MODRED9 <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	"is a special agent, on a special mission, with a special gun. He won't betray you." <- chara .job!
+;
+
+// Samedi
+
+: samediskel
+	new-npc lt .character@ .skelify
+	lt .character@ .default-ai-setup
+;
+
+: samedisummon args( lady )
+	samediskel
+	1 lt .character@ .party-familiar
+	<- lady lt-to-thing drift
+;
+
+: samedisummonpoof samedisummon lt mission{ .smokepoof } ;
+
+: samedi-thing-events args( me teid )
+
+	<- me .character@ .dead? if then;
+
+	<- teid THING_EVENT_WAS_HIT = if
+		<- me .character@ .specialhead@ 87 <> if then;
+		RED "ARISE, SKELETON ARMY!" .. <- me .yellmsglong
+		<- me samedisummonpoof <- me samedisummonpoof
+	then;
+;
+
+: samedi-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+
+	<- eventid MAIN_EVENT_MISSION_START = if <- chara .thing@ samedisummon then;
+	<- eventid MAIN_EVENT_DRIVING_START = if then;
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) samedi-thing-events
+;
+
+: .samedify dup .thing@ args( chara lady )
+	87 <- chara .specialhead!
+	1 <- chara .female!
+	6 <- chara .wits!
+	-1 <- chara .headoff.y!
+	0 <- chara .attitude!
+	<- chara statmod{ .fireproof }
+	"Samedi" <- chara .name!
+	"is constantly followed around by skeletons." <- chara .job!
+	"Skeleton Queen" <- chara .perk!
+	"One Foot in Grave" <- chara .trait!
+	
+	' samedi-main-events <- chara .main_events!
+
+	4 for
+		samediskel
+		<- lady lt .follow 			
+		<- lady lt-to-thing drift
+	next 
+	
+;
+
+: .deadsamedify args( chara )
+	"Both Feet in Grave" <- chara .trait!
+	<- chara .fullheal
+	<- chara .specialbody@ 78 = not if
+		78 <- chara .specialbody!
+		($ "is now a HALF-SKELETON that leads other skeletons." $) <- chara .job!
+	else
+		78 <- chara .specialhead!
+		($ "has been fully upgraded to FULL-SKELETON. So cool." $) <- chara .job!
+	then
+;
+
+: .unclesamify args( chara )
+	105 <- chara .specialtype!
+	0 <- chara .female!
+	0 <- chara .wits!
+	0 <- chara .attitude!
+	1 <- chara .vitality!
+	1 <- chara .health!
+	"Uncle Sam" <- chara .name!
+	"RULEZ" <- chara .perk!
+	"AMERICA" <- chara .trait!
+	"is a living symbol of AMERICA, which no longer exists if you want to get technical." <- chara .job!
+;
+
+: .july4ify args( chara )
+	104 <- chara .specialtype!
+	6 <- chara .strength!
+	3 <- chara .vitality!
+	3 <- chara .health!
+	"Muscle Eagle" <- chara .name!
+	"EAGLE" <- chara .perk!
+	"BALD" <- chara .trait! 
+	"is a living symbol of AMERICA, currently escaping to Canada." <- chara .job!
+;
+
+: .pigify args( chara )
+	<- chara .petify
+	12 <- chara .bodytype!
+	1.5 <- chara .bounceval!
+	-0.95 <- chara .breathescale!
+	<- chara .notake
+	WEAPON_PIGBUTT <- chara .weapon_default!
+	"is some pig." <- chara .job!
+	-2 STAT_DEXTERITY <- chara .bonus+
+	skeletons_base_id 8 + <- chara .skeleton_spriteid!
+	3 4 rnd <- chara .strength!
+	3 4 rnd <- chara .fitness!
+;
+
+: .chickenify args( chara )
+	<- chara .petify
+	14 <- chara .bodytype!
+	-0.1 <- chara .bounceval!
+	<- chara .notake
+	skeletons_base_id 4 + <- chara .skeleton_spriteid!
+	1 <- chara .vitality!
+	1 <- chara .health!
+	0 <- chara .strength!
+	0 <- chara .fitness!
+;
+
+: .botshared args( st health chara )
+	6 <- chara .strength! 6 <- chara .fitness! <- chara .notake 
+	<- st <- chara .specialtype! <- health <- chara .vitality! <- health <- chara .health!
+;
+: .redbotify args( chara )
+	WEAPON_KUNG <- chara .weapon_default! 
+	39 6 <- chara .botshared
+;
+
+: .bluebotify args( chara )
+	WEAPON_BOXING <- chara .weapon_default! 
+	40 4 <- chara .botshared
+;
+
+: .cavemanify args( chara )
+	102 <- chara .specialtype!
+	"Caveman" <- chara .name!
+	1 <- chara .female!
+	"is a fighter from pre-civilization, recently thawed from ice." <- chara .job!
+	1 <- chara .strength!
+	2 <- chara .fitness!
+	3 STAT_STRENGTH <- chara .bonus!
+	2 STAT_FITNESS <- chara .bonus!
+	WEAPON_GIANTCLUB <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	4 <- chara .vitality!
+	4 <- chara .health!
+	<- chara .nocanshoot
+	2 <- chara .carrying.slot_count!
+;
+
+: .gigaguyify args( chara )
+	98 <- chara .specialtype!
+	"GigaGuy" <- chara .name!
+	0 <- chara .female!
+	"is a super fighting robot, or some weird guy in tights." <- chara .job!
+	WEAPON_GIGAMAN <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	1 <- chara .stackeda!
+	1 <- chara .carrying.slot_count!
+	// <- chara .nodeathdrop - Could use this to fix the stacked weapon drop thing
+;
+
+: .beemanify args( chara )
+	20 <- chara .specialtype!
+	"Bee Mann" <- chara .name!
+	0 <- chara .female!
+	"wanders the world, helping others, seeking redemption." <- chara .job!
+	WEAPON_TOY <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	6 <- chara .loyalty!
+	2 <- chara .carrying.slot_count!
+	2 <- chara .vitality!
+	2 <- chara .health!
+;
+
+: .renfairify args( chara )
+	88 <- chara .specialtype!
+	"Bard" <- chara .name!
+	1 <- chara .female!
+	"is a traveling singer you hired at a Ren Faire." <- chara .job!
+	WEAPON_LUTE <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	<- chara .bardify
+	6 <- chara .wits!
+	6 <- chara .attitude!
+	3 4 rnd <- chara .fitness!
+;
+
+: .firemanify args( chara )
+	90 <- chara .specialtype!
+	"wears a fireproof suit at all times, including the helmet at meals." <- chara .job!
+	0 <- chara .thing@ .flammability!
+	"Fireproof" <- chara .trait!
+	<- chara statmod{ .fireproof }
+	"Pyromaniac" <- chara .perk!
+	WEAPON_FIRE <- chara .weapona!
+	WEAPON_MOLOTOV <- chara .weaponc!
+	WEAPON_NAPALM <- chara .weaponb!
+	20 <- chara .stackedb!	
+;
+
+: .turtleify args( chara )
+	99 <- chara .specialtype!
+	"Tortuga" <- chara .name!
+	0 <- chara .female!
+	"is a mutated green rodent of some sort." <- chara .job!
+	WEAPON_SAI <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	WEAPON_SAI <- chara .weaponb!
+	0 <- chara .attitude!
+	0 <- chara .wits!
+	4 <- chara .strength!
+	4 <- chara .fitness!
+	2 <- chara .carrying.slot_count!
+	// 1 STAT_FITNESS <- chara .bonus! - maybe too strong
+;
+
+0 stack
+	' WEAPON_MOODYSAW shove
+	// ' WEAPON_PLASMARIFLE shove
+	' WEAPON_MINIGUN shove
+	' WEAPON_PISTOL shove
+	' WEAPON_SHOTGUN shove
+	' WEAPON_DSHOTGUN shove
+	// ' WEAPON_KNUCKS shove
+	' WEAPON_MOODYROCKET shove
+value moodguy-picker-base
+moodguy-picker-base shuffles var moodguy-picker
+
+: moodguy-pick moodguy-picker depths 0= if moodguy-picker-base shuffles to moodguy-picker then pops nip execute ;
+
+: moodguy-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		moodguy-pick <- chara .weaponb! moodguy-pick <- chara .weaponc!
+		WEAPON_PLASMARIFLE <- chara .weapona@ = <- chara .stackeda@ 300 < and if 
+			<- chara .stackeda@ 280 > if 300 else <- chara .stackeda@ 20 + then <- chara .stackeda!
+		then
+		WEAPON_MOODYROCKET <- chara .weaponb@ = if 10 <- chara .stackedb! then
+		WEAPON_MOODYROCKET <- chara .weaponc@ = if 10 <- chara .stackedc! then
+		WEAPON_MOODYSAW <- chara .weaponb@ = if 50 <- chara .stackedb! then
+		WEAPON_MOODYSAW <- chara .weaponc@ = if 50 <- chara .stackedc! then
+	then;
+;
+
+: .moodguyify args( chara )
+	101 <- chara .specialtype!
+	"Moody" <- chara .name!
+	0 <- chara .female!
+	6 <- chara .strength! 6 <- chara .fitness! 6 <- chara .shooting!
+	WEAPON_PLASMARIFLE <- chara .weapona!
+	40 <- chara .stackeda!
+	1 <- chara .weapon_nodropa! 1 <- chara .weapon_nodropb! 1 <- chara .weapon_nodropc!
+	"is a high-tech space supersoldier with a personal arsenal of weapons." <- chara .job!
+	' moodguy-main-events <- chara .main_events!
+;
+
+: .woodwomanify args( chara )
+	106 <- chara .specialtype! 
+	"Wood Woman" <- chara .name!
+	WEAPON_LOGLADYLOG <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	1 <- chara .female!
+	"is hauling around a gigantic chunk of wood." <- chara .job!
+;
+
+: pirate-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		WEAPON_CAPTAINCANNON <- chara .weaponb@ = if 20 <- chara .stackedb! then
+	then;
+;
+
+
+: .piratify args( chara )
+ 	108 <- chara .specialtype! 
+	WEAPON_CUTLASS <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	WEAPON_CAPTAINCANNON <- chara .weaponb!
+	1 <- chara .weapon_nodropb!
+//	<- chara .nodeathdrop
+	20 <- chara .stackedb!
+	"Captain" <- chara .name!
+	1 <- chara .female!
+	4 <- chara .strength!
+	4 <- chara .fitness!
+	0 <- chara .loyalty!
+	0 <- chara .composure!
+	-1 STAT_DEXTERITY <- chara .bonus+ // Formerly -2 but was too annoying
+	"can't run that fast on account her prized antique peg leg." <- chara .job!
+	' pirate-main-events <- chara .main_events!
+;
+
+: .puppykittify args( chara )
+
+	"GROWING PET" <- chara .trait!
+	6 <- chara .loyalty!
+	1 STAT_MORALE <- chara .bonus+
+	-0.3 <- chara .speed_bonus!
+
+	80 %chance if
+		"Puppy" <- chara .name!
+		<- chara .doggify
+		"LOYAL BOND" <- chara .perk!
+		WEAPON_WEAKCLAW <- chara .weapon_default!
+		18 19 rnd <- chara .bodytype!
+	else
+		"Kitty" <- chara .name!
+		<- chara .catify
+		"LESS DISLOYAL" <- chara .perk!
+		WEAPON_CLAW <- chara .weapon_default!
+		10 11 rnd <- chara .bodytype!
+	then
+;
+
+: .farmshotify args( chara )
+ 	103 <- chara .specialtype! 
+	WEAPON_FARMDSHOTGUN <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	35 LOOT_SHOTGUN_SHELL <- chara .lootamt!
+	"Earnestine" <- chara .name!
+	1 <- chara .female!
+	3 <- chara .strength!
+	4 <- chara .fitness!
+	4 <- chara .shooting!
+	"is carrying her treasured heirloom shotgun. It's been in the family for generations." <- chara .job!
+;
+
+// .romeroify 111 .specialtype!
+
+: cupid-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		WEAPON_CUPIDBOW <- chara .weapona@ = <- chara .stackeda@ 60 < and if 
+			<- chara .stackeda@ 50 > if 60 else <- chara .stackeda@ 10 + then <- chara .stackeda!
+		then
+	then;
+;
+
+: .cupidify args( chara )
+ 	107 <- chara .specialtype! 
+	WEAPON_CUPIDBOW <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	60 <- chara .stackeda!
+	"Cupid" <- chara .name!
+	0 <- chara .female!
+	3 <- chara .strength!
+	2 <- chara .fitness!
+	4 <- chara .shooting!
+	2 <- chara .carrying.slot_count!
+	"is the personification of Valentine's Day." <- chara .job!
+	' cupid-main-events <- chara .main_events!
+;
+
+0 stack
+	' WEAPON_DAGGER shove
+	' WEAPON_GAUNTLET shove
+	' WEAPON_PITCHFORK shove
+	' WEAPON_SHOVEL shove
+	' WEAPON_MEDIEVAL shove
+	' WEAPON_CLAYMORE shove
+	' WEAPON_KNIGHT shove
+	' WEAPON_WOODCLUB shove
+	' WEAPON_MORNING shove
+	' WEAPON_ZWEI shove
+	' WEAPON_GLADIUS shove
+	' WEAPON_SKULLMACE shove
+	' WEAPON_BARDICHE shove
+	' WEAPON_ULTIMALOG shove
+	' WEAPON_MEGAKNIGHT shove
+	' WEAPON_HALBERD shove
+	' WEAPON_DRAGONSLAYER shove
+	// Too modern?
+	// ' WEAPON_CAVALRY shove
+	// ' WEAPON_CUTLASS shove
+value barbar-picker-base
+barbar-picker-base shuffles var barbar-picker
+
+: barbar-pick barbar-picker depths 0= if barbar-picker-base shuffles to barbar-picker then pops nip execute ;
+
+: barbar-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		// change weapona
+		barbar-pick <- chara .weapona!
+		WEAPON_BOW <- chara .weaponb@ = <- chara .stackedb@ 50 < and if 
+			<- chara .stackedb@ 29 > if 50 else <- chara .stackedb@ 20 + then <- chara .stackedb!
+		then
+	then;
+;
+
+: .barbarify args( chara )
+	100 <- chara .specialtype! 
+	// WEAPON_DAGGER <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	WEAPON_BOW <- chara .weaponb!
+	1 <- chara .weapon_nodropb!
+	50 <- chara .stackedb!
+	"Barbarian" <- chara .name!
+	1 <- chara .female!
+	50 %chance if 
+		4 <- chara .strength!
+		3 <- chara .fitness!
+		1 STAT_FITNESS
+	else 
+		3 <- chara .strength!
+		4 <- chara .fitness!
+		1 STAT_STRENGTH 
+	then <- chara .bonus!
+	4 <- chara .shooting!
+	0 <- chara .loyalty!
+	2 <- chara .carrying.slot_count!
+	"is about to get barbaric with her giant stash of arrows and random weapons." <- chara .job!
+	' barbar-main-events <- chara .main_events!
+;
+
+
+// Temp Char Stuff
+
+: tempchar-thing-events args( me teid )
+	<- teid THING_EVENT_TIMER = if
+		<- me mission{ .smokepoof }
+		<- me silentkillit
+	then;
+
+	<- teid THING_EVENT_DIED = if 1 <- me .unseen! then;
+
+;
+
+: tempchar-main-events ( teid ) args( chara eventid )
+	<- eventid MAIN_EVENT_DRIVING_START = if 0 <- chara .party! then;
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+	<- chara .thing@ swap ( teid ) tempchar-thing-events
+;
+
+// Turrets (don't use tempchar-common shared logic)
+: .turretshared dup .thing@ args( st health chara me )
+	6 <- chara .shooting! <- chara .notake 
+	<- st <- chara .specialtype! <- health <- chara .vitality! <- health <- chara .health!
+	1 <- chara .carrying.slot_count!
+	60 300 330 rnd * <- me .timer!
+
+	' tempchar-main-events <- chara .main_events!
+
+	-1 <- chara .breathescale!
+	1 <- me .anim.weapontop!
+	90 rndsign * <- me .move_angle!
+
+	1 <- me .ai.threat_mode!
+	0 <- chara .ai.attack_level!
+//	8 <- me .weapon_state.off.y!
+
+	0 <- me .flammability!
+	1 <- me .subtypeid! // For non-human damage effects
+
+//	15 <- chara .ai.react_min!
+//	15 <- chara .ai.react_max!
+
+	0 <- chara .ai.react_min!
+	0 <- chara .ai.react_max!
+
+//	15 <- chara .ai.assess_min!
+//	15 <- chara .ai.assess_max!
+
+	0 <- chara .ai.assess_min!
+	0 <- chara .ai.assess_max!
+
+	160 <- chara .ai.shoot_dist!
+
+	0 <- chara .ai.wander_chance!
+	0 <- chara .ai.threat_threshold!
+	1 <- chara .ai.threat_respond_chance!
+	0 <- chara .ai.threat_relax_chance!
+	0 <- chara .ai.flee_dist!
+	0 <- chara .ai.flock_dist!
+
+	weapondef{ ' TURRET-OP } <- me .user_word!
+
+	-1 <- chara .bounceval!
+;
+
+
+: .redturretify args( chara )
+	110 3 <- chara .turretshared
+	WEAPON_REDTURRETGUN <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	150 LOOT_RIFLE_SHELL <- chara .lootamt!
+
+;
+
+: .greenturretify args( chara )
+	109 2 <- chara .turretshared
+	WEAPON_GREENTURRETGUN <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	150 LOOT_BULLET <- chara .lootamt!
+;
+
+
+// Shared logic
+: tempchar-common args( chara timer )
+	<- chara .default-ai-setup
+	<- chara .party-familiar
+	6 <- chara .loyalty!
+	<- timer <- chara .thing@ .timer!
+	' tempchar-main-events <- chara .main_events!
+;
+
+: tempchar-common-2min 60 120 138 rnd * tempchar-common ;
+: tempchar-common-5min 60 300 330 rnd * tempchar-common ;
+
+: .tempchickenify args( chara )
+	<- chara .chickenify
+	<- chara 60 50 70 rnd * tempchar-common
+;
+
+: .tempbluebotify args( chara )
+	<- chara .bluebotify
+	<- chara tempchar-common-2min
+;
+
+: .tempredbotify args( chara )
+	<- chara .redbotify
+	<- chara tempchar-common-2min
+;	
+
+0 stack
+	' .moosify shove
+	' .beaverify shove
+	' .pigify shove
+	' .chickenify shove
+	' .gerbilfy shove
+	' .doggify shove
+	' .catify shove
+	' .goatify shove
+	' .skelify shove
+	' .batify shove
+	' .fly shove
+value pukey-picker-base
+pukey-picker-base shuffles var pukey-picker
+
+: .pukeypicker pukey-picker depths 0= if pukey-picker-base shuffles to pukey-picker then pops nip execute ;
+
+: .pukeyify args( chara )
+	<- chara .pukeypicker 
+	// 0 <- chara .thing@ 50 %chance if .clr.g! else .clr.r! then
+	// 0 1 rnd <- chara .thing@ .clr.b!
+	0 360 frnd angle-colour 2 rgb* <- chara .thing@ .clr!
+	<- chara tempchar-common-2min
+;
+
+weapondef{
+
+custom: Egg
+	weapon: egg
+	spriteid: MELEE6 0x 1b +
+	melee_thrown: 1
+	melee_thrown_lob: 2
+	stack_max: 12
+
+	: spawn-a-chicken 
+		new-npc 30 lt .fade! lt .character@ .tempchickenify
+	;
+
+	:noname args( me eventid )
+		<- eventid THING_EVENT_BREAK = if
+			spawn-a-chicken <- me lt-to-thing
+			<- me mission{ .smokepoof }
+		then;
+
+		<- eventid THING_EVENT_BOUNCE = <- eventid THING_EVENT_WALL = or if
+			<- me .smack <- me killit
+		then;
+	;
+	melee_thrown_handler: last
+	root{ : egg } egg 0 lt .flip! ;
+
+}
+
+// Set up whatever character for PUKEYBALL
+// - set party/recruit if required 
+: new-tempchar new-npc 30 lt .fade! lt .character@ ;
+
+:noname new-tempchar .pukeyify
+; weapondef{ last to spawn-a-pukeymon }
+
+:noname new-tempchar .tempbluebotify
+; weapondef{ last to spawn-a-bluerobot }
+
+:noname new-tempchar .tempredbotify
+; weapondef{ last to spawn-a-redrobot }
+
+:noname new-tempchar .redturretify
+; weapondef{ last to spawn-a-redturret }
+
+:noname new-tempchar .greenturretify
+; weapondef{ last to spawn-a-greenturret }
+
+: stpick-mason 1 stpick 0= if 0 then;
+	dup .mason? 0= if drop 0 then;
+	-1
+;
+
+: .zombie-wrestle 0 args( me thing )
+	<- me .nearest_interact_id@ #thing dup -> thing 0= if then;
+	<- thing .typeid@ THING_ZOMBIE <> if then;
+	<- thing <- me .carry
+;
+
+// A combat AI HACK of sorts in here
+: roadpuncher-combat-ai args( chara thing )
+
+	// Don't switch unless at tail end of cooldown, so animation is not affected
+	<- thing .cooldown@ 15 > if then;
+
+	// Only switch to fireball if not too tired
+	<- thing .fatigue@ 45 < if
+
+		<- thing .carryid@ if <- thing .forcethrow then;
+		<- thing .zombie-wrestle <- thing .carryid@ if then;
+
+		// Or not too close to enemy
+		<- thing .nearest_enemy_dist2@ 24 24 * > if
+			WEAPON_PUNCHBALL <- chara .weapona!
+			0 <- chara .weaponb!
+		then;
+	then
+
+	// Use KARATAY
+	0 <- chara .weapona!
+	WEAPON_PUNCHBALL <- chara .weaponb!
+;
+
+: roadpuncher-events ( tevid ) 0 args( chara eventid thing )
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ -> thing
+
+	// .s cr
+
+	THING_EVENT_AI_ASSESS ?( <- chara <- thing roadpuncher-combat-ai );
+
+	THING_EVENT_SWING ?( );
+
+//	THING_EVENT_TIMER ?( beep );
+
+	drop
+;
+
+: .bryuify args( chara )
+ 	71 <- chara .specialtype! 
+	0 <- chara .specialmode!
+	WEAPON_KARATAY <- chara .weapon_default!
+	WEAPON_PUNCHBALL <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	1 <- chara .weapon_nodropb!
+	2 <- chara .carrying.slot_count!
+
+	0 <- chara .female!
+
+	// TODO: preset morale etc?
+	5 <- chara .strength!
+	5 <- chara .fitness!
+	0 <- chara .shooting!
+	1 <- chara .wits!
+	1 <- chara .mechanical!
+	1 <- chara .medical!
+	1 <- chara .composure!
+	<- chara .notake
+
+	<- chara .swapspecial
+	statmod{ MOD_SWAP_ATTACK <- chara .setmod }
+	<- chara .zombiewrestler
+
+	"BRYU" <- chara .name!
+	"isn't sure if it's pronounced 'BREE-OO' or 'BRY-OO' or just 'BROO'." <- chara .job!
+
+	' roadpuncher-events <- chara .main_events!
+;
+
+71 is-specialchar: .bryu?
+
+: .sagutsify args( chara )
+
+	// Use BRYU as defaults
+	<- chara .bryuify
+
+ 	72 <- chara .specialtype! 
+	WEAPON_ROUNDHOUSE <- chara .weapon_default!
+
+	6 <- chara .strength!
+	4 <- chara .fitness!
+
+	"SAGUTS" <- chara .name!
+	"is a tall semi-naked guy somehow with MAGICAL KICKBOXING." <- chara .job!
+;
+
+72 is-specialchar: .saguts?
+
+: .broomify args( chara )
+ 	112 <- chara .specialtype!
+ 	"is not a broom so STOP with the SWEEPING" <- chara .job!
+ 	-1 <- chara .breathescale!
+;
+
+112 is-specialchar: .broom?
+
+: rndtint 3 for 0.9 1.05 frnd dup * 0.8 1 clamp next ;
+
+
+: rat-thing-events args( thing eventid )
+
+	<- eventid
+
+		THING_EVENT_SWING ?(
+			sfx{ pip 0.05 duty! 500 100 rnd dup freq! 500 swap - 100 + freq2! 5.5 6.5 frnd pitch!
+				25 a! 0.9 q! 25 50 rnd d! 0.1 s! 50 r!
+				0.125 scale!
+				<- thing .adjust-vol
+			}
+		);
+
+	drop
+;
+
+
+: rat-main-events ( teid ) args( chara eventid )
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+//	<- chara .thing@ swap ( teid ) rat-thing-events
+;
+
+
+: .ratify args( chara )
+	<- chara .petify
+	2 <- chara .pet!
+	15 <- chara .seed@ abs 3 % + <- chara .bodytype!
+	6 <- chara .footoff.y!
+	skeletons_base_id 0x b + <- chara .skeleton_spriteid!
+	<- chara .nocarry
+	<- chara .notake
+	-1 <- chara .breathescale!
+	-0.25 <- chara .bounceval!
+	rndtint <- chara .tint.body!
+	0 <- chara .strength!
+	0 <- chara .fitness!
+	1 <- chara .vitality!
+	1 <- chara .health!
+
+	WEAPON_RATBITE <- chara .weapon_default!
+
+	' rat-main-events <- chara .main_events!
+;
+
+
+: .pooftemp 0 360 frnd args( angle )
+	dup	sfx{ thump 0.2 fx .s! 500 fx .r! 100 fx .filt! 0.95 fx .q! 0.5 pitch! .adjust-vol }
+
+	.pos3 6 for
+		particle{ new 3dup pos3!
+			particles_base_id 0x 2c + spriteid! 0 360 frnd angle!
+			<- angle i 360 6 / * + anglexy vel!
+			1.0 scale!
+			30 ticks!
+			15 fade_out!
+			0.75 clr.g!
+			0.25 clr.b!
+		}
+	next
+	3drop
+;
+
+
+: temp-main-events ( teid ) args( chara eventid )
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	// Thing events
+	( teid )
+
+	THING_EVENT_DIED ?(
+		<- chara .thing@ .pooftemp
+		<- chara .thing@ silentkillit
+	);
+;
+
+
+// TODO: Make it all funky with different rare/location critters etc.
+: .tempify args( chara )
+	<- chara .ratify
+	"squek" <- chara .thing@ .report
+	' temp-main-events <- chara .main_events!
+;
+
+
+// CO-OP JOIN MESSAGE
+: temp-buddy-events args( chara hint )
+	// Join
+	<- hint 1 = if
+		<- chara .tempify
+		<- chara .thing@ .pooftemp
+	then;
+
+	// Leave
+	<- hint 0 = if
+		TEAM_STATUS_FAMILIAR <- chara .decruit
+		<- chara .thing@ .pooftemp
+		<- chara .thing@ silentkillit
+	then;
+;
+
+last to main-event-mission-character

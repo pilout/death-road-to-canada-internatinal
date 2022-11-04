@@ -1,0 +1,153 @@
+// Variables that are used everywhere and have dependency issues due to where they were defined
+
+// TODO:
+// - move dependencies to the correct files so that the order of usage make sense.
+
+// TODO: Move configuration somewhere else
+
+// ====== //
+// CONFIG //
+// ====== //
+
+// How long after death to trigger main-event-mission-killed
+// 60 3 * killed_countdown!
+60 1 * killed_countdown!
+
+0 value need-save
+0 value last-saved
+
+// A way to schedule game saves
+: need-to-save 1 to need-save ;
+
+: try-to-save
+	need-save not if then;
+	madticks last-saved = if then;
+	madticks to last-saved
+	save-the-game 0 to need-save
+;
+
+// Road stuff
+road{
+	1 value diff-scalar
+	15 value nearcanada-day
+	0 value specialchar-mode
+	0 value familiar-mode
+	0 value easybandit-mode
+	
+	0 value road-countdown
+	0 value road-event-turn
+	0 value road-trip-days
+	0 value calendar-days
+
+	: calendar-day+ ' calendar-days +! ;
+
+	: road-delay main-event-period! ;
+
+	0 stack var road-stack
+
+	: pause-scene 0.1 main-event-pause! ;
+
+	: check-road-stack
+		road-stack depths 0= if false then;
+		road-stack pops execute
+		road-stack depths 0= if 2 road-delay true then;
+
+		pause-scene -1 road-delay
+
+		true
+	;
+}
+
+
+: stack-road-action road{
+	road-stack swap shove drop
+	pause-scene -1 road-delay
+} ;
+
+0 value game-recruits-count
+
+: .recruit .recruit ' game-recruits-count ++ ;
+
+// Globally override char generation defaults here
+: .default-ai-setup args( chara )
+
+	<- chara .ai_defaults // SYSTEM AI defaults
+
+	60 		<- chara .ai.threat_radius!
+	30 		<- chara .ai.threat_dist_base!	
+	5 		<- chara .ai.threat_count_base!				
+
+	1		<- chara .ai.threat_respond_chance!
+	0.9 	<- chara .ai.threat_threshold!
+	0.8		<- chara .ai.threat_relax_chance!
+	
+	32 <- chara .ai.flee_dist!
+//	15 <- chara .ai.flee_dist!
+;
+
+: extrahatcheck 
+	gstats{ challenge-statue1 } 1 < if 0 else 
+		gstats{ challenge-statue1 } 2 < if 9 else 15 then
+	then unlock_extra_hats! 
+;
+extrahatcheck
+
+: char-gen char-gen args( chara )
+	
+		// Happy Halloween
+		time.month 9 = time.month.day 31 = and if 
+			70 %chance if
+				0 10 rnd case
+					0 of 1 endof
+					1 of 78 endof
+					2 of 73 endof
+					3 of 83 endof
+					4 of 66 endof
+					5 of 51 endof
+					6 of 85 dup <- chara .specialbody! endof
+					otherwise 80
+				endcase
+
+				<- chara .specialhead!
+
+				33 %chance if 50 %chance if 80 else 85 then <- chara .specialbody! else
+					20 %chance if 78 <- chara .specialbody! then
+				then
+			else
+				50 %chance if 80 else 78 then <- chara .specialbody!
+				50 %chance if 0 75 rnd <- chara .specialhead! then
+			then
+		then
+		
+	3 <- chara .charm! // Noticed that this stat was being assigned but not used, so it's now set to 3
+	<- chara .default-ai-setup
+	<- chara
+;
+
+(* Defaults and notes
+	60 		<- chara .ai.threat_radius!					// Radius within which they check for zombies
+	30 		<- chara .ai.threat_dist_base!				// Distance they think is getting dangerous
+	5 		<- chara .ai.threat_count_base!				// Number of zombies before they start to really care
+
+	0.9 	<- chara .ai.threat_threshold!				// THREAT LEVEL that is considered dangerous
+	1		<- chara .ai.threat_respond_chance!			// Chance to go into THREAT MODE once threat level reached
+	0.8		<- chara .ai.threat_relax_chance!			// Chance to go out of THREAT MODE once threat level reduced
+	0		<- chara .ai.rush_chance! // 1 for more aggression
+	2		<- chara .ai.attack_level! // 4 for only grapple, 2 default, 0 is killem all
+		
+	// Extras
+	1 	<- chara .ai.safety_threshold! // Set when they flock closer due to threat?
+
+	4 <- chara .ai.flock_dist!
+	10 <- chara .ai.flee_dist!
+	30 <- chara .ai.follow_leash!
+	60 <- chara .ai.safety_leash!
+	45 <- chara .ai.ranged_leash!
+*)
+
+
+0 value recruitee
+
+voc{ cyoa
+
+}

@@ -1,0 +1,114 @@
+// uses hack/region-downtown-test.df
+uses paul/region-layout.df
+
+map{ regiondef{
+
+trade-camp-reset
+
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+0 value gbx3
+0 value gby3
+
+' plotdirt >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char V = if tradercarhere then;
+
+	xyp.i char P = if pictable1 lt-here 8 rdrift then;
+
+	xyp.i char * = if ttenthere then;
+	
+	xyp.i char A = if trader-awning lt-here then;
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx 1- gby xyp.xy swap 1+ swap gravellot then;
+	xyp.i char ( = if xyp.xy to gby2 to gbx2 then;
+	xyp.i char ) = if gbx2 1- gby2 xyp.xy swap 1+ swap gravellot then;
+	xyp.i char [ = if xyp.xy to gby3 to gbx3 then;
+	xyp.i char ] = if gbx3 1- gby3 xyp.xy swap 1+ swap gravellot then;
+	
+	xyp.i char w = if docarwreck then;
+	xyp.i char s = if dotirestack then;
+	
+	xyp.i char x = if ' plotpave to ft then;
+	
+	xyp.i char t = if wooded then;
+	xyp.i char { = if dirtstart then;
+	xyp.i char } = if dirtend then;
+	
+	xyp.i char Z = if tnomey-spawn then;
+	
+	xyp.i char S = if trader-food-for-gas then;
+	xyp.i char W = if trader-weapon-buyer then;
+	xyp.i char f = if campfirehere then;
+	xyp.i char T = if traderhere then;
+	
+	xyp.i char $ = if xyp.xy grassedge then;
+	
+;
+
+"
+.............................
+....w....w....w....w....w....
+.............................
+......t.....t....t....t......
+.............................
+....A....A....A....A....A....
+.............................
+.............................
+....T....T....T....T....T....
+.............................
+..<..........................
+.............................
+.............................
+.............(...........[>..
+.................{..*........
+...................B...*.....
+.......W..Z.........f........
+.......................*.....
+.......................}.....
+.........................]..x
+$$$$$$$$$$$$$....$$$$$$$$$$$$
+.......S.......)...V.....V...
+.............................
+...V.........................
+.............................
+.............................
+.....V.......................
+............................."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	9 21 rnd o'clock // 22 is still too dark for a trading camp that isn't pre-lit
+
+	-1 1 frnd wind_force!
+	campfirerain
+
+	' plotgrass to ft
+	plotmap
+	mission{ no-edge-spawns }
+	
+	14 %mv-up
+	30 %chars-up
+
+;
+
+region: tradecamp14
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+
+	post-script: site-setup
+
+} }
+

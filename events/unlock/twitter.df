@@ -1,0 +1,78 @@
+
+gstats{
+
+: twitter-tally
+	twitter-1 twitter-2 twitter-f + +
+;
+
+// Increase this number as more unlocks are added
+: twitter-twitsleft
+	3 twitter-tally -
+;
+
+}
+	
+defer twitterback	
+
+: followusthing
+	gstats{ twitter-twitsleft } 0 > if
+		($ "Follow us for news and for " .. "ZOMBO POINTS" fbold .. "!" $) +crtext
+	then
+;
+
+cyoa-blank: twitter-zombop
+	gstats{ 5 ' zombo-point +! save }
+	"The blue chicken thing looked pleased!" text!
+	"5 ZOMBO POINTS earned!" rainbold +crtext
+	zombopfull? if
+		zombo-point ZOMBOP_CAP > if 
+			"You are over the maximum for Zombo Points!
+			Spend your excess ZP before starting a new game!" fbold +crtext
+		else
+			zombopfull rbold +crtext
+		then
+	then
+;
+
+: rocketcat-twitter
+	gstats{ twitter-1 } 1 < if
+		gstats{ 1 to twitter-1 }
+		twitter-zombop
+	then
+	"http://www.twitter.com/rocketcatgames/" openurl
+;
+
+: rocketcat-facebook
+	gstats{ twitter-f } 1 < if
+		gstats{ 1 to twitter-f }
+		twitter-zombop
+	then
+	"http://www.facebook.com/rocketcatgames/" openurl
+;
+
+: madgarden-twitter
+	gstats{ twitter-2 } 1 < if
+		gstats{ 1 to twitter-2 }
+		twitter-zombop
+	then
+	"http://www.twitter.com/madgarden/" openurl
+;
+		
+cyoa-blank: twitterbird gstats{
+	"SOCIAL MEDIA CHICKEN" cyoa-title!
+
+	"It's some kind of blue bird. It squawks:" text!
+	"Read updates from Rocketcat Games on Twitter or Facebook for Death Road news and upcoming games!
+	Read Madgarden's Twitter for real Canadian Wisdom!" bbold +crtext
+	
+	followusthing
+	
+	choice( "Leave for now" )choice
+	choice( "Rocketcat Twitter" gstats{ twitter-1 } 1 < if fbold then )choice: rocketcat-twitter
+	choice( "Madgarden Twitter" gstats{ twitter-2 } 1 < if fbold then )choice: madgarden-twitter
+	choice( "Rocketcat Facebook" gstats{ twitter-f } 1 < if fbold then )choice: rocketcat-facebook
+	
+} ;
+	
+' twitterbird to twitterback
+

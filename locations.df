@@ -1,0 +1,36 @@
+uses locgen.df
+
+// Using locgen namespace so we can use locgen-based words in new words
+// here if we want
+: locations-start postpone roomgen{ postpone locdef{ postpone locgen{ ;
+
+// Some parse-to-end-of-line config words for a nice prefix syntax
+locdef{
+
+: locations-end postpone } postpone } postpone } ;
+
+: lg{ postpone locgen{ ;
+: }lg postpone } ;
+
+: tags: parse-line $tags ;
+: location: location tags: ;
+: entry-tags: parse-line $entry-tags ;
+: script: lg{ parse-line $script }lg ;
+: pre-script: lg{ parse-line $pre-script }lg ;
+: post-script: lg{ parse-line $post-script }lg ;
+: room-script: lg{ parse-line $room-pre-script }lg ;
+: room-pre-script: room-script: ; // alias
+: room-post-script: lg{ parse-line $room-post-script }lg ;
+: max-rooms: parse-line def-rooms-max! ;
+: room-choice: parse-line $roomdef-choice ;
+: room-weight: parse-line roomdef-weight! ;
+: room-count: parse-line roomdef-count! ;
+: room-mode: parse-line roomdef-add-mode ;
+
+: filter-only MODE_FILTERED_PICK roomdef-add-mode ;
+
+// Helper words
+: nad 0 auto-doors! ; 
+: ndx 0 %auto-door-escape ;
+
+}

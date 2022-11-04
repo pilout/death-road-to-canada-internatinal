@@ -1,0 +1,406 @@
+// uses paul/region-layout.df
+
+"../deathforth/rooms/junkyard.txt" $load-rooms
+"../deathforth/rooms/city.txt" $add-rooms
+
+cyoa{
+
+cyoa-bridge: junkdog-bite
+	rescue choosechar cicon
+	pchar isdogpal? if
+		"Friend of All Dogs" cyoa-title!
+		($ pname .. " uses everything " .. phe .. " knows about dog psychology on this vicious junkyard dog!
+		It works! The dog wants to follow!" $) cyoa-text! goodfx
+			choice( "Have dog follow" )choice: rescueme-d
+			choice( "Leave it here for now" )choice
+	else
+		"Very Mean Dog" cyoa-title!
+		($ "The dog is having none of that. It lunges at " .. pname .. "!" $) cyoa-text!
+		pchar .ouch-- bitefx
+	then
+;
+
+cyoa: junkdogrescue
+	rescue choosechar cicon
+	dead? if npc-died then;
+	"Very Mean Dog" cyoa-title!
+	5 6 rnd cchar .strength!
+	0 cchar .attitude!
+	0 cchar .composure!
+	($ "It's a vicious junkyard dog that wants nothing to do with you. This dog's personality probably wasn't great before the apocalypse, either.
+	It's too feral to even be swayed by food." $) cyoa-text!
+	pchar .nonfatal if "WARNING: Will probably bite you." rbold
+	else "WARNING: Will absolutely kill you." fbold then +crtext
+		pchar .weapona@ WEAPON_FEMUR = pchar .weaponb@ WEAPON_FEMUR = pchar .weaponc@ WEAPON_FEMUR = or or if
+			choice( "Bribe dog with a bone" )choice: rescueme-d
+		else
+			pchar .nonfatal if
+					choice( "Make dog follow you" )choice: junkdog-bite
+			else
+					choice( "Get killed by dog" )choice: junkdog-bite
+			then
+		then
+		pchar isdogpal? if
+			choice( "Use DOG PSYCHOLOGY" )choice: junkdog-bite
+		then
+		choice( "Leave dog alone for now" )choice
+;
+
+cyoa: junkpal2
+	nearestget nearest .character@ to junkpal2
+	junkpal2 choosechar cicon
+	dead? if npc-died then;
+	"Junkyard Pal Leonard" cyoa-title!
+	($ cname .. " needs help! If you get him out of here alive, he will teach " .. thegroup .. " some shooting tips.
+	" .. "H..help! I'm freaking out right now!" pbold $) cyoa-text!
+		road{ ' junkpalsrescue to post-mission-cyoa }
+;
+
+cyoa: junkpal1
+	nearestget nearest .character@ to junkpal1
+	junkpal1 choosechar cicon
+	dead? if npc-died then;
+	"Junkyard Pal Clem" cyoa-title!
+	($ cname .. " asks for help! If you can get him out of here, he'll teach " .. thegroup .. " everything he knows about car repair.
+	" .. "Things have been bad since our car broke down. It doesn't matter how good you are, cars break down fast on these roads!" pbold $) cyoa-text!
+		road{ ' junkpalsrescue to post-mission-cyoa }
+;
+
+}
+
+: new-junkdog map{ selected } . cr new-npc@ .doggify npc@rescue lt cyoa{ ' junkdogrescue cyoa! } drop ;
+
+: .junkpal2
+	68 over .specialtype!
+	6 over .shooting!
+	"Leonard" over .name!
+	// dup to junkpal2
+	0 over .female!
+	0.88 over .ai.threat_threshold!
+	WEAPON_RIFLE over .weapona!
+	50 LOOT_RIFLE_SHELL 2 pick .lootamt!
+	0.1 over .ai.wander_chance!
+	dup cyoa{ ' junkpal2 cyoa! }
+;
+
+: .junkpal1
+	67 over .specialtype!
+	6 over .strength!
+	4 over .fitness!
+	4 over .vitality!
+	4 over .health!
+	"Clem" over .name!
+	// dup to junkpal1
+	0 over .female!
+	WEAPON_PARKING over .weapona!
+	0.1 over .ai.wander_chance!
+	dup cyoa{ ' junkpal1 cyoa! }
+;
+
+: junkpal1 new-npc lt .character@ .junkpal1 1 lt .unseen! ;
+: junkpal2 new-npc lt .character@ .junkpal2 1 lt .unseen! ;
+
+map{ regiondef{
+
+0 value bfx
+0 value bfy
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+0 value gbx3
+0 value gby3
+
+0 value junkgoal
+
+: blocked tile@ TILE_BLOCK over .id! drop ;
+
+: trashblock tile@ tbwreck ;
+: trashs plotswreck ;
+: pwreck tile@ tbwreck ;
+: junkblock args( x y ) <- x <- y 1- <- x 1+ <- y ' pwreck boxcall ;
+
+// : plotdirty 2dup plotdirt 0x a + floortop ;
+: plotdirty 2dup plotdirt
+
+	3 onein not if 2drop then;
+
+	2dup 0x 1a floortop
+	tile@ LAYER_FLOORTOP tile_layer.rndshifts
+;
+
+(* : removegrass tile@ dup LAYER_FLOOR .lspriteid@ street_tiles_base_id 0x 61 + PRINTSTACK <> if drop then;
+	dup LAYER_FLOORTOP 0 .lspriteid!
+//	dup LAYER_WALLSIDE 0 .lspriteid!
+; *)
+
+: grasstile? dup street_tiles_base_id 6 + > swap street_tiles_base_id 12 + < and ;
+
+: removegrassedges
+	LAYER_FLOORTOP 0 .lspriteid!
+;
+
+: removegrass tile@ dup LAYER_FLOOR .lspriteid@ grasstile? not if drop then; removegrassedges ;
+
+: fenceup args( x y s )
+
+	0x f5 <- s + -> s
+
+	3 for
+		<- x <- y <- s i 1- 0x 10 * + walltop 
+		<- x <- y tile@ LAYER_WALLTOP 0 0 .tile_layer.off!
+		<- x <- y tile@ LAYER_WALLTOP 0 .tile_layer.flipx!
+		<- x <- y blocked
+		<- y 1- -> y
+	next
+;
+
+: hereup w 0 1 frnd * xyp.y 0 1 frnd * tile>pos ;
+: hereupsmall w 0 1 frnd * xyp.y 0.9 1 frnd * tile>pos ;
+
+: mishmash hereup args( x y )
+	rnd5050 if
+		shoppingcart <- x <- y lt .pos!
+		0 lt .nocollide! drift
+		0 1 rnd 180 * lt .angle!
+		lt .rusty
+	then;
+
+	1 4 rnd for cinderblock <- x <- y lt .pos! drift next
+
+	// TODO: Other throwabale junk
+;
+
+: tires hereup args( x y )
+	rnd5050 if bigtire <- x <- y lt .pos! drift then;
+
+	1 7 rnd for
+		tire <- x <- y lt .pos! drift
+	next
+;
+
+: weapons hereup args( x y )
+	rnd5050 if  <- x <- y rebar .pos! then;
+	rnd5050 if  <- x <- y metal .pos! then;
+	rnd5050 if  <- x <- y wrench lt .pos! then; // Wrench doesn't push a THING?
+	 <- x <- y crowbar .pos!
+;
+
+: dumpsters dumpster hereup lt .pos! ;
+
+: junkprize hereupsmall args( x y )
+	junkgoal 1 = if 
+		<- x <- y combonote lt .pos! <- x <- y skel lt .pos! drift 
+	then;
+	junkgoal 2 = if 
+		<- x <- y carkeys lt .pos! <- x <- y skel lt .pos! drift 
+	then;
+	junkgoal 3 = if
+		<- x <- y skel lt .pos!  
+		2 3 rnd for <- x <- y LLmisc lt .pos! drift next 
+		2 3 rnd for <- x <- y LLkitchen lt .pos! drift next 
+		1 2 rnd for <- x <- y LLammo lt .pos! drift next 
+		<- x <- y cheapweapons lt .pos! drift
+	then;
+	junkgoal 4 = if
+		<- x <- y junkpal1 lt .pos!  
+		<- x <- y junkpal2 lt .pos! 
+	then;
+;
+
+: junkcar
+	junkgoal 2 = if 
+		spawn-locked-car xyp.xy tile>pos lt .pos!
+	then;
+;
+
+: shiftin // Push wrecks away from sides
+	lt .pos.x@ 50 < if lt .pos.x@ 50 + lt .pos.x! then;
+	lt .pos.x@ pixelw 50 - > if lt .pos.x@ 50 - lt .pos.x! then;
+;
+
+: docarwreck hereup carwreck lt .pos! drift 0 1 rnd 180 * lt .angle! shiftin TILEFLAG_NO_COLLIDE lt .tileflags!
+	lt .angle@ if lt .sprh 4 / 16 - lt .anim.off.y! then
+	// TODO: ADD LOOT, or zombie spawn from car upon search
+;
+
+: dotirestack xyp.xy 1- tile>pos -4 4 rnd + swap -4 4 rnd + swap tirestack lt .pos! ;
+
+: bldg tanchor! map{ "junkyardoffice" $picklocid addloc prefab{ 1 9 1 shop } } ;
+
+
+' plotdirty >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char { = if xyp.xy to bfy to bfx then;
+	xyp.i char } = if bfx 1- bfy 1- xyp.x 1+ xyp.y 1+ pavedlot then;
+	xyp.i char D = if 3 4 rnd for dumpsters next then;
+	xyp.i char w = if docarwreck then;
+	xyp.i char s = if 1 2 rnd for mishmash next then;
+	xyp.i char W = if 1 2 rnd for weapons next then;
+	xyp.i char p = if junkprize then;
+	xyp.i char C = if junkcar then;
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx 1- gby xyp.xy swap 1+ swap grasslot then;
+	xyp.i char ( = if xyp.xy to gby2 to gbx2 then;
+	xyp.i char ) = if gbx2 1- gby2 xyp.xy swap 1+ swap grasslot then;
+	xyp.i char [ = if xyp.xy to gby3 to gbx3 then;
+	xyp.i char ] = if gbx3 1- gby3 xyp.xy swap 1+ swap grasslot then;
+	xyp.i char T = if xyp.xy trashblock then;
+	xyp.i char J = if rnd5050 if xyp.xy junkblock then then;
+	xyp.i char t = if 3 for tires next then;
+	xyp.i char S = if dotirestack then;
+	xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char z = if carwreck xyp.xy tile>pos lt .pos! drift then;
+	xyp.i char G = if dumpster xyp.xy tile>pos lt .pos! then;
+
+	xyp.i char 5 = if xyp.xy 0 fenceup then;
+	xyp.i char 6 = if xyp.xy 1 xyp.x 1 & + fenceup then;
+	xyp.i char 7 = if xyp.xy 3 fenceup then;
+
+;
+
+"
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTJ.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.JJTTTT
+TTTJ...............J.J.J.J.J................JTTT
+TTJ..........................................JTT
+TT..................J.J.J.J...................TT
+TTJ.J.J.J.J...........J.J...........J.J.J.J.JpTT
+TT............................................TT
+TTJ.J.J.................................J.J.J.TT
+TT..............J.J.........J.J...............TT
+T.J.........................................J.JT
+T...............J.J.........J.J................T
+T........J.J..........J.J........J.J..........JT
+T..............................................T
+T........J.J..........J.J........J.J..........JT
+T..............................................T
+T.J.........................................JDJT
+T........................tttssswwwwwwwwwwwwwwwwT
+T.J.J.J.J.J.J.J.J.J.J.....J.J.J.J.J.J.J.J.J.J.JT
+T.........................................WWWW.T
+T.J.J.J.J.J.J.J.J.J.J.....J.J.J.J.J.J.J.J.J.J.JT
+T..............................................T
+666666666666666666667.....5666666666666666666666
+.......TTTTTTTT..................TTTTTTTT....z..
+<...................S.....S(.SSSS....z..........
+...........z..z....S.......S....SS..........z...
+...................S.......S............z.......
+...................S.......S.......z............
+...................S.......S..G.G...............
+............G.G....S.......S....................
+.@.................S.......S.....)..............
+...................>....................C.......
+................................................
+................................................
+................................................
+................................................
+...............................................W"
+constant maplayout3
+
+"
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTJ.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.JJTTTT
+TTTJ...............J.J.J.J.J................JTTT
+TTJ..........................................JTT
+TT..................J.J.J.J...................TT
+TTJ.J.J.J.J...........J.J...........J.J.J.J.JpTT
+TT............................................TT
+TTJ.J.J.................................J.J.J.TT
+TT..............J.J.........J.J...............TT
+T.J.........................................J.JT
+T...............J.J.........J.J................T
+T........J.J..........J.J........J.J..........JT
+T..............................................T
+T........J.J..........J.J........J.J..........JT
+T..............................................T
+T.J.........................................JDJT
+T........................tttssswwwwwwwwwwwwwwwwT
+T.J.J.J.J.J.......J.J.J.J.J.J.J.J.......J.J.J.JT
+T.........................................WWWW.T
+T.J.J.J.J.J.......J.J.J.J.J.J.J.J.......J.J.J.JT
+T..............................................T
+66666666667.....5666666666666666667.....56666666
+....................TTTTTTTTTT...............z..
+<.................(S...........SSS......[.......
+........SS.......S..............SS......z.......
+...z.....S.......S.........................z....
+.........S.......S...............S..............
+.....z...S.......S...............S......S.......
+.........S.......S.G...........G.S......S.......
+.........S.......S...@......... )S......S.......
+.........>...............C.....................]
+................................................
+................................................
+................................................
+................................................
+...............................................W"
+constant maplayout2
+
+"
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTJ.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.J.JJTTTT
+TTTJ...............J.J.J.J.J................JTTT
+TTJ..........................................JTT
+TT..................J.J.J.J...................TT
+TTJ.J.J.J.J...........J.J...........J.J.J.J.JpTT
+TT............................................TT
+TTJ.J.J.................................J.J.J.TT
+TT..............J.J.........J.J...............TT
+T.J.........................................J.JT
+T...............J.J.........J.J................T
+T........J.J..........J.J........J.J..........JT
+T..............................................T
+T........J.J..........J.J........J.J..........JT
+T..............................................T
+T.J.........................................JDJT
+T........................tttssswwwwwwwwwwwwwwwwT
+T.J.J.J.J.J.......J.J.J.J.J.J.J.J.J.J.J.J.J.J.JT
+T.........................................WWWW.T
+T.J.J.J.J.J.......J.J.J.J.J.J.J.J.J.J.J.J.J.J.JT
+T..............................................T
+6666666666667.....566666666666666666666666666666
+....................TTTTTTTTTT...............z..
+<..................(S..........SSSS..z..........
+..........SS.......S............SS..............
+...........S.......S....................z..z....
+...........S.......S............................
+...........S.......S............GG..............
+...........S.......S............................
+...........S.......S.@.........)................
+...........>...............C....................
+................................................
+................................................
+................................................
+................................................
+...............................................W"
+constant maplayout
+
+: plotmap
+	0 -1 
+	33 %chance if
+		maplayout3 
+	else
+		50 %chance if
+			maplayout2
+		else
+			maplayout
+		then
+	then
+	xyplot: pt
+;
+
+: site-setup
+	' plotdirty to ft plotmap
+	map-extents ' removegrass boxcall
+	street-junk
+	5diff %zombs
+;
+
+} }

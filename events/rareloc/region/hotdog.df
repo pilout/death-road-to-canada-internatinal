@@ -1,0 +1,138 @@
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"../deathforth/rooms/bigoffice.txt" $add-rooms
+
+load? events/block/sharedcitylayout.df
+load? events/city/city-locations.df
+"events/inner/officeloc.df" $load
+"events/inner/shoploc.df" $load	
+
+locdef{
+
+location: wieneroffice
+		max-rooms: 2
+		entry-tags: officstart
+		pre-script: set-theme-office
+		script: set-theme-office
+		post-script: 10diff %zombs
+		
+		: wienertrash random-door "trashed" only-with-door ;
+		
+		room-choice: officstart
+			room-weight: 80
+			room-count: 1
+			room-script: nad
+			room-post-script: wienertrash
+			
+		room-choice: trashed
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: 10 %zombs carkeys skelscat
+			
+}
+
+map{ regiondef{
+
+	
+	: make-a-wiener "FOOD-CONGLOMO-CORP" sign-text! prefab{ 0 1 rnd 9 0 shop } paved-lot ;
+	
+	: pick-building
+
+		' curbuild ++
+
+		rowsleft 1 <= 100 %chance and if 0 else auto-picklocid then
+		
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+			"trashed" $picklocid addloc	make-apartments
+			75 %chance if block-last-build-door then
+		then
+	;
+
+	: pick-lots
+		blocks-init
+			6 to blockh
+			3 to maxrows
+			6 to streeth
+			0.35 to greenspace
+			1 3 rnd to grassylots
+		blocks-start
+
+		pavement
+
+		begin canplot? while
+
+			pick-building next-plot
+
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat
+
+		street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		5diff %zombs pavement pick-lots
+	;
+	
+	: wienercar
+	 20 spawncar mission{ cyoa{ ' cyoa-locked-car cyoa! } } 
+		pixelh 0.25 * lt .pos.y! pixelw 250 - lt .pos.x! ;
+
+	
+} }
+
+regiondef{
+
+	: runme
+		building-pick-setup
+		wienercar
+	;
+
+	 region: block-test
+		w: 35
+		h: 37
+		script: timeofday o'clock
+
+		loc-choice: wieneroffice
+			loc-weight: 10
+			loc-count: 1
+
+			loc-pick-script: make-a-wiener
+		
+		loc-choice: gunshop
+			loc-weight: 10
+			loc-count: 1
+
+			loc-pick-script: make-a-gunshop
+			
+		loc-choice: hardware
+			loc-weight: 10
+			loc-count: 1		
+			
+			loc-pick-script: make-a-hardware
+			
+		loc-choice: foodshop
+			loc-weight: 10
+			loc-count: 1		
+			
+			loc-pick-script: make-a-foodshop
+			
+		loc-choice: drugshop
+			loc-weight: 10
+			loc-count: 1		
+			
+			loc-pick-script: make-a-drugshop
+			
+		loc-choice: sportingshop
+			loc-weight: 10
+			loc-count: 1		
+			
+			loc-pick-script: make-a-sportshop
+						
+		post-script: runme
+}

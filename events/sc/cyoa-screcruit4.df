@@ -1,0 +1,234 @@
+(* uses base.df
+uses charfilt.df
+uses charstats.df
+uses road.df
+uses charstatmods.df *)
+
+// Gnomey, Horse Mann, Metal Knight, Cleaning Lady, DSYP, Ridic Fishing, Anime Girl, G*rf
+
+road{
+
+0 value knight-countdown
+
+}
+
+cyoa{ road{
+
+cyoa-bridge: grf-recruit
+	ricon
+	"G***" recruitee .name!
+	($ rname .. " says something but it's too muffled to understand.
+	Welcome to a new world of terror." $) cyoa-text! badfx
+		team-count 3 > if
+			"You'll have to boot someone to make room for this abomination:" +crtext recruit-replace?
+		then;
+		recruitee .strengthREV recruitee .fitnessREV recruitee .attitudeREV
+		recruited
+;
+
+cyoa: grf-test
+	"The Final Monday" cyoa-title!
+	char-gen to recruitee
+	someone choosechar
+	ricon 
+	6 recruitee .morale! 31 screcruit 0 recruitee .attitude! -4 STAT_MORALE recruitee .bonus!
+	($ Thegroup .. " is scavenging through a restaurant, finding nothing. " .. cname-He .. " discovers a deflated, filthy life-sized mascot character against one of the walls.
+	Suddenly, the mascot moves and screams:
+	" .. "I FREAKING HATE MONDAYS
+	" rbold .. cname .. " almost passes out from surprise." $) cyoa-text! basic-tone		
+		choice( "Recruit for some reason" )choice: grf-recruit
+		choice( "Get out of there fast" )choice
+;
+
+cyoa-bridge: anime-recruit
+	ricon 2 to anime-countdown recruitee .strengthREV recruitee .fitnessREV recruitee .attitudeREV
+	// recruitee .name@ 5 $left "-chan" $cat recruitee .name! - Old, bugged out with tiny names
+	// recruitee .name@ dup $len 8 min $left "-chan" $cat recruitee .name!
+	"Lovely Power" recruitee .perk!
+	($ rname .. " sparkles, lifts her LOVELY WAND, and emits heart beams.
+	" .. "A new team! Let's make a difference!" rainbold $) cyoa-text!
+	team-count 3 > if
+		"The group's too big to recruit her! Replace someone:" +crtext
+		recruit-replace?
+	then;
+ goodfx
+		recruited
+;
+
+cyoa: anime-test
+	"The Power of Anime" cyoa-title!
+	char-gen to recruitee
+	5 recruitee .morale! recruitee .animeify ricon
+	($ Thegroup .. " gets ambushed by a horde of zombies. While running, " .. gthey .. " encounter" .. g1s .. " a woman, already swarmed into a corner.
+	It looks hopeless, then she suddenly turns into an " .. "ANIME MAGICAL GIRL" rainbold .. ".
+	The zombies don't have a chance against this." $) cyoa-text! basic-tone
+		choice( "Recruit her" )choice: anime-recruit
+		choice( "Part ways" )choice
+;
+
+cyoa-bridge: billy-recruit
+	ricon
+	"Billy" recruitee .name!
+	($ cname .. " finds a rowboat. It takes awhile to get to the old man. The man doesn't talk and his expression is hard to read, but he steps on your boat." .. " ><> " pbold $) cyoa-text! goodfx
+		team-count 3 > if
+			"Kick someone out to make room for him:" +crtext recruit-replace?
+		then;
+		recruitee .shootingREV
+		recruited
+;
+
+cyoa: billy-test
+	"Ridiculous Screenshake" cyoa-title!
+	char-gen to recruitee
+	someone choosechar
+	ricon
+	3 recruitee .morale! recruitee .billify
+	($ Thegroup .. " is taking a break near a lake.
+	There's an old man in a boat in the distance, fishing.
+	He flips the fishing rod and dozens of fish fly high into the air. He then gets out a pistol and starts shooting them. The world seems to shake.
+	During the middle of this, he switches out for a shotgun." $) cyoa-text! basic-tone
+		choice( "Recruit him" )choice: billy-recruit
+		choice( "Leave him be" )choice
+;
+
+cyoa-bridge: dsyp-recruit
+	ricon
+	"DSYP" recruitee .name!
+	($ rname .. " seems to accept your offer. He didn't say anything or even react at all, except he did get into the car. If he doesn't jump out, then it's a done deal." $) cyoa-text! goodfx
+	team-count 3 > if
+		"You'll need to boot someone else out to make room:" +crtext recruit-replace?
+	then;
+		recruited
+;
+
+cyoa: dsyp-test
+	"DSYP" cyoa-title!
+	char-gen to recruitee
+	ricon
+	3 recruitee .morale! recruitee .dsypify
+	($ Thegroup .. " finds a man in a bathroom.
+	The man says nothing.
+	He may be upset that you barged into a bathroom, but his face is expressionless. So who knows.
+	He's purple for some reason. Pinkish-purple." $) cyoa-text! basic-tone
+		choice( "Recruit him" )choice: dsyp-recruit
+		choice( "Leave him be" )choice
+;
+
+cyoa-bridge: cleaner-recruit
+	ricon
+	($ rname .. " spins her mop rapidly around her wrist.
+	" .. "Time to clean up this mess!
+	" pbold .. "Mop water soaks " .. thegroup .. " pretty bad." $) cyoa-text! goodfx
+	team-count 3 > if
+		"Remove someone to make room:" +crtext recruit-replace?
+	then;
+		recruited
+;
+
+cyoa: cleaner-test
+	"Cleaning Up" cyoa-title!
+	char-gen to recruitee
+	someone choosechar
+	ricon
+	4 recruitee .morale! recruitee .cleanerify
+	($ "You find a woman in an abandoned town, resting in a looted store.
+	She's wearing a cleaning uniform.
+	" .. "I wear these clothes because they're comfortable and stain resistant.
+		And I use this mop as a weapon because it's a good weapon! That's all! Stop asking me questions!" pbold $) cyoa-text! basic-tone
+		choice( "Recruit her" )choice: cleaner-recruit
+		choice( "Leave her be" )choice
+;
+
+cyoa-bridge: knight-recruit 
+	ricon 4 6 rnd to knight-countdown
+	"Knight" recruitee .name!
+	($ rname .. " eases her metal self into the car. The suspension buckles a bit.
+	" .. "Let's help one another on our quests!" pbold $) cyoa-text! goodfx
+		team-count 3 > if
+			"You'll have to replace someone for the knight:" +crtext recruit-replace?
+		then;
+		recruitee .strengthREV recruitee .fitnessREV
+		recruited
+;
+
+// Maybe check if HORSE MANN is in your group and sell him to her??
+cyoa: knight-test
+	"Steel Hitchhiker" cyoa-title!
+	char-gen to recruitee
+	ricon
+	4 recruitee .morale! recruitee .knightify
+	($ Thegroup .. " is driving north and sees a knight walking along the road, in full plate armor.
+	The knight explains that she used to have a horse, but it got zombified." $) cyoa-text! basic-tone
+		($ " She offers to help you in your next battle, in exchange for a ride." $) +text
+		choice( "Accept offer" )choice: knight-recruit
+		choice( "Decline offer" )choice
+;
+
+
+cyoa-bridge: horse-recruit
+	ricon
+	($ "The man ignores " .. cname .. "'s offer to join the group, but it soon becomes obvious that he just isn't listening.
+	The car pulls ahead a bit and " .. cname .. " reaches over and opens one of the back doors. The man jumps in." $) cyoa-text! goodfx
+		team-count 3 > if
+			"Boot someone out to get a horse:" +crtext recruit-replace?
+		then;
+		recruitee .strengthREV recruitee .fitnessREV recruitee
+		recruited
+;
+
+cyoa-choice: horse-boost
+	ricon
+	($ Thegroup .. " imagines what it would be like to be a horse.
+	" .. "WOW
+	NICE
+	INCREDIBLE" rbold $) cyoa-text! goodfx
+		' .morale++ foreach-team-char
+;
+
+cyoa: horse-test
+	"A Lovely Horse" cyoa-title!
+	char-gen to recruitee
+	someone choosechar
+	"Horse" recruitee .name!
+	ricon
+	6 recruitee .morale! recruitee .horsify
+	($ "There's a man running alongside the road.
+	His horse mask is flopping back and forth with every step.
+	" .. Thegroup .. " has never seen someone so free." $) cyoa-text! basic-tone
+		choice( "Recruit him" )choice: horse-recruit
+		choice( "Imagine being a horse" )choice: horse-boost	
+;
+
+cyoa-bridge: gnomey-recruit
+	ricon
+	team-count 3 > if
+		($  rname .. " flips out.
+		" rbold .. "You can't RECRUIT anyone if you already have 4 people!
+		You just can't do it! Haven't you been paying ATTENTION?
+		" pbold .. rname .. " storms back into his hut and slams the door.
+		Boot someone from the group and try again:" $) cyoa-text! badfx recruit-replace?
+	then;
+	($ rname  .. " jumps onto his rodent thing.
+	" .. "You have a ZOMBIE problem? That's GNOME PROBLEM.
+	" pbold .. "The rodent rears back and whinnies dramatically.
+	" .. rname .. " points towards the horizon and winks. " $) cyoa-text! goodfx
+		recruitee .strengthREV recruitee .attitudeREV recruitee .medicalREV
+		recruited
+;
+
+cyoa: gnomey-test
+	"THE TRIUMPHANT RETURN OF GNOMEY" cyoa-title!
+	char-gen to recruitee
+	"Gnomey" recruitee .name!
+	ricon
+	6 recruitee .morale! recruitee .gnomify
+	($ Thegroup .. " takes a wrong turn down a country road, and comes across a house.
+	The house is a large mushroom, nearly as big as a person. There's a little gated area outside with some sort of exotic rodent grunting inside of it.
+	A gnome steps out of the house and starts " .. "SHRIEKING" rbold .. " and pointing at you." $) cyoa-text! basic-tone
+		choice( "Recruit him" )choice: gnomey-recruit
+		choice( "Run for the car" )choice
+;
+
+} }
+
+

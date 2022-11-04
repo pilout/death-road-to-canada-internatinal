@@ -1,0 +1,477 @@
+// uses events/city/region-layout.df
+uses paul/region-layout.df
+
+map{ regiondef{
+
+	: locid-bungalow make-bungalow ;
+	: locid-gablehouse make-gable-house ;
+	: locid-2storeyhouse make-2storey-house ;
+
+	// Picks the more low-rent looking houses
+	: make-a-house 
+		10 %chance if
+			locid-gablehouse
+		else
+			rnd5050 if locid-bungalow else locid-2storeyhouse then
+		then grass-lotw walkway
+	;
+
+	: make-apartments ( locationid ) 
+		road_theme@ case
+			0 of make-florida-building endof
+			1 of make-carolina-building endof
+			otherwise prefab{ mrand 5 8 rnd 0 building }
+		endcase paved-lotw 
+	;
+	
+	: office-signs
+		1 5 rnd case
+			1 of "DINKUS & SLOAN" endof
+			2 of "CHILLIN' VILLAINS LAW" endof
+			3 of "DAD & SONS" endof
+			4 of "iOmniTeleCorpCo" endof
+			5 of "IniTech" endof
+		endcase
+	;
+	: restaurant-signs
+		1 5 rnd case
+			1 of "BOILED POTATOES" endof
+			2 of "SPAGHETTI ONLY" endof
+			3 of "MEAT & ETC" endof
+			4 of "CURRY-TO-GO" endof
+			5 of "BURGS LAND" endof
+		endcase
+	;
+	
+	: prefab-shop sign-text! prefab{ 0 3 rnd 9 0 shop } paved-lotw ;
+	: prefab-shop2 sign-text! prefab{ 0 3 rnd 9 0 shop2 } paved-lotw ;
+	: prefab-apt sign-text! prefab{ mrand 7 9 rnd 0 building } paved-lotw ;
+	: prefab-house sign-text! prefab{ mrand 6 0 building2 } paved-lotw ;
+	
+	// Super rares
+	
+	: make-a-lab "CONJECTURAL TECHNOLOGIES" sign-text! prefab{ 0 3 rnd 10 0 shop } paved-lotw ;
+	: make-a-raretest "JUST TESTING U" sign-text! prefab{ 0 3 rnd 10 0 shop } paved-lotw ;
+	: make-a-comic "KiND oF A*LOT*O COMiCS" prefab-shop2 ;
+	: make-a-toystore "NUTZ '4' T0YZ" prefab-shop2 ;
+	: make-a-animestore "THE ANIME STORE" prefab-shop2 ;
+	: make-a-wyk "W*Y*K STATION" sign-text! prefab{ 0 3 rnd 9 0 shop } paved-lotw ;
+	: make-a-toilet "TOILET HEAVEN" prefab-shop2 ;
+	: make-a-dmv "DEPARTMENT OF MOTOR VEHICLES" sign-text! prefab{ 0 3 rnd 10 0 shop } paved-lotw ;
+	
+	// Special Lot Prefabs
+	
+	: make-a-pub "MOE'S PUB" prefab-shop ;
+	: make-a-gunshop "GUN*STOP" sign-text! prefab{ 1 3 rnd 9 0 shop } paved-lotw ;
+	: make-a-foodshop "FUD-E-MEYERS" prefab-shop2 ;
+	
+	: make-a-jockshop "SPORTS & JORTS" prefab-shop2 ;
+	: make-a-petshop "-PET-STUFF-" prefab-shop2 ;
+	: make-a-camping "CAMPER'S DEPOT" prefab-shop2 ;
+	: make-a-hardware "ERNIE'S HARDWARE" prefab-shop2 ;
+	: make-a-umbrella "JUST UMBRELLAS" prefab-shop2 ;
+	: make-a-drugshop "SMALLGRENS DRUG" prefab-shop2 ;
+	: make-a-sportshop "SUPERSPORTING" prefab-shop2 ;
+	: make-a-banner "SAFE HERE!" prefab-house ;
+	: make-a-infest "Fred's Fort" prefab-house ;
+	: make-a-barkapt "BARK! BARK!" prefab-apt ;
+	: make-a-rescueapt "HELP ME" prefab-apt ;
+	
+	: make-a-bookshop "BOOKATORIUM" sign-text! prefab{ 0 9 0 shop } paved-lotw ;
+	: make-a-police "BUTTVILLE POLICE" sign-text! prefab{ 5 9 0 shop } paved-lotw ;
+	: make-a-clinic "E-Z-CLINIC" sign-text! prefab{ 4 9 0 shop } paved-lotw ;
+	: make-a-office office-signs sign-text! prefab{ 0 1 rnd 9 0 shop } paved-lotw ;
+	: make-a-gym 
+		"MUSCLE! BOMB!! GYM!!"
+		0.5 0.5 0.5 sign-border!
+		0.1 0.1 0.1 sign-bg!
+		1 0.5 0.5 sign-fg!
+		prefab-shop2
+	;
+	: make-a-coffee "APOCALYPSE COFFEE" sign-text! prefab{ 0 9 0 shop } paved-lotw ;
+	: make-a-restaurant restaurant-signs prefab-shop ;
+	: make-a-arcade "QUARTER-EATER ARCADE" prefab-shop2 ;
+	: make-a-furnshop "FURNITURARIUM" prefab-shop2 ;
+		
+	: aplot add-a-path+ grass-lotw rnd5050 if 1 lot-back-fence+ then next-plot ;
+
+	: block-last-build-door
+		last-build-doorxy tile@ 0= if then;
+		last-build-doorxy crap-aroundxy
+		last-build-doorxy blocked
+		2 for last-build-doorxy swap -3 3 rnd + swap 0 2 rnd + crap-aroundxy next
+		last-build-doorxy 1+ crap-aroundxy
+//		last-build-doorxy 1+ tile@ if -8 last-build-doorxy 1+ tile@ .offy! then
+		last-build-doorxy 1+ tile@ if last-build-doorxy 1+ tile@ LAYER_WALLSIDE -4 4 rnd -8 .tile_layer.off! then
+	;
+
+// 0 make-apartments // EXAMPLE... apartments with no door!
+
+	: trashed-house-maker ( loctypeid )
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+			"trashed" $picklocid addloc	make-a-house
+			90 %chance if block-last-build-door then
+		then
+	;
+	
+	: trashed-apartment-maker ( loctypeid )
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+			"trashed" $picklocid addloc	make-apartments
+			90 %chance if block-last-build-door then
+		then
+	;
+	
+	: trashed-maker 50 %chance if trashed-house-maker else trashed-apartment-maker then ;
+	
+	// New no trash blocked houses
+	
+	: notrash-house-maker ( loctypeid )
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+			"trashed" $picklocid addloc	make-a-house
+		then
+	;
+	
+	: notrash-apartment-maker ( loctypeid )
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+			"trashed" $picklocid addloc	make-apartments
+		then
+	;	
+	
+	: notrash-maker 50 %chance if notrash-house-maker else notrash-apartment-maker then ;
+
+(*	: pick-building ;
+	: canplotter 
+		begin canplot? while
+			pick-building next-plot
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat
+	;
+*)
+	
+// places
+		
+	: houseorapt
+		50 %chance if
+		"
+			loc-choice: house
+			loc-weight: 40
+			loc-count: 1
+
+			loc-pick-script: make-a-house
+		"
+		else
+		"
+			loc-choice: apartments
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-apartments
+		"
+		then	
+	;
+	
+	: houseorapt-trash
+		50 %chance if
+		"
+			loc-choice: trash-h
+			loc-weight: 40
+			loc-count: 1
+
+			loc-pick-script: make-a-house
+		"
+		else
+		"
+			loc-choice: trash-a
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-apartments
+		"
+		then	
+	;
+
+	: minilab
+		"events/rareloc/minilab.df" $load
+		"../deathforth/events/rareloc/labs.txt" $add-rooms
+		"
+			loc-choice: minilab
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-lab
+		"
+	;
+	
+	: gordon
+		"events/rareloc/gordon.df" $load
+		"
+			loc-choice: gordon
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-apartments
+		"
+	;
+	
+	: heman
+		"events/rareloc/heman.df" $load
+		"
+			loc-choice: heman
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-apartments
+		"
+	;
+	
+	: fairyqueen
+		"events/rareloc/fairy.df" $load
+		"
+			loc-choice: fairy
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-apartments
+		"
+	;
+	
+	: panda
+		"events/rareloc/panda.df" $load
+		"
+			loc-choice: panda
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-apartments
+		"
+	;
+	
+	: secretlab
+		"events/rareloc/secretlab.df" $load
+		"../deathforth/events/rareloc/labs.txt" $add-rooms
+		"
+			loc-choice: secretlab
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-house
+		"
+	;
+	
+	: secretbunker
+		"events/rareloc/secretbunker.df" $load
+		"
+			loc-choice: secretbunker
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-house
+		"
+	;
+	
+	: apt-altar
+		"events/rareloc/apt-altar.df" $load
+		"
+			loc-choice: apt-altar
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-apartments
+		"
+	;
+	
+	: disco
+		"events/rareloc/disco-51.df" $load
+		"
+			loc-choice: disco51
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: disco-club
+		"
+	;
+	
+	: toiletheaven
+		"events/rareloc/toiletheaven.df" $load
+		"
+			loc-choice: toiletheaven
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-a-toilet
+		"
+	;
+	
+	: comicbook
+		"events/rareloc/comicstore.df" $load
+		"
+			loc-choice: comicstore
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-a-comic
+		"
+	;
+	
+	: animestore
+		"events/rareloc/animestore.df" $load
+		"
+			loc-choice: animestore
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-a-animestore
+		"
+	; 
+
+	: catnest
+		"events/rareloc/catnest.df" $load
+		"
+			loc-choice: catnest
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-house
+		"
+	;
+	
+	: wykstation
+		"events/rareloc/wyk.df" $load
+		"
+			loc-choice: wyk
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-wyk
+		"
+	;
+	
+	: caaarl
+		"events/rareloc/rick.df" $load
+		"
+			loc-choice: caaarl
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-house
+		"
+	;
+	
+	: bogan
+		"events/rareloc/bogan.df" $load
+		"
+			loc-choice: bogan
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-house
+		"
+	;
+	
+	: secretmansion
+		"events/rareloc/secretmansion.df" $load
+		"../deathforth/rooms/duodenum.txt" $add-rooms
+		"
+			loc-choice: secretmansion
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-house
+		"
+	;
+	
+	: toystore
+		"events/rareloc/toystore.df" $load
+		"
+			loc-choice: toystore
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-a-toystore
+		"
+	;
+	
+	: sewerturtle
+		"events/rareloc/sewerturtle.df" $load
+		"
+			loc-choice: sewerturtle
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-a-house
+		"
+	;
+	
+	: dmv
+		"events/rareloc/dmv.df" $load
+		"
+			loc-choice: dmv
+			loc-weight: 40
+			loc-count: 1
+			loc-pick-script: make-a-dmv
+		"
+	;
+	
+	: raretest
+		"
+			loc-choice: house
+			loc-weight: 30
+			loc-count: 1
+			loc-pick-script: make-a-raretest
+		"
+	;
+
+	deck-new
+		
+		// card: disco
+		// (* 
+		card: minilab
+		card: comicbook
+		card: animestore
+		card: apt-altar
+		card: secretlab
+		card: secretbunker
+		card: gordon
+		card: fairyqueen
+		card: panda
+		card: catnest
+		card: heman
+		card: toiletheaven
+		card: wykstation
+		card: caaarl
+		card: bogan
+		card: secretmansion
+		card: toystore
+		card: dmv
+		card: sewerturtle
+		// *) card: sewerturtle
+
+	constant RARE-LOT-DECK
+	RARE-LOT-DECK shuffles var rare-lot-deck
+
+	: iscityseeker? args( chara ) <- chara .trait@ "City Seeker" $= ;
+	: cityseeker? team-stack ' iscityseeker? stack-filter nip 0 > ;
+	
+	: rarething
+		cityseeker? if
+			50
+		else
+			// 10 default, raise this to 100 for easy testing
+			10
+		then
+		%chance if 
+			cityseeker? if goodfx then
+			rare-lot-deck depths ( does not consume the deck ) 0= if
+				drop ""
+			else
+				drawcard ( consumes the deck )
+			then
+		else
+		""
+		then
+	;
+	
+	: easyregcity
+		houseorapt evaluate
+		houseorapt-trash evaluate
+	;
+	
+	: regcity
+		houseorapt evaluate
+		houseorapt evaluate
+		houseorapt-trash evaluate
+		rarething evaluate
+	;
+	
+} }
+
+// Pass the location ID in to the following to create a new building
+//		prefab{ mrand ( style ) 0 2 rnd 2 * 5 + ( width ) 0 ( depth ) theme-generic-building }

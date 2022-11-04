@@ -1,0 +1,323 @@
+// - Look in locgen.df for the theme helper words I used
+
+locations-start
+
+: zombtest for 1 zombs drift next ;
+// aa
+
+	location
+		tags: bedroom house
+		max-rooms: 7
+		entry-tags: entry
+
+		: set-theme
+			// Re-seed the global RNG each time based on location, for same results
+			locseed seed! 
+
+			rnd5050 if floor-carpet else floor-wood then
+
+			// TODO: Set these up more specifically with theme helper
+			// similar to floor-carpet for walls, doors etc.
+			// - themes like door-house, door-industrial, door-hospital, door-metal, etc.
+			0 3 rnd loc-wtheme!
+			0 4 rnd loc-dtheme!
+
+			// for items
+			0 5 rnd to theme-num 
+
+		;
+
+		// shrink these down for our too-small script lines
+		: nad 0 auto-doors! ; 
+		: ndx 0 %auto-door-escape ;
+
+		// Executed ONCE when location is created
+		// - if the theme is never changed in room scripts, this is enough here
+		script: set-theme 
+
+		// Executed before ANY room is generated
+		pre-script: set-theme tags msg 0 2 rnd zombs
+
+		// Executed before specific room is generated. Place after
+		// a room-choice:
+		// room-script: 
+
+		room-choice: entry
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+			filter-only
+
+		room-choice: bathroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath
+
+		room-choice: bedroom
+			room-weight: 50
+			room-count: 3
+			room-script: nad
+			room-post-script: beddoor
+
+		room-choice: closet
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+
+		room-choice: hall
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: dbathroom
+			
+		room-choice: danger
+			room-weight: 5
+			room-count: 1
+			room-script: nad
+			room-post-script: 6 12 rnd zombs
+			
+
+		location tags: test
+		max-rooms: 11
+		entry-tags: entry
+		script: set-theme 
+		pre-script: set-theme tags msg
+
+		room-choice: kitchen 1
+			room-weight: 1	
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+		room-choice: kitchen 2	
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+		room-choice: kitchen 3
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+		room-choice: kitchen 4
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall	
+		room-choice: kitchen 5
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+		room-choice: kitchen 6
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall			 
+		room-choice: kitchen 7
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+		room-choice: kitchen 8
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+		room-choice: kitchen 9
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+		room-choice: kitchen 10
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall	
+		room-choice: kitchen 11
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall	
+		
+		
+		location tags: tiny house
+		max-rooms: 6
+		entry-tags: entry
+		script: set-theme 
+		pre-script: set-theme tags msg
+
+		room-choice: entry
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+			filter-only
+
+		room-choice: bathroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath
+
+		room-choice: bedroom
+			room-weight: 50
+			room-count: 1
+			room-script: nad
+			room-post-script: beddoor
+
+		room-choice: closet
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+
+		room-choice: kitchen
+			room-weight: 20
+			room-count: 1
+			room-script: nad floor-kitchen
+
+		room-choice: living
+			room-weight: 100
+			room-count: 1
+	
+	location
+		tags: small house
+		max-rooms: 7
+		entry-tags: entry
+		script: set-theme 
+		pre-script: set-theme tags 0 2 rnd zombs
+
+		room-choice: entry
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+			filter-only
+
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath
+
+		room-choice: bedroom
+			room-weight: 50
+			room-count: 2
+			room-script: nad
+			room-post-script: beddoor
+
+		room-choice: closet
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+
+		room-choice: kitchen
+			room-weight: 20
+			room-count: 1
+			room-script: nad floor-kitchen
+
+		room-choice: living
+			room-weight: 100
+			room-count: 1
+
+		room-choice: hall
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dbathroom
+			
+	location
+		tags: death house
+		max-rooms: 4
+		entry-tags: entry
+		
+		script: set-theme 
+		pre-script: set-theme tags msg	
+		
+		room-choice: entry
+			room-script: ndx 
+			room-post-script: 50 %chance if random-door "treasure" with-door then
+			room-weight: 1
+			room-count: 1
+			filter-only
+			
+		room-choice: treasure
+			room-script: nad
+			room-weight: 1
+			room-count: 1
+			
+		room-choice: closet
+			room-weight: 100
+			room-count: 2
+			room-script: nad 
+			room-post-script: 5 10 rnd zombs
+			
+		room-choice: death
+			room-weight: 200
+			room-count: 1
+			room-script: nad 
+			room-post-script: 5 10 rnd zombs
+			
+	location
+		tags: treasureland
+		max-rooms: 4
+		entry-tags: entry
+		
+		script: set-theme 
+		pre-script: set-theme tags msg	
+		
+		room-choice: entry
+			room-script: ndx
+			room-weight: 1
+			room-count: 1
+			filter-only
+			
+		room-choice: treasure
+			room-script: nad
+			room-weight: 1
+			room-count: 3
+	
+	(
+	
+	location
+		tags: apartments
+		max-rooms: 15
+		entry-tags: aptlobby
+		
+		script: set-theme 
+		pre-script: set-theme tags msg	
+		
+		room-choice: aptlobby
+			room-script: ndx
+			room-weight: 1
+			room-count: 1
+			filter-only
+			
+		room-choice: stairwell
+			room-script: nad
+			room-weight: 100
+			room-count: 1
+
+		room-choice: bedroom
+			room-weight: 100
+			room-count: 4
+			room-script: nad
+			room-post-script: random-door "bathroom" with-door
+
+		room-choice: closet
+			room-weight: 1
+			room-count: 4
+			room-script: nad
+
+		room-choice: kitchen
+			room-weight: 20
+			room-count: 1
+			room-script: nad floor-kitchen			
+	
+		room-choice: bathroom
+			room-weight: 5
+			room-count: 4
+			room-script: nad floor-bath
+			
+	)
+			
+locations-end
+

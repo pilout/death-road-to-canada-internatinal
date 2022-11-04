@@ -1,0 +1,137 @@
+uses paul/region-layout.df
+uses paul/region-road-layout.df
+
+" 
+:map 1
+:tags camphut 
+:scriptA regiondef{ getout-npc }
+:scriptB fridge -1 movey 
+:scriptC bed 
+:scriptD sink -1 movey 
+:scriptE smalltable 
+:size 10 11 
+:off 10 1 
+:tiles 
+2222222222
+2333333332
+21C111BD12
+2111111112
+21C1A11E12
+2111111112
+21C1111112
+2111111112
+2111111112
+2222222222
+3333333333
+"
+value CAMPHUT
+CAMPHUT $parse-rooms
+
+locdef{
+
+location: camphut
+		max-rooms: 1
+		entry-tags: camphut
+		pre-script: set-theme-cabin
+		script: set-theme-cabin
+		post-script: 
+		
+		room-choice: camphut
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			filter-only
+
+}
+
+map{ regiondef{
+
+trade-camp-reset
+
+: bldg tanchor!
+	"camphut" $picklocid addloc prefab{ 7 cabin } 
+;
+
+' plotdirt >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char v = if tradercarhere then;
+	xyp.i char P = if pictable1 lt-here 8 rdrift then;
+	xyp.i char x = if gravehere then;
+	xyp.i char c = if campfirehere then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char C = if tenthere then;
+	xyp.i char * = if ttenthere then;
+	xyp.i char $ = if xyp.xy grassedge then;
+	xyp.i char T = if traderhere then;
+	xyp.i char S = if trader-food-for-gas then;
+	xyp.i char R = if roadlines then;
+	xyp.i char g = if ' plotpave to ft xyp.xy ft xyp.xy grassedge xyp.xy then;
+	xyp.i char r = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char w = if docarwreck then;
+	xyp.i char s = if dotirestack then;
+	xyp.i char t = if tree lt-here 8 rdrift then;
+	xyp.i char { = if dirtstart then;
+	xyp.i char } = if dirtend then;
+	xyp.i char [ = if dirtstart then;
+	xyp.i char ] = if gravelendw then;
+	xyp.i char ( = if grassstart then;
+	xyp.i char ) = if grassend then;
+	xyp.i char < = if grassstart2 then;
+	xyp.i char > = if grassend2 then;
+	xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char Z = if tnomey-spawn then;
+;
+
+"
+<........................
+.........................
+.........................
+.........................
+....T...............T....
+.........@...............
+.........................
+........................)
+.........................
+.........................
+.........................
+(........................
+.......Z.................
+.....................t...
+..t.........T............
+.....t..............t..t.
+.........................
+..t..t............t.t.t..
+........................>"
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	15 19 rnd o'clock
+
+	30 %chance if 0 1 frnd weather! 0.5 1.5 frnd wind_force! else -1 1 frnd wind_force! then
+
+	-1 -1 w h dirtbox
+	plotmap
+	mission{ no-edge-spawns }
+
+	// Put char and chars in middle of map
+	50 %mv-up
+	50 %chars-up
+;
+
+region: campsite6
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+
+	post-script: site-setup
+
+} }

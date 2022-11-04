@@ -1,0 +1,48 @@
+"../deathforth/rooms/bigstore.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/exterior/yall-maker.df" $load
+
+location
+		tags: yallmart
+		max-rooms: 3
+		entry-tags: yallmart
+		
+		script: yall-theme 
+
+		post-script: 5sdiff yall-zombsplit 
+		// %zombs-yall
+
+		: yallsiege
+			LLkitchen LLammo LLammo LLkitchen LLmisc skelscat skelscat
+			2 for random-door "restroom" only-with-door map{ block-last-door } next
+		;
+		
+		room-choice: yallmart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: yallsiege
+			filter-only
+
+		room-choice: restroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath		
+
+regiondef{
+
+	: siegesetup setup-yallmart-tiny mission{ siege-start-dig 50 bottom-spawn } ;
+
+//	2 1000 tone
+
+	 region: yallmart
+		w: 26
+		h: 15
+		script: timeofday o'clock
+
+		on-foot no-rest
+		no-prefab
+
+		post-script: siegesetup 5sdiff yall-zombsplit
+		// %zombs-yall
+}

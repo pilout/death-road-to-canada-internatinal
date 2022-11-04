@@ -1,0 +1,324 @@
+
+// This gets saved/loaded for use in misc gamemode logic checks via the gamemode? word
+0 value gamemode-word
+
+: gamemode? gamemode-word v= ;
+
+gamedef{
+
+(*
+	USAGE:
+
+	The 'gamemode' word contains the current mode in the form of the word set with 'applyword'. To check the current
+	mode against a specific mode, use: ' <gamemode word to check> gamemode? if ...
+
+	To call the word for the currently selected mode, use: gamemode execute
+*)
+
+: 13diffscalar road{ 1.3 to diff-scalar } ;
+: 15diffscalar road{ 1.5 to diff-scalar } ;
+: 16diffscalar road{ 1.6 to diff-scalar } ;
+: 2diffscalar road{ 2 to diff-scalar } ;
+: 3diffscalar road{ 3 to diff-scalar } ;
+
+: ezbandit road{ 1 to easybandit-mode } ;
+: specialmode road{ 1 to specialchar-mode } ;
+: familiarmode road{ 1 to familiar-mode } ;
+
+: defaultmode
+	ezbandit
+;
+
+: longroad
+	road{ 25 to nearcanada-day }
+	ezbandit
+;
+
+: specialchars
+	specialmode
+	ezbandit
+;
+
+: familiarchars
+	familiarmode
+	ezbandit
+;
+
+: specialcharsEX
+	specialmode
+	16diffscalar
+;
+
+: familiarcharsEX
+	familiarmode
+	16diffscalar
+;
+
+: make-a-kepa 0 args( charnum )
+	char-gen -> charnum ;
+
+: kepamode
+	char-gen to recruitee 
+	"Kepa" recruitee .name!
+	0 recruitee .female!
+	0 recruitee .hairtype!
+	0 recruitee .bodytype!
+	6 recruitee .headtype!
+	0 recruitee .torsotype!
+	2 recruitee .legstype!
+	0 recruitee .facetype!
+	1 recruitee .hairtype!
+	0 recruitee .hattype!
+	0 recruitee .glassestype!
+	0 recruitee .specialtype!
+	0 recruitee .speed_bonus!
+	0 recruitee .skincolour!
+	15 recruitee .haircolour!
+	1234512345 recruitee .seed!
+	"IS KEPA" recruitee .trait!
+	($ "promises you a " .. "'cheevo'" fbold .. " if you get him to Canada." $) recruitee .job!
+	"GAME DESIGNER" recruitee .perk!
+	WEAPON_CARDBOARD recruitee .weapona!
+	5 recruitee .shooting! 5 recruitee .strength! 3 recruitee .fitness!	2 recruitee .morale!
+	0 recruitee .wits! 0 recruitee .attitude! 0 recruitee .composure! 0 recruitee .loyalty!
+	recruitee .fitnessREV recruitee .strengthREV recruitee .shootingREV
+	recruitee .witsREV recruitee .attitudeREV recruitee .temperREV recruitee .loyaltyREV
+	1 recruitee .vitality! 1 recruitee .health! recruitee .recruit
+	2diffscalar
+;
+
+: shortroad
+	road{ 9 to nearcanada-day }
+	ezbandit
+;
+
+: marathonmode
+	road{ 30 to nearcanada-day }
+	15diffscalar
+;
+
+: deadlier
+	13diffscalar
+;
+
+: endlessmode
+	road{ 1000 to nearcanada-day }
+	15diffscalar
+;
+
+: OPPmode
+	3diffscalar
+;
+
+: quicknightmare
+	road{ 9 to nearcanada-day }
+	3diffscalar
+;
+
+: 4jerksmode
+	ezbandit
+	13diffscalar
+;
+
+: 4jerksmodeEX
+	road{ 2.5 to diff-scalar }
+;
+
+: UNLOCKM cr$ .. cr$ .. "UNLOCK: " rbold ;
+
+: WINSNORM gstats{ wins-normal } dup print 0 > if ($ RED .. " WINS: " .. gstats{ wins-normal } $) else "" then ;
+
+: WINSFAM gstats{ wins-family } 0 > if RED .. ($ " WINS: " .. gstats{ wins-family } $) else "" then ;
+: WINSRARE gstats{ wins-special } 0 > if RED .. ($ " WINS: " .. gstats{ wins-special } $) else "" then ;
+: WINSSHORT gstats{ wins-short } 0 > if RED .. ($ " WINS: " .. gstats{ wins-short } $) else "" then ;
+: WINSLONG gstats{ wins-long } 0 > if RED .. ($ " WINS: " .. gstats{ wins-long } $) else "" then ;
+: WINSDEADLY gstats{ wins-deadlier } 0 > if RED .. ($ " WINS: " .. gstats{ wins-deadlier } $) else "" then ;
+: WINSRAREEX gstats{ wins-specialEX } 0 > if RED .. ($ " WINS: " .. gstats{ wins-specialEX } $) else "" then ;
+: WINSFAMEX gstats{ wins-familyEX } 0 > if RED .. ($ " WINS: " .. gstats{ wins-familyEX } $) else "" then ;
+: WINSMARATHON gstats{ wins-marathon } 0 > if RED .. ($ " WINS: " .. gstats{ wins-marathon } $) else "" then ;
+: WINSKEPA gstats{ wins-kepa } 0 > if RED .. ($ " WINS: " .. gstats{ wins-kepa } $) else "" then ;
+
+// HUMERUS
+
+: endless-win-day 
+	gstats{ best-endless } 0 > if " DAYS: " .. gstats{ best-endless } else "" then
+;
+
+: WINSENDLESS gstats{ wins-endless } 0 > if 
+	RED .. ($ " WINS: " .. gstats{ wins-endless } .. endless-win-day $)
+	else 
+		gstats{ best-endless } 0 > if RED .. ($ " BEST: " .. gstats{ best-endless } $) 
+		else "" then
+	then
+;
+: WINSOPP gstats{ wins-opp } 0 > if RED .. ($ " WINS: " .. gstats{ wins-opp } $) else "" then ;
+: WINSQUICKDEATH gstats{ wins-quickdeath } 0 > if RED .. ($ " WINS: " .. gstats{ wins-quickdeath } $) else "" then ;
+
+// KIDNEY
+
+: WINS4JERKS gstats{ wins-4jerks } 0 > if RED .. ($ " WINS: " .. gstats{ wins-4jerks } $) else "" then ;
+: WINS4JERKSEX gstats{ wins-4jerksEX } 0 > if RED .. ($ " WINS: " .. gstats{ wins-4jerksEX } $) else "" then ;
+
+
+icons16_id 0x 20 + constant MODE_ICONS
+
+: modedefs init
+	($ "Death Road (Normal)" .. WINSNORM $) $mode
+		($ "Le mode de jeu normal, par defaut.
+		A vos skis, emportez une tuque... on part au CANADA!
+		La plupart des recrues sur la route que vous trouverez seront aleatoires, mais parfois vous aurez plus de chance." $) $desc
+		MODE_ICONS 0 + icon
+		' defaultmode applyword
+		
+	($ "Familiar Characters Mode" .. WINSFAM $) $mode
+		"Most road recruits you meet are now familiar characters, instead of random!
+		These are characters that you've created and saved. Make your friends and family, and they'll show up in the game!" $desc
+		// You can also import other people's characters.
+		MODE_ICONS 0x 8 + icon
+		' familiarchars applyword	
+	
+	($ "Rare Characters Mode" .. WINSRARE $) $mode
+		"Most road recruits you meet are now special characters with unique abilities!
+		This usually can make things a little easier.
+		But not always." $desc
+		MODE_ICONS 0x 3 + icon
+		' specialchars applyword
+		
+	($ "Short Trip to Heck Mode" .. WINSSHORT $) $mode
+		"For impatient people that want a risky shortcut!
+		It takes 9 driving days to get to Canada, rather than the default 15 days.
+		Be careful, this means less days to prepare for the end!" $desc
+		MODE_ICONS 0x 1 + icon
+		' shortroad applyword
+		gstats{ wins-normal 1 < wins-special 1 < wins-family 1 < } and and if 1 locked
+		"A quick 9 driving day mode.
+		Unlock by beating any of the normal difficulties. Death Road Normal Mode, Familiar Characters Mode, or Rare Characters Mode." $desc
+		then
+		
+	($ "Long Winding Road Mode" .. WINSLONG $) $mode
+		"For people that like to chill and take it easy.
+		It takes 25 driving days to get to Canada, rather than the usual 15 days.
+		Difficulty progression starts the same, but gets higher! At least you get more time to prepare." $desc
+		MODE_ICONS 0x 2 + icon
+		' longroad applyword
+		gstats{ wins-normal 1 < wins-special 1 < wins-family 1 < } and and if 1 locked
+		"A longer 25 driving day mode.
+		Unlock by beating any of the normal difficulties. Death Road Normal Mode, Familiar Characters Mode, or Rare Characters Mode." $desc
+		then
+
+	($ "Four Jerks Mode" .. WINS4JERKS $) $mode
+		"Start with up to 4 people, if you made Custom Characters!
+		Made for 4 player co-op, or if you just want a full car at start.
+		In exchange, about 30% more zombies will spawn." $desc
+		MODE_ICONS 0x 5 + icon
+		' 4jerksmode applyword
+		
+	($ "Deadlier Road Mode" .. WINSDEADLY $) $mode
+		"30% more danger! 30% more excitement!
+		About 30% more zombies.
+		Bandits are more cruel." $desc
+		MODE_ICONS 0x 4 + icon
+		' deadlier applyword
+		gstats{ wins-normal 1 < wins-special 1 < wins-family 1 < } and and if 1 locked
+		"A tougher challenge! Gateway to harder modes!
+		Unlock by beating any of the normal difficulties. Death Road Normal Mode, Familiar Characters Mode, or Rare Characters Mode." $desc
+		then
+		
+	($ "Familiar " .. RAINBOW .. "EXTREME" .. WHITE .. WINSFAMEX $) $mode
+		"Most recruits you meet are familiar characters!
+		Make sure your custom characters are strong and work together well, because they will be facing 160% the usual amount of zombies.
+		Bandits are more cruel." $desc
+		MODE_ICONS 0x a + icon
+		' familiarcharsEX applyword
+		gstats{ wins-deadlier 1 < wins-family 1 < } or if 1 locked
+		"Very difficult challenge with custom characters!
+		Unlock by beating both Deadlier Road Mode and Familiar Characters Mode." $desc
+		then
+				
+	($ "Rare " .. RAINBOW .. "EXTREME" .. WHITE .. WINSRAREEX $) $mode
+		"Most recruits you meet are special characters!
+		This is combined with the amount of zombies set to 160%. Can the unique characters you find survive gigantic walls of undead?
+		Bandits are more cruel." $desc
+		MODE_ICONS 0x 6 + icon
+		' specialcharsEX applyword
+		gstats{ wins-deadlier 1 < wins-special 1 < } or if 1 locked
+		"Very difficult challenge with special characters!
+		Unlock by beating both Deadlier Road Mode and Rare Characters Mode." $desc
+		then
+		
+	($ "Marathon" fbold .. " Mode" .. WINSMARATHON $) $mode
+		"A grueling challenge.
+		It takes 30 driving days to get to Canada, rather than the usual 15 days. About a month of pain!
+		Zombie amount starts off 50% higher than normal, and eventually goes to double. 
+		Bandits are more cruel." $desc
+		MODE_ICONS 0x 9 + icon
+		' marathonmode applyword
+		gstats{ wins-deadlier 1 < wins-long 1 < } or if 1 locked
+		"Extremely difficult challenge, with 30 driving days!
+		Unlock by beating both Deadlier Road Mode and Long Winding Road Mode." $desc
+		then
+		
+	($ "K*E*P*A " fbold .. "MODE" .. WINSKEPA $) $mode
+		"Kepa Expert Player Advanced Mode.
+		Double the zombies, double the fun.
+		Start with a Kepa. Do NOT let Kepa die. The ultimate challenge.
+		Bandits are more cruel." $desc
+		MODE_ICONS 0x 5 + icon
+		' kepamode applyword
+		gstats{ wins-specialEX 1 < wins-familyEX 1 < wins-marathon 1 < } or or if 1 locked
+		"Abandon all hope ye who enter here.
+		Unlock by beating all of the hard difficulties. Familiar Characters Extreme, Rare Characters Extreme, and Marathon Mode." $desc
+		then
+		
+	($ "Four Jerks " .. RAINBOW .. "EXTREME" .. WHITE .. WINS4JERKSEX $) $mode
+		"Start with a car full of jerks, now with more zombies!
+		About 150% more zombies will spawn. Over double, not quite triple!
+		Final showdown will have twice as many zombies as normal!
+		Bandits are more cruel." $desc
+		MODE_ICONS 0x 5 + icon
+		' 4jerksmodeEX applyword
+		gstats{ wins-4jerks 1 < } if 1 locked
+		"Way more zombies! Still four jerks.
+		Unlock by beating Four Jerks Mode." $desc
+		then
+		
+	($ "ENDLESS " fbold .. "MODE" .. WINSENDLESS $) $mode
+		"Canada is a myth perpetuated by the former government!
+		America extends northward forever! Wake up sheeple!!!
+		Travel forever-ish. See how far you can get.
+		Bandits are more cruel." $desc
+		MODE_ICONS 0x 5 + icon
+		' endlessmode applyword
+		gstats{ wins-marathon 1 < } if 1 locked
+		"An impossible challenge with no end in sight!
+		Unlock by beating Marathon Mode." $desc
+		then
+		
+	($ "O*P*P " rainbold .. "MODE" .. WINSOPP $) $mode
+		"Over Powered Party! Final showdown is twice as long!
+		Get a special start that lets you pick any special characters you want and other goodies!
+		Fight Triple the default zombie amount!! Bandits are more cruel. Wins here do not count towards streaks." $desc
+		MODE_ICONS 0x 3 + icon
+		' OPPmode applyword
+		gstats{ wins-specialEX 1 < wins-familyEX 1 < } or if 1 locked
+		"A for-fun mode that lets you start with whatever rare characters that you would like!
+		Unlock by beating Familiar Characters Extreme and Rare Characters Extreme." $desc
+		then
+		
+	($ "Quick Death " fbold .. "MODE" .. WINSQUICKDEATH $) $mode
+		"For anyone that wants to die FAST!
+		It only takes 9 driving days to get to Canada!
+		Triple the default zombie amount!!
+		Bandits are more cruel." $desc
+		MODE_ICONS 0x 1 + icon
+		' quicknightmare applyword
+		gstats{ wins-deadlier 1 < wins-short 1 < } or if 1 locked
+		"A quick 9 driving day mode, now with triple the zombies!
+		Unlock by beating both Deadlier Road Mode and Short Trip to Heck Mode." $desc
+		then
+		
+;
+
+modedefs
+
+}

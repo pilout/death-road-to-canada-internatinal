@@ -1,0 +1,107 @@
+events{ road{
+
+// Recruit decks
+
+	deck-new
+		card: TLB-test
+		card: alvis-test		
+		card: debutante-test
+		card: fencer-test
+		card: wrestler-test
+		card: lnk-test
+		card: valk-test
+		card: sumo-test
+		card: boxer-test
+		card: dogman-test
+		card: roller-test
+		card: clown-test
+		card: billy-test
+		card: dsyp-test
+		card: cleaner-test
+		card: horse-test
+		card: gnomey-test
+	//	card: madsci-test
+		card: kaiju-scget
+	constant SPECIALCHARGOOD-DECK
+	SPECIALCHARGOOD-DECK var specialchargood-deck
+
+: scgoodevent 
+	specialchargood-deck depths 0= if SPECIALCHARGOOD-DECK shuffles to specialchargood-deck then
+	drawcard ;
+	
+	deck-new
+		card: octodad-test
+		card: nimbus-scget
+		card: mason-test
+		card: jerk-test
+		card: grf-test
+		card: anime-test
+		card: knight-test
+	constant SPECIALCHARBAD-DECK
+	SPECIALCHARBAD-DECK var specialcharbad-deck	
+
+: scbadevent 
+	specialcharbad-deck depths 0= if SPECIALCHARBAD-DECK shuffles to specialcharbad-deck then
+	drawcard ;
+	
+	deck-new
+		17 cards: scgoodevent
+		6 cards: scbadevent
+	constant SPECIALCHAR-DECK
+	SPECIALCHAR-DECK var specialchar-deck	
+
+: scevent 
+	specialchar-deck depths 0= if SPECIALCHAR-DECK shuffles to specialchar-deck then
+	drawcard ;
+	
+	deck-new
+		card: recruit1
+		card: recruit2
+		card: recruit3
+		card: recruit-mechanical
+		card: recruit-medical
+		card: recruit-shooting
+		card: recruit-fitness
+		card: recruit-strength
+		card: recruit-dog
+	constant NORMALCHAR-DECK
+	NORMALCHAR-DECK var normalchar-deck
+	
+: normalcevent 
+	normalchar-deck depths 0= if NORMALCHAR-DECK shuffles to normalchar-deck then
+	drawcard ;
+	
+	deck-new
+		9 cards: normalcevent
+		3 cards: scevent
+	constant RECRUIT-DECK
+	RECRUIT-DECK var recruit-deck	
+	
+: recruit-deck-draw
+	recruit-deck depths 0= if RECRUIT-DECK shuffles to recruit-deck then drawcard
+;
+
+last to use-recruit-deck
+
+: dogpalrecruitchance
+	gstats{ perk-dogfriend } 3 >= if 70	else 35	then
+;
+
+: recruitevent
+	gstats{ perk-dogfriend } 2 >= if
+		dogpal? dogpalrecruitchance %chance and if
+			recruit-dogpal
+		then;
+	then
+	specialchar-mode 1 = if
+		scevent
+	then;
+	familiar-mode 1 = if
+	// gamedef{ ' familiarchars gamemode? } if
+
+		 familiar-stack depths 0= if recruit-deck-draw else famevent then
+
+	then;
+	recruit-deck-draw ;
+
+} }

@@ -1,0 +1,35 @@
+uses base.df
+uses charfilt.df
+uses charstats.df
+uses road.df
+
+cyoa{ road{
+
+cyoa: knight-timeup
+	53 stpick if choosechar cicon else ($ "Looks like" .. "the knight" pbold .. " won't get to continue her quest." $) text! exit then
+	"Path of the Knight" cyoa-title!
+	solo if 
+		($ "The knight" pbold .. " is close to her destination, so she exits the car to continue on her sacred quest.
+		Her questing continues, but there's no one left for the Canada quest." $) cyoa-text! badfx
+	else
+	($ "The knight" pbold .. " asks to be let out of the car.
+	" .. "It's time for me to resume my quest!" pbold .. "
+	In thanks, she gives " .. thegroup .. " her spare sword!
+	" .. "Knight's Sword" pbold .. " obtained!" $) cyoa-text! goodfx 1 WEAPON_KNIGHT trunk.weapon+
+	then
+	decruit-good-silent
+	// TEAM_STATUS_GOOD_LEFT cchar .decruit
+;
+
+cyoa: knight-despair
+	bully choosechar cicon
+	"Well my FEELINGS aren't in plate armor" cyoa-title!
+	($ cname .. " decides she doesn't need any more of this crap. 
+	" .. "This car is CURSED! I should have just found another horse!" pbold .. "
+	She storms off angry, armor clanking." $) cyoa-text!
+	decruit-bad
+;
+
+} }
+
+

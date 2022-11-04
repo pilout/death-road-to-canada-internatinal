@@ -1,0 +1,164 @@
+"../deathforth/rooms/industrial.txt" $load-rooms
+"../deathforth/rooms/bigoffice.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/officeloc.df" $load
+
+	location
+		tags: factory
+		max-rooms: 13
+		entry-tags: indust-start
+				
+		: restdoor random-door "restroom" only-with-door ;		
+		: extraindloot
+			25 %chance if random-door "treasure" only-with-door then
+		;
+		
+		: factoryhall
+			factorylloot
+			random-door "indust-room" only-with-door
+			extraindloot
+		;
+
+		: startfactoryhall
+			3 for random-door "indust-hall" only-with-door next
+		;
+		
+		3 value indroomcount
+		
+		: indroomend? 40 %chance indroomcount 1 < or ;
+		: tryfactoryend
+			factorylloot
+			' indroomcount --
+			indroomend? if random-door "execoffic" only-with-door then
+			indroomend? if random-door "emplounge" only-with-door then
+			indroomcount 1 < if random-door "treasure" only-with-door then 
+			extraindloot 30 %chance if restdoor then
+			
+		;
+		
+		script: factory-theme 
+		post-script: map{ room-papers 25 %chance if swreckage then 15 %chance if room-garbage then } nad ndx
+
+"		
+		room-choice: indust-start
+			room-weight: 1
+			room-count: 1
+			room-post-script: startfactoryhall 10diff %zombs
+			filter-only
+		
+		room-choice: indust-room
+			room-weight: 1
+			room-count: 3
+			room-post-script: tryfactoryend 10diff %zombs
+		
+		room-choice: indust-hall
+			room-weight: 1
+			room-count: 3
+			room-post-script: factoryhall 10diff %zombs
+	
+		room-choice: treasure
+			room-weight: 1
+			room-count: 2
+			room-post-script: 10diff %zombs
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			room-post-script: 10diff %zombs
+"
+constant rescindust
+rescindust evaluate 
+			
+		room-choice: emplounge
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 50 %chance if officefood then restdoor 10diff %zombs
+
+		room-choice: execoffic
+			room-weight: 10
+			room-count: 1
+			room-script: floor-office
+			room-post-script: 10diff %zombs execloot
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			room-post-script: new-rescue-npc 5diff %zombs
+			
+	location
+		tags: factory
+		max-rooms: 13
+		entry-tags: indust-start
+
+		script: factory-theme 
+		post-script: map{ room-papers 25 %chance if swreckage then 15 %chance if room-garbage then } nad ndx
+		
+		rescindust evaluate 
+			
+		room-choice: emplounge
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 50 %chance if officefood then restdoor 10diff %zombs
+
+		room-choice: execoffic
+			room-weight: 10
+			room-count: 1
+			room-script: floor-office
+			room-post-script: new-rescue-npc 5diff %zombs
+		
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			room-post-script: 10diff %zombs
+			
+	location
+		tags: factory
+		max-rooms: 13
+		entry-tags: indust-start
+
+		script: factory-theme 
+		post-script: map{ room-papers 25 %chance if swreckage then 15 %chance if room-garbage then } nad ndx
+		
+		rescindust evaluate 
+			
+		room-choice: emplounge
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: restdoor new-rescue-npc 5diff %zombs
+
+		room-choice: execoffic
+			room-weight: 10
+			room-count: 1
+			room-script: floor-office
+			room-post-script: 10diff %zombs
+		
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			room-post-script: 10diff %zombs
+		
+regiondef{
+
+	region: industry
+		w: 40
+		h: 23
+		max-locs: 1
+		script: timeofday o'clock
+		post-script: 10diff %zombs inspawn
+
+		inside no-prefab
+
+		"REGION LOCATIONS" print
+					
+		loc-choice: factory
+			loc-weight: 99
+			loc-count: 1
+
+}

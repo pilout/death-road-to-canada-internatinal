@@ -1,0 +1,223 @@
+// uses base.df
+// uses events.df
+// uses loot.df
+// uses cyoa.df
+// uses charstats.df
+// uses carstats.df
+
+
+road{ 
+
+// : TAG DEBUG_BUILD if print else drop then ;
+
+: .party-familiar-trunkin dup .character@ args( me chara )
+
+	<- me .typeid@ THING_HUMAN .s cr <> if then;				// Not human, ignore
+	<- me .absent? if then;										// Not in range
+	<- chara .party@ pchar .party@ <> if then;					// Not in party, ignore
+	<- chara .team_status@ TEAM_STATUS_FAMILIAR <> if then;		// Not set as a FAMILIAR team member
+
+	<- chara .weapons-to-trunk
+	<- chara .loot-to-trunk
+;
+
+// Override: to-road
+// - drops weapons for all PARTY FAMILIAR humans into trunk
+root{ : to-road }
+	' .party-familiar-trunkin foreach-active-thing to-road
+;
+
+: car-lost
+	0 vehicle.which!
+	car-update-display
+	badfx
+	walk-day-pick
+;
+
+0 value anime-countdown 
+0 value kills-this-game
+
+: readyanimefan? args( chara ) <- chara .trait@ "Anime Fan" $= <- chara .morale@ 5 > and ;
+: animefanchecker checkchar .trait@ "Anime Fan" $= checkchar .morale@ 5 > and ;
+
+: animefan?
+	team-stack ' readyanimefan? stack-filter nip 0 > ;
+
+: someanime
+	' animefanchecker pick-team-char 0= if false then; pickchar true ;
+
+: animefan-checker
+	animefan? if
+		1 to anime-countdown
+		// goblin-laugh
+			sfx{ noise 1 pitch!
+				1000 freq!
+				50 freq2!
+				50 a! 
+				50 d! 
+				0.25 s!
+				550 r! 
+				0.5 q!
+				1000 filt!
+				0.75 1 frnd pitch!
+				1.5 scale!
+			}
+		someanime if .animeify then
+		// somehuman if .animeify then
+	then
+;
+
+}
+
+cyoa{ voc{ mission
+
+: cyoachar player .character@ ; // Char for CYOA
+
+: leave-car me .leave ;
+
+cyoa: anime-boom
+	65 stpick if choosechar cicon else "L'Anime Girl allait exploser, mais en a été empêchée au dernier moment possible." text! morale++all exit then
+	"Anime Overdose" cyoa-title!
+	($ cname .. " explose soudainement sur la route. Tout est fortement endommagé par des éclats d'anime volants." $) text!
+		($ "L'ANIME GIRL EST EFFACE!" fbold $) +crtext
+		sfx{ ruffle 1000 fx .d! 0.25 fx .s! 2000 fx .r! 0.925 fx .q! 1250 fx .filt! 1 fx .scale! 3 fx .freq2! }
+		10 0.9 rumble-gui
+		cchar .weapons-to-trunk TEAM_STATUS_DIED cchar .decruit sfx{ creepy } deadtally
+		ouch--all sting--all
+		cheevo: anime-boom
+;
+
+cyoa: knight-oneuse
+	53 stpick if choosechar cicon then
+	"Fin de la bataille" cyoa-title!
+	($ "Le chevalier" pbold .. " vous remercie pour l'experience, mais dit qu'elle devrait probablement partir seule à partir d'ici. Elle commence doucement a claquer !" $) text! decruit-good
+	cheevo: knight-leave
+;
+
+cyoa-choice: trade-rare-coldsteel-buy
+	($ "Après l'avoir vu en action, " .. Thegroup .. " doit acheter l'épée.
+	" .. "Vous ne regretterez pas cet achat! Bonne chance!" pbold $) cyoa-text! basic-tone
+	1 WEAPON_ZWEI trunk.weapon+ -30 trunk-food+ goodfx
+;
+
+cyoa: lynn-oneuse
+	79 stpick if choosechar cicon then
+	"Cold Steel Live Demo" cyoa-title!
+	cchar .seed@ 555 < if
+		($ cname .. " is raring to go!" .. "
+			Are you ready to see the power of a Cold Steel weapon?
+			You'll see what this greatsword can do once you let me out of this car!" pbold $) text!
+	then;
+	decruit-good
+	($ "The demonstration is over!" .. "
+		Well, are you ready for the power of a Cold Steel sword?
+		I'll give you a discount because we fought together as warriors! 33% off!" pbold $) text!
+		choice( "I'm still not good enough for it " .. DX )choice: badfx
+	trunk-food 29 > if
+		choice( "Buy it! - 30 food" .. " 33% Discount!" fbold )choice: trade-rare-coldsteel-buy
+	then
+	
+;
+
+: anime-timeup
+
+//	sfx{ fm }
+	road{ anime-countdown } 9 > if then;
+	62 stpick if
+		choosechar 63 cchar .specialtype!
+		0.2 cchar .speed_bonus!
+		road{ 2 to anime-countdown }
+	then;
+	63 stpick if
+		choosechar 64 cchar .specialtype!
+		road{ 2 to anime-countdown }
+		0.3 cchar .speed_bonus!
+	then;
+	64 stpick if
+		choosechar 65 cchar .specialtype!
+		road{ 2 to anime-countdown }
+		0.5 cchar .speed_bonus!
+	then;
+
+	' anime-boom stack-road-action
+;
+
+0 value DEMO
+0 value ZOMBOTOWN
+0 value skipsummary
+0 value kills-this-game
+
+: resting-check args( chara )
+	<- chara .party@ 0 = if
+		<- chara untired
+	then
+;
+
+: killtally
+	mission-kills gstats{ ' total-kills +! }
+	mission-kills road{ ' kills-this-game +! }
+	cheevo: zomb100k
+;
+
+: mission-summary-cyoa
+	ZOMBOTOWN if 
+		// 0 to ZOMBOTOWN - Game resets this anyway when loading a save/making new game
+		quit-to-title 
+	then;
+	skipsummary 0 > if 
+		0 to skipsummary to-road 
+	else
+		' resting-check foreach-team-char
+		cyoa-new
+			cyoa-leftjust
+			"RESUME DE LA MISSION" cyoa-title!
+			mission-total-loot if
+				"Trouve:" cyoa-text-append cyoa-text-cr
+				cyoa-loot-text cyoa-text-cr
+			then
+			mission-kills cyoa-text-append
+			" zombies detruits." cyoa-text-append
+			cyoa-text-cr
+
+			killtally
+	
+			absentees if
+				"LAISSE' DERRIERE: " swap $cat cyoa-text-append
+			else drop then
+	
+			mission>road-car-chassis
+	
+			cyoa-add-choice
+			DEMO if
+				"END of DEMO" cyoa-choice-text!
+				' quit-to-title cyoa-choice-handler! // end of demo
+			else
+				' to-road cyoa-choice-handler! // go to driving mode
+			then
+	 then
+
+	post-mission-cyoa if
+		post-mission-cyoa stack-road-action
+		0 to post-mission-cyoa
+	then
+	
+	// Anime girl mutation cascade
+	// 65 stpick-mission if drop road{ anime-timeup } then	
+	64 stpick-mission if drop anime-timeup then	
+	63 stpick-mission if drop anime-timeup then
+	62 stpick-mission if drop anime-timeup then 
+
+	// Knight leaving after one use
+	
+	53 stpick-mission if drop ' knight-oneuse stack-road-action then
+	
+	// Cold Steel CEO leaving after one demo
+	
+	79 stpick-mission if drop ' lynn-oneuse stack-road-action then
+	
+;
+
+last to main-event-mission-end
+
+} }
+

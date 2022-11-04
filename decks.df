@@ -1,0 +1,345 @@
+uses base.df
+
+uses events/locationlogic.df
+uses events/common/cyoa-example-7types.df
+uses events/inner/cyoa-k-inners.df
+
+uses events/trade/cyoa-k-recruit.df
+uses events/trade/familiar-recruit.df
+uses test/cyoa-k-weapontest.df
+uses events/city/cyoa-k-cities.df
+
+uses events/sc/cyoa-screcruit1.df
+uses events/sc/cyoa-screcruit2.df
+uses events/sc/cyoa-screcruit3.df
+uses events/sc/cyoa-screcruit4.df
+uses events/sc/cyoa-screcruit5.df
+uses test/cyoa-k-sctest.df
+uses events/common/cyoa-k-newbie.df
+uses recruitdecks.df
+
+uses events/trade/training.df
+uses events/trade/supplies.df
+uses events/trade/weapons.df
+uses events/trade/rare.df
+uses events/trade/gnomey.df
+uses events/trade/camp-recruit.df
+
+uses events/common/car1.df
+uses events/bandit/bandit1.df
+uses events/bandit/bandit2.df
+uses events/common/common1.df
+uses events/common/common2.df
+uses events/common/common3.df
+uses events/camp/camp1.df
+uses events/camp/camp2.df
+uses events/camp/camp3.df
+uses events/common/common4.df
+uses events/common/common5.df
+uses events/common/common6.df
+
+uses events/despair/logic.df
+uses events/despair/loss.df
+uses events/despair/argue.df
+uses events/despair/solo.df
+uses events/despair/dog.df
+
+uses events/exterior/cabin1.df
+uses events/exterior/yallmart.df
+uses events/exterior/roadloot.df
+uses events/exterior/outside1.df
+uses events/industrial/sewer.df
+uses events/industrial/indust.df
+uses events/siege/siege1.df
+uses events/siege/siege2.df
+
+uses events/rareloc/rare1.df
+uses events/rareloc/rare2.df
+
+uses don/events/don-common.df
+
+
+(*
+// DECK syntax
+// Example
+	: word1 1 250 tone ;
+	: word2 2 250 tone ;
+	: word3 3 250 tone ;
+	: word4 4 250 tone ;
+	: word5 5 250 tone ;
+	: word6 6 250 tone ;
+	
+	// Create a new master deck
+	deck-new
+		card: word1
+		card: word2
+		card: word3
+		card: word4
+		card: word5
+		5 cards: word6
+	// Put the final deck into a constant
+	constant elvis-master
+
+	// Duplicate the master deck, shuffle it, put it into a new var
+	elvis-master shuffles var elvis
+
+	// Draw and execute a card (word) from the deck
+//	elvis drawcard
+
+*)
+
+events{
+road{
+// Shortcut words for calling up an entry to a city or location
+	
+	: city2 "kepa/city-regions.df" $load-region entercity ;
+	: city1 "kepa/hell-region.df" $load-region entercity ;
+// "../deathforth/kepa/keparoomdef.txt" $load-rooms "kepa/city-locations.df" $load "kepa/city-regions.df" $load	
+
+
+// Rare cards for the common deck
+
+	deck-new
+		card: don-common-sasquatch
+		card: don-common-cod
+		card: don-common-vortex
+		card: don-common-graves
+		card: don-common-demon
+		card: don-common-wings
+		card: common2-rare-zombmaster
+		card: common2-rare-tp
+		card: common4-vhs-rare
+		card: common5-toilet-rare
+		card: common5-gnome-rare
+		card: common5-chest-rare
+		card: common5-hand-rare
+		card: common6-burg-rare
+		card: common6-coal-rare
+		// Maybe do car selling rare event later. Charm for even more reward, but have to walk after.
+		
+	constant RARE-DECK
+	RARE-DECK var rare-deck
+	
+	// Could look into changing this if we add in Endless, where it could pull from a deferred normal deck if it runs out from going on for a long time. See locplan.df and trade/shuffler.df
+	
+	: raredeck
+		rare-deck depths 0= if RARE-DECK shuffles to rare-deck then
+		drawcard ;
+	
+	: raredeck-number 2 gstats{ ugnome-rarelocs } 1 > if 1 + then 
+		gstats{ ugnome-rarelocs } 3 > if 1 + then ;
+	
+// Normal events to draw from
+		
+	deck-new
+		card: card1-cyoa
+		card: card2-cyoa
+		card: card3-cyoa
+		card: card5-cyoa
+		card: card6-cyoa
+		card: card7-cyoa
+		card: book1-cyoa
+		card: magazine1-cyoa
+		card: magazine2-cyoa
+		card: magazine3-cyoa
+		card: cardJ4-test
+		card: cardJ2-test
+		card: car1-dashcode
+		card: car1-fallentree
+		card: car1-floodroad
+		card: car1-garage
+		card: car1-tunegarage
+		card: car1-usedlot
+		card: car1-speedgarage
+		card: don-common-jumpit
+		card: common1-gas
+		card: common1-stitches
+		card: common1-deer
+		card: common1-twinkie
+		raredeck-number cards: raredeck
+		card: common2-cboard
+		card: common2-farm
+		card: common2-meeting
+		card: common2-parkchat
+		card: common2-busted
+		card: common2-carhelp
+		card: common2-raid
+		card: common2-roofrelax
+		card: common2-saferelax
+		card: common3-bridgekeep
+		card: common3-ranter
+		card: common3-bee
+		card: common3-pipe
+		card: common3-molotov
+		card: common3-gloomy
+		card: common3-fart
+		card: common3-gator
+		card: common3-traptown
+		card: common3-creepy
+		card: common3-badweather
+		card: common3-horde
+		card: common4-dogpoo
+		card: common4-weegee
+		card: common4-sneeze
+		card: common4-gamebro
+		card: common4-beans
+		card: common4-spider
+		card: common4-vending
+		card: common5-line
+		card: common5-rock
+		card: common5-drag
+		card: common5-radiodj
+		card: common5-signal
+		card: common5-repair
+		card: common5-healthfood
+		card: common5-swoloflex
+		card: common6-fastfood
+		card: common6-cloud
+		card: common6-computer
+		card: common6-othercar
+		
+	constant COMMON-DECK
+	COMMON-DECK var common-deck
+
+// Nightly camping
+	
+	deck-new
+		card: camp1-gas
+		card: camp1-story
+		card: camp1-quick
+		card: camp1-passout
+		card: camp1-boring
+		card: camp2-minigolf
+		card: camp2-fore
+		// card: camp2-creepy
+		card: camp2-smell
+		card: camp2-bwatch
+		card: camp2-zwatch
+		// above - 10
+		card: camp2-sing
+		card: camp2-airbnb
+		card: camp2-wood
+		card: camp2-badweather
+		card: camp2-scary
+		card: camp2-berry
+		card: camp3-moose
+		card: camp3-trap
+		card: camp3-cans
+		card: camp3-tinker
+		card: camp3-crowd
+		card: camp3-grocery
+		card: camp3-fire
+			
+	constant CAMP-DECK
+	CAMP-DECK var camp-deck
+		
+// Extremely unlucky draw 
+	
+	: hell1 "UR DEAD" $cyoa-ok-dialog 0 cyoa-image-icon! 1 500 tone ;
+	: hell2 "UR ALSO DEAD" $cyoa-ok-dialog 0 cyoa-image-icon! 2 500 tone ;
+
+	deck-new
+		2 cards: hell1
+		card: hell2
+	constant HELL-DECK
+	HELL-DECK var hell-deck	
+	
+// Despair decks, punishments for having morale being too low
+
+	deck-new
+		card: solo-haze
+		card: solo-strength
+		card: solo-wasting
+		card: solo-drive
+		card: solo-skill
+		card: solo-leg
+		card: solo-bitter
+		card: solo-anger
+		card: solo-mindrot
+	constant DESPAIR-SOLO-DECK
+	DESPAIR-SOLO-DECK var despair-solo-deck
+	
+	deck-new
+		card: dog-lost
+		card: dog-attack
+		card: solo-wasting
+		card: dog-tantrum
+	constant DESPAIR-DOG-DECK
+	DESPAIR-DOG-DECK var despair-dog-deck
+	
+	deck-new
+		card: loss-hustle
+		card: loss-ultimatum
+		card: loss-lost
+		card: loss-quietly
+		card: group-haze
+		card: solo-skill
+		card: solo-wasting
+		card: solo-anger
+		card: argue-rant
+		card: argue-car
+		card: argue-insults
+	constant DESPAIR-DECK
+	DESPAIR-DECK var despair-deck
+	
+// Bandit encounters that usually penalize you but can be gotten around
+
+	deck-new
+		card: bandit-tollroad
+		card: bandit-buff
+		card: bandit-quiet
+		card: bandit-allofit
+		card: bandit-car
+		card: bandit-medic
+		card: bandit-loyal
+		card: bandit-weapon
+	constant BANDIT-DECK
+	BANDIT-DECK shuffles var bandit-deck
+
+// Fate, a sorting deck used to mete out if a card is neutral, extremely lucky, or extremely unlucky. This can be considered the "main hub" deck that parcels out cards.
+	
+	: commondeck
+		common-deck depths 0= if COMMON-DECK shuffles to common-deck then
+		drawcard ;
+	: helldeck hell-deck drawcard ;
+	
+	: banditdeck
+		bandit-deck depths 0= if BANDIT-DECK shuffles to bandit-deck then
+		drawcard ;
+	
+	deck-new
+		15 cards: commondeck
+		3 cards: banditdeck
+		(* card: helldeck *)
+		// Probably add a rare-deck and a car-deck
+	constant FATE-DECK
+	FATE-DECK var fate-deck
+
+// A special daily deck that draw events specifically made for the first day of each game
+		
+	deck-new
+		card: knoobevent1
+		card: knoobevent2
+		card: knoobevent3
+		card: knoobevent4
+	(*	card: gimmechar1
+		card: gimmechar2
+		card: gimmechar3
+		card: gimmestats *)
+	constant NOOBEVENT-DECK
+	NOOBEVENT-DECK var noobevent-deck
+	
+	deck-new
+	//	card: knoobstart1
+	//	card: knoobstartB
+		card: knoobstartP
+	constant NOOBSTART-DECK
+	NOOBSTART-DECK var noobstart-deck
+	
+	: noobevent // Originally 25 %chance if fate1 else noobevent-deck drawcard then, concept was ditched for NOOB-DECK always having the same setup
+		noobevent-deck drawcard ;
+	: noobstart noobstart-deck drawcard ;
+	
+} }
+	
+

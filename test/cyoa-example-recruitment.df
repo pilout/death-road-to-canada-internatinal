@@ -1,0 +1,84 @@
+
+road{ voc{ cyoa-examples
+
+0 value recruitee
+
+: recruit-yes
+	cyoa-good-dialog
+		recruitee character# cyoa-char-icon!
+		($ recruitee .colourname .. " is IN like FLYNN. Who is Flynn anyway." $)
+		cyoa-text!
+
+	recruitee .recruit
+;
+ 
+: recruit-no
+	cyoa-bad-dialog
+	($ "Sorry bub, ain't happenin'. The team sends " ..
+		recruitee .name@ .. " packing." $) cyoa-text!
+	recruitee char-as-icon 1 cyoa-icon-hint!
+;
+
+: recruitment
+	cyoa-new
+		"ENCOUNTER" cyoa-title!
+
+		// Generating a char RIGHT here for example, but we probably
+		// should create the chars ahead of time
+
+		char-gen to recruitee
+		recruitee character# cyoa-char-icon!
+
+		// TODO: Show some stats info?
+		($ "A hitchhiker, " .. recruitee .colourname .. 
+		", wants to join the group." $) cyoa-text!
+
+		choice( "Sure I guess we can take one more." )choice: recruit-yes // recruitee choosechar
+		choice( "Forget it!" )choice: recruit-no
+;
+
+
+// : char-choice-with-handler
+//	cyoa-add-char-choice dup cyoa-choice-handler! ;
+
+: char-choice-with-handler
+	dup choice( swap .name@ )choice choosechar
+	dup cyoa-choice-handler!
+;
+
+: cyoa-team-choices-with-handler ( handler -- )
+	team-count #team-stack-shuffled
+	' char-choice-with-handler foreach
+	drop
+;
+
+
+: seeya
+	cyoa-bad-dialog
+	choicechar-as-icon
+	($ "See ya, " .. choicechar .name@ .. "... BOOSH!" $) cyoa-text!
+
+	TEAM_STATUS_BAD_LEFT choicechar .decruit
+;
+
+
+: decruitment
+	cyoa-new
+		"SO LONG" cyoa-title!
+
+		team-count 1 = if
+			($ "YOU CANNOT KICK OUT THE LAST DUDE. Well you can, but I won't let you." $)
+			cyoa-text!
+		then;
+
+		($ "It's time to kick someone out, because Kepa wants to have an EXAMPLE MADE. So who is it gonna be?" $)
+			cyoa-text!
+
+		' seeya cyoa-team-choices-with-handler
+;
+
+' recruitment 1 hotkey!
+' decruitment 2 hotkey!
+
+
+} }

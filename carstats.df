@@ -1,0 +1,687 @@
+// X ' the-value +!   Example: 30 ' texttime +!
+// Or the-value 5 + to the-value
+
+0 	enum CAR_NONE
+	enum CAR_STARTER
+	enum CAR_VAN
+	enum CAR_PUTTPUTT
+	enum CAR_STATIONWAGON
+	enum CAR_MUSCLE1
+	enum CAR_MUSCLE2
+	enum CAR_HYBRID1
+	enum CAR_HYBRID2
+	enum CAR_GRANDPA
+	enum CAR_BUG
+	enum CAR_HOTROD
+	enum CAR_POLICE
+	enum CAR_SUV
+	enum CAR_ICECREAM
+	enum CAR_FOODTRUCK
+	enum CAR_MUTT
+	enum CAR_BUGVAN
+	enum CAR_WTF
+	enum CAR_CLOWN
+	enum CAR_WIENER
+	enum CAR_RUSTY_TRUCK
+	enum CAR_SNOWPLOW
+constant CAR_COUNT
+
+CAR_COUNT array var car-list
+
+CAR_STARTER value starting-car
+
+5 value car-chassis
+5 value car-max-chassis
+15 value car-engine
+20 value car-max-engine
+0 value car-armor
+3 value car-max-armor
+2 value car-speed
+4 value car-max-speed
+1 value car-mpg
+4 value car-repair
+
+: carstats>stack
+	0 stack
+
+	car-chassis					shove
+	car-max-chassis 			shove
+	car-engine					shove
+	car-max-engine  			shove
+	car-armor					shove
+	car-max-armor				shove
+	car-speed					shove
+	car-max-speed				shove
+	car-mpg						shove
+	car-repair					shove
+
+	vehicle.motor.freq1@		shove
+	vehicle.motor.freq2@		shove
+	vehicle.motor.filt_low@		shove
+	vehicle.motor.filt_high@	shove
+	vehicle.motor.duty1@		shove
+	vehicle.motor.duty2@		shove
+	vehicle.motor.q@			shove
+
+	vehicle.which@				shove
+	vehicle.variant@			shove
+	mission.vehicle@			shove
+;
+
+: stack>carstats
+	dequeues to car-chassis
+	dequeues to car-max-chassis
+	dequeues to car-engine
+	dequeues to car-max-engine
+	dequeues to car-armor
+	dequeues to car-max-armor
+	dequeues to car-speed
+	dequeues to car-max-speed
+	dequeues to car-mpg
+	dequeues to car-repair
+
+	dequeues vehicle.motor.freq1!
+	dequeues vehicle.motor.freq2!
+	dequeues vehicle.motor.filt_low!
+	dequeues vehicle.motor.filt_high!
+	dequeues vehicle.motor.duty1!
+	dequeues vehicle.motor.duty2!
+	dequeues vehicle.motor.q!
+
+	dequeues vehicle.which!
+	dequeues vehicle.variant!
+	dequeues mission.vehicle!
+
+	drop
+;
+
+100 constant CAR_HEALTH_SCALAR
+
+: car-update-display
+	car-chassis car-max-chassis / vehicle.chassis_display!
+	car-engine car-max-engine / vehicle.engine_display!
+	car-speed car-max-speed / vehicle.speed_display!
+	car-armor car-max-armor / vehicle.armour_display!
+;
+
+: mission>road-car-chassis
+	vehicle.which@ 0= if then;
+	mission.vehicle@ 0= if then;
+	mission.vehicle@ .id@ 0= if 0 vehicle.which! then;
+
+	mission.vehicle@ .hitpoints@ CAR_HEALTH_SCALAR / "CAR HEALTH: " type dup print to car-chassis
+	car-update-display
+;
+
+
+: motor-default
+	115 vehicle.motor.freq1!
+	vehicle.motor.freq1@ 1.5 / vehicle.motor.freq2!
+	150 vehicle.motor.filt_low!
+	250 vehicle.motor.filt_high!
+	0 vehicle.motor.duty1!
+	0.95 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-test
+	motor-default
+	60 1 * vehicle.motor.freq1!
+	63 vehicle.motor.freq2!
+	1000 vehicle.motor.filt_low!
+	// 250 vehicle.motor.filt_high!
+	0. vehicle.motor.duty1!
+	0.0 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-ufo
+	motor-default
+	60 1 * vehicle.motor.freq1!
+	63 vehicle.motor.freq2!
+	1000 vehicle.motor.filt_low!
+	// 250 vehicle.motor.filt_high!
+	1.0 vehicle.motor.duty1!
+	1.0 vehicle.motor.duty2!
+	0.5 vehicle.motor.q!
+;
+
+: motor-suv
+	motor-default
+	60 vehicle.motor.freq1!
+	137 vehicle.motor.freq2!
+	1000 vehicle.motor.filt_low!
+	0.1 vehicle.motor.duty1!
+	0.925 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-truck
+	motor-default
+	40 vehicle.motor.freq1!
+	115 vehicle.motor.freq2!
+	1000 vehicle.motor.filt_low!
+	0.975 vehicle.motor.duty1!
+	0.125 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-wiener
+	motor-truck
+	125 vehicle.motor.freq2!
+;
+
+: motor-foodtruck
+	motor-truck
+	36 vehicle.motor.freq1!
+	150 vehicle.motor.freq2!
+	0.7 vehicle.motor.duty2!
+;
+
+: motor-wagon
+	motor-default
+	125 vehicle.motor.freq1!
+//	vehicle.motor.freq1@ 1.45 / vehicle.motor.freq2!
+	15 vehicle.motor.freq2!
+
+	500 vehicle.motor.filt_low!
+	0.4 vehicle.motor.duty1!
+	0.975 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+
+;
+
+: motor-muscle
+	motor-default
+	50 vehicle.motor.freq1!
+	70 vehicle.motor.freq2!
+	250 vehicle.motor.filt_low!
+	0.95 vehicle.motor.duty1!
+	0.99 vehicle.motor.duty2!
+	0.95 vehicle.motor.q!
+;
+
+: motor-muscle2
+	motor-muscle
+	90 vehicle.motor.freq1!
+	vehicle.motor.freq1@ 1.25 / vehicle.motor.freq2!
+	400 vehicle.motor.filt_low!
+;
+
+: motor-hybrid
+	motor-default
+	25 vehicle.motor.freq1!
+	200 vehicle.motor.freq2!
+	250 vehicle.motor.filt_low!
+	0 vehicle.motor.duty1!
+	0.5 vehicle.motor.duty2!
+	0.95 vehicle.motor.q!
+;
+
+: motor-hybrid2
+	motor-hybrid
+	35 vehicle.motor.freq1!
+	180 vehicle.motor.freq2!
+	0.125 vehicle.motor.duty1!
+;
+
+: motor-growly
+	motor-default
+	60 vehicle.motor.freq1!
+	140 vehicle.motor.freq2!
+	500 vehicle.motor.filt_low!
+	// 500 vehicle.motor.filt_high!
+	0.05 vehicle.motor.duty1!
+	0.25 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-hotrod
+	motor-growly
+	130 vehicle.motor.freq2!
+	0.01 vehicle.motor.duty1!
+;
+
+: motor-little
+	motor-default
+	35 vehicle.motor.freq1!
+	255 vehicle.motor.freq2!
+	800 vehicle.motor.filt_low!
+	0.01 vehicle.motor.duty1!
+	0.9 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-bug
+	motor-default
+	24.5 vehicle.motor.freq1!
+	200 vehicle.motor.freq2!
+	600 vehicle.motor.filt_low!
+	0.0 vehicle.motor.duty1!
+	0.1 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-grandpa
+	motor-default
+	30 vehicle.motor.freq1!
+	135 vehicle.motor.freq2!
+	500 vehicle.motor.filt_low!
+	0.0 vehicle.motor.duty1!
+	0.75 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-rusty
+	motor-default
+	45 vehicle.motor.freq1!
+	150 vehicle.motor.freq2!
+	500 vehicle.motor.filt_low!
+	1 vehicle.motor.duty1!
+	0.9 vehicle.motor.duty2!
+	0.9 vehicle.motor.q!
+;
+
+: motor-puttputt
+	motor-default
+	10 vehicle.motor.freq1!
+	75 vehicle.motor.freq2!
+	2500 vehicle.motor.filt_low!
+	0.001 vehicle.motor.duty1!
+	0.9 vehicle.motor.duty2!
+	0.8 vehicle.motor.q!
+;
+
+: motor-icecream
+	motor-puttputt
+	45 0.75 * vehicle.motor.freq1!
+	400 0.75 * vehicle.motor.freq2!
+	0.99 vehicle.motor.duty1!
+	0.5 vehicle.motor.duty2!
+;
+
+: get-car-suv
+	motor-suv
+	8 to car-chassis
+	8 to car-max-chassis
+	15 20 rnd to car-engine
+	20 to car-max-engine
+	0 to car-armor
+	1 to car-speed
+	1.4 to car-mpg
+	4 to car-repair
+;
+
+
+: get-car-icecream
+	get-car-suv
+	motor-icecream
+;
+
+: get-car-mutt
+	get-car-suv
+	40 0.75 * vehicle.motor.freq1!
+	350 0.75 * vehicle.motor.freq2!
+	0.99 vehicle.motor.duty1!
+	0.4 vehicle.motor.duty2!
+;
+
+
+: get-car-bugvan
+	get-car-suv
+
+	42 0.75 * vehicle.motor.freq1!
+	350 0.75 * vehicle.motor.freq2!
+	0.98 vehicle.motor.duty1!
+	0.2 vehicle.motor.duty2!
+
+;
+
+: get-car-starter
+	motor-default
+
+	5 to car-chassis
+	5 to car-max-chassis
+	15 20 rnd to car-engine
+	20 to car-max-engine
+	0 to car-armor
+	2 to car-speed
+	1 to car-mpg
+	4 to car-repair
+;
+
+
+: get-car-wagon
+	motor-wagon
+
+	5 to car-chassis
+	5 to car-max-chassis
+	15 20 rnd to car-engine
+	20 to car-max-engine
+	0 to car-armor
+	2 to car-speed
+	1 to car-mpg
+	4 to car-repair
+;
+
+
+// Probably do a get-car-station later when the cars have carry room stats
+
+: get-car-muscle
+	motor-muscle
+	cyoa-active? if ' .morale2+ foreach-team-char then
+	5 to car-chassis
+	5 to car-max-chassis
+	10 to car-engine
+	10 to car-max-engine
+	0 to car-armor
+	3 to car-speed
+	1.2 to car-mpg
+	3 to car-repair
+;
+
+: get-car-muscle2
+	get-car-muscle
+	motor-muscle2
+;
+
+: get-car-hybrid
+	motor-hybrid
+	3 to car-chassis
+	3 to car-max-chassis
+	12 15 rnd to car-engine
+	15 to car-max-engine
+	0 to car-armor
+	2 to car-speed
+	0.6 to car-mpg
+	5 to car-repair
+;
+
+: get-car-hybrid2
+	get-car-hybrid
+	motor-hybrid2
+;
+
+: get-car-grandpa
+	motor-grandpa
+	8 to car-chassis
+	8 to car-max-chassis
+	15 to car-engine
+	15 to car-max-engine
+	0 to car-armor
+	2 to car-speed
+	1.2 to car-mpg
+	3 to car-repair
+;
+
+
+: get-car-rusty
+	motor-rusty
+	8 to car-chassis
+	8 to car-max-chassis
+	5 to car-engine
+	5 to car-max-engine
+	0 to car-armor
+	2 to car-speed
+	1.6 to car-mpg
+	3 to car-repair
+	0 vehicle.variant!
+;
+
+
+: get-car-van
+	motor-truck
+	10 to car-chassis
+	10 to car-max-chassis
+	16 20 rnd to car-engine
+	20 to car-max-engine
+	0 to car-armor
+	1 to car-speed
+	1.6 to car-mpg
+	3 to car-repair
+;
+
+: get-car-foodtruck
+	get-car-van
+	motor-foodtruck
+;
+
+
+: get-car-putt
+	motor-puttputt
+	2 to car-max-chassis
+	car-max-chassis to car-chassis
+	10 12 rnd to car-engine
+	15 to car-max-engine
+	0 to car-armor
+	1 to car-speed
+	1 to car-mpg
+	2 to car-repair
+;
+
+: get-car-little
+	motor-little
+	3 to car-chassis
+	3 to car-max-chassis
+	12 15 rnd to car-engine
+	15 to car-max-engine
+	0 to car-armor
+	2 to car-speed
+	0.8 to car-mpg
+	4 to car-repair
+;
+
+: get-car-bug
+	get-car-little
+	motor-bug
+;
+
+: get-car-hotrod get-car-little motor-hotrod ;
+
+: get-car-power
+	motor-growly
+	cyoa-active? if ' .morale2+ foreach-team-char then // HACK, shouldn't get morale here
+	8 to car-chassis
+	8 to car-max-chassis
+	12 15 rnd to car-engine
+	15 to car-max-engine
+	0 to car-armor
+	3 to car-speed
+	1.4 to car-mpg
+	4 to car-repair
+;
+
+: get-car-ufo
+	motor-ufo
+	5 to car-chassis
+	5 to car-max-chassis
+	15 20 rnd to car-engine
+	20 to car-max-engine
+	0 to car-armor
+	3 to car-speed
+	0 to car-mpg
+	6 to car-repair
+;
+
+: get-car-wiener
+	motor-wiener
+	15 to car-chassis
+	15 to car-max-chassis
+	20 30 rnd to car-engine
+	30 to car-max-engine
+	0 to car-armor
+	1 to car-speed
+	1.8 to car-mpg
+	4 to car-repair
+;
+
+: cartype car-list -rot poke drop ;
+
+: car-list-init
+	CAR_COUNT for  i 1- ' get-car-starter cartype next
+
+	CAR_HYBRID1 	' get-car-hybrid 	cartype
+	CAR_MUSCLE1 	' get-car-muscle 	cartype
+	CAR_STARTER 	' get-car-starter 	cartype
+	CAR_SUV 		' get-car-suv 		cartype
+	CAR_HYBRID2 	' get-car-hybrid2 	cartype
+	CAR_MUSCLE2 	' get-car-muscle2 	cartype
+	
+	CAR_VAN			' get-car-van 		cartype
+	CAR_PUTTPUTT	' get-car-putt 		cartype
+	CAR_STATIONWAGON ' get-car-wagon 	cartype
+
+	CAR_GRANDPA		' get-car-grandpa	cartype
+	CAR_BUG			' get-car-bug		cartype
+	CAR_HOTROD		' get-car-hotrod	cartype
+	CAR_POLICE		' get-car-power		cartype
+	CAR_MUTT		' get-car-mutt 		cartype
+	CAR_ICECREAM	' get-car-icecream	cartype
+	CAR_FOODTRUCK	' get-car-foodtruck	cartype
+	CAR_CLOWN		' get-car-little	cartype
+	CAR_WTF			' get-car-ufo 		cartype
+	CAR_BUGVAN		' get-car-bugvan	cartype
+
+	CAR_WIENER		' get-car-wiener	cartype
+	CAR_RUSTY_TRUCK	' get-car-rusty		cartype
+	CAR_SNOWPLOW	' get-car-rusty		cartype
+
+; car-list-init
+
+: use-cartype
+	dup vehicle.which! 0= if then;
+	motor-default
+	car-list vehicle.which@ peek nip execute
+	car-update-display
+;
+
+: new-cyoa-car
+	use-cartype mrand vehicle.variant!
+;
+
+: get-car new-cyoa-car goodfx ;
+
+voc{ textfill
+
+0x 17 $chr constant DOT1
+0x 1e $chr constant DOT2
+0x 18 $chr constant DOT3
+DOT2 value STAR
+DOT1 value DOT
+0x 1d $chr constant HOLE
+0x 2 $chr constant GAP
+: +dots for DOT +text next ;
+: +stars for STAR +text next ;
+: +holes for HOLE +text next ;
+: +gaps for GAP +text next ;
+: +starbar over +stars swap - +holes ;
+5 value barlength
+: +%starbar / barlength * >int dup +stars barlength swap - +holes ;
+
+// TODO: Maybe put different text in here depending on bar values
+: +repairstatus +purple "chassis" +text +white ;
+: +wearstatus +purple "engine" +text +white ;
+: +armourstatus +purple "armour" +text +white ;
+
+// TODO: Days left to CANADA
+: +canadadays +red road{ nearcanada-day 1 + road-trip-days - } +text +white ;
+
+: zombop-cr "Zombo Points: " pbold +text gstats{ zombo-point } +text " / " +text gstats{ ZOMBOP_CAP } +text +cr ;
+
+: vehicle-tab-text
+
+	"Game Mode: " pbold +text 
+
+	"NO GAME MODE" // Default case
+	gamedef{ ' defaultmode gamemode? } if drop "Death Road Normal" then
+	gamedef{ ' longroad gamemode? } if drop "Long Winding Road" then
+	gamedef{ ' specialchars gamemode? } if drop "Rare Characters" then
+	gamedef{ ' familiarchars gamemode? } if	drop "Familiar Characters" then
+	gamedef{ ' specialcharsEX gamemode? } if drop "Rare Characters EXTREME" rainbold then
+	gamedef{ ' familiarcharsEX gamemode? } if drop "Familiar Characters EXTREME" rainbold then
+	gamedef{ ' kepamode gamemode? } if drop "K*E*P*A" fbold then
+	gamedef{ ' shortroad gamemode? } if drop "Short Trip to Heck" then
+	gamedef{ ' marathonmode gamemode? } if drop "Marathon" fbold then
+	gamedef{ ' endlessmode gamemode? } if drop "Endless Mode" fbold then
+	gamedef{ ' deadlier gamemode? } if drop "Deadlier Road" then
+	gamedef{ ' OPPmode gamemode? } if drop "O*P*P Mode" fbold then
+	gamedef{ ' quicknightmare gamemode? } if drop "Quick Death Mode" fbold then
+	gamedef{ ' 4jerksmode gamemode? } if drop "Four Jerks Mode" then
+	gamedef{ ' 4jerksmodeEX gamemode? } if drop "Four Jerks Mode EXTREME" rainbold then
+
+//	0 gamemode? not if drop "CUSTOM GAME MODE" then
+
+	+text +cr
+
+	zombop-cr +cr	
+
+	road_theme@ 4 = if
+		"YOU MADE IT TO CANADA!!!" fbold +text
+	then;
+	
+	road{ nearcanada-day 1 + road-trip-days - } 0= if
+		"YOU ARE ABOUT TO CROSS INTO CANADA!!!" rainbold +text
+	then;
+
+	vehicle.which@ if
+
+		DOT2 to STAR
+		0x 19 +chr " " +text car-chassis car-max-chassis +%starbar 3 +gaps
+			+repairstatus +cr
+		DOT3 to STAR
+		0x 1b +chr " " +text car-engine car-max-engine +%starbar 3 +gaps
+			+wearstatus +cr 
+
+		car-armor if
+			0x 1a +chr " "  +text car-armor +dots 5 car-armor - +gaps 3 +gaps
+			+armourstatus +cr
+		then
+		
+		gamedef{ ' endlessmode gamemode? } if
+		
+			road{ road-trip-days } 2 < if 
+				+cr "Just started the Endless journey!" +text +cr
+			then;
+			
+			road{ road-trip-days } 3 < if 
+				+cr "Survived the first day of Endless Mode!" +text +cr
+			then;
+		
+			+cr "Still alive after " +text +red road{ road-trip-days } 1 - +text +white " days on the road!!!" +text +cr
+				
+		then;
+		
+		+cr "Only " +text +canadadays " driving days until CANADA!!!" +text +cr
+	then;
+
+	road{ road-trip-days nearcanada-day < } if
+	
+	"Only " +text +canadadays " driving days until CANADA..." +text +cr
+	+cr "...IF WE HAD A CAR " +text DX +text +cr
+	
+	then;
+	
+	"Only " +text +canadadays " days until CANADA!!!" +text +cr	
+;
+
+}
+
+last to textfill-vehicle-tab
+
+: mv@ mission.vehicle@ ;
+: mv! mission.vehicle! ;
+
+: car-motor-dump
+	"CAR MOTOR:" print
+	"  freq1 " type vehicle.motor.freq1@ print
+	"  freq2 " type vehicle.motor.freq2@ print
+	"  duty1 " type vehicle.motor.duty1@ print
+	"  duty2 " type vehicle.motor.duty2@ print
+	"  filt_low " type vehicle.motor.filt_low@ print
+	"  filt_high " type vehicle.motor.filt_high@ print
+	"  q " type vehicle.motor.q@ print
+;
+
+// Initiale with starter car
+// : debugcar mission.vehicle@ not if 1 new-cyoa-car then ;
+// debugcar

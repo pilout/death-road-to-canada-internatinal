@@ -1,0 +1,414 @@
+uses base.df
+uses charfilt.df
+uses charstats.df
+uses road.df
+
+0 value wyk-checker
+0 value wyk-name
+0 value wyk-key1
+0 value wyk-key2
+0 value wyk-key3
+0 value wyk-key4
+0 value wyk-win1
+0 value wyk-win2
+0 value wyk-win3
+
+load? wyk/wyk.df
+
+: puppymode ;
+: kittenmode ;
+
+load? puppy.df
+load? kitten.df
+
+: wyk? wyk-checker 0 > ;
+
+cyoa{ road{
+
+	0 stack
+		"Run whenever you can! Fight when you're forced to. These zombies do not drop zombie loot." shove
+		"Scavenge for all the ammo you can. Build up the skills of your team. You'll need to become stronger!" shove
+		"Swinging melee weapons around is exhausting until you increase your strength and fitness!" shove
+		"When exhausted, you start to sweat. Stop swinging for awhile or you'll do much less damage." shove
+		"You can keep your car going way longer if you have a great mechanic in the team." shove
+		"If you don't like your Always Be Looting choices, try driving around for new locations." shove
+		"More people means more fighters! It also means more food consumption." shove
+		"Someone with maxed Medical skill needs less medical supplies for healing, or sometimes none." shove
+		"Higher Shooting skill means better firearms handling, with each shot piercing more zombies!" shove
+		"Strength lets you pick up and throw heavier furniture. Thrown furniture is the best weapon." shove
+		"A combination of Strength and Fitness determines weapon swing speed and energy use." shove
+		"Make sure you create some custom characters! They can show up at random in the game." shove
+		"For the final stage of the trip, you will need a good group or great weapons." shove
+		"Fitness determines how much melee energy you have, and how quickly you recover it." shove
+		"TIRED gives big stat penalties! Clear it by sleeping in the next camp or resting before a mission." shove
+		"If team member morale gets too low, they will start arguing, despairing, and backstabbing." shove
+		"Throw furniture by picking it up then pressing attack. Throwing can be powerful and efficient." shove
+		"Characters can have personality traits that give them more options in events!" shove
+		"Paranoid characters can reduce the severity of bandit attacks, or reveal the stats of new recruits." shove
+		"Oblivious characters can safely run out of morale. A couple times." shove
+		"Charming characters get all sorts of bonuses, particularly in Trader Camps." shove
+		"Irritating characters always know the worst thing to say. They have a SECRET ADVANTAGE." shove
+		"Bandit characters can rob many traders and other people. This can backfire depending on who is robbed." shove
+		"Slow, heavy weapons can be powerful with high Strength and Fitness. Otherwise they can be awful." shove
+		"Some melee weapons break and some don't! Many common breakable weapons compensate by being light." shove
+		"Zombies have to grab onto you for a short time before they can damage you. Run away to break free!" shove
+		"Losing your car opens you up to nearly constant negative events and bandit attacks." shove
+		"Many traders offer you different things depending on how much food you have." shove
+		"If you have little or no food, some traders will pity you and give free stuff!" shove
+		"Dogs are very fast. For fun, try having a dog solo loot a city as everyone rests!" shove
+		"Dog barking, horns, gunshots, and other noises draw zombie attention." shove
+		"Zombies can chase you for a long time, depending on how aggressive and irritated they get." shove
+		"Some places are death traps! Read the zombie forecast before exploring an area." shove
+		"Fire and explosives can damage your own characters, so watch out. Fire is especially dangerous." shove
+		"Fire can clear out an army of zombies if you're lucky. It's very dangerous to use indoors." shove
+		"Punching a zombie with no weapon barely does anything, besides making one let you go for a moment." shove
+		"You can switch what character you are controlling in the pause menu, for finer control." shove
+		"Characters that are close by can throw weapons to each other in the pause menu." shove
+		"Try sacrificing someone you don't like by getting them eaten on purpose. This will distract zombies." shove
+		"Character stats are initially hidden. Characters you recruit may be lying about their abilities!" shove
+		"Many bandits can be bought off with food. Some bandits can be beaten by a specific personality type." shove
+		"If your characters all have full health, fighting off bandits will usually not kill any of them." shove
+		"All stats go from 0 to 6. A stat of 0-1 will usually automatically fail. 5-6 will usually succeed." shove
+		"Closing doors will hold off zombies for awhile, as they all forgot how to open doors." shove
+		"Zombies attack furniture that gets in the way. You can drop or throw objects to make obstacles." shove
+		"Some cars types are easier to repair than others, requiring a smaller Mechanical skill." shove
+		"A very high Mechanical skill will let you repair a car right away. Further repairs become harder." shove
+		"Slow-shooting firearms are very ammo efficient. Sometimes you'll want to spray ammo with an automatic." shove
+		"Some melee weapons cleave, hitting multiple zombies in one swing. Some cleaves are based on chance." shove
+		"Zombies get more aggressive and numerous at night. Zombies smell you better if you're bleeding." shove
+		"Zombies get hit for extra damage if they are knocked down, first. Some weapons have high knockdown." shove
+		"Some great melee weapons for high stat people: Knight's Sword. Sturdy Machete. Fire Axe. Sledgehammer." shove
+		"Some great melee weapons for low Strength/Fitness: Aluminum Bat. Nightstick. Xtreme Hockey Stick." shove
+		"Shotguns are still very effective for people with low Shooting skill. High damage and knockdown." shove
+		"The pistols and the Uzi have the advantage of bullets being the most common ammo type." shove
+		"Automatic weapons are very hard to control if you have low Shooting skill." shove
+		"Rifles have high damage and high piercing. One shot could splat an entire line of zombies." shove
+		"You can often have teammates rest in the car. Useful if someone's hurt or you want a smaller group." shove
+		"There's no real penalty for getting a teammate eaten by zombies. Just throwing that fact out there." shove
+		
+	constant HINT-LIST
+	HINT-LIST var hint-list HINT-LIST shuffles to hint-list
+		
+: hintlist
+	hint-list depths 0= if "- Figure out your favorite traits and perks, then make a bunch of custom characters with them.
+	- If you have spare gas, you can skip many locations. Each skip makes good ones more likely!
+	- For endgame, you want high stats and either great melee weapons or an automatic + ammo.
+	We've run out of hints! Good luck!" else shuffles pops nip then pbold
+;
+
+: warptocanada "events/exterior/region/canada-crossing-region.df" $load-region premission
+	300 trunk-rifle-shell+
+	2 WEAPON_AK47 trunk.weapon+
+;
+
+cyoa: special-losthope
+	1.3 to diff-scalar 1.2 to road-difficulty 15 to road-trip-days
+	"TESTING CITY OF LOST HOPE IN DEADLIER ROAD MODE!" text!
+	2.3 12 14 rnd 4 siegecast "events/finale/deathcity.df" $load-region 
+	choice( "ALL OR NOTHING!" rbold )choice: premission
+	150 trunk-rifle-shell+ 1 WEAPON_AK47 trunk.weapon+
+;
+
+cyoa: test-newcity
+	"New City Tester" cyoa-title!
+	someicon
+	($ "Test this and post a comment if there are:
+	1. Missing buildings: There should be 4 lootable
+	2. Buildings where the door is off the map" $) cyoa-text! basic-tone
+	1 1.3 frnd 7 15 frnd 2 zforecast
+	0.4 1 frnd weather! -1 1 frnd wind_force!
+	// citylayoutdeck 
+	// "events/city/region/burb-vary-3x4.df" $load-region
+	"events/city/region/test/region-downtown-custom.df" $load-region
+	// "events/city/region/test/region-downtown-test2.df" $load-region
+	
+		lot-draw
+;
+
+cyoa: crashtest
+	($ "This option will take you straight to Canada, the final mission on the final day!
+	The purpose of this is to help people with the crash bug.
+	" .. "SPOILERS AHEAD" fbold $) text!
+		choice( "Woops no play normally" )choice
+		choice( "Warp straight to Canada!" )choice: warptocanada
+;
+
+cyoa: special-testing
+	($ "Get ready... for a superior road punching experience." rbold $) text!
+		char-gen to recruitee
+		recruitee 50 %chance if .bryuify else .sagutsify then
+		(* WEAPON_MOODYSAW recruitee .weaponb!
+		WEAPON_MOODYROCKET recruitee .weaponc!
+		50 recruitee .stackedb!
+		10 recruitee .stackedc! *)
+		recruitee choosechar cicon
+		recruit-yesno
+;
+
+cyoa: rarearcade-testing
+	($ "Get ready... for a magical and rare Arcade Trading Camp." rbold $) text!
+	40 trunk-food+ "events/trade/trader-camp-region-special5.df" $load-region to-mission
+;
+
+: weapon-testing
+	goblin-laugh
+	
+	1 WEAPON_HAUNTSPOON trunk.weapon+
+	1 WEAPON_HAUNTKNIFE trunk.weapon+
+	1 WEAPON_HAUNTFORK trunk.weapon+
+	1 WEAPON_WOODSAW trunk.weapon+
+	1 WEAPON_HOE trunk.weapon+
+	1 WEAPON_RAKE trunk.weapon+
+	200 WEAPON_NAPALM trunk.weapon+
+
+	100 WEAPON_ECHAINSAW trunk.weapon+
+	100 WEAPON_EBLOWER trunk.weapon+
+	250 WEAPON_EWHACKER trunk.weapon+
+	15 WEAPON_LANDMINE trunk.weapon+
+	24 WEAPON_GLAUNCH trunk.weapon+
+	12 WEAPON_BAZOOKA trunk.weapon+
+	
+	// 1 WEAPON_CAVALRY trunk.weapon+
+	1 WEAPON_BLACKHAMMER trunk.weapon+
+		
+;
+
+: weapon-testing-2 ;
+
+cyoa: wykreset
+	"WYK codes reset!" text! goodfx gstats{ 0 to wyk-highscore }
+;
+
+defer hintrepeat
+
+: startchoices
+	choice( "HIT THE ROAD" )choice
+//	choice( "WARP TO CANADA [crashdebug]" )choice: crashtest
+	DEBUG_BUILD TEST_BRANCH or if 
+		choice( "START IN RARE ARCADE TRADING CAMP" fbold )choice: rarearcade-testing
+		// choice( "START WITH TEST WEAPONS" )choice: weapon-testing
+	then
+//	choice( "Try New City" fbold )choice: test-newcity
+	puppymode kittenmode
+	wyk? if choice( "RESET WYK CODES" rbold )choice: wykreset then;
+	hint-list depths 0= not if choice( "Read another Hint" )choice: hintrepeat then
+;
+
+cyoa: starthintme
+	startchoices
+	hintlist text!
+;
+
+' starthintme to hintrepeat
+
+cyoa: knoobstartP
+	wyk? if 
+		($ "WYK RACE: " .. wyk-name .. " Edition" $) cyoa-title!
+	else
+		"Death Road to Canada" cyoa-title!
+	then
+	// choice( "HIT THE ROAD" )choice
+		soloer choosechar cicon
+
+	8 trunk-food+
+	2 WEAPON_FLASHLIGHT trunk.weapon+
+	
+	4 pchar .morale!
+	notsolo if 4 1 #teamchar .morale! then
+	
+		time.month 6 = time.month.day 1 = and if 
+			' beaver-scget stack-road-action
+		then
+		
+		time.month 6 = time.month.day 4 = and if 
+			' july4-scget stack-road-action
+		then
+	
+		time.month 11 = time.month.day 25 = and if 
+			' santa-test stack-road-action
+		then
+		
+		time.month 11 = time.month.day 24 = and if 
+			' santa-test stack-road-action
+		then
+		
+		time.month 10 = time.week.day 4 = and if 
+			time.month.day 21 > time.month.day 29 < and if
+				' turkey-test stack-road-action
+			then
+		then
+		
+		time.month 1 = time.month.day 14 = and if 
+			' feb14-scget stack-road-action
+		then
+				
+		// Placeholder.. accidental LNK DAY that one time
+		// time.month 2 = time.month.day 29 = and if 
+		//	' lnk-test stack-road-action
+		// then
+
+		cheevo{ post-all }
+
+	
+	gamedef{ ' OPPmode gamemode? } if 
+		"events/OPPmode.df" $load-region to-mission
+	then;
+	
+	gamedef{ ' 4jerksmode gamemode? ' 4jerksmodeEX gamemode? } or if 
+		"events/4jerksmode.df" $load-region to-mission
+	then;
+
+	($ cname .. " hears rumors that Canada is a safe place, free of the threat of zombies.
+	With nothing to gain from waiting around Florida, " .. che .. " decides to brave the Death Road and travel north." $) cyoa-text!
+	
+	hintlist +crtext
+			
+	wyk? if "WYK RACE: " +crtext 
+		gstats{ wyk-highscore } case
+			0 of "7 Steam keys are hidden on the Death Road!" fbold endof
+			1 of "6 Steam keys remaining!" rbold endof
+			2 of "5 Steam keys to go!" rbold endof
+			3 of "4 Steam keys still hidden!" rbold endof
+			4 of "Win the game to get a final 3 Steam keys!" fbold endof
+			5 of "All keys were found! Congrats!" pbold endof
+		endcase +text
+	then
+		
+		startchoices
+				
+;
+
+// *********** OLD STUFF BELOW *************
+
+// BEGIN temporary beta start message
+
+cyoa: knoobstartB
+	"The Death Road to Canada 8/26 Alpha" cyoa-title!
+	choice( "HIT THE ROAD" )choice
+		soloer choosechar cicon
+
+	($ "Welcome to the Death Road to Canada Alpha!
+	Currently Testing: Special Characters
+	You can find a full list of recent changes and instructions to help us test the game by clicking the NEWS link on the Death Road to Canada Steam page.
+	Send us feedback via Kickstarter messages!" $) cyoa-text!
+		8 LOOT_FOOD trunk.loot+ 1 WEAPON_BASEBALL trunk.weapon+ 30 WEAPON_GRENADE trunk.weapon+ 30 WEAPON_PIPEBOMB trunk.weapon+ 1 WEAPON_FLAMETHROWER trunk.weapon+ 500 LOOT_GAS trunk.loot+
+;
+
+// END temporary beta start message
+
+cyoa-choice: kn1recruit 
+	recruitee character# cyoa-char-icon!
+	WEAPON_WRENCH recruitee .weapona!
+	($ rname .. " is now part of the team!
+	" .. cname .. " quietly groans a little bit about this.
+	Onward to Canada!" $) cyoa-text! 2 300 tone
+	morale-- recruitee .recruit
+;
+cyoa-choice: kn1nope 
+	($ cname .. " peels out of there. 
+	" .. "SEE YOU LATER SUCKER." pbold .. "
+	It seems like a good start." $) cyoa-text! morale2+ goodfx
+;
+
+cyoa: knoobevent1
+	"Powerful Allies" cyoa-title!
+	char-gen to recruitee
+	recruitee character# cyoa-char-icon!
+	soloer choosechar
+	choice( "Recruit " .. rname )choice: kn1recruit
+	cchar charchoice( " PEELS OUT" )choice: kn1nope
+
+	($ "As " .. cname .. " starts the journey to Canada, they meet their neighbor, " .. rname .. ". 
+	" .. cname .. " has always hated this person, but could use the help and/or decoy." $) cyoa-text! basic-tone
+;
+
+: 4food2med 4 LOOT_FOOD trunk.loot+ 2 LOOT_MEDICAL trunk.loot+ ;
+cyoa-choice: kn2-shotty
+	($ soloname .. " named this shotgun BIG DAWG. It is capable of exploding zombies, both near and far. For a novice, it's possibly the best choice of firearm.
+	" .. Thegroup .. " acquires " .. RED .. "BIG DAWG" .. WHITE .. "." $)
+	cyoa-text! goodfx 1 WEAPON_SHOTGUN trunk.weapon+ 8 LOOT_SHOTGUN_SHELL trunk.loot+ 4food2med
+;
+cyoa-choice: kn2-rifle
+	($ "Rifles are capable of puncturing through multiple zombie heads, in the hands of a great shooter! " .. soloname .. " isn't necessarily a great shot, but practice makes perfect.
+	" .. Thegroup .. " acquires the rifle!" $)
+	cyoa-text! goodfx 1 WEAPON_RIFLE trunk.weapon+ 12 LOOT_RIFLE_SHELL trunk.loot+ 4food2med
+;
+cyoa-choice: kn2-pistol
+	($ "The humble pistol may not have the power of bigger firearms, but it gets the job done. That, and pistol bullets are still rather plentiful. Open any drawer and some will likely spill out!
+	" .. Thegroup .. " acquires the pistol!" $)
+	cyoa-text! goodfx 1 WEAPON_PISTOL trunk.weapon+ 20 LOOT_BULLET trunk.loot+ 4food2med
+;
+cyoa-choice: kn2-gas
+	"Weapons: who needs them? The car is a weapon. The further that huge chunk of metal can be driven before it runs out of gas, the safer the journey is.
+	Also, maybe you'll run into a chainsaw." cyoa-text! goodfx 150 LOOT_GAS trunk.loot+ 4food2med
+;
+cyoa: knoobevent2
+	"Locking and Loading" cyoa-title! 0 to cyoaicon cyoaicon
+	soloer choosechar
+	($ Thegroup .. " takes a small detour to a stash of supplies that " .. cname-he .. " left there before. 
+ Besides a dinky bit of food and medicine, the stash had: " $) cyoa-text! 2 500 tone
+
+		choice( "Shotgun and 8 shells" )choice: kn2-shotty
+		choice( "Rifle and 12 ammo" )choice: kn2-rifle
+		choice( "Pistol and 20 bullets" )choice: kn2-pistol
+		choice( "150 extra Gas" )choice: kn2-gas
+;
+
+cyoa-choice: kn3recruit 
+	recruitee character# cyoa-char-icon!
+	($ rname .. " is now part of the team!
+	" .. cname .. " winces as the new recruit scarfs down the two long-hoarded food cans.
+	Onward to Canada!" $) cyoa-text! 2 300 tone
+	-2 LOOT_FOOD trunk.loot+ recruitee .recruit
+;
+cyoa-choice: kn3nope 
+	($ cname .. " peels out of there. 
+	" .. "NO ONE TOUCHES MY CANS OF FOOD." pbold .. "
+	It was probably the right choice." $) cyoa-text! goodfx morale++
+;
+
+cyoa: knoobevent3
+	"Ne'er-do-well Recruitment" cyoa-title!
+	soloer choosechar
+	char-gen to recruitee
+	WEAPON_SLEDGE recruitee .weapona!
+	recruitee character# cyoa-char-icon!
+	($ "A short drive away from " .. cname .. "'s hideout, " .. thegroup .. " runs into someone just wandering the road, sledgehammer over shoulder.
+	" .. rname .. " introduces " .. recruitee xhim .. "self, and offers to join the mission to Canada in exchange for some food to chow down on." $) cyoa-text! basic-tone
+		choice( "Recruit " .. rname .. " for 2 Food" )choice: kn3recruit
+		cchar charchoice( ": IT'S MY FOOD" )choice: kn3nope
+;
+
+: knoob4text ($ "Such incredible wisdom.
+" .. cname .. " is enriched with this knowledge. " .. cHe .. " will never forget those words." $) cyoa-text! goodfx morale++
+;
+cyoa-choice: kn4-eyes knoob4text wits++ ;
+cyoa-choice: kn4-hitit knoob4text mechanic++ ;
+cyoa-choice: kn4-sick knoob4text medical++ ;
+cyoa-choice: kn4-sayit knoob4text attitude++ loyalty++ cool-it++ ;
+cyoa: knoobevent4
+	"Wise Mentor" cyoa-title! 0 to cyoaicon cyoaicon
+	soloer choosechar
+	($ cname .. " decides to visit their grizzled mentor one last time before heading north.
+	" .. cname .. "'s mentor reminisces with " .. chim .. " and offers some final advice before the journey starts:" $) cyoa-text! 2 500 tone
+
+	choice( "NEVER TRUST ANYONE OR ANYTHING" )choice: kn4-eyes
+	choice( "IF SOMETHIN BREAKS JUST HIT IT" )choice: kn4-hitit
+	choice( "SICK PEOPLE ARE FAKIN IT" )choice: kn4-sick
+	choice( "SAY IT DON'T SPRAY IT" )choice: kn4-sayit
+;
+
+cyoa: knoobstart1
+	"The Death Road to Canada 5/27 Alpha" cyoa-title!
+	choice( "HIT THE ROAD" )choice
+		soloer choosechar cicon
+
+	($ cname .. " hears rumors that Canada is a safe place, free of the threat of zombies.
+	With nothing to gain from waiting around Florida, " .. che .. " decides to gather up some hoarded supplies and head north.
+	" .. cname .. " brings along a trusty baseball bat!" $) cyoa-text!
+		100 LOOT_GAS trunk.loot+ 2 LOOT_MEDICAL trunk.loot+ 8 LOOT_FOOD trunk.loot+ 1 WEAPON_BASEBALL trunk.weapon+
+;
+
+} }
+
+

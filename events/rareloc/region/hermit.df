@@ -1,0 +1,130 @@
+
+"../deathforth/rooms/cabin.txt" $load-rooms
+"../deathforth/rooms/city.txt" $add-rooms
+
+cyoa{
+
+cyoa-choice: cabin1-hermitchat-wisdom
+	ricon
+	($ "The hermit teaches " .. pname .. " some sweet shooting tips, and also gives up the secrets of " .. "GRIZZLED HERMIT TOUGHNESS!" rbold .. "
+	NOW GET OUT AND NEVER RETURN!" pbold $) cyoa-text! goodfx
+		pchar .vitality++ pchar .shooting++
+;
+
+cyoa-choice: cabin1-hermitchat-recruit
+	ricon
+	pchar charming? if
+		($ "The hermit is swayed by " .. pname .. "'s charms!
+		" .. "Well, I'm a hermit, but you know what? You're alright!" pbold $) cyoa-text! goodfx
+		recruit-yesno
+	else
+		($ "Of course I'm not going to join you! I was doing fine before you brought the horde with you!" pbold .. "
+		The hermit isn't swayed by " .. pname .. "'s charms." $) cyoa-text! badfx
+	then
+;
+
+cyoa-bridge: cabin1-hermitchat-coolit
+	ricon
+	cool-it-7 if
+		($ "The hermit cools it immediately! He shares his stash of shotgun shells with you, along with his hermit knowledge. He also offers to join the team!
+		" .. pname .. " was surprised that this worked!" $) cyoa-text!
+		pchar .morale2+ goodfx cooled-it 40 add-shell pchar .shooting++ pchar .vitality++
+		recruit-yesno
+	else cool-it++
+		($ "The hermit does not cool it. Instead, he lets loose a tirade of swears.
+		" .. pname .. "'s sensibilities are offended!" $) cyoa-text!
+		pchar .morale2- badfx
+	then
+;
+
+cyoa: cabin1-hermitchat
+	ricon 1 nearest .character@ .party!
+	image-angry-hermit
+	"The Angriest Hermit" cyoa-title!
+	region.zombie_basespawn@ 0 > if
+		($ "The hermit is already infuriated." .. "
+		YOU BROUGHT ALL THESE ZOMBIES, DIDN'T YOU?
+		GET OUT OF MY HOUSE!" pbold .. "
+		Maybe try again when there's less zombies." $) cyoa-text!
+	else
+		0 nearest .character@ .party!
+		($ "The hermit is slightly less infuriated now, but not by much." .. "
+		Well? What is it?
+		I've got a lot of important hermit stuff to do!" pbold $) cyoa-text!
+		choice( "Ask for hermit wisdom" )choice: cabin1-hermitchat-wisdom
+		choice( "Ask him to join you" )choice: cabin1-hermitchat-recruit
+		choice( "Tell Hermit to 'Cool it'" fcoolit )choice: cabin1-hermitchat-coolit
+		clear-cyoa 
+	then
+;
+
+}
+
+: .hermitify
+	2 over .specialtype!
+	5 over .shooting!
+	4 over .strength!
+	4 over .fitness!
+	4 over .vitality!
+	4 over .health!
+	"Hermit" over .name!
+	0 over .female!
+	0 over .attitude!
+	0 over .composure!
+	0.88 over .ai.threat_threshold!
+	"was surprised that he even joined the team, being a hermit and all." over .job!
+	WEAPON_SHOTGUN over .weapona!
+	WEAPON_FIRE over .weaponb!
+	40 LOOT_SHOTGUN_SHELL 2 pick .lootamt!
+	0.1 over .ai.wander_chance!
+	dup to recruitee
+	dup cyoa{ ' cabin1-hermitchat cyoa! } drop drop
+;
+
+: hermit
+	new-npc 0 lt .leaveok! lt .character@ .hermitify
+;
+
+: cabinloot 
+	looseloot
+	30 %chance if 30 60 rnd sgas chainsaw .scatter then
+;
+
+location
+		tags: cabin-hermit
+		max-rooms: 1
+		entry-tags: randcabin
+		script: set-theme-cabin 
+		pre-script: set-theme-cabin
+		post-script: 0 %zombs
+		
+		room-choice: randcabin
+			room-weight: 80
+			room-count: 1
+			room-script: nad
+			room-post-script: hermit cabinloot
+
+regiondef{
+
+	 region: forest cabin
+		w: 20 // 35
+		h: 15 // 35
+		script: timeofday o'clock
+
+		no-prefab // Don't build that default city
+		on-foot
+		
+		: make-a-cabin map{
+			"cabin-hermit" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
+			addloc // Add a location using the resulting location definition  ( locdefid -- locid )
+			prefab{ 10 cabin } // Create a cabin of 5 width using the new location ( locid w -- <build cabin centered in upper part of map> )
+			}
+		;
+
+		: setup-cabin-forest
+			map{ grass make-a-cabin 5 pines }
+			mission{ siege-start-dig 100 left-spawn 100 bottom-spawn 0 top-spawn 0 right-spawn }
+		;
+
+		post-script: setup-cabin-forest 5sdiff %zombs
+}

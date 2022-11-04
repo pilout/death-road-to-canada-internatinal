@@ -1,0 +1,58 @@
+: zombers 2 %zombs ;
+
+"../deathforth/rooms/industrial.txt" $load-rooms
+"events/industrial/sewer-locations.df" $load
+
+	location
+		tags: rescuesewer
+		max-rooms: 7
+		entry-tags: sewer-entry
+
+		script: setup-sewer
+		post-script: 10diff %zombs map{ wetfloor } nad ndx
+
+		: tryrescue
+			rooms-left 1 > if then;
+			 sewerdir dup edge-inc random-door 
+			"sewer-rescue" with-door
+		;
+		
+		room-choice: sewer-entry
+			room-weight: 1
+			room-count: 1
+			room-post-script: startsewerhall new-rescue-npc
+
+		room-choice: treasure
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+		room-choice: sewer-hall
+			room-weight: 1
+			room-count: 4
+			room-post-script: trysewerend sewerhall sewerloot
+			filter-only
+
+		room-choice: sewer-end
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+regiondef{
+
+	region: industrytest
+		w: 15
+		h: 15
+		max-locs: 1
+		script: timeofday o'clock
+		post-script: 10diff %zombs
+		
+		inside no-prefab
+
+		"REGION LOCATIONS" print
+					
+		loc-choice: rescuesewer
+			loc-weight: 99
+			loc-count: 1
+
+}

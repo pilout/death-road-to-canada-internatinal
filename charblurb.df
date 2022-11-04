@@ -1,0 +1,158 @@
+
+0 value texttime
+
+: textspeed $len 3 * 30 120 clamp ;
+: textclr$ 0x f0 + $chr ;
+
+: rbold ($ RED .. swap .. WHITE $) ;
+: rainbold ($ RAINBOW .. swap .. WHITE $) ;
+: pbold ($ PURPLE .. swap .. WHITE $) ;
+: bbold ($ BLUE .. swap .. WHITE $) ;
+: fbold ($ 5 textclr$ .. swap .. 0 textclr$ $) ;
+
+: goodfx sfx{ pulse C0 8 * fx .freq! C0 16 * fx .freq2! 0.9 fx .duty! 0.5 fx .scale! 500 fx .d! 15 fx .delay! } ;
+: badfx sfx{ pulse C0 8 * fx .freq! C0 2 * fx .freq2! 0.9 fx .duty! 0.5 fx .scale! 500 fx .d! 15 fx .delay! } ;
+: bitefx sfx{ bite } sfx{ badfx 15 fx .delay! } 32 0.75 rumble-gui
+	-20 fade_to 1 0.25 0.25 fade_clr 15 fade_count!
+;
+
+: skull 0x e7 $chr ;
+
+: blurbevent road{ qmsg txt 30 pause } ;
+: blurbchar road{ character# charid } ;
+: blurbicon road{ icon } ;
+: blurbskullicon ICON_SKULL blurbicon ;
+: blurb!icon ICON_EXCLAIM blurbicon ;
+: blurbthumbupicon ICON_ARROWUP blurbicon ;
+: blurbthumbdownicon ICON_ARROWDOWN blurbicon ;
+: blurbmedicalicon ICON_MEDICAL blurbicon ;
+: blurbhurticon ICON_BLOODSPLAT blurbicon ;
+: blurbeaticon ICON_EAT blurbicon ;
+
+0 value yell
+
+// Make the character's saying based on the current yell value
+: .yell args( yell me ) <- me .character@ sfx{ charbabble <- yell 30 * fx .d! <- me .adjust-vol }
+	<- yell <- me .chatter!
+;
+
+: yelldur 30 / 0.5 + ; // Calculate a duration for the message
+
+// Example of locals usage
+: .yellmsg args( txt thing )
+	<- txt $len yelldur <- txt <- thing .reportdur
+	<- txt $len <- thing .yell
+;
+
+// Makes the same-ish char babble sound based on the input text and a seed value
+: .sameyell args( txt seed me )
+	<- txt <- me .yellmsg <- txt sfx{ $hash <- seed + seed! }
+;
+
+: .yellmsglong args( txt thing )
+	<- txt $len yelldur 1 + <- txt <- thing .reportdur
+	<- txt $len <- thing .yell
+;
+
+: .yelltop args( txt thing )
+	<- txt dup $len 5 * msgticktoptype
+	<- txt $len <- thing .yell
+;
+
+: .yellex args( txt thing )
+	<- txt $len yelldur 2 * <- txt <- thing .reportdurex
+	<- txt $len <- thing .yell
+;
+
+: .sprayit args( txt me )
+	<- txt <- me .yellex
+	60 5 * <- me .stun!
+	<- me player face-each-other
+;
+
+: .sprayitfast args( txt me )
+	<- txt <- me .yellex
+	60 1 * <- me .stun!
+	<- me player face-each-other
+;
+
+0 value forcecr
+
+: cyoa-start 1 to forcecr cyoa-start ;
+: cyoa-force-cr forcecr if cyoa-text-cr 0 to forcecr then ;
+
+: blurb-last-to-cyoa
+	cyoa-force-cr cyoa-text-cr blurbtext@ cyoa-text-append ;
+	// above previously had cyoa-text-cr at end after append
+
+: statdiff$
+	CHAR_STAT_MIN CHAR_STAT_MAX rot clamp swap
+	CHAR_STAT_MIN CHAR_STAT_MAX rot clamp swap
+
+	2dup - 0= if 0x 10 + $chr nip exit then
+	0x 10 + swap 0x 10 +
+	($ swap $chr .. " " .. 0x 99 $chr .. " " .. swap $chr $)
+;
+
+: cyoa+lastblurb blurb-last-to-cyoa 30 ' texttime +! ;
+
+: report-lootchg ( inc loot -- ) blurbloot cyoa+lastblurb ;
+: report-statchg ( inc stat chara -- ) .blurbstat cyoa+lastblurb ;
+: report-reveal ( stat chara -- ) .blurbreveal cyoa+lastblurb ;
+
+road{
+
+	: qmsg qmsg 25 flash ;
+
+	0 value me#
+	: me me# #character ;
+
+	: chgdir 0 > if 1 icon "UP" else 2 icon "DOWN" then ;
+
+	: health+ dup me .health@ + me .health!
+		qmsg me# charid
+		($ me .name@ .. " health " .. swap chgdir $) txt
+	;
+
+	: textspeed $len 3 * 30 120 clamp ;
+	
+	0 value road-seed
+
+	: conv-char# road-seed swap team-random-order ;
+	: conv-char conv-char# #character ;
+	: 1st-char 0 conv-char ;
+	: 2nd-char 1 conv-char ;
+	: 3rd-char 2 conv-char ;
+	: 4th-char 3 conv-char ;
+	: loopchar# team-count j - ;
+
+	: select-me conv-char# to me# ;
+	
+	: use-textwait-period texttime 30 / 2 8 clamp dup . cr road-delay ;
+	
+	: blurbpause textspeed dup ' texttime +! pause ;
+	
+(*	: .blurbsay locals( msg me )
+		-> me -> msg
+		<- msg <- me .blurbquote blurbpause
+	; *)
+
+	: .blurbsay locals( me )
+		-> me dup <- me .blurbquote blurbpause
+	;
+	
+	: .blurbdo locals( me )
+		-> me dup <- me .blurbemit blurbpause
+	;
+			
+	: blurbsay ( "text" -- )
+	dup me .blurbquote blurbpause
+	;
+	
+	: blurbdo ( "text" -- )
+	dup me .blurbemit blurbpause
+	;
+
+	: 1st-st 1st-char .specialtype@ ;
+	: 2nd-st 2nd-char .specialtype@ ;
+}

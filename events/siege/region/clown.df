@@ -1,0 +1,69 @@
+"../deathforth/rooms/city.txt" $load-rooms
+
+: clowntint
+	1 0.2 0.2 tint_near!
+	1 0 1 tint_far!
+	1 light_mode!
+	60 tint_trigger
+;
+
+locdef{
+
+	location: clownhouse
+		max-rooms: 6
+		entry-tags: open1
+		script: set-theme 
+		pre-script: set-theme
+		post-script: clowntint
+	
+	: clownloot
+		10 20 rnd for skelscat next
+		40 %chance if knight else      
+			50 %chance if claymore else medieval then
+		then .scatter
+		40 %chance if 40 50 rnd srifle ak47 else      
+			50 %chance if 25 30 rnd sshot autoshot else 45 60 rnd sbullet uzi then
+		then .scatter
+		3 4 rnd for 
+			50 %chance if pipebomb else      
+				60 %chance if grenade else nail then
+			then .scatter 
+		next
+	;
+	
+		room-choice: open1
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: clownloot
+			filter-only
+
+		room-choice: bathroom
+			room-weight: 30
+			room-count: 1
+			room-script: nad floor-bath
+
+		room-choice: trashed
+			room-weight: 50
+			room-count: 3
+			room-script: nad
+
+}
+
+regiondef{
+
+	region: clownhouse
+		w: 1
+		h: 1
+		max-locs: 1
+		script: timeofday o'clock
+	
+		inside no-rest
+					
+		loc-choice: clownhouse
+			loc-weight: 99
+			loc-count: 1
+		
+		: siegesetup mission{ siege-start 50 bottom-spawn } cheevo: clown-swarm ;
+		post-script: zombieclowns siegesetup
+}

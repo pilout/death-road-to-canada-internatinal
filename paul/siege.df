@@ -1,0 +1,38 @@
+
+mission{
+
+	: siege-over-leave
+		1 mission-bottom-leave!
+		1 mission-right-leave!
+		1 mission-top-leave!
+		1 mission-left-leave!	
+	
+	;
+
+	: .zpacify dup .zomb? not if drop then; 0 over .zomb.state! drop ;
+	: pacify-zombies ' .zpacify foreach-active-thing ;
+
+	cyoa{ cyoa: siege-over-cyoa "PHEW!" cyoa-title! "The siege is over!
+	It's now safe enough to escape!" cyoa-text! ; }
+
+	: siege-over
+		cyoa{ siege-over-cyoa } pacify-zombies
+		2 region.zombie_aggro!
+		1 region.zombie_alertscale!
+		( clear-all-pickles )
+		siege-over-leave
+		' noop to main-event-mission-periodic
+	;
+
+	: siege-logic hour 6 = minute 1 = and if siege-over else beep then ;
+
+	: siege-start beep ' siege-logic to main-event-mission-periodic 1 road-delay
+	4 region.zombie_aggro!	
+	3 region.zombie_alertscale!
+	0 region.zombie_basespawn!
+	10 region.zombie_nightspawn!
+	9999 region.zombie_pickletime!
+	;
+
+}
+

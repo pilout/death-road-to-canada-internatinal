@@ -1,0 +1,162 @@
+
+uses events/trade/trader-camp-shared.df
+
+0 var trade-deck
+
+cyoa{ road{ 
+	
+: trade-camp-special1 "events/trade/trader-camp-region-special1.df" ; // Sci Lab
+: trade-camp-special2 "events/trade/trader-camp-region-special2.df" ; // Ren Faire
+: trade-camp-special3 "events/trade/trader-camp-region-special3.df" ; // Swole Gym
+: trade-camp-special4 "events/trade/trader-camp-region-special4.df" ; // Open Mall
+: trade-camp-special5 "events/trade/trader-camp-region-special5.df" ; // The Last Arcade
+	
+// 40 trunk-food+ "events/trade/trader-camp-region-special5.df" $load-region to-mission
+	
+	deck-new
+		card: trade-camp-special1
+		card: trade-camp-special2
+		card: trade-camp-special3
+		card: trade-camp-special4
+		card: trade-camp-special5
+			
+	constant TRADE-CAMP-SPECIAL-DECK
+	TRADE-CAMP-SPECIAL-DECK var trade-camp-special-deck
+	TRADE-CAMP-SPECIAL-DECK shuffles to trade-camp-special-deck
+	
+defer trade-camp-draw-instead
+
+: trade-camp-special-draw
+	regiondef{ cityseeker? } if 0 else 50 then
+	%chance if
+		trade-camp-draw-instead
+	then;
+	trade-camp-special-deck depths 0= if TRADE-CAMP-SPECIAL-DECK shuffles to trade-camp-special-deck then drawcard
+;
+	
+: trade-camp1 "events/trade/trader-camp-region1.df" ; // 3 traders, two loot houses
+: trade-camp2 "events/trade/trader-camp-region2.df" ; // campfire, 3 traders in line, woods and graveyard
+: trade-camp3 "events/trade/trader-camp-region3.df" ; // campfire + 3 traders in square, woods at north
+: trade-camp4 "events/trade/trader-camp-region4.df" ; // campfire, gasbuy, 3 traders, middle road
+: trade-camp5 "events/trade/trader-camp-region5.df" ; // campfire, gasbuy, 4 traders, middle road
+: trade-camp6 "events/trade/trader-camp-region6.df" ; // 3 traders, loothouse
+: trade-camp7 "events/trade/trader-camp-region7.df" ; // 2 traders, weapon buyer, graveyard
+: trade-camp8 "events/trade/trader-camp-region8.df" ; // 3 trader houses
+: trade-camp9 "events/trade/trader-camp-region9.df" ; // Bridge to 2 loot houses, gasbuy, weaponbuy, 3 traders
+: trade-camp10 "events/trade/trader-camp-region10.df" ; // Yallmart with 3 traders, weapon buyer
+// FEMUR update
+: trade-camp11 "events/trade/trader-camp-region11.df" ; // The Fence of Values, 4 traders
+: trade-camp12 "events/trade/trader-camp-region12.df" ; // Ruined camp, special trader only + zombies
+: trade-camp13 "events/trade/trader-camp-region13.df" ; // One story barn with eggs, 3 traders, weapon buyer
+: trade-camp14 "events/trade/trader-camp-region14.df" ; // Bazaar with all trimmings and 5 traders
+: trade-camp15 "events/trade/trader-camp-region15.df" ; // House with 3 traders, magazine chance, gasbuy
+
+	deck-new
+		card: trade-camp1
+		card: trade-camp2 
+		card: trade-camp3
+		card: trade-camp4
+		card: trade-camp5
+		card: trade-camp6
+		card: trade-camp7
+		card: trade-camp8
+		card: trade-camp9
+		card: trade-camp10
+		card: trade-camp11
+		card: trade-camp12
+		card: trade-camp13
+		card: trade-camp14
+		card: trade-camp15
+		2 cards: trade-camp-special-draw		
+			
+	constant TRADE-CAMP-DECK
+	TRADE-CAMP-DECK var trade-camp-deck
+	TRADE-CAMP-DECK shuffles to trade-camp-deck
+	
+: trade-camp-draw
+	trade-camp-deck depths 0= if TRADE-CAMP-DECK shuffles to trade-camp-deck then drawcard
+; ' trade-camp-draw to trade-camp-draw-instead
+
+: gototradecamp 
+	empty // Preventing overflow from rarely blanking out a camp
+	road-trip-days nearcanada-day = if
+		"events/trade/trader-camp-final.df"
+	else
+		trade-camp-draw	
+	then	
+	$load-region to-mission 
+;
+
+: trade-draw
+	choice( "Visit Trader Camp" )choice: gototradecamp
+	choice( "Ignore Traders" )choice
+;
+
+: trade-msg ($ Thegroup .. " runs into a trading camp!" $) ;
+
+: near-last-day-warn
+	road-trip-days 3 + nearcanada-day = if 
+	"Getting Closer to Canada" cyoa-title!
+	"Canada is close! This is the second to last chance to trade!" else trade-msg then +crtext foodamt
+;
+
+: last-day-warn 
+	road-trip-days nearcanada-day = if
+	"Last Shop Before Canada" cyoa-title!
+	"This is the last chance to trade! Good luck!" else trade-msg then +crtext foodamt
+;
+
+: end-trade-draw 
+	cyoa-text! +cr foodamt trade-msg +crtext trade-draw 
+;
+
+cyoa: tradeevent
+	"Trading on the Death Road" cyoa-title!
+	road-trip-days 3 = if
+		"Outside of Canada, most of society and civilization has been destroyed. You can still find people engaging in trade, with preserved food being the new currency." 
+		end-trade-draw
+	then;
+	road-trip-days 6 = if
+		($ Thegroup .. " feels a sense of dread. Something dangerous is coming. The road seems like it's getting steadily more crowded with the undead, and they're getting riled up." $) cyoa-text!
+		near-last-day-warn
+		trade-draw
+	then;
+	road-trip-days 9 = if
+		"The drive to Canada used to take a few days, at most. The apocalypse filled the roads with debris, hordes of zombies, and lots of stranded cars. It's now a long trip." cyoa-text!
+		last-day-warn
+		trade-draw
+	then;
+	road-trip-days 12 = if
+		($ "The road trip continues. The sky starts to turn an ominous red, as if the universe wants " .. thegroup .. " to fail." $) cyoa-text!
+		near-last-day-warn
+		trade-draw
+	then;
+	road-trip-days 15 = if
+		($ "An enormous army of undead shambles around the carnage that surrounds the border to Canada. Many have tried to get through. Most only succeed in having their bodies added to the horde.
+		Maybe " .. yourteam .. " will be different..." $) cyoa-text!
+		last-day-warn
+		trade-draw
+	then;
+	road-trip-days 24 = if
+		($ "It's been a very long and winding road to Canada. " .. Thegroup .. " is now only a couple days away!" $) cyoa-text!
+		near-last-day-warn
+		trade-draw
+	then;
+	road-trip-days 25 = if
+		($ "The end is in sight. At the end of this very long road is a massive amount of zombies, the natural end result of the hordes getting a little bigger every few days of travel.
+		Maybe " .. yourteam .. " can make it!" $) cyoa-text!
+		last-day-warn
+		trade-draw
+	then;
+	50 %chance if
+		($ Thegroup .. " is driving down a long stretch of road. No threats on the horizon, but not much else of interest, either. " $)
+	else
+		($ Thegroup .. " continues making progress along the Death Road. As long as one person remains alive, the dream of Canada lives on." $)
+	then cyoa-text!
+	+cr foodamt
+	($ "Unexpectedly, " .. thegroup .. " finds someone " .. gthey .. " can trade with: " $)
+		+crtext trade-draw
+	
+;
+
+} }

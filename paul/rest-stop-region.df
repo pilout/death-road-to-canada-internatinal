@@ -1,0 +1,144 @@
+// uses hack/region-downtown-test.df
+uses paul/region-layout.df
+
+// "../deathforth/hack/gasbar.txt" $load-rooms
+// "additional-rooms.txt" $add-rooms
+
+map{ regiondef{
+
+0 value 0bx
+0 value 0by
+0 value 1bx
+0 value 1by
+0 value gbx
+0 value gby
+
+' plotgrass >defer ft
+
+: river tile@
+	dup LAYER_FLOOR particles32_base_id 0x 10 + .lspriteid!
+	dup LAYER_FLOOR 0 0 .tile_layer.off!
+	dup LAYER_FLOOR 0 .tile_layer.flipx!
+
+	dup LAYER_FLOORTOP particles32_base_id 0x 11 + .lspriteid!
+	dup LAYER_FLOORTOP 0 0 .tile_layer.off!
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+
+	TILE_BLOCK over .id!
+	drop
+;
+
+: riveredge
+	2dup river
+	tile@ LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+;
+
+: bank 2dup tile@ args( x y t )
+	<- t LAYER_WALLSIDE street_tiles_base_id 0x 99 + 0 3 rnd + .lspriteid!
+	<- t LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+	<- x <- y riveredge
+;
+
+
+: bushy >r tile@
+	// dup LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 89 + 0 3 rnd + .lspriteid!
+	LAYER_WALLSIDE 0 r> .tile_layer.off!
+;
+
+: logbridge >r tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x 79 + r> + .lspriteid!
+;
+
+: cliff 2dup floorblocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x a9 + 0 3 rnd + .lspriteid!
+;
+
+: cliffedge 2dup floorblocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x ba + 0 3 rnd + .lspriteid!
+;
+
+: curb tile@
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 2e + .lspriteid!
+	LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: grassedge
+	tile@ dup LAYER_FLOORTOP street_tiles_base_id 0x 71 + .lspriteid!
+	LAYER_FLOORTOP 0 0 -3 rnd .tile_layer.off!
+;
+
+
+: reststop tanchor! map{ "reststop" $picklocid addloc prefab{ 0 11 4 shop } } ;
+
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char g = if ' plotgrass to ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char p = if ' plotpave to ft then;
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char o = if xyp.xy -8 -7 rnd bushy then;
+	xyp.i char c = if ' plotpave to ft xyp.xy ft xyp.xy curb then;
+	xyp.i char $ = if xyp.xy grassedge then;
+	xyp.i char * = if xyp.xy reststop then;
+	xyp.i char T = if pictable xyp.xy tile>pos lt .pos! then;
+	xyp.i char t = if pine xyp.xy tile>pos lt .pos! then;
+
+	xyp.i char { = if xyp.xy to 0by to 0bx then;
+	xyp.i char } = if 0bx 0by xyp.xy LAYER_FLOORTOP min-layer! conclot then;
+	xyp.i char ( = if xyp.xy to 1by to 1bx then;
+	xyp.i char ) = if 1bx 1by 1- xyp.xy 1- LAYER_FLOOR min-layer! conclot then;
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx 1- gby xyp.xy swap 1+ swap LAYER_FLOOR min-layer! grasslot then;
+;
+
+"
+P.......................
+........................
+........................
+........................
+<c.c.c.c.c....c.c.c.c.cg
+........................
+..T..{...............T..
+........................
+........................
+..t..................t..
+........................
+..T..................T..
+......*.................
+.................}......
+..t.....t.(....t.....t..
+........................
+Pc.c.c.c.c....c.c.c.c.c>
+............)...........
+........................
+........................
+........................"
+constant maplayout
+
+: testtest
+	0 -1 maplayout xyplot: pt
+;
+
+
+: site-setup
+	pavement
+	testtest
+;
+
+region: canada border
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	loc-choice: something
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

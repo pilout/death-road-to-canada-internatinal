@@ -1,0 +1,83 @@
+
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+"events/inner/shoploc.df" $load
+
+load? events/city/city-locations.df
+
+map{ regiondef{
+
+
+	: pick-building
+
+		' curbuild ++
+		curbuildprinter
+		try-special-build if then;
+
+		rowsleft 3 >= if
+			50 %chance if 0 else auto-picklocid then
+		else
+			rowsleft 2 = if 
+				75 %chance if 0 else auto-picklocid then
+			else
+				curbuild 7 < if
+					25 %chance if 0 else auto-picklocid then
+				then
+				curbuild 6 > if auto-picklocid then
+			then
+		then
+				
+		trashed-apartment-maker
+	;
+
+	: pick-lots
+		blocks-init
+
+			6 to blockh
+			4 to maxrows
+			8 to streeth
+			35 to greenspace%
+			0 to grassylots
+		blocks-start
+
+		pavement
+
+		begin canplot? while
+			pick-building next-plot
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		5diff %zombs pavement pick-lots
+	;
+	
+} }
+
+regiondef{
+
+	: runme
+		building-pick-setup
+		75 %chance if
+			33 %chance if 33 else
+				50 %chance if 58 else 83 then
+			then %mv-up
+		then
+	;
+
+	 region: apartsvary2x4
+
+		w: 21
+		h: 56
+
+		script: timeofday o'clock
+	
+	regcity
+		
+		post-script: runme
+}

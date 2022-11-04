@@ -1,0 +1,66 @@
+uses charfilt.df
+uses charstats.df
+
+(*
+- A CYOA that does the following:
+	- Makes a CYOA choice for 3 people at random in your party, showing their name
+	- When you choose a name, it runs a check on if they're an ahole or not.
+	- In next CYOA (a $cyoa-ok-dialog), states [CHOICENAME] [IS/IS NOT] [AN ahole]
+		- If ahole, lowers morale of everyone by one but increases attitude of CHOICENAME by one
+		- If not an ahole, lowers the CHOICENAME's morale by one but increases the morale of everyone else in party by one.
+*)
+
+// EXAMPLE 1
+
+// Searches the road and cyoa-example namespace, compiles to cyoa-example
+
+
+road{
+
+// : ahole? 1 ;
+
+: morale-- STAT_MORALE swap .stat-- ;
+
+: ahole-do
+
+	// FYI cyoa-start will clear cyoa-chosen-charid
+	cyoa-start
+		"OH, MAN" cyoa-title!
+		($ me .name@ .. " IS AN AhOLE!" $) cyoa-text! cyoa-text-cr
+		me# cyoa-char-icon!
+
+		STAT_ATTITUDE me .stat++
+		me ' morale-- foreach-team-char-except
+;
+
+: ahole-don't
+	cyoa-start
+		"AW, MAN" cyoa-title!
+		($ me .name@ .. " IS NO AhOLE." $) cyoa-text!
+		me# cyoa-char-icon!
+		STAT_MORALE me .stat--
+;
+
+: aholeresult
+	cyoa-chosen-charid to me# // SELECT the chosen character for SHORTCUT words
+	me ahole?	if ahole-do else ahole-don't then
+;
+
+: ahole-add-char-choice
+	cyoa-add-char-choice
+	' aholeresult cyoa-choice-handler!
+;
+
+: choose-3randaholes
+	3 #team-stack-shuffled ' ahole-add-char-choice foreach ;
+
+: ahole
+	cyoa-start
+		"EXAMPLE 1" cyoa-title!
+		"Hey, who here is an ahole?" cyoa-text!
+		choose-3randaholes
+;
+
+// ' ahole 0 hotkey!
+
+}

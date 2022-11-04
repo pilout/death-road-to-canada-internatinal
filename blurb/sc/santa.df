@@ -1,0 +1,144 @@
+
+// Normal Santa deck
+
+: santa-hohoho
+	blurbslot 0= if // Conversation starter, then everyone in party responds
+		"HO HO HO! HO HO HO! HO HO HO!" blurbsay
+	else
+		50 %chance if
+			blurbslot 2 < if ($ "SHUT UP, " .. 1st-char .name@ .. "." $) blurbsay
+			STAT_MORALE me .stat--
+			then
+		else
+			STAT_MORALE me .stat++
+		then
+	then
+;
+
+: santa-merrychristmas // Random first person, random single responder, stuff happens.
+	blurbslot 0= if
+		"HO HO HO! MEEEEEERRY CHRISTMAS!" blurbsay
+	else
+		50 %chance if
+			blurbslot 2 < if ($ "CAN IT, " .. 1st-char .name@ .. "!" $) blurbsay
+			then
+		else
+			STAT_MORALE me .stat++
+		then
+	then
+;
+
+	: SANTA-oneline1 "MERRY CHRISTMAS TO ALL!" ;
+	: SANTA-oneline2 "LETS ALL GET MILK AND COOKIES AT THE NORTH POLE!" ;
+	: SANTA-oneline3 "HO HO HO!" ;
+	: SANTA-oneline4 "I HOPE EVERYONE'S BEEN GOOD THIS YEAR!" ;
+	: SANTA-oneline5 "NOW DASH AWAY! DASH AWAY! DASH AWAY ALL!" ;
+	: SANTA-oneline6 "ON, COMET! ON, CUPID! ON, DUNDER AND BLIXEM!" ;
+	: SANTA-oneline7 "HO HO HO! HO HO HO!" ;
+	: SANTA-oneline8 "HO, HO, HO!" ;
+	: SANTA-oneline9 "THIS IS THE BEST CHRISTMAS EVER!" ;
+	: SANTA-oneline10 "AND GOOD WILL TOWARDS MEN!" ;
+
+	deck-new
+		card: SANTA-oneline1
+		card: SANTA-oneline2
+		card: SANTA-oneline3
+		card: SANTA-oneline4
+		card: SANTA-oneline5
+		card: SANTA-oneline6
+		card: SANTA-oneline7
+		card: SANTA-oneline8
+		card: SANTA-oneline9
+		card: SANTA-oneline10
+	constant SANTA-ONELINERS
+	SANTA-ONELINERS var santa-oneliners
+	SANTA-ONELINERS shuffles to santa-oneliners
+
+: santa-oneliner
+	santa-oneliners depths 0= if SANTA-ONELINERS shuffles to santa-oneliners then
+	blurbslot 0= if
+		drawcard blurbsay
+	then
+;
+
+
+	deck-new
+		card: santa-hohoho
+		card: santa-merrychristmas
+	10 cards: santa-oneliner
+
+	constant BLURB-SANTA-DECK
+	BLURB-SANTA-DECK var blurb-santa-deck
+	BLURB-SANTA-DECK shuffles to blurb-santa-deck
+	
+// END Normal Santa Deck
+	
+// Sad Santa Deck
+
+: santa-whocares
+	blurbslot 0= if
+		"WHO EVEN CARES ABOUT CHRISTMAS ANYMORE? NOT ME..." blurbsay
+	else
+		blurbslot 2 < if 
+			rnd5050 if ($ "Santa, no! Don't give up!" $) blurbsay 
+			else
+				me .morale--
+			then
+		then
+	then
+;
+
+: santa-allover
+	blurbslot 0= if
+		"CHRISTMAS IS OVER FOREVER! I'M CANCELLING CHRISTMAS FOREVER!" blurbsay
+	else
+		50 %chance if
+			blurbslot 2 < if "NO!" blurbsay then
+		then
+			me .morale--
+	then
+;
+
+	: SANTA-oneline1-sad "SAD CHRISTMAS! SAD CHRISTMAS!" ;
+	: SANTA-oneline2-sad "RUDOLPH WAS EATEN AND I'LL NEVER MAKE IT BACK TO THE NORTH POLE!" ;
+	: SANTA-oneline3-sad "MERRY CHRISTMAS, MORE LIKE MERRY FISHMAS!" ;
+	: SANTA-oneline4-sad "THIS DOESN'T LOOK LIKE CHRISTMAS TO ME..." ;
+	: SANTA-oneline5-sad "ho ho ... ho ..." ;
+	: SANTA-oneline6-sad "THERE'S NO HOPE LEFT IN OLD SANTA!" ;
+	: SANTA-oneline7-sad "NO MORE COOKIES FOR SANTA, EVER AGAIN!" ;
+	: SANTA-oneline8-sad "THIS IS ALL BECAUSE TOO MANY PEOPLE WERE NAUGHTY LAST YEAR!" ;
+	: SANTA-oneline9-sad "NO ONE EVEN DECORATES THE TREE ANYMORE! WHO CARES?" ;
+	: SANTA-oneline10-sad "... ho ho ho ..." ;
+
+	deck-new
+		card: SANTA-oneline1-sad
+		card: SANTA-oneline2-sad
+		card: SANTA-oneline3-sad
+		card: SANTA-oneline4-sad
+		card: SANTA-oneline5-sad
+		card: SANTA-oneline6-sad
+		card: SANTA-oneline7-sad
+		card: SANTA-oneline8-sad
+		card: SANTA-oneline9-sad
+		card: SANTA-oneline10-sad
+	constant SANTA-ONELINERS-SAD
+	SANTA-ONELINERS-SAD var santa-oneliners-sad
+	SANTA-ONELINERS-SAD shuffles to santa-oneliners-sad
+
+: santa-oneliner-sad
+	santa-oneliners-sad depths 0= if SANTA-ONELINERS-SAD shuffles to santa-oneliners-sad then
+	blurbslot 0= if
+		drawcard blurbsay
+		me .morale--
+	then
+;
+
+
+	deck-new
+		card: santa-whocares
+		card: santa-allover
+	10 cards: santa-oneliner-sad
+
+	constant BLURB-SANTA-DECK-SAD
+	BLURB-SANTA-DECK-SAD var blurb-santa-deck-sad
+	BLURB-SANTA-DECK-SAD shuffles to blurb-santa-deck-sad

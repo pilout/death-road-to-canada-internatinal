@@ -1,0 +1,175 @@
+uses paul/region-layout.df
+uses paul/region-road-layout.df
+
+" 
+:map 1
+:tags finalcamp
+:scriptA regiondef{ traderinside }
+:scriptB kfridge -1 movey 
+:scriptC bed
+:scriptD only-chosen; sink -1 movey
+:scriptE diningset 
+:size 22 11 
+:off 10 1 
+:tiles 
+2222222222222222222222
+2333333333333333333332
+2111111C1CDDC1C1111112
+2111111111111111111112
+2111111111111111111112
+211A11111111111111A112
+2111111111E11111111112
+2111111111111111111112
+2222221111111111222222
+3333322222222222233333
+0000033333333333300000
+"
+value FINALCAMP
+FINALCAMP $parse-rooms
+
+locdef{
+
+location: finalcamp
+		max-rooms: 1
+		entry-tags: finalcamp
+		pre-script: set-theme-bookstore
+		script: set-theme-bookstore
+		post-script: 
+		
+		room-choice: finalcamp
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			filter-only
+
+}
+
+map{ regiondef{
+
+trade-camp-reset
+
+: bldg tanchor!
+	"finalcamp" $picklocid addloc prefab{ 2 14 1 shop } 
+;
+
+: final-camp-recruit
+	new-camper
+	lt .character@ args( ch )
+	' trader-event lt .events!
+	1 lt .timer!
+
+	lt-here
+
+	' camp-recruit-final lt .cyoa!
+;
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+
+' plotgrass >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char { = if xyp.x to bfx then;
+	xyp.i char } = if bfx xyp.y xyp.x barbfence then;
+	xyp.i char s = if xyp.x to snx xyp.y to sny then;
+	xyp.i char g = if ' plotgrass to ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char p = if ' plotpave to ft then;
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char d = if ' plotdirt to ft then;
+	xyp.i char x = if ' plotgravel to ft then;
+
+	xyp.i char $ = if xyp.xy grassedge then;
+
+	xyp.i char w = if wooded then;
+	xyp.i char V = if tradercarhere then;
+	xyp.i char t = if pictable1 lt-here 8 rdrift then;	
+	xyp.i char f = if campfirehere then;	
+	xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char T = if traderhere then;
+	xyp.i char S = if trader-food-for-gas then;
+	xyp.i char B = if trader-weapon-buyer then;
+	xyp.i char * = if ttenthere then;
+	xyp.i char % = if 12 for skel lt-here 48 rdrift next then;
+	xyp.i char D = if new-camper gun-weapon lt .character@ .weapona! then;
+	xyp.i char R = if final-camp-recruit then;
+	xyp.i char Z = if tnomey-spawn then;
+
+	xyp.i char [ = if dirtstart then;
+	xyp.i char ] = if gravelendw then;
+	xyp.i char ( = if dirtstart then;
+	xyp.i char ) = if dirtend then;
+	xyp.i char < = if grassstart2 then;
+	xyp.i char > = if grassend2 then;
+	xyp.i char = = if xyp.xy plotsolidroadlines then;
+;
+
+"G.............................
+..............................
+..w..w..w.............w..w.w..
+....*.........................
+.*(.........................w.
+.......*.................R....
+....f.........................
+.*....)..@...............t....
+..............................
+..........Z...................
+..............................
+..............................
+.......T..............T.......
+..............................
+.w.........D.......D........w.
+..w........................w..
+..............................
+..............................
+{............}...{...........}
+...V......S...........B.......
+.............................p
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+..............................
+..............................
+...........................%..
+==..==..==..==..==..==..==.D==
+...........................%..
+..............................
+..............................
+.............................."
+constant maplayout
+
+: plotmap
+	' plotgrass to ft
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	7 14 rnd o'clock
+
+	pavement
+	plotmap
+
+//	0 h 5 - w ' plotsolidroadlines hline // But can also just do it manually like above in the map for more control
+
+	30 %chance if 0 0.5 frnd weather! -1 2 frnd wind_force! else -1 1 frnd wind_force! then
+
+	mission{ no-edge-spawns }
+
+	// Put char and chars in middle of map
+	15 %mv-up
+	30 %chars-up
+;
+
+region: campsitefinal
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+	no-rest: 1
+
+	post-script: site-setup
+
+} }

@@ -1,0 +1,95 @@
+: grf-hatemondays
+	blurbslot 0= if
+		"I HATE MONDAYS" blurbsay
+		"BUT *muffled* HATE MYSELF" blurbsay
+	then
+;
+
+: grf-suitsmell
+	blurbslot 0= if
+		qmsg ($ me .name@ .. " emits a terrible smell." $) txt
+	else
+		blurbslot 2 < if
+			50 %chance if
+				($ "Wash your suit already!" $)
+			else
+				($ "Ugh! Why do I have to be next to you?" $) 
+			then
+			blurbsay STAT_MORALE me .stat--
+		then	
+	then
+;
+
+: grf-megasmell 
+	blurbslot 0= if
+		qmsg ($ me .name@ .. " emits an indescribable smell." $) txt
+	else
+		STAT_MORALE me .stat--
+	then
+;
+
+	: GRF-oneline1 "*muffled sounds through fursuit head*" ;
+	: GRF-oneline2 "*disturbing muffled guttural noises*" ;
+	: GRF-oneline3 "*muffled* HRRRRRRRRRRRNG" ;
+	: GRF-oneline4 "*muffled wounded groaning noises*" ;
+	: GRF-oneline5 "*muffled* ... LOVE LASAGA [sic] ..." ;
+	: GRF-oneline6 "I'M... UNHAPPY... JON" ;
+	: GRF-oneline7 "... I FREAKING HATE [word that sounds like MONDAYS?] ..." ;
+	: GRF-oneline8 "*muffled wheezing*" ;
+	: GRF-oneline9 "*unintelligible grunts through fursuit*" ;
+	: GRF-oneline10 "*strange muffled noises*" ;
+
+	deck-new
+		card: GRF-oneline1
+		card: GRF-oneline2
+		card: GRF-oneline3
+		card: GRF-oneline4
+		card: GRF-oneline5
+		card: GRF-oneline6
+		card: GRF-oneline7
+		card: GRF-oneline8
+		card: GRF-oneline9
+		card: GRF-oneline10
+	constant GRF-ONELINERS
+	GRF-ONELINERS var grf-oneliners
+	GRF-ONELINERS shuffles to grf-oneliners
+
+: grf-oneliner
+	grf-oneliners depths 0= if GRF-ONELINERS shuffles to grf-oneliners then
+	blurbslot 0= if
+		drawcard blurbsay
+	then
+;
+
+	: GRF-emote1 " picks out pieces of filth from the fursuit." ;
+	: GRF-emote2 " stares off into space." ;
+	: GRF-emote3 " starts sobbing." ;
+	: GRF-emote4 " strokes its fursuit." ;
+	
+	deck-new
+		card: GRF-emote1
+		card: GRF-emote2
+		card: GRF-emote3
+		card: GRF-emote4
+
+	constant GRF-EMOTES
+	GRF-EMOTES var GRF-emotes
+	GRF-EMOTES shuffles to GRF-emotes
+
+: GRF-emote
+	GRF-emotes depths 0= if GRF-EMOTES shuffles to GRF-emotes then
+	blurbslot 0= if
+		qmsg ($ me .name@ .. GRF-emotes drawcard $) txt
+	then
+;
+
+	deck-new
+	card: grf-hatemondays
+	card: grf-suitsmell
+	card: grf-megasmell
+	10 cards: grf-oneliner
+	4 cards: GRF-emote
+	
+	constant BLURB-GRF-DECK
+	BLURB-GRF-DECK var blurb-grf-deck
+	BLURB-GRF-DECK shuffles to blurb-grf-deck

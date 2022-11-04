@@ -1,0 +1,429 @@
+\ Basic useful stuff
+
+0 constant DEBUG
+1 quit_button_mode!
+
+: debug-tone DEBUG_BUILD if tone else 2drop then ;
+: dprintout "DBG: LINE " type print ;
+: DBGLINE DEBUG_BUILD if line# postpone literal postpone dprintout then ; immediate
+
+\ C-style line comment
+: // postpone \ ; immediate
+
+: bg_rgb! bg_b! bg_g!  bg_r! ;
+: bg_hi_rgb! bg_hi_b! bg_hi_g!  bg_hi_r! ;
+
+0 0.25 0.5 bg_rgb!
+0 0.5 0.25 bg_hi_rgb!
+
+// Compile to root namespace
+: root{ postpone { current.clear ; 
+
+// Namespace to hide stuff
+namespace internal
+
+\ block comment
+: (*  ( -- ) 
+	begin 
+		in? if token "*)" $= else -1 then
+	until
+; immediate
+
+: (') postpone ' ;
+
+\ checks if there is any input 
+\ : in? in.len in.off > if -1 else 0 then ;
+
+\ : words in? if words-like else words then ;
+
+: bit 1 swap << ;
+: flag bit ;
+: enum  ( n -- n+1 ) dup constant 1+ ;
+: enumflag  ( n -- 1 << n ) dup bit constant 1+ ;
+: endenum drop ;
+
+
+0	enum FS_NIL
+	enum FS_INT
+	enum FS_FLOAT
+	enum FS_STRING
+	enum FS_FUNC
+	enum FS_WORDREF
+	enum FS_TOKEN
+	enum FS_TABLE
+	enum FS_STACK
+	enum FS_REF
+	enum FS_USER
+constant FS_COUNT
+
+: wordref? >type FS_WORDREF = ;
+
+: $abort RED "ABORT: " $cat type type " -- " type (abort) ;
+
+: abort" ( "desc" -- )
+	char " parse compile?
+	if
+		postpone literal postpone $abort
+	else
+		$abort
+	then
+; immediate
+
+
+: unassigned_ abort" unassigned deferred word" ;
+: defer ['] unassigned_ constant does> @ execute ;
+: >defer defer last >body ! ;
+
+// : check-stack-empty depth if "Stack not empty: " type .s (abort) then ;
+: check-stack-empty depth if "Stack not empty: " type .s sfx{ fm 2 fx .pitch! } then ;
+
+defer start-the-game
+defer save-the-game
+defer delete-the-game
+
+: >bool 0= not ;
+
+: rndpicks depths 1 rnd picks ;
+
+: 2>int >int swap >int swap ;
+
+: tanchor anchor 16 / >int swap 16 / swap >int ;
+: tanchor! anchor! ;
+: tanchorx anchor drop 16 / >int ;
+: tanchory anchor nip 16 / >int ;
+: tanchorx! tanchory tanchor! ;
+: tanchory! tanchorx swap tanchor! ;
+
+: anchorx anchor drop ;
+: anchory anchor nip ;
+
+: tile>pos 16 * 8 + swap 16 * 8 + swap ;
+: pos>tile 16 / >int swap 16 / >int swap ;
+
+// Random choice functions
+// : %chance ( % -- 0 | -1 ) 0 1 frnd 100 * > ;
+: %chance ( % -- 0 | -1 ) 0 1 gfrnd 100 * > ;
+
+// : 0; "0= if exit then" evaluate ; immediate \ if 0, exit word
+
+: then; postpone exit postpone then ; immediate
+
+: ?; postpone if postpone then; ; immediate
+: 0?; postpone 0= postpone ?; ; immediate
+
+: ift swap if execute then; drop ;
+: ifte ( flag a b ) rot if drop execute then; nip execute ;
+
+: [.s] .s ; immediate
+
+// Switch/case
+: case 0 ; immediate
+
+: checkof dup 2 % 0= if "mismatched previous of" $abort then ;
+: checkendof dup 2 % if "mismatched previous endof" $abort then ;
+
+: of postpone over postpone = postpone if postpone drop 1+ checkof ; immediate
+: $of postpone over postpone $= postpone if postpone drop 1+ checkof ; immediate
+: endof
+	postpone else 1+ checkendof
+; immediate
+: otherwise postpone drop -1 ; immediate
+: endcase
+	dup 0 >= if postpone drop else drop then
+
+	2 / for postpone then next 
+; immediate
+
+(*
+	CASE/OF/ENDOF better alternative since there's no control-flow stack limit
+	<switchid> <caseid> ?( <match-logic> ); <- EARLY EXIT
+*)
+
+: ?( postpone over postpone = postpone if postpone drop ; immediate
+: ); postpone then; ; immediate
+
+// An alternate looping method
+
+: repeats ( count 'word repeats -- ) >r begin 1- dup 0 >= while r@ swap >r execute r> repeat r> 2drop ;
+: repeati ( -- repeats-counter ) 1 postpone literal postpone rpick ; immediate
+
+0 value lasttime
+: tstart madtime ;
+: tend madtime swap - dup to lasttime . cr ;
+
+: timestart madtime ;
+
+: $timeend
+	type madtime swap - " TOOK " type type " SECONDS" print
+;
+
+// Don't error out if it's empty
+: parse-line in? if parse-line else "" then ;
+: compfield parse-line compile? if postpone literal postpone literal postpone execute else swap execute then ;
+
+: empty depth remove ;
+: 2mult dup >r * swap r> * swap ;
+: 2over 3 pick 3 pick ;
+: 3dup 2 pick 2 pick 2 pick ;
+: 3drop drop drop drop ;
+: 3over 5 pick 5 pick 5 pick ;
+: 4dup 3 pick 3 pick 3 pick 3 pick ;
+: 4drop drop drop drop drop ;
+: 4over 7 pick 7 pick 7 pick 7 pick ;
+
+// Computer sciencey word
+: foreach ( stack word -- ) ( execute: value -- )
+	>r depths dup >r
+	for
+		1 rpick i - 1+ picks swap >r 3 rpick execute r>
+	next
+	r> drop r> drop
+;
+
+: <to >body ! ;
+
+// Math operations on values (compiling-only)
+: ++to (') postpone ++ ; immediate
+: --to (') postpone -- ; immediate
+: +to (') postpone +! ; immediate
+: -to (') postpone -! ; immediate
+: *to (') postpone *! ; immediate
+: /to (') postpone /! ; immediate
+
+
+: odd? 1 & ;
+: even? odd? not ;
+
+: neg 0 swap - ;
+: sign 0 >= if 1 then; -1 ;
+: 0sign dup 0= if then; 0 > if 1 then; -1 ;
+
+: ndup dup >r for 1 rpick 1- pick next r> drop ;
+: ndrop postpone remove ; immediate
+
+// Simple string construction syntax
+// eg. ($ "my string" .. my-var @ .. "another string" $)
+
+: ($ "$strchk$" ;
+: .. $cat ;
+: $) $cat
+	$$len 8 >= if 8 $split swap "$strchk$" $cmp	else -1 then
+	if abort" incomplete string formation" then
+;
+
+// In case you like this syntax better
+: $( postpone ($ ; immediate
+: )$ postpone $) ; immediate
+
+// Amend a word by including a call to a deferred word so that it can be extended.
+(* Example:
+	: new-word amend deferred-word
+		new code
+	; last to deferred-word
+*)
+: amend token dup find
+	if >body @ postpone literal postpone execute drop then;
+
+	"deferred word " swap .. " not found." .. $abort
+; immediate
+
+
+uses locals.df
+
+// Deck stuff
+
+: deck-new 0 stack ;
+: loopshove >r for 1 rpick shove next r> drop ;
+: card: compile? if postpone ' postpone shove else '_ shove then ; immediate
+: cards: compile? if postpone ' postpone loopshove else '_ loopshove then ; immediate
+: card-pair: compile? if postpone ' postpone shove postpone ' postpone shove else '_ shove '_ shove then ; immediate
+: <card shove ;
+: drawcard depths if pops nip execute else drop then ;
+
+: drawpair depths 2 / 1 over rnd 2 * 0 0 args( entries pick a b )
+	<- entries 0= if drop 0 0 then;
+	<- entries 1 > if
+		<- pick pulls pops -> a
+		<- pick 1- pulls pops -> b
+	else
+		pops -> b
+		pops -> a
+	then
+	drop
+	<- b <- a
+;
+
+: $reverse args( src ) "" <- src $len for <- src i 1- 1 $mid $cat next ;
+
+: $replace args( with ch src ) "" <- src $len
+	for <- src i 1- $asc dup <- ch = if drop
+		<- with $chr else $chr then swap $cat
+	next
+;
+
+// : $replace args( ch src ) "" <- src $len for <- src i 1- 1 $mid $cat next ;
+
+: "quoted ($ char " $chr .. swap .. char " $chr $) ;
+: 'quoted ($ char ' $chr .. swap .. char ' $chr $) ;
+
+-1 constant LEFT
+1 constant RIGHT
+-1 constant UP
+1 constant DOWN
+
+: to-me args( thing )
+	player .pos <- thing .pos!
+	player .mapid@ <- thing .mapid!
+;
+
+: to-it args( thing )
+	<- thing .pos player .pos!
+	<- thing .mapid@ player .mapid!
+	<- thing .mapid@ curmapview!
+;
+
+: noop ;
+: <noop ['] noop last >body ! ;
+
+: free-transient "TRANSIENT" $anew ;
+: $load-transient free-transient $load ;
+
+: to-road "GAME-MARKER" $anew ( rdump ) to-road ;
+
+: assert DEBUG if not if abort" ASSERTION FAILED" then else drop then ;
+
+// Core event handler
+namespace events
+
+// Aliases and shortcuts and stuff
+: vl vwords ;
+: wl words-like ;
+
+// Get character from THING
+: .character@ .charid@ #character ;
+: .character! swap character# swap .charid! ;
+// : pchar player .character@ ;
+: pchar team-leader #character ;
+
+: .isswap? .actioncmd@ CMD_FLAG_SWAP & ;
+: .isattack? .actioncmd@ CMD_FLAG_ATTACK & ;
+: .isuse? .actioncmd@ CMD_FLAG_USE & ;
+
+: rumble 0.9 rumble-camera ;
+: wipe 1 wipe! ;
+: wipeon 15 fade_to wipe ;
+: wipeoff -15 fade_to wipe ;
+
+: beep DEBUG_BUILD if beep then ;
+
+// COLOURS
+SKULL constant DEATH
+
+0x a constant LF
+0x d constant CR
+0x 9 constant TAB
+
+// Call a word for each character in a string
+: $process over $len args( str 'word len )
+	<- len for <- str <- len i - $asc <- 'word execute next 
+;
+
+: BAMP sfx{ pip  100 fx .d! 0.25 fx .pitch! 0 fx .duty! 0.5 fx .scale! } ;
+: .deny dup .report? not if ($ RED .. BLINKY .. 0x dc $chr $) swap .report then ( BAMP ) ;
+
+: PRINTSTACK DEBUG_BUILD if .s cr then ;
+
+: depths- depths nip ;
+: pops- pops nip ;
+
+: list-stack dup depths for pops . next drop ;
+: <push swap pushs ;
+: <shove swap shove ;
+: , shove ;
+
+: starbar args( amt max ) "" 
+	<- amt for 0x 1c $chr $cat next
+	<- max <- amt - for 0x b4 $chr $cat next
+;
+
+(* TODO:
+	- TODO: word that stores all TODO text with file/line so you can list TODO's
+*)
+
+// SMILEY TEXT
+: DX WHITE 0x e0 $chr .. ;
+: D: WHITE 0x e1 $chr .. ;
+: :( WHITE 0x e2 $chr .. ;
+: :| WHITE 0x e3 $chr .. ;
+: :) WHITE 0x e4 $chr .. ;
+: :D WHITE 0x e5 $chr .. ;
+: =D WHITE 0x e6 $chr .. ;
+: ;) WHITE 0x 3 $chr .. ;
+: skullface 0x e7 $chr ;
+: trollface WHITE 0x ef $chr .. ;
+: ammoicon WHITE 0x b7 $chr .. ;
+: gasicon WHITE 0x b9 $chr .. ;
+: foodicon WHITE 0x ba $chr .. ;
+: medicon WHITE 0x bb $chr .. ;
+// : smile 0 6 clamp 0x e0 + WHITE swap $chr .. ;
+
+// Colour combos
+: PINK PURPLE BRIGHTER .. ;
+
+: rgb* args( r g b v )
+	<- v <- r * 0 1 clamp
+	<- v <- g * 0 1 clamp
+	<- v <- b * 0 1 clamp
+;
+
+: rgb+ args( r g b v )
+	<- v <- r + 0 1 clamp
+	<- v <- g + 0 1 clamp
+	<- v <- b + 0 1 clamp
+;
+
+// Convert HEX colour to RGB
+: #rgb 3 for dup 255 & 255 / swap 8 >> next drop swap rot ;
+
+: msgticktop view_w 0.5 * 16 msgtickxy ;
+: msgticktoptype view_w 0.5 * 16 msgtickxy2 ;
+: topmsg 60 view_w 0.5 * 16 msgtickxy ;
+
+: .clr! args( r g b thing )
+	<- r <- thing .clr.r!
+	<- g <- thing .clr.g!
+	<- b <- thing .clr.b!
+;
+
+: .clr@ args( thing )
+	<- thing .clr.r@
+	<- thing .clr.g@
+	<- thing .clr.b@
+;
+
+: waterclr water_colour_r@ water_colour_g@ water_colour_b@ ;
+
+"" constant TEST-PREFIX
+"" constant BRANCHNAME
+
+: savename-prefix TEST_BRANCH DEBUG_BUILD or if
+	TEST-PREFIX $len if TEST-PREFIX "_" .. else "" then BRANCHNAME .. "_" .. then; ""
+;
+
+0	enum BTN_ID_USE
+	enum BTN_ID_SWAP
+	enum BTN_ID_ATTACK
+drop
+
+: console_clr! console_clr_b! console_clr_g! console_clr_r! ;
+
+: ? 0= not ;
+
+: bin$ args( val )
+	"" 32 for
+		1 i 1- << <- val & if "1" else "0" then ..
+		i 1- 7 & 0= if " " .. then
+	next
+;
+
+: .bin bin$ print ;

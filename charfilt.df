@@ -1,0 +1,442 @@
+
+: foreach-char >r 1 #character >r
+	begin r@ while
+	r@ rover execute
+	r> character# 1+ #character >r repeat
+	r> drop r> drop
+;
+
+: #teamchar #teamcharid #character ;
+: .dead? .health@ 1 < ;
+// See if two characters are the same
+: character= character# swap character# = ;
+
+: mission-team-stack team-count dup stack swap
+	for i 1- #teamchar dup .location@ LOCATION_MISSION =
+		if dup .dead? not if pushs else drop then
+		else drop then
+	next
+;
+
+: party-team-stack team-count dup stack swap
+	for i 1- #teamchar dup .party@ if pushs else drop then next
+;
+
+: team-stack-living team-count dup stack swap for
+	i 1- #teamchar dup .dead? not if pushs else drop then
+	next
+;
+
+: team-stack team-count dup stack swap for i 1- #teamchar pushs next ;
+
+: team-stack-except ( character -- stack )
+	team-count dup stack swap
+	for
+		over i 1- #teamchar character= not
+		if
+			i 1- #teamchar pushs
+		then
+	next nip
+;
+
+: #team-stack-shuffled team-stack shuffles swap resizes ;
+: #team-stack-shuffled-except ( character number -- )
+	swap team-stack-except shuffles swap resizes 
+;
+
+: foreach-team-char ( ' word -- ) team-stack swap popeach ;
+: foreach-team-char-except ( character ' word -- )
+	swap team-stack-except swap popeach ;
+
+: foreach-team-char-shuffled ( ' word -- ) team-stack shuffles swap popeach ;
+: foreach-mission-char-shuffled ( ' word -- ) mission-team-stack shuffles swap popeach ;
+
+
+0 value pickchar
+0 value checkchar
+0 value checkword
+
+internal{
+: cmp2chars
+	to checkchar checkword execute
+	if checkchar to pickchar then
+;
+
+}
+
+: teamrnd team-count 0= if 0 then; 0 team-count 1- grnd ;
+: someone teamrnd #teamchar ;
+
+: pick-team-char ( word -- matched-char ) ( word: [use checkchar and pickchar for comparisons] -- true/false to use test char )
+	to checkword
+	someone to pickchar
+	internal{ ' cmp2chars } foreach-team-char-shuffled
+	pickchar
+;
+
+: pick-mission-char ( word -- matched-char ) ( word: [use checkchar and pickchar for comparisons] -- true/false to use test char )
+	to checkword
+	someone to pickchar
+	internal{ ' cmp2chars } foreach-mission-char-shuffled
+	pickchar
+;
+
+: invstat CHAR_STAT_MAX swap - ;
+
+: high 4 > ;
+: low 2 < ;
+
+// =================
+// Effective stats
+// =================
+
+: sweffstat swap .effstat ;
+: .morale STAT_MORALE 			sweffstat ;
+: .attitude STAT_ATTITUDE 		sweffstat ; // attitude through wits mostly aren't used
+: .composure STAT_COMPOSURE 	sweffstat ; // but just in case
+: .loyalty STAT_LOYALTY 		sweffstat ;
+: .wits STAT_WITS 				sweffstat ;
+: .strength STAT_STRENGTH 		sweffstat ;
+: .medical STAT_MEDICAL 		sweffstat ;
+: .mechanical STAT_MECHANICAL	sweffstat ;
+: .shooting STAT_SHOOTING 		sweffstat ;
+: .fitness STAT_FITNESS 		sweffstat ;
+
+// =====================================
+// COMBINED CHECKS (uses multiple stats)
+// =====================================
+
+// words to check if stats are revealed or not
+// We got rid of this entire concept, just here for posterity
+
+: angrystrong-revealed? 
+	STAT_COMPOSURE over .knownstat@ not if drop false exit then
+	STAT_STRENGTH swap .knownstat@ not if drop false exit then
+	true
+;
+
+// words for inverting a stat, for checks where low = good
+
+: .pessimism .attitude@ invstat ;
+: .lowwits .wits@ invstat ;
+: .disloyalty .loyalty@ invstat ;
+: .anger .composure@ invstat ;
+
+// words used to check if someone passes a combined check
+
+: paranoid?	dup .attitude@ low swap .wits@ high and ;
+: oblivious? dup .attitude@ high swap .wits@ low and ;
+: charming? dup .attitude@ high swap .wits@ high and ;
+: grating? dup .attitude@ low swap .wits@ low and ;
+
+// Change this to sociopath? later, more descriptive
+: ahole? dup .composure@ low swap .loyalty@ low and ;
+: angrystrong? dup .composure@ low swap .strength high and ;
+
+
+// Probably not using the below four
+: angry? dup .attitude@ low swap .composure@ low and ;
+: pumped? dup .attitude@ high swap .composure@ low and ;
+: cowardly? dup .attitude@ high swap .composure@ high and ;
+: whiny? dup .attitude@ low swap .composure@ high and ;
+
+// words used to see who is the highest in a combined check
+
+: paranoidf
+	dup paranoid? 0= if drop false exit then
+	dup .wits@ swap .pessimism +
+;
+
+: charmingf
+	dup charming? 0= if drop false exit then
+	dup .wits@ swap .attitude@ +
+;
+
+: gratingf
+	dup grating? 0= if drop false then;
+	dup .pessimism swap .lowwits +
+;
+
+: obliviousf
+	dup oblivious? 0= if drop false then;
+	dup .attitude@ swap .lowwits +
+;
+
+: aholef
+	dup ahole? 0= if drop false then;
+	dup .anger swap .disloyalty +
+;
+: angrystrongf
+	dup angrystrong? 0= if drop false then;
+	dup .strength swap .anger +
+;
+
+(* TODO:
+	- sensitive
+	- weak
+	- strong
+*)
+
+// words to compare your teammates for a check
+
+: paranoidcheck checkchar paranoidf pickchar paranoidf > ;
+: charmcheck checkchar charmingf pickchar charmingf > ;
+: gratingcheck checkchar gratingf pickchar gratingf > ;
+: obliviouscheck checkchar obliviousf pickchar obliviousf > ;
+: aholecheck checkchar aholef pickchar aholef > ;
+: ascheck checkchar angrystrongf pickchar angrystrongf > ;
+
+// words used to start a check
+
+: most-paranoid ' paranoidcheck pick-team-char ( -- false | chara true ) // variable results!
+	paranoid? 0= if false then;
+	pickchar true
+;
+: most-charming ' charmcheck pick-team-char ( -- false | chara true )
+	charming? 0= if false then;
+	pickchar true
+;
+: most-grating ' gratingcheck pick-team-char ( -- false | chara true )
+	grating? 0= if false then;
+	pickchar true
+;
+: most-oblivious ' obliviouscheck pick-team-char ( -- false | chara true )
+	oblivious? 0= if false then;
+	pickchar true
+;
+
+: most-ahole ' aholecheck pick-team-char ( -- false | chara true )
+	ahole? 0= if false then;
+	pickchar true
+;
+
+: most-angrystrong ' ascheck pick-team-char ( -- false | chara true )
+	angrystrong? 0= if false then;
+	pickchar true
+;
+
+: calmshot? dup .composure@ high swap .shooting high and ;
+
+: calmshotf
+	dup calmshot? 0= if drop false then;
+	dup .shooting swap .composure@ +
+;
+
+: cscheck checkchar calmshotf pickchar calmshotf > ;
+
+: most-calmshot ' cscheck pick-team-char ( -- false | chara true )
+	calmshot? 0= if false then;
+	pickchar true
+;
+
+// =============================
+// SIMPLE CHECKS (uses one stat)
+// =============================
+
+: sadcheck checkchar .morale pickchar .morale < if 1 else 0 then ;
+: happycheck checkchar .morale pickchar .morale > if 1 else 0 then ;
+
+: strongcheck checkchar .strength pickchar .strength > if 1 else 0 then ;
+: weakcheck checkchar .strength pickchar .strength < if 1 else 0 then ;
+
+: fitcheck checkchar .fitness pickchar .fitness > if 1 else 0 then ;
+: unfitcheck checkchar .fitness pickchar .fitness < if 1 else 0 then ;
+
+: medicalcheck checkchar .medical pickchar .medical > ;
+: mechaniccheck checkchar .mechanical pickchar .mechanical > ;
+: shootcheck checkchar .shooting pickchar .shooting > if 1 else 0 then ;
+
+: witscheck checkchar .wits pickchar .wits > if 1 else 0 then ;
+: dumbcheck checkchar .wits pickchar .wits < if 1 else 0 then ;
+
+: tempercheck checkchar .composure pickchar .composure < if 1 else 0 then ;
+: calmcheck checkchar .composure pickchar .composure > if 1 else 0 then ;
+
+: weaselcheck checkchar .loyalty pickchar .loyalty < if 1 else 0 then ;
+: loyalcheck checkchar .loyalty pickchar .loyalty > if 1 else 0 then ;
+
+: goofuscheck checkchar .attitude pickchar .attitude < if 1 else 0 then ;
+: gallantcheck checkchar .attitude pickchar .attitude > if 1 else 0 then ;
+
+// Words for finding the person with the most/least stats in a group
+
+: smartest ' witscheck pick-team-char ;
+: dumbest ' dumbcheck pick-team-char ;
+
+: angriest ' tempercheck pick-team-char ;
+: calmest ' calmcheck pick-team-char ;
+
+: saddest ' sadcheck pick-team-char ;
+: happiest ' happycheck pick-team-char ;
+
+: weaselest ' weaselcheck pick-team-char ;
+: loyalest ' loyalcheck pick-team-char ;
+
+: goofus ' goofuscheck pick-team-char ;
+: gallant ' gallantcheck pick-team-char ;
+
+// skills
+
+: strongest ' strongcheck pick-team-char ;
+: weakest ' weakcheck pick-team-char ;
+
+: fittest ' fitcheck pick-team-char ;
+: unfittest ' unfitcheck pick-team-char ;
+
+: medicalest ' medicalcheck pick-team-char ;
+: mechanicest ' mechaniccheck pick-team-char ;
+: shootest ' shootcheck pick-team-char ;
+
+// Convenience words for making checks for 4 > or 2 < after finding
+
+: strongest-pass strongest .strength high ;
+: weakest-pass weakest .strength low ;
+
+: mechanicest-pass mechanicest .mechanical high ;
+: shootest-pass shootest .shooting high ;
+: medicalest-pass medicalest .medical high ;
+
+: fittest-pass fittest .fitness high ;
+: unfittest-pass unfittest .fitness low ;
+
+: angriest-pass angriest .composure low ;
+: calmest-pass calmest .composure high ;
+
+// STAT_MORALE saddest .effstat low - dependencies are really entangled
+: saddest-pass saddest .morale low ;
+: happiest-pass happiest .morale high ;
+
+: weaselest-pass weaselest .loyalty low ;
+: loyalest-pass loyalest .loyalty high ;
+
+: goofus-pass goofus .attitude low ;
+: gallant-pass gallant .attitude high ;
+
+: smartest-pass smartest .wits high ;
+: dumbest-pass dumbest .wits low ;
+
+// checking and picking out a specific special character
+// Below: word for picking any specialtype for this
+
+0 value pickstnumber
+
+: checkst? .specialtype@ pickstnumber = ;
+
+: stpick ( specialtypeid -- char -1 | 0 )
+	to pickstnumber
+	team-stack ' checkst? stack-filter
+	if pops nip true else drop false then
+;
+
+: stpick-mission ( specialtypeid -- char -1 | 0 )
+	to pickstnumber
+	mission-team-stack ' checkst? stack-filter
+	if pops nip true else drop false then
+;
+
+// ==========================
+// CONVENIENCE WORDS
+// ==========================
+
+: solo team-count-alive 2 < ;
+: notsolo team-count-alive 1 > ;
+: soloer 0 #teamchar ;
+
+// ======================
+// SUM CHECKS
+// =======================
+
+: sum-composures ( sum char -- sum ) .composure + ;
+
+: cool-average 0 ' sum-composures foreach-team-char
+	dup team-count / swap
+	"TOTAL COMPOSURE " type type " average " type dup type cr ;
+	
+: sum-strengths ( sum char -- sum ) .strength + ;
+: sum-fitness .fitness + ;
+: sum-shoots ( sum char -- sum ) .shooting + ;
+: sum-medical .medical + ;
+: sum-mechanic .mechanical + ;
+: sum-wits .wits + ;
+: sum-attitude .attitude + ; 
+: sum-morale .morale + ;
+: sum-loyalty .loyalty + ;
+
+: fitness-total 0 ' sum-fitness foreach-team-char ;
+// rest moved to doglogic
+: wits-total 0 ' sum-wits foreach-team-char ;
+: gallant-total 0 ' sum-attitude foreach-team-char ;
+: calm-total 0 ' sum-composures foreach-team-char ;
+: morale-total 0 ' sum-morale foreach-team-char ;
+: loyalty-total 0 ' sum-loyalty foreach-team-char ;
+
+: loyalty-average loyalty-total team-count / ;
+: fitness-average fitness-total team-count / ;
+// rest moved to doglogic
+: wits-average wits-total team-count / ;
+: gallant-average gallant-total team-count / ;
+: calm-average calm-total team-count / ;
+: morale-average morale-total team-count / ;
+
+// ======================
+// COOL IT
+// ======================
+
+0 value cool-it
+: cool-it++
+//	1 ' cool-it +!
+//	' cool-it ++
+	2 3 rnd ' cool-it +!
+;
+: cool-it-7
+	cool-it 5 >
+	// Changed from 1 2 rnd and 3 > ... now it's always on either 3rd or 4th use
+;
+
+defer cooling-it-cheevo
+
+// BORT logic
+
+: .superbortify args( chara )
+	"J*L*B" <- chara .name!
+	"JUST LIKE" <- chara .trait!
+	94 <- chara .specialtype!
+	4 <- chara .strength!
+	4 <- chara .fitness!
+	2 STAT_STRENGTH <- chara .bonus!
+	2 STAT_FITNESS <- chara .bonus!
+	6 <- chara .loyalty!
+	"BART" <- chara .perk!
+	"looks just like Bart! Tip to toe, this is a Bart!" <- chara .job!
+;
+
+: isbort? .trait@ "BORT" $= ;
+: numbortfilt args( chara ) <- chara isbort? ;
+: numborts team-stack ' numbortfilt stack-filter nip ;
+: bortupgrade args( chara )
+	<- chara isbort? if
+		<- chara .superbortify
+	then
+;
+
+: cooled-it
+	0 to cool-it
+	cooling-it-cheevo
+	numborts 0 > if
+		' bortupgrade foreach-team-char
+	then
+;
+
+// ==============
+// EXAMPLES BELOW
+// ==============
+
+: charname .name@ type ;
+
+// Test to find the biggest ahole
+: asstest ' aholecheck pick-team-char
+	ahole? 0= if "NO aholeS" print then;
+	pickchar charname " IS THE BIGGEST ahole." print
+	($ "COMPOSURE: " .. pickchar .composure@ $) print
+	($ "LOYALTY: " .. pickchar .loyalty@ $) print
+;

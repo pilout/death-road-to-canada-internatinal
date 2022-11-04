@@ -1,0 +1,85 @@
+cyoa{ road{ 
+
+(*
+------------------------------------------------------------------------------------------------------------------------
+	015 - "Three Graves" - Don Thacker
+	The group passes through an abandoned graveyard emptied but for three undesturbed graves. 
+	There's only time enough to search one.
+------------------------------------------------------------------------------------------------------------------------
+*)
+
+	cyoa-choice: don-common-graves-digup1
+		image-three-graves
+		($ Thegroup .. " finds a collection of love letters from a soldier to his pining sweetheart. They are really touching!" $)  cyoa-text!
+		($ "There's also a box full of canned herring and a box of stale candies wrapped in a golden bow." $) +crtext
+			10 trunk-food+ goodfx
+			morale2+all
+	;
+	
+	cyoa-choice: don-common-graves-digup2
+		someone choosechar
+		image-three-graves
+		($ Thegroup .. " digs and digs and finds nothing of interest at all. What a waste of time." $) cyoa-text!
+		solo if
+		($ "However, " .. cname .. " finds a big pack full of " .. "medical supplies" pbold .. " in a nearby outbuilding!" $) +crtext
+			9 trunk-medical+ goodfx
+		else
+		($ "While everyone else was digging, " .. cname .. " found a gas can under some leaves, next to a " .. "pile of skulls" rbold .. "." $) +crtext
+			50 70 rnd trunk-gas+ goodfx
+		then
+		morale++all
+	;
+	
+	cyoa-choice: don-common-graves-digup3
+		image-three-graves
+		($ Thegroup .. " digs up an oaken coffin with rivet brass handles and a plaque with the sentiment " $) cyoa-text!	
+		($ "THERE'S NO FATE BUT WHAT YOU MAKE " rbold $) +text
+		($ "engraved into it. The coffin is heavy but opens easily. 
+		It's filled with " .. "GUNS" pbold .. ". A ton of " .. "GUNS" pbold .. "." $) +text goodfx
+		80 %chance if 
+			3 WEAPON_PISTOL trunk.weapon+
+			($ "GOT 3 PISTOLS, " rbold $) +crtext
+		else
+			2 WEAPON_DOLT trunk.weapon+
+			($ "GOT 2 REVOLVERS, " rbold $) +crtext
+		then
+		80 %chance if
+			2 WEAPON_SHOTGUN trunk.weapon+
+			($ "2 SHOTGUNS" rbold $) +text
+		else
+			1 WEAPON_AUTOSHOT trunk.weapon+
+			($ "AN AUTOSHOTGUN" fbold $) +text
+		then
+		($ ", " rbold $) +text
+		80 %chance if
+			2 WEAPON_HUNTING trunk.weapon+
+			($ "AND 2 HUNTING RIFLES!" rbold $) +text
+		else
+			80 %chance if
+				1 WEAPON_AK47 trunk.weapon+
+				($ "AND AN ASSAULT RIFLE!" fbold $) +text
+			else
+				1 WEAPON_MINIGUN trunk.weapon+
+				($ "AND A MINIGUN!!!" fbold $) +text
+			then
+		then		
+	;
+				
+	cyoa-choice: don-common-graves-screwthat
+		image-three-graves
+		($ Thegroup .. " decides that maybe digging up graves during the " .. "zombie apocalypse" rbold .. " isn't the brightest idea and chooses instead to " ..  "GET A MOVE ON" pbold .. "." $) cyoa-text!
+	;
+
+	cyoa: don-common-graves
+		image-three-graves
+		"Three Graves" cyoa-title! 
+		($ Thegroup .. " passes through a graveyard. Nearly every grave has been dug up, most from the inside out. " $) cyoa-text! basic-tone
+	 	($ "There are three graves, in a row, undisturbed with the names " .. "--GRID" pbold .. ", " .. "NICHOLAS" pbold .. " and " .. "LUI--" pbold .. ". " $) +crtext
+	 	// ($ Thegroup .. " only has time to dig up one grave." $) +text
+
+		choice( "Dig up --GRID" )choice: don-common-graves-digup1
+		choice( "Dig up NICHOLAS" )choice: don-common-graves-digup2
+		choice( "Dig up LUI--" )choice: don-common-graves-digup3
+		choice( "Leave them be!" )choice: don-common-graves-screwthat
+	;
+} }

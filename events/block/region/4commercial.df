@@ -1,0 +1,132 @@
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+load? events/block/sharedcitylayout.df
+load? events/city/city-locations.df
+"events/inner/shoploc.df" $load	
+
+map{ regiondef{
+
+	
+	0 var trash-options
+		0 stack
+			' make-a-umbrella shove
+			' make-a-office shove
+			' make-a-bookshop shove
+			' make-a-pub shove
+			' make-a-gym shove
+			' make-a-arcade shove
+			' make-a-restaurant shove
+			' make-a-coffee shove
+			' make-a-police shove
+			' make-a-clinic shove
+		constant TRASH-OPTIONS
+		TRASH-OPTIONS shuffles to trash-options
+		
+	: trash-shop-options trash-options pops nip execute	;
+
+	: pick-building
+
+		' curbuild ++
+
+		rowsleft 2 <= 100 %chance and if 0 else auto-picklocid then
+		
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+			"trashed" $picklocid addloc	trash-shop-options
+			75 %chance if block-last-build-door then
+		then
+	;
+
+	: pick-lots
+		blocks-init
+			6 to blockh
+			3 to maxrows
+			5 to streeth
+			0.35 to greenspace
+			1 3 rnd to grassylots
+		blocks-start
+
+		pavement
+
+		begin canplot? while
+
+			pick-building next-plot
+
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat
+
+		street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		5diff %zombs pavement pick-lots
+	;
+	
+} }
+
+regiondef{
+
+	: runme
+		building-pick-setup
+	;
+
+	 region: block-test
+		w: 35
+		h: 35
+		script: timeofday o'clock
+
+		loc-choice: gunshop
+			loc-weight: 20
+			loc-count: 1
+
+			loc-pick-script: make-a-gunshop
+			
+		loc-choice: hardware
+			loc-weight: 10
+			loc-count: 1		
+			
+			loc-pick-script: make-a-hardware
+			
+		loc-choice: foodshop
+			loc-weight: 50
+			loc-count: 1		
+			
+			loc-pick-script: make-a-foodshop
+			
+		loc-choice: drugshop
+			loc-weight: 10
+			loc-count: 1		
+			
+			loc-pick-script: make-a-drugshop
+			
+		loc-choice: sportingshop
+			loc-weight: 5
+			loc-count: 1		
+			
+			loc-pick-script: make-a-sportshop
+			
+		loc-choice: campingshop
+			loc-weight: 10
+			loc-count: 1		
+			
+			loc-pick-script: make-a-camping
+			
+		loc-choice: jockshop
+			loc-weight: 10
+			loc-count: 1		
+			
+			loc-pick-script: make-a-jockshop
+			
+		loc-choice: furnstore
+			loc-weight: 5
+			loc-count: 1		
+			
+			loc-pick-script: make-a-furnshop
+
+		post-script: runme
+}

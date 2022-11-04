@@ -1,0 +1,485 @@
+
+mission{
+
+// : random-death-phrase
+
+// pick from list
+0 stack
+	"BARF!" shove
+	"OH, DANG" shove
+	"DANG IT!" shove
+	"C... CANADA" shove
+	"noooooo" shove
+	"oh poop" shove
+	"uh wait... aaaaa" shove
+	"dangummit" shove
+	"argh" shove
+	"woops" shove
+	"I regret nothing!" shove
+	"I regret everything!" shove
+	"Tell Tim Horton I..." shove
+	"aaaaaaaaa!" shove
+	"This is everyone's fault but me!" shove
+	"Real mature, zombies! REAL mature!" shove
+	"aaaaa!" shove
+	"heeeelp!" shove
+	"Catch you on the flip side" shove
+	"This dude is biting me!" shove
+	"Argh!" shove
+	"Well... could be worse" shove
+	"I knew this would happen!" shove
+	"Oh uh... woops!" shove
+	"Ow! Ow!!" shove
+	"Hey... cut it out" shove
+	"I hope I don't turn into a skeleton" shove
+	"Please don't throw my skeleton around" shove
+	"If only I threw more chairs..." shove
+	"consarnit" shove
+	"dagnabbit" shove
+	"Fine! This is fine!" shove
+	"Aaaaargh!" shove
+	"Whatever!" shove
+	"Who needs Canada, anyway?" shove
+	"No!" shove
+	"Caaaaaaaaaaaaaaaaarl!" shove
+	"Ouch!" shove
+	"Wait, I think I dropped my gum!" shove
+	"Time out! Time out!" shove
+	"Wait, that one didn't count!" shove
+	"Wait! I get a do-over!" shove
+	"This is all YOUR fault!" shove
+	"Uh... I meant to do that!" shove
+	"This is aaaaall part of the plan, heh" shove
+	"Tell everyone my last words were cool!" shove
+	"Cheaters! You zombies cheated!" shove
+	"Save me, Rosdower!" shove
+	"saaave meeeeeee" shove
+	"Uhhh... little help?" shove
+	"halp" shove
+	"heeelp meeeee" shove
+	"Don't worry, I have a plan!" shove
+	"Ow ow ow ow ow" shove
+	"No one touch any of my stuff!" shove
+	"Bury me... with my food cans!" shove
+	"Bury me with my beloved car keys!" shove
+	"Bury me with a sweet headstone!" shove
+	"Oh well! Better luck next time." shove
+	"That was close! Oh wait, ow!" shove
+	"I got a problem, here." shove
+	"That stings!" shove
+	"Ha! That tickles!" shove
+	"Bring it on!!!" shove
+	"WOOOooooooouch!" shove
+	"No problem! I got this!" shove
+	"Argh! Run for it!" shove
+	"This was a bad idea!" shove
+	"Wait! I got something in my eye!" shove
+	"I'm fine. I'll walk it off!" shove
+	"Just got the wind knocked outta me." shove
+	"Heh, this is nothing! I've had worse!" shove
+	"I can still do this! One second!" shove
+	"What-ever!" shove
+	"*rolling eyes at zombies in disgust*" shove
+	"Excuse me... stop eating me please" shove
+	"Hey! Bad zombie! Bad!" shove
+	"Slow zombies aren't supposed to be dangerous!" shove
+	"eeeeep" shove
+	"shrieeeeeeek" shove
+	"*g...gulp*" shove
+	"I'm in for it now!" shove
+	"I've had it now!" shove
+	"This is it for me!" shove
+	"No fair!" shove
+	"No way!" shove
+	"Either these zombies go... or I do!" shove
+	"gurk" shove
+	"owowowowow" shove
+	"ugh!" shove
+	"OOF!" shove
+	"For cripes sake..." shove
+	"Ow my spleen" shove
+	"I hope that's just ketchup" shove
+	"Well I'll be a monkey's uncle. I'm dead!" shove
+	"KAKAROOOOT!!" shove
+	"Zombie spit, gross" shove
+	"No matter what... you gotta strut" shove
+	"I've had worse..." shove
+	"ZOINKS!" shove
+	"KHAAAAAAAN!!" shove
+	"Canada, more like Can'tada" shove
+var death-saying-stack
+
+// shuffles pops nip
+// ;
+
+0 stack
+	"These zombies are sassing me back" shove
+	"Getting a little personal." shove
+	"There's no hope!" shove
+	"*YAWN*" shove
+	"I got bit, it's not a big deal!" shove
+	"Cut it out, you nerd!" shove
+	"No probs" shove
+	"What a tiny little bite" shove
+	"2 legit 2 quit" shove
+	"I'm too PUMPED to die!" shove
+	"Stop touchings me!" shove
+	"That's my purse, I don't know you" shove
+	"What - ever!" shove
+	"SHIELD...OF...HOPE" shove
+	"Shield... of.... HOPE" shove
+	"I can still make it! To Canada!" shove
+	"I can still run... there's still hope!" shove
+	"Still standing!" shove
+	"Ow ow ow ow" shove
+	"No problem, no problem" shove
+	"I'm ok... I wasn't bit!" shove
+	"I can walk this off!" shove
+	"I'm still feeling pretty optimistic, I think!" shove
+	"SHIELD OF HOPE!" shove
+	"SHIIIIEEEEELLLD OF HOOOOOOOPE!" shove
+var shieldofhope-saying-stack
+
+: random-death-phrase death-saying-stack rndpicks nip ;
+: shieldofhope-phrase shieldofhope-saying-stack rndpicks nip ;
+
+: .shieldofhope-saying args( thing ) shieldofhope-phrase <- thing statmod{ .yellmsglong } ;
+: .death-saying args( thing ) random-death-phrase <- thing statmod{ .yellmsglong } ;
+: thingyell .thing@ statmod{ .yellmsglong } ;
+
+: death-handler args( chara )
+	<- chara .char-droploot
+	deadtally
+	
+	<- chara dog? if
+		70 %chance if
+			"whiiiiiiiine" <- chara thingyell
+		else
+			"ARRROOOOOO!" <- chara thingyell
+		then
+	then;
+
+	<- chara goat? if
+		1 %chance if
+			"this was NOT a goat simulator reference" fbold <- chara thingyell
+		else
+			"BAAAAAAAAAAA!" fbold <- chara thingyell
+		then
+	then;
+	
+	<- chara pig? if
+		1 %chance if
+			"SOME PIG" fbold <- chara thingyell
+		else
+			"SQUEEEEEL!" rbold <- chara thingyell
+		then
+	then;	
+	
+	<- chara cat? if
+		1 %chance if
+			"i hate mondays" fbold <- chara thingyell
+		else
+			"HISSSSSSSSSSSSS!" fbold <- chara thingyell
+		then
+	then;
+	
+	<- chara ispet? if
+		"BLORFFF!" <- chara thingyell
+	then;
+
+	// TODO: Enumerate special characters instead of using magic numbers
+
+	<- chara .specialtype@ 76 = if RED "*GNOOOOORT*" .. <- chara thingyell then;
+	<- chara .specialtype@ 77 = if RED "nuuuuuuurp!" .. <- chara thingyell then;
+	
+	<- chara .perk@ "BART" $= if RED "DON'T HAVE.... COW" .. <- chara thingyell then;
+	
+	<- chara .specialtype@ 79 = if RED "COLD.... STEEEEEEEL" .. <- chara thingyell then;
+	<- chara .specialtype@ 93 = if RED "............." .. <- chara thingyell then;
+	<- chara .specialtype@ 95 = if RED "YOU ARE DEAD... no wait I am dead" .. <- chara thingyell then;
+	<- chara .specialtype@ 97 = if RED "SEE YOU LATER BUB" .. <- chara thingyell then;
+	<- chara .perk@ "Skeleton Queen" $= if "Finally, I get to be 100% skeleton!" <- chara thingyell then;
+	<- chara .specialtype@ 104 = if RED "THANKS A LOT... OBAMA... CAAAAAAAAAW" .. <- chara thingyell then;
+
+	<- chara .specialtype@ 106 = if RED "BURY ME... WITH MY LOG" .. <- chara thingyell then;
+	<- chara .specialtype@ 108 = if RED "YAAAAARRRRRggghhhhh!" .. <- chara thingyell then;
+	<- chara .specialtype@ 109 = <- chara .specialtype@ 110 = or if FLASHY "ZZZZZZZZZT!" .. <- chara thingyell then;
+	<- chara .specialtype@ 39 = if RED "SHAZBOT!" .. <- chara thingyell then;
+	<- chara .specialtype@ 40 = if BLUE "HONK!" .. <- chara thingyell then;
+	<- chara .specialtype@ 88 = if FLASHY "*TWANG*" .. <- chara thingyell then;
+	<- chara .specialtype@ 96 = if RED "I'M BONED!" .. <- chara thingyell then;
+	<- chara .specialtype@ 98 = if BLUE "ANOTHER DISASTER CAUSED BY COSPLAY!" .. <- chara thingyell then;
+	<- chara .specialtype@ 102 = if RED "The future is crap!" .. <- chara thingyell then;
+	<- chara .specialtype@ 10 = if RED "I made a little miscalculation..." .. <- chara thingyell then;
+	<- chara .specialtype@ 20 = if RED "For the bees!" .. <- chara thingyell then;
+	<- chara .specialtype@ 90 = if RED "I hope you all burn!" .. <- chara thingyell then;
+	
+	// Default sayings, if none of above apply
+	70 %chance if
+		<- chara .thing@ .death-saying
+	else
+		"BARF!" <- chara thingyell
+	then
+;
+
+statmod{
+: human-thing-events (* "HUMAN THING EVENT: " type PRINTSTACK *) 0 args( thing eventid chara )
+	<- thing .character@ -> chara
+
+//	beep
+//	"EVENT ID: " type <- eventid .s cr
+
+		 <- eventid THING_EVENT_WAS_HIT
+		?(
+	
+		// <- chara .dead? if then; - Doesn't work with a dead cancel
+		<- chara .health@ 1 < if
+			<- chara isbort? if 
+				<- thing .pos 12 xypowboom -1 lt .hitcheck.blast! 
+				RED "AY CRUMBO!!!" .. <- chara thingyell
+				<- chara .fullheal <- chara .superbortify 
+			then;
+			<- chara .trait@ "AMERICA" $= if 
+				<- thing .pos 12 xypowboom -1 lt .hitcheck.blast! 
+				RED "CAAAAAAAAAAAAAAW!" .. <- chara thingyell
+				<- chara .july4ify 
+			then;
+			<- chara .trait@ "One Foot in Grave" $= if 
+				<- thing .pos 12 xypowboom -1 lt .hitcheck.blast! 
+				RED "The skeleton was inside of me the whole time!" .. <- chara thingyell
+				<- chara .deadsamedify
+			then;
+			<- chara .perk@ "Shield of Hope" $= <- chara .morale SHIELDOFHOPE_MIN > and if
+				<- chara morale--hopeshield
+				<- chara .thing@ .shieldofhope-saying
+				1 <- chara .health!
+				1 <- thing .hitpoints!
+			else
+				<- chara .trait@ "Phoenix" $= if
+					<- thing .pos 12 xypowboom -1 lt .hitcheck.blast!
+					<- chara .phoenixify
+					<- chara statmod{ .unfireproof }
+				then
+			then
+		then
+			
+		);
+	
+		THING_EVENT_DIED
+		?(
+
+			<- chara .name@ type " DIED!!!!" print
+			<- chara death-handler
+
+		);
+
+		// Here you can set up anything on the human THING when it's created in a mission
+		THING_EVENT_NEW
+		?(
+			// Change radius to smaller value here if you want
+
+			5 <- thing .rad.x!
+
+		);
+
+		THING_EVENT_GOT_FATIGUED
+		?(
+			<- chara .tired? if <- chara MOD_TIRED #mod-icon$ <- thing .report then;
+		);
+;
+}
+
+last human-default-events!
+
+
+// /////////////// //
+// HUMAN AI ORDERS //
+// /////////////// //
+
+-1 value last-combat-order
+-1 value last-tactic-order
+
+: check-new-combat
+	last-combat-order orders_combat@ dup ( last order order ) to last-combat-order ( last order ) <> ( true/false )
+;
+
+: check-new-tactic
+	last-tactic-order orders_tactic@ dup to last-tactic-order <>
+;
+
+0 enum COMBAT_AUTO
+enum COMBAT_MELEE
+enum COMBAT_GUNS
+drop
+
+0 enum TACTIC_AUTO
+enum TACTIC_FLEE
+enum TACTIC_ATTACK
+drop
+
+: combat_report
+	orders_combat@ case
+		COMBAT_MELEE of
+			"SMASHIN!"
+		endof
+		COMBAT_GUNS of 
+			"SHOOTIN!"
+		endof
+		otherwise
+			"EITHER"
+		( COMBAT_AUTO )
+	endcase
+;
+
+: tactic_report
+	orders_tactic@ case
+		TACTIC_FLEE of 
+			"RUNNIN!"
+		endof
+		TACTIC_ATTACK of
+			"FIGHTIN!"
+		endof
+		otherwise
+			"DEFEND"
+		( TACTIC_AUTO )
+	endcase
+;
+
+: report-orders
+	"COMBAT : " combat_report .. cr$ .. " TACTIC : " .. tactic_report ..
+	180 view_w 0.5 * 8 msgtickxy2
+;
+
+: loyalty-space args( chara )
+	<- chara .loyalty 4 > if
+		20
+	else
+		<- chara .loyalty 2 < if
+			40
+		else
+			30
+		then
+	then
+;
+
+: .char-update-tactic-ai args( chara )
+	orders_tactic@ case
+		TACTIC_FLEE of
+			0 <- chara .ai.loot_chance!
+			0.01 <- chara .ai.wander_chance! // Don't look around
+			0	<- chara .ai.rush_chance!
+			4	<- chara .ai.attack_level!
+			<- chara loyalty-space 2 /  dup <- chara .ai.follow_leash! 8 + <- chara .ai.safety_leash!
+			-1   <- chara .ai.pickup_gun_max!
+			-1  <- chara .ai.pickup_melee_max!
+		endof
+		TACTIC_ATTACK of
+			<- chara .composure 4 > if 0.5 else 1 then <- chara .ai.rush_chance!
+			0	<- chara .ai.attack_level! 
+			<- chara loyalty-space  <- chara .ai.follow_leash!
+			1   <- chara .ai.pickup_gun_max!
+			3   <- chara .ai.pickup_melee_max!
+		endof
+		otherwise
+			<- chara .composure 2 < if 0.5 else 0 then	<- chara .ai.rush_chance!
+			2	<- chara .ai.attack_level! 		
+			<- chara loyalty-space	<- chara .ai.follow_leash!
+			1   <- chara .ai.pickup_gun_max!
+			3   <- chara .ai.pickup_melee_max!
+		( TACTIC_AUTO )
+	endcase
+;
+
+: .char-update-combat-ai args( chara )
+
+	orders_combat@ case
+		COMBAT_MELEE of
+			0	<- chara .ai.threat_respond_chance!
+			1	<- chara .ai.threat_threshold!
+			1	<- chara .ai.threat_relax_chance!
+		endof
+		COMBAT_GUNS of 
+			1	<- chara .ai.threat_respond_chance!
+			0	<- chara .ai.threat_threshold!
+			0	<- chara .ai.threat_relax_chance!
+		endof
+		otherwise
+			1	<- chara .ai.threat_respond_chance!
+			0.9	<- chara .ai.threat_threshold!
+			0.8	<- chara .ai.threat_relax_chance!
+		( COMBAT_AUTO )
+	endcase
+;
+
+: update-team-combat-ai
+	mission-team-stack depths for pops .char-update-combat-ai next drop
+;
+
+: update-team-tactic-ai
+	mission-team-stack depths for pops .char-update-tactic-ai next drop
+;
+
+: .reset-ai
+	dup .default-ai-setup 
+	.thing@
+		0 over .ai.threat_mode!
+		0 over .ai.threat_time!
+		0 over .ai.safety_time!
+	drop
+;
+
+: refresh-team-ai
+
+	mission-team-stack depths for pops .reset-ai next drop
+
+	update-team-tactic-ai
+	update-team-combat-ai
+;
+
+: change-team-orders
+	sfx{ fm 1 fx .j! 0.5 fx .duty! 0.5 fx .scale! } // BLURBLURBLE
+	refresh-team-ai report-orders
+;
+
+last to main-event-mission-orders
+
+: clown-end-day
+	road{ nearcanada-day 1 + road-trip-days - } 1 < if
+		cheevo: clown-swarm
+		zombieclowns
+	then
+;
+
+
+: time-music-reset
+	' noop to main-event-mission-sunrise
+	' noop to main-event-mission-noon
+	' noop to main-event-mission-sunset
+	' noop to main-event-mission-dusk
+	' noop to main-event-mission-nightfall
+;
+
+
+: zombies-setup
+	zombiedefaults
+	29 stpick if clown-end-day then
+;
+
+last to main-event-mission-setup
+
+: .char-special-condition args( char )
+	// "Fart" <- char .name!
+	// <- char .trait@ "Fireproof" $= if - OLD FIREPROOF METHOD
+	<- char statmod{ .fireproof? } if
+		0 <- char .thing@ .flammability!
+	then
+;
+
+: mission-ai-config
+	mission-team-stack depths for pops .char-special-condition next drop
+	refresh-team-ai
+; 
+
+last to main-event-mission-start
+
+}

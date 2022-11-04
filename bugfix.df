@@ -1,0 +1,38 @@
+
+voc{ bugfix
+
+: check-for-saves 3 for "../" i 1- .. ".save" .. dup print $sexist if 1 then; next 0 ;
+: check-for-custchars "../custchars.save" dup print $sexist ;
+: check-for-stats "../gstats.save" dup print $sexist ;
+
+: misplaced-savedata?
+	"Checking for misplaced save files..." print
+	check-for-saves
+	check-for-custchars or
+	check-for-stats or
+;
+
+: copy-down args( str )
+	"../" <- str .. $sread 0= if then; // If it's emtpy then WHO CARES
+	<- str $swrite
+;
+
+: delete-up "../" swap .. $sdelete ;
+
+: move-misplaced-savedata
+	3 for i 1- ".save" .. dup copy-down delete-up next
+	3 for i 1- ".slot" .. dup copy-down delete-up next
+	"custchars.save" dup copy-down delete-up 
+	"gstats.save" dup copy-down delete-up 
+;
+
+: misplaced-files-fix
+	gstats{ bugfix-misplaced-files } if then;
+	misplaced-savedata? 0= if then;
+	move-misplaced-savedata gstats{ ' bugfix-misplaced-files ++ }
+	"Copied misplaced save data." print
+;
+
+last execute
+
+}

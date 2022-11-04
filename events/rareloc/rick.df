@@ -1,0 +1,47 @@
+
+cyoa{
+
+: recruit-carl-yes
+	clear-cyoa 0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yes
+	recruitee .strengthREV recruitee .fitnessREV recruitee .shootingREV
+	statmod{ carlsay } fbold +crtext
+;
+
+cyoa: npc-rick
+	statmod{ carlsay } fbold cyoa-title!
+	nearest .character@ choosechar cicon
+	cchar to recruitee
+	cchar ricknamer
+	statmod{ carlsay } rbold text!
+	statmod{ carlsay } fbold +crtext
+	statmod{ carlsay } rainbold +crtext
+	statmod{ carlsay } fbold +crtext
+		choice( "Leave him for now" )choice
+		choice( "Recruit " .. cname )choice: recruit-carl-yes
+;
+
+}
+
+: .rickstarter args( char )
+	<- char .rickify
+	<- char cyoa{ ' npc-rick cyoa! }
+;
+
+locdef{
+		
+location
+		tags: caaarl
+		max-rooms: 2
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+			room-post-script: still-npc .rickstarter
+			filter-only
+			
+}

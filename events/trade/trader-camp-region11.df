@@ -1,0 +1,109 @@
+// "../deathforth/events/rareloc/weird.txt" $load-rooms
+// "../deathforth/rooms/restroom.txt" $add-rooms
+// "events/exterior/yall-maker.df" $load
+
+uses paul/region-layout.df
+			
+map{ regiondef{
+
+trade-camp-reset
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+' plotgrass >defer ft
+
+: tradefenceclump tanchor! 12 zombs-clump ;
+
+: tradefence-chat args( me ) "WELCOME! TO THE FENCE OF VALUES!" <- me .sprayit  ;
+
+: tradefence-guy still-npc args( ch )
+	50 <- ch .ai.safety_leash!
+	' tradefence-chat lt .cyoa!
+;
+
+: curb tile@
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 2e + .lspriteid!
+	LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char { = if xyp.x to bfx then;
+	xyp.i char } = if bfx xyp.y xyp.x barbfence then;
+	xyp.i char g = if ' plotgrass to ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char p = if ' plotpave to ft then;
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char d = if xyp.x plotdirt then;
+	xyp.i char T = if traderhere then;
+	// xyp.i char S = if trader-food-for-gas then;
+	xyp.i char U = if tnomey-spawn then;
+	
+	xyp.i char Z = if xyp.xy tradefenceclump then; // A concentrated clump of zombies
+	
+	xyp.i char Q = if tradefence-guy lt-here 0.5 movey then;
+
+	// xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char c = if ' plotpave to ft xyp.xy ft xyp.xy grassedge xyp.xy curb then;
+	xyp.i char $ = if xyp.xy grassedge then;
+
+;
+
+"
+G..Z...Z..Z..Z..Z..Z..Z..
+.........................
+.........................
+.........................
+.........................
+.........................
+.........................
+.........................
+{...........Q...........}
+.........................
+.........................
+...T....T.......T....T...
+.........................
+.........................
+c$c$c$c$c$c$c$c$c$c$c$c$c
+.........................
+...U.....................
+.........................
+.........................
+.........................
+.........................
+........................."
+constant maplayout
+
+: tradercamp11
+	0 -1 maplayout xyplot: pt
+;
+
+
+: site-setup
+	pavement
+	tradercamp11
+	
+	1 no_time!
+	7 14 rnd o'clock
+	20 %chance if 1 2 frnd weather! -1 -2 frnd wind_force! else -1 1 frnd wind_force! then
+	mission{ no-edge-spawns }
+	
+	24 %mv-up
+	44 %chars-up
+	
+;
+
+	 region: tradercamp11
+		// w: 26
+		// h: 15
+		w: maplayout layoutw
+		h: maplayout layouth
+
+		trade-mode
+		no-prefab
+
+		post-script: site-setup
+} }

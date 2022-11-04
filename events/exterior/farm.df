@@ -1,0 +1,652 @@
+uses paul/region-layout.df
+
+"../deathforth/rooms/duodenum.txt" $load-rooms
+"../deathforth/rooms/city.txt" $add-rooms
+
+map{ regiondef{
+
+// Custom container action
+: open-weird-act args( activator me )
+
+	// Execute default container behaviour
+	<- activator if <- activator <- me container-loot-act then
+
+	// Examples: Uncomment to test each one
+
+	// WHOA EXPLODING TOILET
+//	<- me .pos xyboom
+
+	// Skellingons
+//	3 for <- me skel lt .pop-outta next
+
+	// GUTS
+//	10 <- me .zguts
+
+	// Bones
+//	10 <- me .zbones
+
+	// Sparks
+//	6 for <- me .spitspark next
+
+	// aaaaaa flies
+//	10 <- activator .flies!
+;
+
+
+: break-weird-events args( me eventid )
+	<- me <- eventid mission{ break-container }
+
+	<- eventid THING_EVENT_BREAK <> if then;
+
+	0 ( no activator ) <- me open-weird-act
+;
+
+
+: open-thing-popout-act args( activator me )
+
+	<- activator if <- activator <- me container-loot-act then // Execute default container behaviour
+
+	<- me .user_word@ if <- me .user_word@ then
+	<- me .carryid@ not if then;
+
+	0 <- me .carryid@ #thing .inside_id!
+	<- me <- me .carryid@ #thing .pop-outta
+	0 <- me .carryid! 
+;
+
+
+: break-spawn-events args( me eventid )
+	<- me <- eventid mission{ break-container }
+
+	<- eventid THING_EVENT_BREAK <> if then;
+
+	0 ( no activator ) <- me open-thing-popout-act
+;
+
+
+: .put-in-container args( container other )
+	' open-thing-popout-act <- container .action!
+	<- other thing# <- container .carryid!
+	<- container thing# <- other .inside_id!
+//	1 <- container .action_icon!
+;
+
+cyoa{
+
+: farm-chicken
+	interactee .character@ choosechar
+	1 cchar .party-familiar cchar to rescue
+	"BAKAAAAAAAW!" nearest .sprayitfast clear-cyoa
+	// mission{ ' rescuedchicken to post-mission-cyoa }
+	' rescuedchicken stack-road-action
+;
+
+: goth-pasay
+	interactee .character@ choosechar
+	1 cchar .party-familiar cchar to gothic-pa
+	gothic-ma 0= not if
+		"THIS FARM IS DONE FOR, LET'S RUN"
+	else
+		"LET'S TRACK DOWN MA!"
+	then nearest .sprayitfast clear-cyoa
+	mission{ ' farmrescue to post-mission-cyoa }
+;
+
+: goth-masay
+	interactee .character@ choosechar
+	1 cchar .party-familiar cchar to gothic-ma
+	gothic-pa 0= not if
+		"LET'S GET OUT OF HERE!"
+	else
+		"WE NEED TO RESCUE PA!"
+	then
+	nearest .sprayitfast clear-cyoa
+	mission{ ' farmrescue to post-mission-cyoa }
+;
+
+cyoa-choice: farm-pig-betray
+	($ cname .. " fends off zombies for a few hours while turning the pig into food." $) text!
+	($ Thegroup .. " could have had a true friend. This was thrown away for some bacon. Was it worth it? Probably, bacon's pretty good." $) +crtext 7 10 rnd trunk-food+ rob-guilt2 aholeREV o'clock@ 3 + o'clock
+	badfx 4 7 rnd nearest .tpos anchor! zombs deleteme
+;
+
+: farm-pig-recruit
+	clear-cyoa 0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yes
+;
+
+cyoa: farm-pig
+	nearest .character@ to recruitee
+	recruitee choosechar cicon
+	"SOME PIG" cyoa-title!
+	($ "There's a spider web on the ceiling.
+	This is EXACTLY like Charlotte's Web.
+	The pig squints at " .. thegroup .. ". Pigs are well known for their flavor and their constant hopping around. They can't drive cars." $) text!
+	choice( "Leave it alone for now" )choice
+	choice( "Recruit Pig" )choice: farm-pig-recruit
+	pchar ahole? if
+		pchar charchoice( ": BETRAY PIG" )choice: farm-pig-betray
+	then
+;
+
+}
+
+: .gothicpaify args( chara )
+	16 <- chara .specialtype!
+	6 <- chara .strength!
+	5 <- chara .fitness!
+	WEAPON_PITCHFORK <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	cyoa{ ' goth-pasay lt .cyoa! }
+	
+;
+
+: .gothicmaify args( chara )
+	17 <- chara .specialtype!
+	5 <- chara .strength!
+	6 <- chara .fitness!
+	WEAPON_SICKLE <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	cyoa{ ' goth-masay lt .cyoa! }
+;
+
+roomgen{
+
+	: chicken-here 
+		inside-npc .chickenify
+		npc@rescue
+		cyoa{ ' farm-chicken lt .cyoa! }
+		1 3 rnd for egg .drift next
+	;
+	
+	: pig-here 
+		inside-npc .pigify
+		cyoa{ ' farm-pig lt .cyoa! }
+	;
+	
+	: barn-loot 
+		farmtype 0 = farmtype 2 > or if 50 %chance if scythe else sickle then .drift then
+		farmtype 1 = farmtype 2 > or if chicken-here then
+		farmtype 2 = farmtype 2 > or if pig-here then
+		10 %chance if egg .drift then
+	;
+	
+	: gothma farmtype 2 > if inside-npc .gothicmaify then ;
+	: gothpa farmtype 2 > if inside-npc .gothicpaify then ;
+	
+}
+
+root{
+	
+	: barn-junk 
+		pitchfork .scatter 50 %chance if pitchfork .scatter then 40 %chance if shovel .scatter then 20 %chance if pickaxe .scatter then 40 %chance if rake .scatter then 40 %chance if hoe .scatter then
+		3 %chance if scythe .scatter then 3 %chance if sickle .scatter then 20 %chance if snowshovel .scatter then
+		50 %chance if 1 3 rnd for bbqtank scatter next then
+		2 %chance if 1 2 rnd for egg .drift next then
+	;
+
+	: cowskull spawnflip building_misc_tiles_base_id lt .spriteid! 5 health! walkover ;
+	: haybale spawnflip building_misc_tiles_base_id 1 + lt .spriteid! bbox 3 health! 100 %flammability! ; // low-profile
+	: tractor-tire spawnflip special_objects32_base_id 0x 94 + lt .spriteid! bcircle 12 lt .rad.x!  swoleweight 50 health! med-profile ;
+	: tractor spawn special_objects64_base_id 0x 13 + lt .spriteid! lt-as-wreck lt .rad.y@ 0.75 * lt .rad.y! tlbweight ;
+
+	: bstester
+		spawn container noloot
+		lttm lt skel lt .put-in-container
+	;
+
+	: bstester2
+		spawn container lttm ' open-weird-act lt .action! noloot
+		mission{ ' break-weird-events } lt .events!
+	;
+}
+
+0 value bfx
+0 value bfy
+0 value snx
+0 value sny
+' plotdirt >defer ft
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+: grassstart xyp.y to sy ;
+: grassend map{ -1 sy w xyp.y grasslot } ;
+
+: river tile@
+	dup LAYER_FLOOR particles32_base_id 0x 10 + .lspriteid!
+	dup LAYER_FLOOR 0 0 .tile_layer.off!
+	dup LAYER_FLOOR 0 .tile_layer.flipx!
+
+	dup LAYER_FLOORTOP particles32_base_id 0x 11 + .lspriteid!
+	dup LAYER_FLOORTOP 0 0 .tile_layer.off!
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+
+	TILE_BLOCK_FLOOR over .id!
+	drop
+;
+
+: riveredge
+	2dup river
+	tile@ LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+;
+
+: bank 2dup tile@ args( x y t )
+	<- t LAYER_WALLSIDE street_tiles_base_id 0x 99 + 0 3 rnd + .lspriteid!
+	<- t LAYER_FLOORTOP particles32_base_id 0x 12 + .lspriteid!
+	<- x <- y riveredge
+;
+
+
+: bushy >r tile@
+	// dup LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 89 + 0 3 rnd + .lspriteid!
+	LAYER_WALLSIDE 0 r> .tile_layer.off!
+;
+
+: logbridge >r tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x 79 + r> + .lspriteid!
+;
+
+: cliff 2dup floorblocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x a9 + 0 3 rnd + .lspriteid!
+;
+
+: cliffedge 2dup floorblocked tile@
+	dup LAYER_FLOORTOP 0 .tile_layer.flipx!
+	LAYER_FLOORTOP street_tiles_base_id 0x ba + 0 3 rnd + .lspriteid!
+;
+
+: curb tile@
+	dup LAYER_WALLSIDE street_tiles_base_id 0x 2e + .lspriteid!
+	LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: fbldg tanchor! map{ 
+	"farmhouse" $picklocid addloc prefab{ farmhouse } 
+} ;
+
+: bbldg tanchor! map{ 
+	"barn" $picklocid addloc prefab{ barn } 
+} ;
+
+: tbldg tanchor! map{
+
+//	"shop" $picklocid addloc 6 5 prefab{ yallmart }
+//	"shop" $picklocid addloc 5 13 0 prefab{ shop }
+	"shop" $picklocid addloc "BUTTVILLE POLICE" sign-text! prefab{ 5 9 0 shop }
+} ;
+
+: wall-boards 0x d loc-wtheme! ;
+
+: set-theme-barn
+	floor-concrete
+	wall-boards
+	2 loc-dtheme!
+	0 5 rnd to theme-num ( used for inside objects )
+;
+
+location: farmhouse
+		max-rooms: 6
+		entry-tags: hall
+		pre-script: set-theme-cabin
+		script: set-theme-cabin
+		post-script: 10diff %zombs
+
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath 
+			room-post-script: 10 %chance if randommag then
+					
+		room-choice: bedroom
+			room-weight: 50
+			room-count: 2
+			room-script: nad
+			room-post-script: beddoor looseloot
+
+		room-choice: hall
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: dliving
+
+		room-choice: kitchen
+			room-weight: 20
+			room-count: 1
+			room-script: nad floor-kitchen 1 3 rnd sfood
+			room-post-script: gothma
+
+		room-choice: living
+			room-weight: 20
+			room-count: 1
+			room-script: ndx
+			room-post-script: gothpa
+			
+location: barn
+		max-rooms: 2
+		entry-tags: barn-entry
+		pre-script: set-theme-barn
+//		script: set-theme-cabin
+		post-script: 
+
+		room-choice: barn-top
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 10diff %zombs farm-junk
+			filter-only
+		
+		room-choice: barn-entry
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: 20diff %zombs 3 for skelscat next farm-junk barn-junk
+			filter-only
+
+: grassedge
+	tile@ dup LAYER_FLOORTOP street_tiles_base_id 0x 71 + .lspriteid!
+	LAYER_FLOORTOP 0 0 -3 rnd .tile_layer.off!
+;
+
+
+: fenceit	args( x y s )
+
+	building_misc_tiles_base_id 14 7 * + 7 + <- s + -> s
+
+	2 for
+		<- s i 1- 14 * + <- x <- y solidwall
+		<- x <- y tile@ LAYER_WALLTOP 0 0 .tile_layer.off!
+		<- x <- y tile@ LAYER_WALLTOP rnd5050 .tile_layer.flipx!
+		<- y 1- -> y
+	next
+;
+
+0 stack
+	' fbldg shove
+	' bbldg shove
+constant FARM-BUILD-OPTIONS
+0 var farm-build-options
+
+' plotdirt value groundtype
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx 1- gby xyp.xy swap 1+ swap grasslot then;
+	xyp.i char ( = if xyp.xy to gby2 to gbx2 then;
+	xyp.i char ) = if gbx2 1- gby2 xyp.xy swap 1+ swap grasslot then;
+	xyp.i char { = if xyp.xy to bfy to bfx  then;
+	xyp.i char } = if bfx 1- bfy xyp.xy 1+ swap 1+ swap gravellot then;
+	xyp.i char s = if xyp.x to snx xyp.y to sny then;
+	xyp.i char S = if snx sny xyp.x xyp.y snowlot then;
+	xyp.i char g = if groundtype to ft xyp.xy ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char d = if xyp.x plotdirt then;
+	xyp.i char ^ = if xyp.xy river then;
+	xyp.i char v = if xyp.xy riveredge then;
+	xyp.i char \ = if xyp.xy cliff then;
+	xyp.i char / = if xyp.xy cliffedge xyp.xy -4 -5 rnd bushy then;
+	xyp.i char | = if xyp.xy bank then;
+	xyp.i char o = if xyp.xy -8 -7 rnd bushy then;
+	xyp.i char O = if xyp.xy -8 -7 rnd bushy groundtype to ft xyp.xy ft then;
+	xyp.i char b = if xyp.xy 0 bushy then;
+	xyp.i char F = if xyp.xy fbldg then;
+	xyp.i char B = if xyp.xy bbldg then;
+	xyp.i char @ = if xyp.xy farm-build-options pops nip execute then;
+	xyp.i char 1 = if xyp.xy xyp.x 1 & if 2 else rnd5050 then fenceit then;
+	xyp.i char 2 = if xyp.xy 3 fenceit then;
+	xyp.i char 3 = if xyp.xy 4 fenceit then;
+	
+	xyp.i char h = if xyp.xy 2 5 rnd for haybale lt-here 12 rdrift next then;
+	xyp.i char t = if xyp.xy tractor lt-here drift 0 2 rnd for tractor-tire lt-here 12 rdrift next then;
+	xyp.i char c = if xyp.xy 0 2 rnd for cowskull lt-here 24 rdrift next then;
+	
+	xyp.i char w = if xyp.xy pine lt-here drift then;
+	
+	
+	
+;
+
+: domap
+"////////////////////////////////
+||||||||||||||||||||||||||||||||
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Oooooooooooooooooooooooooooooooo
+................................
+112.31111111112.311111111112.311
+(.................<.............
+................................
+................................"
+
+60 %chance if
+
+rnd5050 if
+
+"
+.........t......................
+................................
+.@................@............."
+
+else
+
+"
+....................t...........
+................................
+......@.................@......."
+then
+
+else
+
+rnd5050 if
+
+"
+...................h........h...
+.......................t........
+@.....@........................."
+
+else
+
+"
+...h...h...h....................
+................................
+..................@.....@......."
+then
+
+then ..
+
+"
+............)..................>
+................................
+(..................<............
+................................
+111111111112.......3111111111111
+................................
+.........c.h..........c.........
+.....................h..........
+................................"
+.. 
+rnd5050 if
+"
+......h..................c......"
+else
+"
+......t...................h....."
+then ..
+"
+................................
+................................
+.........c............c.........
+................................
+111111111112.......3111111111111
+................................
+...........)...................>
+................................
+................................
+................................
+................................" ..
+;
+
+domap constant maplayout
+
+: domap1
+"////////////////////////////////
+||||||||||||||||||||||||||||||||
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Oooooooooooooooooooooooooooooooo
+(...............................
+11111111111111111111111111111111
+................................
+................................
+................................"
+
+50 %chance if
+"
+.......@..........w.....w...w...
+......................w...w.....
+@..............................."
+
+else
+
+"
+..................w...w.........
+............w.c.w...w...........
+...@.....................@......."
+then ..
+
+"
+...............................)
+................................
+(....................<..........
+................................
+1111111111111111112.311111111111
+................................
+.........c...............c......
+................................
+................................"
+.. 
+rnd5050 if
+"
+......h...h...h.........c..c..."
+else
+"
+..h..c..h.....t...........h....."
+then ..
+"
+................................
+................................
+.........c............c.........
+................................
+1111111111111111112.311111111111
+................................
+.................).............>
+................................
+................................
+................................
+................................" ..
+;
+
+: domap2
+"................................
+................................
+(...............................
+1111111111112...3111111111111111
+................................
+................................
+................................
+"
+
+50 %chance if
+"
+....................w...........
+..............w............w....
+................................
+..................w.....w...w...
+......................w...w.....
+...............................)
+.@.......@......................
+................................
+11111111111111111111112....31111
+................................
+(.......<......................"
+
+else
+
+"
+..w...............@.............
+..........w.....................
+.....w..........................
+.............w..................
+..w....w........................
+....t..........................)
+................................
+................................
+(......................@........
+........<.......................
+11112..31111111111111111112.3111"
+then ..
+
+"
+................................
+.........c...............c......
+................................
+................................"
+.. 
+rnd5050 if
+"
+..........h...h...h..c...c..c..."
+else
+"
+..............h....h...h..h..h.."
+then ..
+"
+................................
+................................
+.........c............c.........
+................................
+1112....311111111111111111111111
+................................
+...)...........................>
+................................
+................................
+................................
+................................" ..
+;
+
+: makemap
+	35 %chance if domap else rnd5050 if domap1 else domap2 then then to maplayout
+	// domap2 to maplayout
+	0 0 maplayout xyplot: pt
+;
+
+
+: site-setup
+//	0 0 layoutw layouth gravel-lot
+//	pavement
+	FARM-BUILD-OPTIONS shuffles to farm-build-options
+	makemap
+	5diff %zombs
+;
+
+region: farm
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	loc-choice: farmhouse
+		loc-weight: 1
+		loc-count: 1
+
+	loc-choice: barn
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

@@ -1,0 +1,177 @@
+// Perk costs
+
+3 constant HEALTHC_COST
+3 constant MECHANIC_COST
+5 constant DOGPAL_COST
+5 constant CARNUT_COST
+6 constant EXPLORER_COST
+
+6 constant PATHFINDER_COST
+8 constant HAGGLER_COST
+10 constant SHIELDOFHOPE_COST
+
+3 constant GUNGINEER_COST
+3 constant SURGEON_COST
+5 constant FIGHTER_COST
+5 constant GUNCRAZY_COST
+
+6 constant TRADEMARK_COST
+6 constant NATURALSHOT_COST
+8 constant ARCHER_COST
+
+8 constant HOMERUN_COST
+10 constant BARBARIAN_COST
+// 10 constant FIERCE_COST
+
+3 constant ATHLETE_COST
+5 constant ULTRAFIT_COST
+5 constant MEGABUFF_COST
+6 constant MARTIALARTIST_COST
+6 constant BRUISER_COST
+
+8 constant HIDDENPOT_COST
+8 constant EXWRESTLER_COST
+10 constant TSTC_COST
+
+// constant _COST
+
+3 constant SOUNDSLEEP_COST
+3 constant GOURMAND_COST
+6 constant CITYSEEK_COST
+6 constant TRAVELLIGHT_COST
+10 constant HEROTYPE_COST
+10 constant TINYEATER_COST
+15 constant ANIMEFAN_COST
+15 constant SPECIALIST_COST
+15 constant GRAPPLER_COST
+20 constant PHOENIX_COST
+
+// START prep logic
+
+0 value ADJ-ZPCOST
+
+: zpview args( cost level )
+	<- level 1 = if
+		0.4
+	else
+		<- level 2 = if 
+			0.7
+		else
+			1
+		then
+	then <- cost * >int
+;
+
+: zpcost args( cost level )
+	// <- level 1 max <- cost * to ADJ-ZPCOST
+	<- cost <- level zpview to ADJ-ZPCOST	
+	// ADJ-ZPCOST print console-open
+;
+: zpcost? // args( cost )
+	gstats{ zombo-point } ADJ-ZPCOST 1 - >
+;
+
+// Trait/Perk purchase
+
+: $buy args( level ) ( name ) postpone gstats{ find postpone } not if ( error ) then;
+ >body <- level 1 + swap !
+;
+
+: zp-buy! args( cost )
+	gstats{ <- cost -1 * ' zombo-point +! 
+		zombo-point 0 < if
+			0 to zombo-point
+		then
+	}
+	filesave{ save-global-stats }
+	perkdef{ defperks }
+;
+
+: shared-buy! args( name level )
+	<- name <- level $buy
+	ADJ-ZPCOST zp-buy!
+;
+
+: trait-nowmake  "You can now use the Custom Characters screen to make people with the " ;
+: perk-line1 0 > if "You have upgraded the " else trait-nowmake then ;
+: zp-upgradenote? 0 > if "All characters you assign or have assigned this perk will get to enjoy the new effects!" +crtext then ;
+
+: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. " trait!" $) text!
+<- name 0 shared-buy! goodfx ;
+
+: perk-buy! args( title name level ) 
+	($ <- level perk-line1 .. <- title pbold .. " perk!" $) text!
+	<- level zp-upgradenote? 
+	<- level 1 > if "This perk has reached the maximum level!" rainbold +crtext then
+	<- name <- level shared-buy! goodfx 
+;
+
+defer perkback
+defer perk1back
+defer perk2back
+defer perk3back
+defer trait1back
+defer gnomeback
+
+// Trait/Perk view and confirm
+// Type: 0 for trait unlock, 1 for perk unlock
+
+: unlockupgrade? 1 < if "Unlock " else "Upgrade " then ;
+: traitperk? 1 < if " Trait" else " Perk" then ;
+: $traitperk 1 < if perkdef{ $trait } else perkdef{ $perk } then ;
+
+: shared-confirm! args( name level handler type exit )
+	<- name cyoa-title!
+	perkdef{ defperks <- name <- type $traitperk desc@ } text!
+	choice( "BACK" )choice <- exit cyoa-choice-handler!
+	// Could try splitting this zpcost section into own word if I do upgrading through CustChar menu
+	// Will have to include a zpcost calc
+	zpcost? if
+		choice( <- level unlockupgrade? .. <- name pbold .. <- type traitperk? .. "! - " .. ADJ-ZPCOST .. " ZP" pbold )choice <- handler cyoa-choice-handler!
+	then 
+		<- level 1 < if 
+			($ "Costs " .. ADJ-ZPCOST .. " ZP to unlock!" $) 
+		else
+			($ " COST: " .. ADJ-ZPCOST .. " ZP" $) 
+		then +text +cr zptally
+;
+
+: perk-confirm! args( name cost level handler exit )
+	<- cost <- level zpcost
+	<- name <- level <- handler 1 <- exit shared-confirm! ;
+
+: trait-confirm! args( name cost handler exit )
+	<- cost 0 zpcost
+	<- name 0 <- handler 0 <- exit shared-confirm! ;
+
+// Shows the choice
+: perk-view! args( name cost handler )
+	choice( <- name $upper pbold .. " - " .. <- cost .. " ZP" pbold )choice <- handler cyoa-choice-handler!
+;
+	
+// END the prep logic
+
+// Temporary Dude	
+
+cyoa: perk-dingus gstats{
+	"Perks and Traits" cyoa-title!
+		
+	"I'm developing an amazing new product
+	I call them... unlocks. Or 'uncks' for short" text!
+	
+	zombo-point 3 < if
+		"You're going to need to get some Zombo Points to see what I mean! I also invented those just now."
+	else
+		"Witness the magic of 'cheevos'!
+		Wait, I meant to say 'unlocks'."
+	then +crtext +cr zptally
+	
+	choice( "Leave for now" )choice
+	
+} ;
+
+' perk-dingus to perkback
+
+	(* gstats{ trait-specialist } 0 > if
+		($ "You bought all my " .. "'uncks'" pbold .. " for now.
+		Check back next update! I'll have more!" $) text! *)

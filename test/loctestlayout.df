@@ -1,0 +1,152 @@
+uses paul/region-layout.df
+
+map{ regiondef{
+
+	: grass-lot LAYER_FLOORTOP max-layer! grass-lot ;
+
+	: locid-bungalow make-bungalow ;
+	: locid-gablehouse make-gable-house ;
+	: locid-2storeyhouse make-2storey-house ;
+
+	// Picks the more low-rent looking houses
+	: make-a-house rnd5050 if locid-bungalow else locid-2storeyhouse then grass-lot walkway ;
+
+	: office-signs
+		1 5 rnd case
+			1 of "DINKUS & SLOAN" endof
+			2 of "CHILLIN' VILLAINS LAW" endof
+			3 of "DAD & SONS" endof
+			4 of "iOmniTeleCorpCo" endof
+			5 of "IniTech" endof
+		endcase
+	;
+	: restaurant-signs
+		1 5 rnd case
+			1 of "BOILED POTATOES" endof
+			2 of "SPAGHETTI ONLY" endof
+			3 of "MEAT & ETC" endof
+			4 of "CURRY-TO-GO" endof
+			5 of "BURGS LAND" endof
+		endcase
+	;
+	
+	: prefab-shop sign-text! prefab{ 0 3 rnd 9 0 shop } paved-lot ;
+	: prefab-shop2 sign-text! prefab{ 0 3 rnd 9 0 shop2 } paved-lot ;
+	: prefab-apt sign-text! prefab{ mrand 7 9 rnd 0 building } paved-lot ;
+	: prefab-house sign-text! prefab{ mrand 6 0 building2 } paved-lot ;
+	
+	: make-a-pub "MOE'S PUB" prefab-shop ;
+	: make-a-gunshop "GUN*STOP" sign-text! prefab{ 1 3 rnd 9 0 shop } paved-lot ;
+	: make-a-foodshop "FUD-E-MEYERS" prefab-shop2 ;
+	
+	: make-a-jockshop "SPORTS&JORTS" prefab-shop2 ;
+	: make-a-camping "CAMPER'S DEPOT" prefab-shop2 ;
+	: make-a-hardware "ERNIE'S HARDWARE" prefab-shop2 ;
+	: make-a-umbrella "JUST UMBRELLAS" prefab-shop2 ;
+	: make-a-drugshop "SMALLGRENS DRUG" prefab-shop2 ;
+	: make-a-sportshop "SUPERSPORTING" prefab-shop2 ;
+	: make-a-banner "SAFE HERE!" prefab-house ;
+	: make-a-infest "Fred's Fort" prefab-house ;
+	: make-a-barkapt "BARK! BARK!" prefab-apt ;
+	: make-a-rescueapt "HELP ME" prefab-apt ;
+	
+	: make-a-bookshop "BOOKATORIUM" sign-text! prefab{ 0 9 0 shop } paved-lot ;
+	: make-a-police "BUTTVILLE POLICE" sign-text! prefab{ 5 9 0 shop } paved-lot ;
+	: make-a-clinic "E-Z-CLINIC" sign-text! prefab{ 4 9 0 shop } paved-lot ;
+	: make-a-office office-signs sign-text! prefab{ 0 1 rnd 9 0 shop } paved-lot ;
+	: make-a-gym 
+		"MUSCLE! BOMB!! GYM!!"
+		0.5 0.5 0.5 sign-border!
+		0.1 0.1 0.1 sign-bg!
+		1 0.5 0.5 sign-fg!
+		prefab-shop2
+	;
+	: make-a-coffee "APOCALYPSE COFFEE" sign-text! prefab{ 0 9 0 shop } paved-lot ;
+	: make-a-restaurant restaurant-signs prefab-shop ;
+	: make-a-arcade "QUARTER-EATER ARCADE" prefab-shop2 ;
+	: make-a-furnshop "FURNITURARIUM" prefab-shop2 ;
+	
+	: make-apartments ( locationid ) prefab{ mrand 5 8 rnd 0 building } paved-lot ;
+
+	: aplot add-a-path+ grass-lot rnd5050 if 1 lot-back-fence+ then next-plot ;
+
+	: block-last-build-door
+		last-build-doorxy crap-aroundxy
+		2 for last-build-doorxy swap -3 3 rnd + swap 0 2 rnd + crap-aroundxy next
+		last-build-doorxy 1+ crap-aroundxy
+//		last-build-doorxy 1+ tile@ if -8 last-build-doorxy 1+ tile@ .offy! then
+		last-build-doorxy 1+ tile@ if last-build-doorxy 1+ tile@ LAYER_WALLSIDE -4 4 rnd -8 .tile_layer.off! then
+	;
+
+	: try-special-build
+		special-lot-build not if false then;		// No build is set
+		special-lot curbuild <> if false then; 	// Is it the desired lot?
+
+		// ($ "SPECIAL LOT " .. curbuild $) print
+
+		special-lot-tags $picklocid addloc
+		special-lot-build execute
+
+		true
+	;
+
+	// 0 make-apartments // EXAMPLE... apartments with no door!
+
+	: pick-building
+
+		' curbuild ++
+
+		// ($ "CURRENT BUILD " .. curbuild $) print
+
+		// DO A SPECIAL LOT if it's set up
+		try-special-build if then;
+
+		// Bottom 3 rows may be trashy, bottom row definitely trashy
+		rowsleft 3 <= rnd5050 and if 0
+		else
+			rowsleft 2 <= if 0 else auto-picklocid then
+		then
+
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+			// no building type picked, do a trashed DMZ location or whatever
+
+			"trashed" $picklocid addloc // TODO: basic trashed interior location
+			make-apartments // TEMP: put what you want here
+
+			// Probably trash up the outside entrance
+			75 %chance if block-last-build-door then
+		then
+	;
+
+	: pick-lots
+		blocks-init
+			6 to blockh
+			4 to maxrows
+			5 to streeth
+			0.35 to greenspace
+			1 3 rnd to grassylots
+		blocks-start
+
+		pavement
+
+		begin canplot? while
+
+			pick-building next-plot
+
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat
+
+		street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		10diff %zombs pavement pick-lots
+	;
+} }
+
+// Pass the location ID in to the following to create a new building
+//		prefab{ mrand ( style ) 0 2 rnd 2 * 5 + ( width ) 0 ( depth ) theme-generic-building }

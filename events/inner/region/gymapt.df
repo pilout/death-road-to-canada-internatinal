@@ -1,0 +1,74 @@
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/arcadegym.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/baseapts.df" $load
+"events/inner/gymloc.df" $load
+
+location: gymapt
+		max-rooms: 23
+		entry-tags: aptlobby
+		script: set-theme-house
+		pre-script: set-theme-house
+		post-script: 10diff %zombs
+
+		: aptgymhall ndx dhall random-door "gym-entry" only-with-door ;
+		: aptgym 10diff %zombs gymstuff random-door "restroom" only-with-door ;
+		
+		room-choice: hall
+			room-weight: 960
+			room-count: 2
+			room-post-script: aptgymhall
+		
+		5bed5bath12apt evaluate
+				
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath
+			filter-only
+
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: 30 %chance if randommag then
+			filter-only
+		
+		room-choice: bedroom
+			room-weight: 10
+			room-count: 3
+			room-script: nad		
+			room-post-script: looseloot dbathroom
+							
+		room-choice: kitchen
+			room-weight: 10
+			room-count: 1
+			room-script: nad		
+			room-post-script: floor-kitchen
+			
+		room-choice: gym-entry
+			room-weight: 10
+			room-count: 1
+			room-script: nad yall-theme
+			room-post-script: aptgym
+			filter-only	
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath
+			filter-only		
+
+regiondef{			
+
+	region: gymapt
+		script: timeofday o'clock
+
+		inside
+					
+		loc-choice: gymapt
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 10diff %zombs inspawn
+}

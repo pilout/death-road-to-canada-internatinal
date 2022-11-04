@@ -1,0 +1,82 @@
+"../deathforth/rooms/bigoffice.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/officeloc.df" $load
+
+location: bigoffice
+		max-rooms: 9
+		entry-tags: bigofficstart
+		pre-script: set-theme-office
+		script: set-theme-office
+		post-script: 10diff %zombs nad ndx
+
+	4 value officecountdown	
+	
+	: startbigoffice 
+		random-door "office" only-with-door
+		100 40 %chance if %officerestroom else %officekitchen then
+	;
+	
+	: bigoffice1
+		0 3 rnd roomgen{ officechairs }
+		' officecountdown --
+		rooms-left 5 < if 100 %officekitchen 100 %officerestroom else 
+			50 %officerestroom 50 %officekitchen
+		then 
+		random-door officecountdown 1 < if "execsafe" else "office" then only-with-door 
+	;
+			
+		room-choice: bigofficstart
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: startbigoffice
+			filter-only
+
+		room-choice: execsafe
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: execloot
+			filter-only
+		
+		room-choice: emplounge
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: officefood
+			filter-only
+
+		room-choice: office
+			room-weight: 10
+			room-count: 4
+			room-script: 
+			room-post-script: bigoffice1
+			filter-only
+						
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath comboskel
+			filter-only
+			
+
+regiondef{			
+
+	region: bigoffice
+		script: timeofday o'clock resetsafe
+
+		inside
+					
+		loc-choice: bigoffice
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 10diff %zombs inspawn
+}

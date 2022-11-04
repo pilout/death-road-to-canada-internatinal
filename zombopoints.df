@@ -1,0 +1,271 @@
+cyoa{
+
+: ZOMBOP_CAP gstats{ ZOMBOP_CAP } ;
+: zombo-point gstats{ zombo-point } ;
+
+: zpwallet "  ZOMBO POINTS: " pbold +text gstats{ zombo-point } +text ;
+
+: rewardevent-zp
+	zpwallet " / " +text ZOMBOP_CAP +text
+;
+
+: zptally rewardevent-zp ;
+
+: zombopfull
+	"ZOMBO POINTS are full!"
+;
+
+: zombopfull?
+	zombo-point ZOMBOP_CAP >=
+;
+
+: zombop+! gstats{ zombop+! } ;
+
+: zombop-text! args( text )
+	zombopfull? if
+		zombopfull
+	else
+		<- text
+	then rainbold +crtext
+;
+
+: zombop! args( num )
+	<- num zombop+!
+	($ <- num .. " ZOMBO POINTS OBTENU!" $) zombop-text!
+	rewardevent-zp
+;
+
+: zombop+
+	1 zombop+!
+	"ZOMBO POINT OBTENU!" zombop-text!
+;
+
+: zombop++ zombop+ rewardevent-zp ;
+
+: zp-skull-events args( me eventid )
+	<- eventid THING_EVENT_TIMER = if
+		1 <- me .timer!
+		curmapview <- me .mapid@ <> if 	-128 <- me .pos.z! then;
+
+		special_objects16_base_id 36 + gameticks 3 >> 1 & + <- me .spriteid!
+		1 0.75 0.25 25 gameticks 7 & + gameticks 5 * sin 0.25 * 0.75 + 25 * + <- me .pos d-light
+		1 0.5 0.125 15 gameticks 7 & + gameticks 3 * sin 0.4 * 0.6 + 15 * + <- me .pos d-light
+	then;
+	<- eventid THING_EVENT_OVERLAP = if
+		player <- me .overlap v= not if then;
+		<- me silentkillit
+
+		zombopfull? if
+			5 0.975 rumble-camera
+			sfx{ rumble }
+			RED BLINKY .. "ZOMBO POINTS MAX!" ..
+		else
+			sfx{ creepy 2 pitch! 1500 d! 5 freq2! 1 duty! 0.995 q! }
+			FLASHY "+1 ZOMBO POINT!" ..
+			zombop++
+		then
+		player .report
+	then;
+;
+
+}
+
+: zp-skull spawn immovable
+	cyoa{ ' zp-skull-events } lt .events! special_objects16_base_id 36 + lt .spriteid!
+	-128 lt .pos.z!
+	4 lt .anim.floatval!
+	8 lt .anim.floatheight!
+	1 lt .no_hit!
+	1 lt .nocollide! 
+	1 lt .timer!
+;
+
+
+
+voc{ zombop
+
+: zpcheck
+	($ "Oldstats-transfer: " .. gstats{ oldstats-transfer } $) print
+	($ "old-total-kills: " .. gstats{ old-total-kills } $) print
+	($ "old-total-med+: " .. gstats{ old-total-med+ } $) print
+	($ "old-total-mech+: " .. gstats{ old-total-mech+ } $) print
+	($ "old-total-shoot+: " .. gstats{ old-total-shoot+ } $) print
+	($ "old-total-fit+: " .. gstats{ old-total-fit+ } $) print
+	($ "old-total-str+: " .. gstats{ old-total-str+ } $) print
+	($ "old-total-heal: " .. gstats{ old-total-heal } $) print
+	
+	($ "Oldstats-transfer: " .. gstats{ oldstats-transfer } $) 60 8 * view_w 0.5 * 16 msgtickxy
+	($ "old-total-kills: " .. gstats{ old-total-kills } $) 60 8 * view_w 0.5 * 24 msgtickxy
+	($ "old-total-med+: " .. gstats{ old-total-med+ } $) 60 8 * view_w 0.5 * 32 msgtickxy
+	($ "old-total-mech+: " .. gstats{ old-total-mech+ } $) 60 8 * view_w 0.5 * 40 msgtickxy
+	($ "old-total-shoot+: " .. gstats{ old-total-shoot+ } $) 60 8 * view_w 0.5 * 48 msgtickxy
+	($ "old-total-fit+: " .. gstats{ old-total-fit+ } $) 60 8 * view_w 0.5 * 56 msgtickxy
+	($ "old-total-str+: " .. gstats{ old-total-str+ } $) 60 8 * view_w 0.5 * 64 msgtickxy
+	($ "old-total-heal: " .. gstats{ old-total-heal } $) 60 8 * view_w 0.5 * 72 msgtickxy
+
+;
+
+// Old perk numbers
+
+: perkhighNUM 50 ; // 75
+: perklowNUM 20 ; // 25
+: healthcareNUMhigh 75 ; // 90
+: healthcareNUMlow 30 ;
+: pistolHIGH 25 ; // 20
+: pistolLOW 10 ; // 6
+: shotgunHIGH 50 ; // 45
+: shotgunLOW 20 ; // 15
+: guncrazyHIGH 75 ;
+: guncrazyLOW 30 ;
+: rifleHIGH 37 ; // 30
+: rifleLOW 15 ; // 10
+: carnutHIGH 40 ; // 60
+: carnutLOW 15 ; // 20
+: megabuffHIGH 100 ; // 120
+: megabuffLOW 40 ;
+: ultrafitHIGH 75 ; // 90
+: ultrafitLOW 30 ;
+
+: old-perk-converter
+	
+	gstats{
+	
+	old-total-heal healthcareNUMhigh >= if
+		3 to perk-healthcare
+	else
+		old-total-heal healthcareNUMlow >= if
+			2 to perk-healthcare
+		then
+	then
+	
+	old-total-mech+ perkhighNUM >= old-total-fit+ perkhighNUM >= and if
+		3 to perk-mechanic
+	else
+		old-total-mech+ perklowNUM >= old-total-fit+ perklowNUM >= and if
+			2 to perk-mechanic
+		then
+	then
+	
+	old-total-str+ perkhighNUM >= old-total-fit+ perkhighNUM >= and if
+		3 to perk-athlete
+	else
+		old-total-str+ perklowNUM >= old-total-fit+ perklowNUM >= and if
+			2 to perk-athlete
+		then
+	then
+	
+	old-total-str+ perkhighNUM >= old-total-shoot+ perkhighNUM >= and if
+		3 to perk-fighter
+	else
+		old-total-str+ perklowNUM >= old-total-shoot+ perklowNUM >= and if
+			2 to perk-fighter
+		then
+	then
+	
+	old-total-med+ perkhighNUM >= old-total-shoot+ perkhighNUM >= and if
+		3 to perk-surgeon
+	else
+		old-total-med+ perklowNUM >= old-total-shoot+ perklowNUM >= and if
+			2 to perk-surgeon
+		then
+	then
+	
+	old-total-mech+ perkhighNUM >= old-total-shoot+ perkhighNUM >= and if
+		3 to perk-gungineer
+	else
+		old-total-mech+ perklowNUM >= old-total-shoot+ perklowNUM >= and if
+			2 to perk-gungineer
+		then
+	then
+	
+	old-total-shoot+ guncrazyHIGH >= if
+		3 to perk-guncrazy
+	else
+		old-total-shoot+ guncrazyLOW >= if
+			2 to perk-guncrazy
+		then
+	then
+	 
+	old-total-mech+ carnutHIGH >= if
+		3 to perk-carnut
+	else
+		old-total-mech+ carnutLOW >= if
+			2 to perk-carnut
+		then
+	then
+
+	old-total-str+ megabuffHIGH >= if
+		3 to perk-megabuff
+		3 to perk-bruiser
+	else
+		old-total-str+ megabuffLOW >= if
+			2 to perk-megabuff
+			2 to perk-bruiser
+		then
+	then
+	
+	old-total-fit+ ultrafitHIGH >= if
+		3 to perk-ultrafit
+		3 to perk-martialartist
+	else
+		old-total-fit+ ultrafitLOW >= if
+			2 to perk-ultrafit
+			2 to perk-martialartist
+		then
+	then
+		
+	old-total-kills 1000 >= if
+		3 to perk-dogfriend
+	else
+		old-total-kills 300 >= if
+			2 to perk-dogfriend
+		then
+	then
+
+	old-total-kills 1500 >= if
+		3 to perk-explorer
+	else
+		old-total-kills 500 >= if
+			2 to perk-explorer
+		then
+	then
+	
+	}
+	
+;
+
+: transfer-oldstats
+	gstats{ 
+	
+	oldstats-transfer if then;
+		
+	total-kills to old-total-kills
+	total-med+ to old-total-med+
+	total-mech+ to old-total-mech+
+	total-shoot+ to old-total-shoot+
+	total-fit+ to old-total-fit+
+	total-str+ to old-total-str+
+	total-heal to old-total-heal
+	
+	wins-normal 0 > wins-special 0 > wins-family 0 > or or if
+		15 to ZOMBOP_CAP
+		1 to ugnome-unlocks
+	then
+	
+	wins-deadlier 0 > if
+		20 to ZOMBOP_CAP
+		2 to ugnome-unlocks
+	then
+	
+	old-perk-converter
+	
+	' oldstats-transfer ++ 
+
+	}
+	
+	"Avantages transferes!" print
+;
+
+last execute
+
+}

@@ -1,0 +1,369 @@
+
+// Limit the normally-spawned heads to those below this value
+
+: .zombiehead! args( me )
+	0x ff &
+	<- me .zombietype@ 0x ff ~ & |
+	<- me .zombietype!
+;
+
+: .zombiebody! args( me )
+	0x ff & 8 <<
+	<- me .zombietype@ 0x 00ff00 ~ & |
+	<- me .zombietype!
+;
+
+
+: .zombielegs! args( me )
+	0x ff & 16 <<
+	<- me .zombietype@ 0x ff0000 ~ & |
+	<- me .zombietype!
+;
+
+: zombiedefaults
+	0 zombie_min_heads!
+	13 3 * 2 + zombie_max_heads!
+	0 zombie_min_bodies!
+	11 zombie_max_bodies!
+;
+
+: zombiecops
+	zombiedefaults
+	13 zombie_min_bodies!
+	13 zombie_max_bodies!
+;
+
+: zombieyall
+	zombiedefaults
+	12 zombie_min_bodies!
+	12 zombie_max_bodies!
+;
+
+: zombieclowns
+	zombiedefaults
+	45 zombie_min_heads!
+	56 zombie_max_heads!
+	14 zombie_min_bodies!
+	19 zombie_max_bodies!
+;
+
+: %zombs-cop zombiecops %zombs zombiedefaults ;
+: %zombs-yall zombieyall %zombs zombiedefaults ;
+: %zombs-clown zombieclowns %zombs zombiedefaults ;
+
+: zombs-cop zombiecops zombs zombiedefaults ;
+: zombs-yall zombieyall zombs zombiedefaults ;
+: zombs-clowns zombieclowns zombs zombiedefaults ;
+
+: yall-zombsplit dup 0.5 * %zombs-yall 0.5 * %zombs ;
+// post-script: 10diff dup 0.8 * %zombs-cop 0.2 * %zombs nad ndx - Cop zombies
+
+zombiedefaults
+
+// 1.25 grapple_strength!
+
+// ZOMBIE WAVE SPAWNING STUFF
+
+: .digsound args( self ) sfx{ ruffle 0.25 fx .scale! <- self .adjust-vol 500 fx .filt! 100 fx .a! 50 fx .d! } ;
+
+: zombout args( self )
+	10 <- self .smashybits
+	1 zombs <- self lt-to-thing
+	15 lt .fade!
+	-15 lt .shudder!
+	90 lt .angle!
+	45 lt .stun!
+	lt .pos 8 - lt .pos!
+	particle{ new <- self .pos pos!
+		120 ticks!
+		30 fade_out!
+		street_tiles_base_id 0x 5f + spriteid!
+		1 layer!
+	}
+//	sfx{ ruffle fx <- self .adjust-vol 250 1000 frnd fx .filt! 50 fx .a! 150 fx .d! 0.5 1 frnd fx .pitch! }
+	sfx{ crunch 0.25 fx .scale! 1000 fx .filt! 0.25 1 frnd fx .pitch! <- self .adjust-vol }
+	<- self .shatter
+	<- self silentkillit
+;
+
+: .zombfings args( self )
+	particle{ new <- self .pos <- self .scale.y@ 4 * - pos!
+		0 fade_out!
+		7 ticks!
+		<- self .anim.state@ dup flipx!
+		2 * 1 - 2 * pos.x@ + pos.x!
+		0.5 vel.y!
+		particles_base_id 0x 3e + spriteid!
+		0 layer!
+	}
+;
+
+: moundup args( self eventid  )
+	<- eventid THING_EVENT_TIMER <> if then;
+
+	<- self .anim.hint@ 0= if 25 30 rnd dup <- self .anim.hint! <- self .repeating_timer then
+
+	<- self .scale.y@ 1.5 >= if <- self zombout then;
+	5 rndsign * <- self .shudder!
+	3 <- self .smashybits
+	0.25 <- self .scale.y@ + <- self .scale.y!
+	<- self .digsound
+	<- self .retrigger_timer
+	<- self .flip@ not <- self .flip!
+	<- self .anim.state@ not <- self .anim.state! 
+	<- self .zombfings
+;
+
+: xyzombdigdirt
+	spawn lt .pos!
+	street_tiles_base_id 0x 5d + lt .spriteid!
+	1 lt .nocollide!
+	1 lt .no_hit!
+	1000 lt .mass!
+	15 60 rnd dup lt .fade! lt .timer!
+	0.5 lt .scale.y!
+	rnd5050 lt .flip!
+	' moundup lt .events!
+;
+
+: xyzombdigsnow xyzombdigdirt street_tiles_base_id 0x 5e + lt .spriteid! ;
+
+: snow? dup 0= if drop 0 then; ( tile -- t/f ) map{ LAYER_FLOOR .lspriteid@ } street_tiles_base_id 0x 97 + = ;
+
+: xyzombdig debug_no_zomb@ if 2drop then;
+	2dup map{ pos>tile tile@ snow? } if xyzombdigsnow then; xyzombdigdirt
+;
+
+: .zombfallen? .anim.state@ 1 = ;
+
+// Spawn number of zombies along specified map edge
+: zwave-edge ( edge zombs -- )
+	swap 3 & args( edge )
+	for
+		<- edge 1 & if
+			<- edge 90 * anglexy drop map{ 1 + 2 / pixelw * 0 1 frnd pixelh * }
+		else
+			map{ 0 1 frnd pixelw * <- edge 2 / pixelh * }
+		then
+		1 zombs last-thing .pos!
+	next
+;
+
+
+// Spawn number of zombies in 180 degree arc offscreen at specified angle
+: zwave-angle  ( angle zombs -- )
+	swap args( angle )
+	for
+		-90 90 frnd <- angle + anglexy
+		view_h 0.75 * * swap view_w 0.75 * * swap
+		camera.pos xyadd
+		1 zombs last-thing .pos!
+	next
+;
+
+: zwave-dig ( rad zombs ) args( rad )
+	for
+		0 360 frnd anglexy 0 <- rad frnd xymul // Get random point within radius of camera
+		camera.pos xyadd 
+		2dup map{ xysolid? } if 2drop else xyzombdig then
+	next
+;
+
+: zwave-ex args( zw zombs rad )
+	<- zombs for
+		0 360 frnd anglexy 0 <- rad frnd xymul // Get random point within radius of camera
+		camera.pos xyadd <- zw execute
+	next
+;
+
+: xyzomb 1 zombs lt .pos.y! lt .pos.x! ;
+
+: .splash args( self )
+	15 for
+		particle{ new <- self .pos -5 5 frnd + swap -5 5 frnd + swap pos!
+			particles_base_id 0x 5e + spriteid!
+			5 fade_out!
+			30 ticks!
+			1 2 frnd scale!
+			0.975 grow!
+			-2 -3 frnd vel.z!
+			-1 1 frnd vel.x!
+			-1 1 frnd vel.y!
+			0.1 accel.z!
+			// waterclr 3 for 0.5 * 0.5 + rot next rgb!
+			// waterclr rgb!
+			i wait!
+		}
+	next
+;
+
+: .ripple args( self )
+	particle{ new <- self .pos -3 3 frnd + swap -3 3 frnd + swap pos!
+		15 fade_out!
+		30 ticks!
+		0.5 scale!
+		1.03 grow!
+		waterclr rgb!
+		particles_base_id 0x 4e + spriteid!
+		2 layer!
+	}
+;
+
+: .sploosh
+	dup sfx{ noise 20 fx .freq! 750 fx .freq2! 15 fx .a! 750 fx .d! 0.75 1 frnd fx .pitch! .adjust-vol }
+	.splash
+;
+
+
+: .splooshout 1 zombs lt-to-thing lt .sploosh
+	15 lt .fade!
+	-1 lt .vel.z!
+;
+
+: .bubble args( self )
+	particle{ new <- self .pos 0 360 frnd anglexy 2 6 frnd xymul xyadd pos!
+		15 fade_in!
+		5 fade_out!
+		30 ticks!
+		-0.1 0.1 frnd vel.y!
+		-0.1 0.1 frnd vel.x!
+//		waterclr 3 for 0.5 * 0.5 + rot next rgb!
+//		waterclr rgb!
+
+		0.75 scale!
+		1.01 grow!
+		particles_base_id 0x 5d + spriteid!
+		1 layer!
+	}
+;
+
+
+: waterup args( self eventid  )
+	<- eventid THING_EVENT_TIMER <> if then;
+
+	<- self .ai.counter@ 1 < if <- self .splooshout <- self silentkillit then;
+
+	5 15 rnd <- self .repeating_timer
+
+	<- self .ripple
+
+	<- self .ai.counter@ 1- <- self .ai.counter!
+
+	sfx{ pip 50 fx .freq! 500 fx .freq2! 0.75 1.5 frnd fx .pitch! 0.5 fx .scale! <- self .adjust-vol }
+	<- self .retrigger_timer
+	<- self .flip@ not <- self .flip!
+	<- self .anim.state@ not <- self .anim.state! 
+	<- self .bubble
+;
+
+
+: xyzombwater
+	spawn lt .pos!
+	0 lt .spriteid!
+	1 lt .nocollide!
+	1 lt .no_hit!
+	15 60 rnd dup lt .fade! lt .timer!
+	0.5 lt .scale.y!
+	rnd5050 lt .flip!
+	10 15 rnd lt .ai.counter!
+	' waterup lt .events!
+;
+
+: xyzombceil args( x y )
+	// Ceiling bits
+	spawn <- x <- y lt .pos! -64 lt .pos.z!
+	2 lt .vel.z!
+	inside_tiles_walls_id 0x b + lt .spriteid!
+	15 lt .smashychunks
+	lt silentkillit
+
+	"1" print
+
+	// Zombie
+	1 zombs <- x <- y -64 lt .pos3!
+	0.1 lt .vel.z!
+	sfx{ ruffle 0.65 fx .pitch! 1000 fx .d! lt .adjust-vol }
+	2 rumble
+	lt .zsmack
+
+	"2" print
+
+;
+
+: xyzombbust pos>tile 2>int 2dup map{ tile@ } args( x y tile ) map{
+	 spawn
+	 <- tile LAYER_WALLSIDE .lspriteid@ <- tile LAYER_WALLSIDE .lspritebits@ +
+	 lt .spriteid!
+	 <- tile LAYER_WALLTOP inside_tiles_walltops_id 0x 18 + rnd5050 + .lspriteid!
+	 <- tile LAYER_WALLTOP rnd5050 .tile_layer.flipx!
+	}
+
+	<- x <- y tile>pos lt .pos! lt .zsmack
+	lt .pos.y@ 8 + lt .pos.y!
+	15 lt .smashychunks
+
+	sfx{ ruffle 0.25 fx .pitch! 1000 fx .d! lt .adjust-vol }
+	2 rumble
+	lt .pos lt silentkillit xyzomb
+;
+
+: sewerzomb over .pos args( me eventid x y )
+	<- eventid THING_EVENT_TIMER = not if then;
+
+	<- x <- y xyzombwater
+
+	lt drift
+
+	<- me .retrigger_timer
+;
+
+: time-zomber
+	spawn mission{  ' sewerzomb } lt .events! 
+	( timer ticks for spawn ) sec>tick lt .repeating_timer
+	invisible
+;
+
+: countzomb over .pos args( me eventid x y )
+
+	<- eventid THING_EVENT_TIMER = not if then;
+
+	<- me .anim.hint@ 1 < if <- me silentkillit then;
+
+	<- x <- y xyzomb
+	<- me .anim.hint@ 1- <- me .anim.hint!
+	<- me .retrigger_timer
+;
+
+: count-zomber ( ticks number )
+	spawn lt .anim.hint! mission{  ' countzomb } lt .events! 
+	( timer ticks for spawn ) sec>tick lt .repeating_timer
+	invisible
+;
+
+
+: tztest 2 time-zomber lttm ;
+
+: sewerdrop5
+	5 time-zomber
+;
+
+: sewerdrop2to4
+	3 7 rnd time-zomber
+;
+
+
+: upzomb dup .typeid@ THING_ZOMBIE <> if drop then;
+	-2 -3 frnd swap .vel.z!
+;
+
+: flop-zombs ' upzomb foreach-thing ;
+
+(*
+// Test zombie spawn things
+: psmashwall player .pos 16 - xyzombbust ;
+last 1 hotkey!
+: pwaterup player .pos 16 - xyzombwater ;
+last 2 hotkey!
+: pceil player .pos xyzombceil ;
+last 3 hotkey!
+*)

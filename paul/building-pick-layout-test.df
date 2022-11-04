@@ -1,0 +1,101 @@
+uses paul/region-layout.df
+
+map{ regiondef{
+
+	: locid-bungalow make-bungalow ;
+	: locid-gablehouse make-gable-house ;
+	: locid-2storeyhouse make-2storey-house ;
+
+	// Picks the more low-rent looking houses
+	: make-a-house rnd5050 if locid-bungalow else locid-2storeyhouse then grass-lot walkway ;
+
+	: office-signs
+		1 5 rnd case
+			1 of "DINKUS & SLOAN" endof
+			2 of "CHILLIN' VILLAINS LAW" endof
+			3 of "DAD & SONS" endof
+			4 of "iOmniTeleCorpCo" endof
+			5 of "IniTech" endof
+		endcase
+	;
+	
+	: make-a-pub "MOE'S PUB" sign-text! prefab{ 2 3 rnd 9 0 shop } paved-lot ;
+	: make-a-gunshop "GUN*STOP" sign-text! prefab{ 2 3 rnd 9 0 shop } paved-lot ;
+	: make-a-foodshop "FUD-E-MEYERS" sign-text! prefab{ 2 3 rnd 9 0 shop } paved-lot ;
+	: make-a-police "BUTTVILLE POLICE" sign-text! prefab{ 5 9 0 shop } paved-lot ;
+	: make-a-clinic "E-Z-CLINIC" sign-text! prefab{ 4 9 0 shop } paved-lot ;
+	: make-a-office office-signs sign-text! prefab{ 0 1 rnd 9 0 shop } paved-lot ;
+	
+	
+	: make-apartments ( locationid ) prefab{ mrand 5 8 rnd 0 building } paved-lot ;
+
+	: aplot add-a-path+ grass-lot rnd5050 if 1 lot-back-fence+ then next-plot ;
+
+	: block-last-build-door
+		last-build-doorxy crap-aroundxy
+		2 for last-build-doorxy swap -3 3 rnd + swap 0 2 rnd + crap-aroundxy next
+		last-build-doorxy 1+ crap-aroundxy
+//		last-build-doorxy 1+ tile@ if -8 last-build-doorxy 1+ tile@ .offy! then
+		last-build-doorxy 1+ tile@ if last-build-doorxy 1+ tile@ LAYER_WALLSIDE -4 4 rnd -8 .tile_layer.off! then
+	;
+
+	// 0 make-apartments // EXAMPLE... apartments with no door!
+
+	: pick-building
+
+		' curbuild ++
+
+		// ($ "CURRENT BUILD " .. curbuild $) print
+
+		// DO A SPECIAL LOT if it's set up
+		try-special-build if then;
+
+		// Bottom 3 rows may be trashy, bottom row definitely trashy
+		rowsleft 3 <= rnd5050 and if 0
+		else
+			rowsleft 2 <= if 0 else auto-picklocid then
+		then
+
+		dup if
+			addloc last-loc-pick-script evaluate
+		else drop
+			// no building type picked, do a trashed DMZ location or whatever
+
+			"trashed" $picklocid addloc // TODO: basic trashed interior location
+			make-apartments // TEMP: put what you want here
+
+			// Probably trash up the outside entrance
+			75 %chance if block-last-build-door then
+		then
+	;
+
+	: pick-lots
+		blocks-init
+			6 to blockh
+			4 to maxrows
+			5 to streeth
+			0.35 to greenspace
+			1 3 rnd to grassylots
+		blocks-start
+
+		pavement
+
+		begin canplot? while
+
+			pick-building next-plot
+
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat
+
+		street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		10diff %zombs regiondef{ map{ pavement pick-lots } }
+	;
+} }
+
+// Pass the location ID in to the following to create a new building
+//		prefab{ mrand ( style ) 0 2 rnd 2 * 5 + ( width ) 0 ( depth ) theme-generic-building }

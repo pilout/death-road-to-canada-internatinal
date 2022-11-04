@@ -1,0 +1,93 @@
+regiondef{
+
+: yallmart-margin 
+	map{
+		lt .pos.y@ pixelh 100 - > if 100 -32 32 rnd + lt .pos.y! then
+		lt .pos.y@ pixelh 0.5 * < if pixelh 0.5 * 0 32 rnd + lt .pos.y! then
+	}
+;
+
+: plotcurb locals( t x y ) map{
+	2dup -> y -> x tile@ -> t
+	// Space in the curb for "walking" (just cosmetic)
+	<- x w 2 / 3 - = if exit then
+	<- x w 2 / 2 - = if exit then
+	<- x w 2 / 1 + = if exit then
+	<- x w 2 / 2 + = if exit then
+	<- t LAYER_WALLSIDE street_tiles_base_id 0x 29 +
+		<- x 1 & +
+		.lspriteid!
+	<- t LAYER_WALLSIDE 0 0 .tile_layer.off!
+	<- t LAYER_WALLSIDE 0 .tile_layer.flipx!
+	}
+;
+
+: yallcurb map{ 0 12 w 1 ' plotcurb boxcall } ;
+
+: yallrand map{
+	50 pixelw 50 - rnd
+	pixelh 0.5 * pixelh 100 - rnd
+	lt .pos! drift 
+	}
+;
+
+: setup-pre map{ pavement street-junk } yallcurb ;
+
+: setup-post 
+	3 6 rnd for carwreck yallrand yallmart-margin next 
+	8 12 rnd for shoppingcart yallrand next
+;
+: setup-post-big
+	6 12 rnd for carwreck yallrand yallmart-margin next 
+	10 15 rnd for shoppingcart yallrand next
+;
+: setup-post-tiny
+	2 4 rnd for shoppingcart yallrand next
+;
+: setup-yall-default
+	map{ "yallmart" $picklocid addloc
+	w 2 / 14 - 10 anchor!
+	prefab{ 6 5 yallmart } }
+;
+
+: setup-yallmart-big
+	map{ setup-pre
+	setup-yall-default
+	setup-post-big }
+;
+
+: setup-yallmart
+	map{ setup-pre
+	setup-yall-default
+	setup-post }
+;
+
+: setup-yallmart-tiny
+	map{ setup-pre
+	setup-yall-default
+	setup-post-tiny }
+;
+
+: setup-sporting
+	setup-yallmart
+;
+
+: setup-hardware
+	setup-yallmart
+;
+
+: setup-grocery
+	setup-yallmart
+;
+
+: setup-grocery-big
+	setup-yallmart-big
+;
+
+}
+
+: floorjunk map{ 10 #room-junk } ;
+: floortrash map{ room-garbage room-junk } ;
+: #scatterpoo 0 1 frnd dup * * 0 rnd for poo scatter next ;
+: scatterpoo 5 #scatterpoo ;
+

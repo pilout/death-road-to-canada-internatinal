@@ -1,0 +1,224 @@
+uses base.df
+uses charfilt.df
+uses charstats.df
+uses road.df
+
+cyoa{ road{
+
+0 value teamnurse
+0 value outofmedsblurb
+
+: sum-health .health@ + ;
+: team-health 0 ' sum-health foreach-team-char ;
+
+: healerskill cchar .medical ;
+: nurseskill teamnurse .medical ;
+: nursename teamnurse .name@ ;
+
+// No longer used
+: healformula 1 healerskill 2 / +
+	>int ;	// Convert the result to an integer, thus truncating
+			// decimal part
+cyoa: healthcheck
+	"HEALTH STATUS" cyoa-title!
+	someicon
+	($ cname .. " is a dinkus with " .. cchar .vitality@ .. " max health.
+	" .. cname .. " currently has " .. cchar .health@ .. " health.
+	" .. cHe .. " has " .. cchar damage .. " damage.
+	" .. cHe .. " has " .. healerskill .. " medical skill and could heal for " .. healformula .. " health. 
+	Total team health is " .. team-health .. "
+	Total team damage is " .. team-damage $) cyoa-text! basic-tone
+;
+: maxhealcost healerskill 5 > if -1 else -2 then ;
+: maxhealreq healerskill 5 > if 0 else 1 then ;
+: donomedskill
+	+cr ($ cname .. " is really terrible at this! " $) +text badfx
+
+	10 %chance if    
+		($ cHe .. " ends up making things worse!" $) +text bitefx
+		most-hurt team-attacked
+	else
+		40 %chance LOOT_MEDICAL trunk.loot@ 1 > and if
+			($ "Still, " .. che .. " starts to figure it out." $) +text	
+			medical++
+			-2 LOOT_MEDICAL trunk.loot+
+		then
+	then
+
+	medicalREV
+;
+
+// Newer logic, first used for blurbs bit now used for CYOA
+: nursehealreq 
+	nurseskill 4 > if 1 else
+		nurseskill 1 > if 2 else
+			nurseskill 0 = if 4 else 3 then
+		then
+	then 
+;
+: nursehealcost 
+	nursehealreq -1 * LOOT_MEDICAL trunk.loot+
+;
+
+// pchar .boganify 1 #teamchar .ouch-- 1 #teamchar .ouch-- road{ 3 to road-trip-days
+: isregen? .trait@ "Gnome Regen" $= ;
+: regencheck checkchar isregen? ;
+: regen-hurt ' regencheck pick-team-char ;
+
+// TODO: Consider using VARIABLE RESULT WORD: 
+// chara is only included on the stack if there is a most-hurt
+// character (chara true), otherwise it's just false (0)
+: ?most-hurt ( -- chara true | false )
+	most-hurt dup damage if true exit then drop false ;
+
+// The old healing CYOA method, still used for some things like CYOA resting and walking end of day
+cyoa: dailyhealing
+	"Heal Up!" cyoa-title!
+	medicalest choosechar cicon
+	cchar to teamnurse
+	
+	($ cname .. " rolls up " .. chis .. " sleeves and starts tending to " .. ghis .. " wounds." $) cyoa-text!
+
+	// healerskill 0= if donomedskill then;
+
+	LOOT_MEDICAL trunk.loot@ 1 < nurseskill 5 > and if
+		+cr ($ cname .. " lacks enough medical supplies, but manages to improvise some expert medical care." $) +text goodfx
+		most-hurt damage 0 > if
+				most-hurt .health++ 
+		then	
+	then;
+	
+	LOOT_MEDICAL trunk.loot@ nursehealreq < if
+		+cr ($ cname .. " tries to help, but lacks enough medical supplies." $) +text badfx
+	then;
+
+	nurseskill 4 < if 1 else 
+		nurseskill 6 < if 2 else 
+			nurseskill 7 < if 3 else 5 then
+		then					  
+	then for 
+		LOOT_MEDICAL trunk.loot@ nursehealreq >= if
+			most-hurt damage 0 > if
+				most-hurt .health++ 
+				nursehealcost
+			then
+		then
+	next goodfx
+	+cr
+
+	team-damage 1 < if 
+		($ cname .. " treats all of " .. ghis .. " wounds! " $) 
+		else
+		($ cname .. " treats some of " .. ghis .. " wounds! " $)
+	then +text
+
+	LOOT_MEDICAL trunk.loot@ nursehealreq < < if
+		($ cHe .. " runs low on medical supplies." $) +text // THE GROUP RUNS LOW?
+	then
+	
+	medicalREV 
+	nurseskill 1 < if 
+		40 %chance if medical++ then
+	then;
+	healerskill 3 < if
+		10 %chance if medical++ then
+	then;
+;
+
+// Blurb healing logic start
+: blurb-heal args( chara )
+	<- chara .health++
+	<- chara damage 0 = if 
+		($ ICON_UP textclr$ .. <- chara .name@ .. " is fully healed by " .. nursename .. "!" ..	0 textclr$ $) 
+	then
+	<- chara damage 0 > if 
+		($ ICON_UP textclr$ .. <- chara .name@ .. " is healed a bit by " .. nursename .. "!" .. 0 textclr$ $) 
+	then	
+		blurbevent ICON_UP blurbicon <- chara character# charid blurb-last-to-cyoa
+	teamnurse .medicalREV 
+	nurseskill 1 < if 
+		40 %chance if teamnurse .medical++ then
+	then
+	nurseskill 3 < if 
+		10 %chance if teamnurse .medical++ then
+	then
+	0 to outofmedsblurb
+;
+
+: teamnursechar teamnurse character# charid ;
+: nurseblurb blurbicon teamnursechar blurb-last-to-cyoa ;
+
+: regen-heals args( chara )
+	<- chara damage 0 > <- chara isregen? and if
+		<- chara .health++
+		($ ICON_UP textclr$ .. <- chara .name@ .. " heals via Gnomish Regeneration!" ..	0 textclr$ $) blurbevent ICON_UP blurbicon <- chara character# charid blurb-last-to-cyoa
+	then
+;
+
+// The newer "heal on road during blurbs" method
+: blurbhealing
+	// cyoa version: 0 med was 40% chance to get better while wasting 2 medical, 10% chance to injure.  1 heal base, 1 extra heal per every 2 medical skill. 2 meds to heal normally, 1 if at maxed skill. Maxed skill also gave one free heal per event if you had no supplies. Maxed skill could do 4 heals every camp or rest event. Changed to be like the blurb version during EYEBALL update.
+	// blurb version: 0 med uses 4 medical, has 40% chance to give a medical skill. 1 uses 3 medical. 10% chance to get better if under 3 medical. 2-4 uses 2 medical. 5-6 reduces costs to 1, and 6 lets you heal once if out of medical. 4-5 heals twice per tick instead of once, and 6 heals for 3 ticks.
+	
+	medicalest to teamnurse
+	
+	regen-hurt damage 0 > if
+		regen-hurt regen-heals 
+	then
+	
+	LOOT_MEDICAL trunk.loot@ 1 < nurseskill 5 > and if
+		+cr ($ nursename .. " lacks enough medical supplies, but manages to improvise." $) blurbevent ICON_UP nurseblurb
+		most-hurt damage 0 > if
+				most-hurt blurb-heal
+		then	
+		6 road-delay
+	then;
+	
+	LOOT_MEDICAL trunk.loot@ nursehealreq < if
+		outofmedsblurb 1 < if
+			+cr ($ nursename .. " tries to help, but lacks enough medical supplies." $) blurbevent ICON_DOWN nurseblurb
+			6 road-delay
+			1 to outofmedsblurb
+		then
+	then;
+
+	nurseskill 4 < if 1 else 
+		nurseskill 6 < if 2 else 3 then
+	then for 
+		LOOT_MEDICAL trunk.loot@ nursehealreq >= if
+			most-hurt damage 0 > if
+				most-hurt blurb-heal nursehealcost
+			then
+		then
+	next goodfx
+	+cr
+
+	team-damage 1 < if 
+		($ nursename .. " treats all of " .. ghis .. " wounds! " $) 
+		else
+		($ nursename .. " treats some of " .. ghis .. " wounds! " $)
+	then blurbevent ICON_UP nurseblurb
+
+	LOOT_MEDICAL trunk.loot@ nursehealreq < if
+		($ nursename .. " runs low on medical supplies." $) blurbevent ICON_DOWN nurseblurb
+	then 
+	
+	6 road-delay
+		
+;
+
+: healblurb
+	team-damage 1 < if then;
+	blurbhealing
+;
+
+: dailyheal 
+	team-damage 1 < if then;
+	dailyhealing
+;
+
+: heal-event ' dailyheal stack-road-action ;
+
+} }
+
+

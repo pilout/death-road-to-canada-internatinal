@@ -1,0 +1,95 @@
+"../deathforth/rooms/arcadegym.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/arcadeloc.df" $load
+
+location: bigarcade
+		max-rooms: 10
+		entry-tags: arcadestart
+		pre-script: set-theme-arcade
+		script: set-theme-arcade
+		post-script: 10diff %zombs nad ndx
+
+	3 value arcadecountdown
+		
+	: arcade-door random-door "arcaderoom" only-with-door ;
+	: arcadeend-door 3 for random-door "arcade-play" only-with-door next ;
+	: restroom-door random-door "restroom" only-with-door ;
+	: startarcade
+		arcade-door arcade-door restroom-door
+	;
+	
+	: arcade1
+		' arcadecountdown --
+		arcade-door
+		arcadecountdown 2 < if 
+			random-door "arcadeprehall" only-with-door
+			random-door "arcadeprehall" only-with-door
+		then
+	;
+	
+	: arcade2
+		restroom-door
+	;
+		
+		room-choice: arcadestart
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: startarcade
+			filter-only
+
+		room-choice: arcaderoom
+			room-weight: 10
+			room-count: 3
+			room-script: 
+			room-post-script: arcade1
+			filter-only
+			
+		room-choice: arcaderoom
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: arcade2
+			filter-only
+		
+		room-choice: arcadeprehall
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: arcadeend-door
+			filter-only
+			
+		room-choice: arcade-play
+			room-weight: 10
+			room-count: 2
+			room-script: 
+			room-post-script:
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: 20 %chance if randommag then
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath
+			filter-only
+			
+
+regiondef{			
+
+	region: bigarcade
+		script: timeofday o'clock
+
+		inside
+					
+		loc-choice: bigarcade
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 10diff %zombs inspawn
+}

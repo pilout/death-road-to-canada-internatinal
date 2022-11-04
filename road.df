@@ -1,0 +1,334 @@
+(*
+	in namespace road{
+
+		qmsg 	( -- ) 				// creates a new blank queued blurb msg
+		clear 	( -- )				// clears onscreen blurbs
+		charid 	( charid -- )	 	// assigns a charid to the blurb, shows char head
+		icon 	( icon[0-2] -- )	// assigns ?, UP, or DOWN icon to blurb. Char head pre-empts ? icon
+		tab 	( n -- )			// tabs the blurb over n times
+		pause 	( t -- )			// pauses blurb for t ticks before showing any more blurbs
+		txt		( "text" -- )		// text to show in the blurb
+
+	Example:
+	road{ clear qmsg leader charid 1 icon 15 pause team-leader #character .name@ " morale UP!" $cat txt }
+*)
+
+uses base.df
+
+uses charstats.df
+
+// cyoa images
+uses don/events/utils/cyoa-image-map.df // Load image nomenclature
+
+uses events/common/cyoa-dailymedic.df
+uses charstatmods.df
+
+uses carstats.df
+uses doglogic.df
+
+uses events/car/carlogic.df
+uses decks.df
+
+uses events/car/walkdecks.df
+uses blurb/blogic.df
+
+uses events/trade/shuffler.df
+uses events/trade/familiar-recruit.df
+uses dailydecks.df
+uses roadprep.df
+uses dayplan.df
+// uses locplan.df - Moved to dailydecks.df
+
+uses events/despair/sort.df
+
+// Don's events
+uses don/events/don-common.df // Common events
+
+// debug thing for blurb testing, put " 1 to BLURBTEST " in hack.df
+0 constant BLURBTEST
+
+events{ road{
+
+	: road-restock
+	
+	7 stpick if drop
+		WEAPON_MJOLNIR roadtrip-has-weapon? not if
+			1 WEAPON_MJOLNIR trunk.weapon+	
+		then
+	then
+	15 stpick if drop 
+		WEAPON_SHURIKEN roadtrip-has-weapon? not if
+			7 WEAPON_SHURIKEN trunk.weapon+
+		then
+		WEAPON_SMOKEBOMB roadtrip-has-weapon? not if
+			3 WEAPON_SMOKEBOMB trunk.weapon+
+		then		
+		// ninja-restock 	
+	then
+	52 stpick if drop 
+		lnk-bombbag 1 = if 
+			WEAPON_LNKBOMB roadtrip-has-weapon? not if
+				3 WEAPON_LNKBOMB trunk.weapon+
+			then
+			// lnk-restock
+		then	
+	then
+	;
+	
+	: carbreak-music-checker
+		car-engine 5 < if carbreak-music 
+			car-engine 2 < if loud-vol else quiet-vol then
+		then
+	;
+	
+	// When driving starts, after a mission
+	: roadtrip-start-road
+		road-trip-days 0= if new-day then 
+		// road-trip-days 4 > if end-demo then 
+
+		road-stack depths 0= if
+			1 road-delay // Wait 1 second of dead air
+		else
+			// go with event period set for road-stack
+		then
+
+		0 to road-event-turn
+
+		road-restock
+		road-music
+		carbreak-music-checker
+	;
+	last to main-event-road-start
+
+	: sccamplogic
+		camper-st 1 = team-count 1 > and if
+			mason-camp
+		then;
+		camper-st 3 = team-count 4 < and if
+			santa-camp
+		then;
+		camper-st 11 = if
+			catlady-camp
+		then;
+		camper-st 21 = trunk-food 15 > and if
+			jerk-camp
+		then;
+		camper-st 25 = tlb-camped 0 = and if
+			1 to tlb-camped
+			tlb-camp
+		then;
+		campevent
+	;
+	
+	: camp-event
+		road-trip-days nearcanada-day = if
+			camp3-precanada
+		then;
+		someone to sc-camper
+		camper-st 0 > 40 %chance and if sccamplogic then;
+		campevent
+	;
+		
+	// Temporary stack-road-action testing
+	: bonkbeep 2 500 tone ;
+	
+	: end-day
+		road-trip-days 1 > if
+			camp-event
+			// heal-event
+			petgrow-checker 0 > if
+				pet-grow
+			then			
+			' road-days-report stack-road-action
+		then
+		new-day
+		-1 road-delay
+	;
+
+: road-test
+	cyoa-start
+	"HELLO" cyoa-text!
+;
+
+: anime-countdown-go
+	' anime-countdown -- anime-countdown 1 < if mission{ anime-timeup } then;
+;
+
+0 value road-saves
+
+: final-event
+	
+	stpick-mason if drop
+		' mason-countdown --
+		mason-countdown 1 < if
+			' mason-timeup stack-road-action
+		then
+	else
+		mason-curse 0 > if
+			' mason-alive stack-road-action
+		then	
+	then
+	// Old Mad Scientist used to be a limited time recruit, like the Knight
+	(* 10 stpick if drop
+		' madsci-countdown --
+		madsci-countdown 1 < if
+			' madsci-timeup stack-road-action
+		then
+	then *)
+	15 stpick if drop
+		' ninja-countdown --
+		ninja-countdown 1 < if
+			' ninja-timeup stack-road-action
+		then
+	then
+	53 stpick if drop
+		' knight-countdown --
+		knight-countdown 1 < if
+			' knight-timeup stack-road-action
+		then
+	then
+	62 stpick if drop anime-countdown-go then
+	63 stpick if drop anime-countdown-go then
+	64 stpick if drop anime-countdown-go then
+	65 stpick if drop anime-countdown-go then	
+	52 stpick if drop 
+		lnk-event 4 > if exit then
+		' lnk-countdown --
+		lnk-countdown 1 < lnk-event 5 < and if
+			' lnk-timeup stack-road-action
+		then
+	then
+;	
+
+	: daily-deck-draw daily-deck drawcard ;
+	
+	: day-event
+		' daily-deck-draw stack-road-action
+		road-countdown 2 = if final-event then
+		2 road-delay
+	;
+
+	: despair-check
+		saddest-pass if
+			saddest to bully
+			// bully .morale 1 < if 60 else 25 then %chance if - Former use, was 100 before for 0
+			bully .morale 1 < if
+				2 road-delay 
+				bully oblivious? if // formerly also "75 %chance and" but now a stat drain approach
+					despair-oblivious
+				then;
+				solo if				
+					despair-solo-event
+				else
+					despair-event				
+				then				
+			then;			
+		then
+	;
+	
+	100 LOOT_GAS trunk.loot!
+		
+	: road-event
+	
+		try-to-save
+
+		car-update-display
+			
+		// Various reset stuff
+		mission{ 
+			' cyoa-leave-location to main-event-mission-location-leave
+			' noop to main-event-mission-periodic 
+			time-music-reset
+		}
+		
+		1 to temp-difficulty
+		reset-temp-mods
+					
+		// putting these ones here for RIGHT NOW
+
+		mrand to road-seed	// New random number for determining char selections here
+		0 to texttime		// Adaptive total time to wait when displaying blurbs
+
+		numhums 0= if 
+			no-driver 
+		then;
+
+		// Stacked road actions will execute all in the same count
+		check-road-stack if exit then;
+				
+		road-trip-days nearcanada-day < if // No car breakdown or loss if on pre-final or final day
+			vehicle.which@ 0= if walk-event then;		
+			car-engine 1 < if
+				car-breakdown 3 road-delay
+			then;
+			trunk-gas 1 < 80 %chance car-mpg 0 > and and if
+				car-nogas 3 road-delay
+			then;
+		then
+		
+		road-trip-days nearcanada-day >= vehicle.which@ 0 > and if
+			car-engine 1 < trunk-gas 1 < or if 0 vehicle.which! then
+		then
+		
+		gas-drivemore 0 > if
+			0 to gas-drivemore
+			' gas-drove ++
+			road-trip-days 2 > if innerevent else easyinnerevent then
+		then;
+		0 to gas-drove
+		
+		' road-countdown -- 	// Decrement number of road events remaining
+		' road-event-turn ++	// Number of road events/turns occurred 
+
+		// Countdown finished, go to end of day routine
+		
+		// road-countdown 1 = if end-day then; // Do this if we need to make new-day separate
+		road-countdown 1 < if 
+			// Check for being after the near-final day, for end event
+			road-trip-days nearcanada-day > if canada-crossing then; 
+			end-day 
+		exit then
+
+		// Every event with even-numbered road-countdown
+			( can use a switch case on road-countdown or whatever other
+			event selection tactic you want )
+				
+		BLURBTEST 0 > if
+			bstart
+		then;
+		
+		animefan-checker
+		
+		// Below line is to hijack the first day for not having blurbs
+		road-trip-days 2 < if 
+			daily-deck drawcard 
+			// pchar to bully clown-despair
+
+			2 road-delay
+		then;
+				
+		road-countdown even?
+		if 
+			despair-check ' day-event stack-road-action 
+			// recruitevent
+		// odd event		
+		else
+			vehicle.which@ 0 > if guzzle-mpg -1 car-tune+ carbreak-music-checker then
+			50 %chance if bstart then
+			healblurb
+		then
+
+	;
+
+	' road-event to main-event-road-periodic
+
+	: do-actual-save try-to-save 0 to road-saves beep ;
+
+	: road-cyoa-save road-saves not
+		if ' road-saves ++ ' do-actual-save stack-road-action then need-to-save
+	;
+
+	last to main-event-cyoa-end
+//	' need-to-save to main-event-cyoa-resume
+
+} }

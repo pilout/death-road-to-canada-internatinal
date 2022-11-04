@@ -1,0 +1,65 @@
+"../deathforth/rooms/bigstore.txt" $load-rooms
+"../deathforth/rooms/bigoffice.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/exterior/yall-maker.df" $load
+
+location
+		tags: yallmart
+		max-rooms: 9
+		entry-tags: yallmart
+		
+		script: yall-theme 
+
+	: groceryloot
+		2 for random-door "yallhall" only-with-door next
+		25 to stockchance
+		3 9 rnd for skelscat next
+		2 for LLkitchen next
+		KLroll KLroll
+		shelfstock		
+	;
+
+		room-choice: yallmart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: groceryloot 10diff %zombs
+			filter-only
+
+		room-choice: restroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath	
+			room-post-script: 5diff %zombs
+
+		room-choice: yallhall
+			room-script: ndx
+			room-weight: 1
+			room-count: 2
+			room-post-script: KLroll 5diff %zombs
+
+		room-choice: emplounge
+			room-script: nad
+			room-weight: 1
+			room-count: 1
+			room-post-script: KLroll 5diff %zombs
+			
+		room-choice: storage
+			room-script: nad
+			room-weight: 1
+			room-count: 3
+			room-post-script: 4 for LLkitchen next KLroll KLroll
+
+regiondef{
+
+//	2 1000 tone
+
+	 region: yallmart
+		w: 26
+		h: 40
+		script: timeofday o'clock
+
+		no-prefab
+
+		post-script: setup-grocery-big 5diff %zombs
+}

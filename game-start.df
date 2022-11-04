@@ -1,0 +1,81 @@
+
+filesave{
+
+: finalize-setup
+	gamemode_applyword execute
+	car-update-display
+
+	savechar#-list shuffles to familiar-stack
+;
+
+// Check for Car Nut
+: car-nut-me
+	perkdef{
+		team-stack ' carnut? stack-filter nip 0 > if
+			carnut-picker to starting-car
+			starting-car get-car
+		then 
+	}
+;
+
+: start-game1
+
+	gamemode_applyword to gamemode-word
+
+	// What's this for again?
+	team-count if then;
+
+	// Initiate with starter car
+
+	1 new-cyoa-car
+	
+	// If there's no leader set up for some reason
+	CHARMAKE_LEADER #savechar-clone dup 0= if drop
+		// Generate a random leader
+		char-gen .recruit
+
+		// ** DOESN'T GO PAST HERE IF SOLO **
+		solo_start@ if then;
+
+		// Generate a random buddy
+		char-gen to recruitee recruitee .recruit
+	then;
+
+	// Recruit the cloned leader
+	#character .recruit ( pchar )
+	pchar .applyperk 
+	pchar .applytrait
+	
+	car-nut-me
+	
+	// ** DOESN'T GO PAST HERE IF SOLO **
+	solo_start@ if then;
+
+	CHARMAKE_BUDDY #savechar-clone dup 0= if drop then;
+
+	// Recruit cloned buddy if it exists
+	#character to recruitee recruitee .recruit ( recruitee )
+	recruitee .applyperk 
+	recruitee .applytrait
+	
+	car-nut-me
+	
+;
+
+: start-game2 start-game1 finalize-setup ;
+
+last to start-the-game
+
+: familiartest cyoa-start
+	draw-familiar dup not if drop "NO MORE PEOPLE!" text! then;
+	#savechar-clone #character to recruitee ricon recruitee .applyperk recruitee .applytrait
+	($ "WOW C'EST " .. rname .. "!" $) text! recruited
+;
+
+: game-start-new
+	"GAME START NEW!!!!!!" print
+	start-the-game
+	need-to-save
+;
+last to main-event-new-session
+}

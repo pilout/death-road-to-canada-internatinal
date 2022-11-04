@@ -1,0 +1,109 @@
+uses paul/region-layout.df
+
+
+mission{ map{ regiondef{
+
+(*
+	TODO:
+	- variable road width
+	- optional dirt/gravel shoulders
+*)
+	
+	0 value roadw
+
+	: road-width roadw if roadw then; h 4 - ;
+	: edge-width h road-width - 2 / ;
+
+	: roadrand scatter // Scatter wreckage in a reasonable way that gives us space to enter and exit 
+		lt .pos.x@ pixelw 0.5 * < if // If on left half of map
+			lt .pos.x@ 50 100 rnd + lt .pos.x!
+			else // right half
+			lt .pos.x@ 100 150 rnd - lt .pos.x!
+			drift
+		then
+
+		lt .wallbox.y@ 0.25 * lt .wallbox.y! // Don't push away from top/bottom as much
+
+		// Random extra vertical shift to push some off road sometimes, block ditch-walkers
+		rnd5050 if
+			lt .pos.y@ pixelh 0.5 * < if -1 else 1 then 50 * 
+			lt .pos.y@ + lt .pos.y! then
+		drift 
+	;
+
+	: plotroadlines over 1 & if 2drop then; tile@ LAYER_FLOOR street_tiles_base_id 0x 69 + .lspriteid! ;
+
+	: plotsolidroadlines tile@ LAYER_FLOOR street_tiles_base_id 0x 6a + .lspriteid! ;
+
+	: grassedges
+		-1 -1 w 1 grasslot2 // Top
+		-1 h 2 - w h grasslot2 // Bottom
+	;
+
+	: concedges
+		-1 -1 w 1 conclot // Top
+		-1 h 2 - w h conclot // Bottom
+	;
+
+	: tunnelside LAYER_WALLTOP street_tiles_base_id 0x 81 + .lspriteid! ;
+	: tunneltop LAYER_FINAL street_tiles_base_id 0x 83 + .lspriteid! ;
+
+	: tunnelwallplot tile@
+		TILE_BLOCK over .id! tunnelside
+	;
+
+	: tunnelwallplot2 tile@
+		TILE_BLOCK over .id! LAYER_WALLTOP street_tiles_base_id 0x 82 + .lspriteid! 
+	;
+
+	: tunnelsidefront tile@
+		TILE_BLOCK over .id! LAYER_FINAL street_tiles_base_id 0x 84 + .lspriteid! 
+	;
+
+	: tunnelwalltopplot tile@
+		TILE_BLOCK over .id! tunneltop
+	;
+
+	: tunnelside ' tunnelwallplot hline ;
+	: tunnelside2 ' tunnelwallplot2 hline ;
+	: tunnelsidefront ' tunnelsidefront hline ;
+	: tunneltop ' tunnelwalltopplot hline ;
+
+	: tunnelwalls
+		-1 0 w tunnelside2
+		-1 1 w tunnelside
+		-1 h 2 - w tunneltop
+		-1 h 1 - w tunnelsidefront
+	;
+
+	: some-car-wrecks
+		w h + 4 / ( decent amount based on map dimensions )
+		for 99 %chance if carwreck else burningwreck then roadrand 
+			3 onein if lootable car-loot then
+		next ;
+
+	: %some-car-wrecks
+		w h + 4 / * 
+		for 99 %chance if carwreck else burningwreck then roadrand 
+			3 onein if lootable car-loot then
+		next 
+		2 for 50 %chance if tireiron .scatter then next
+	;
+		
+	: some-car-wrecks 0.5 %some-car-wrecks ;
+
+	: roadlines 0 h 2 / w ' plotroadlines hline ;
+	: roadsolidlines 0 h 2 / w ' plotsolidroadlines hline ;
+	: dirtroad -1 -1 w h dirtbox grassedges ;
+	: gravelroad -1 -1 w h gravelbox grassedges ;
+	: cityroad pavement concedges roadlines ;
+	: countryroad pavement grassedges rnd5050 if roadlines then ;
+	: tunnelroad pavement-nograss concedges tunnelwalls roadsolidlines 0 weather! ;
+
+	: spawn-end-car 
+		tireiron .scatter
+		1 17 rnd spawncar ( lt // don't need this, dotless cyoa! already uses the last thing )
+		cyoa{ ' cyoa-car cyoa! }
+		pixelh 0.5 * lt .pos.y! pixelw 100 - lt .pos.x! ;
+
+} } }

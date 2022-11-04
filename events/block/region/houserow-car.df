@@ -1,0 +1,128 @@
+
+"../deathforth/rooms/city.txt" $load-rooms
+"../deathforth/rooms/office.txt" $add-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+"events/inner/shoploc.df" $load
+
+load? events/city/city-locations.df
+
+locdef{
+
+	location
+		tags: keysinhere
+		max-rooms: 8
+		entry-tags: entry
+		script: set-theme 
+		pre-script: set-theme
+		post-script: 10diff %zombs
+
+		room-choice: entry
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+			filter-only
+
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath
+
+		room-choice: bedroom
+			room-weight: 50
+			room-count: 2
+			room-script: nad
+			room-post-script: beddoor
+
+		room-choice: kitchen
+			room-weight: 20
+			room-count: 1
+			room-script: nad floor-kitchen
+
+		room-choice: living
+			room-weight: 100
+			room-count: 1
+			room-post-script: skelscat carkeys 20 40 rnd sgas
+
+		room-choice: hall
+			room-weight: 1
+			room-count: 1
+			room-script: ndx
+			room-post-script: dbathroom
+
+}
+
+map{ regiondef{
+
+	: pick-building
+
+		' curbuild ++
+		curbuildprinter
+
+		curbuild 1 <= if 
+			60 %chance if 0 else auto-picklocid then
+		else
+			curbuild 1 > curbuild 3 < and if
+				70 %chance if 0 else auto-picklocid then
+			else
+				auto-picklocid
+			then
+		then
+			
+		trashed-house-maker
+	;
+
+	: pick-lots
+		blocks-init
+
+			6 to blockh
+			1 to maxrows
+			5 to streeth
+			35 to greenspace%
+			1 3 rnd to grassylots
+		blocks-start
+
+		pavement
+
+		begin canplot? while
+			pick-building next-plot
+			canplot? 0= if break then
+			block-middle? if LOT_GRASS lastlot = if 1 else 0 then aplot then
+		repeat street-junk
+	;
+
+	: building-pick-setup
+		0 to curbuild
+		5diff %zombs pavement pick-lots
+	;
+	
+} }
+
+regiondef{
+
+	: runme
+		building-pick-setup
+		resetcarkeys
+		1 17 rnd spawncar mission{ cyoa{ ' cyoa-locked-car cyoa! } } 
+		map{ pixelh 0.6 * lt .pos.y! pixelw 0.5 * lt .pos.x! }
+	;
+
+	 region: new-locations-test
+
+		w: 53
+		h: 15
+
+		script: timeofday o'clock
+	
+	easyregcity
+	
+			loc-choice: keysinhere
+			loc-weight: 100
+			loc-count: 1
+
+			loc-pick-script: make-a-house
+		
+		post-script: runme
+}

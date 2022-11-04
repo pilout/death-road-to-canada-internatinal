@@ -1,0 +1,233 @@
+
+// EXAMPLE 2 - KING ZOMBIE
+
+(*
+@ A CYOA that says "YOU SEE KING ZOMBIE". Provides these choices:
+	+ BRIBE WITH 5 FOOD
+		- Only shows up as a choice if you have five food. Removes 5 food from your inventory.
+
+	+ CALL HIM A DINGUS
+		+ Picks biggest ahole = largest aggression and lowest loyalty, with each point under 3 being a +
+			+ Checks that the biggest ahole qualifies as ahole? or the CYOA option doesn't show up
+			+ Doesn't matter if the person's aggression and loyalty is revealed or not
+		+ KING ZOMBIE IS SHOCKED BY name's INSULT AND FLEES
+			+ The chosen person's aggression and loyalty is revealed if it wasn't already
+
+	+ [CHOICENAME] CHARMS HIM
+		+ Picks whoever in the group has the highest combined revealed charm and wits for the CHOICENAME, shows it in the CYOA button before you pick it.
+		+ If charm>4 wit>4, says KING ZOMBIE IS VERY CHARMED and give a morale
+		+ Otherwise do a roll to see if you pass, charm + wits. CHOICENAME CHARMS KING ZOMBIE, CHOICENAME FAILS TO CHARM KING ZOMBIE.
+			+ Success: Do nothing. Failure: Remove a morale from NAME.
+
+	@ TELL KING ZOMBIE TO 'COOL IT'
+			+ COOL IT takes an average of everyone's violence
+			+ If under 3, KING ZOMBIE THINKS YOU HAVE A POINT everyone gains a morale
+			+ If over or equal to 3, KING ZOMBIE FLIPS OUT and everyone loses a point of health
+				+ NAME DIES or NAME AND NAME (AND NAME etc) DIES if their health goes to 0
+	- FLIP OUT ABOUT IT
+		- Picks person in your group with lowest morale.
+			- If under 3, [NAME] FLIPS OUT AND KING ZOMBIE TELLS HIM TO COOL IT
+			- If over 2, UH NO ONE WANTS TO FLIP OUT
+
+	- Picks four out of 5 of the above choices, at random, except
+		- The ahole calls him a dingus one always shows up if it's available
+		- Food bribe always shows up if it's available
+*)
+
+road{
+
+: choice( cyoa-add-choice ($ ;
+: )choice $) cyoa-choice-text! ;
+
+: )choice: postpone )choice (') postpone cyoa-choice-handler! ; immediate
+
+: biggest-ahole ' aholecheck pick-team-char ( -- false | chara true ) // variable results!
+	ahole? 0= if false then;
+	pickchar true
+;
+
+: saddest ' sadcheck pick-team-char ;
+
+: #ahole #character 0 swap 2dup .composure! .loyalty! ;
+
+: #charmr #character STAT_CHARM over .reveal STAT_WITS swap .reveal ;
+
+
+// INSULT IT
+: kz-flee
+	cyoa-good-dialog
+
+	($ "KING ZOMBIE is utterly shocked by " ..
+		choicecharname .. "'s insult, and flees."
+	$) cyoa-text!
+
+	STAT_TEMPERAMENT choicechar .reveal
+	STAT_LOYALTY choicechar .reveal
+ ;
+
+: try-dingus-choice
+
+	biggest-ahole not if exit then
+
+	// character on stack here
+
+	choice(
+		over .name@ .. " calls it a DINGUS"
+	)choice: kz-flee
+
+	choosechar
+;
+
+
+// FEED IT
+
+: foodbribe
+	cyoa-good-dialog
+		"KING ZOMBIE begrudgingly accepts SNACKS, and with a vacant look, it shuffles off." cyoa-text!
+		-5 LOOT_FOOD trunk.loot+
+;
+
+: trunk-food LOOT_FOOD trunk.loot@ ;
+
+: try-food-choice 
+	trunk-food 5 < if exit then
+	choice( "Bribe with SNACKS" )choice: foodbribe
+;
+
+
+// CHARM IT
+
+: charmwits-sum dup .charm@ swap .wits@ + ;
+
+: charmwits-revealed?
+	STAT_CHARM over .knownstat@ not if drop false exit then
+	STAT_WITS swap .knownstat@ not if drop false exit then
+	true
+;
+
+
+: charmwits-check checkchar
+	// Don't even match if charm info isn't revealed
+	checkchar charmwits-revealed? if false exit then
+
+	// Now compare the current pick and the check
+	charmwits-sum pickchar charmwits-sum > if true else false then
+;
+
+: bigcharm? dup .wits@ 4 > swap .charm@ 4 > and ;
+
+: charm-it
+	choicechar bigcharm? if
+		cyoa-good-dialog
+		($ "KING ZOMBIE is very charmed to meet " .. choicechar .name@
+			.. ". Blushing, it shuffles away." $) cyoa-text!
+		STAT_MORALE choicechar .stat++
+		exit
+	then
+
+	choicechar charmwits-sum 4 skillcheck?
+
+	if
+		cyoa-good-dialog
+		($ choicechar .name@ .. " charms KING ZOMBIE, who then simply freezes like a statue. What a peculiar effect." $)
+		cyoa-text!
+	then;
+
+	cyoa-bad-dialog
+	($ choicechar .name@ .. " fails to charm KING ZOMBIE. Feeling awkward after the exchange, KING ZOMBIE quickly disappers around a corner." $)
+	cyoa-text!
+	STAT_MORALE choicechar .stat-- 
+;
+
+: try-charm-choice 
+
+	' charmwits-check pick-team-char
+
+	// Make sure picked char has revealed stats
+	charmwits-revealed? not if exit then
+
+	choice( pickchar .name@ .. " tries to CHARM it" )choice: charm-it
+
+	pickchar choosechar
+;
+
+: sum-temperaments ( sum char -- sum ) .temperament@ + ;
+
+: cool-average 0 ' sum-temperaments foreach-team-char
+	dup team-count / swap
+	"TOTAL TEMPERAMENT " type type " average " type dup type cr ;
+
+: textclr$ 0x f0 + $chr ;
+
+(*
+: team-attacked
+	dup hit'n'die? if
+		($ ICON_SKULL textclr$ .. over .name@ .. " is KILLED!" ..
+			0 textclr$ $) blurbevent blurbskullicon
+		sfx{ creepy 30 fx .delay! }
+	else
+		($ ICON_DOWN textclr$ .. over .name@ .. " is HURT!" ..
+			0 textclr$ $) blurbevent ICON_DOWN blurbicon
+	then
+	blurbchar blurb-last-to-cyoa
+;
+*)
+
+: kz-cool-it
+	cool-average 3 > // GOOD temperament is higher
+	if
+		cyoa-good-dialog
+		($ "KING ZOMBIE ponders your wisdom, and feels that you have a point."
+			.. " Enlightened, it shuffles away." $) cyoa-text!
+		' .morale++ foreach-team-char
+	then;
+
+	cyoa-bite-dialog
+	"KING ZOMBIE is enraged by your hypocrisy and FLIPS THE HELL OUT. You are attacked!"
+	cyoa-text!
+	' team-attacked foreach-team-char
+;
+
+
+// COOL IT
+: try-coolit-choice
+	choice( "COOL IT" )choice: kz-cool-it
+;
+
+: kz-flip-out
+	saddest dup .morale@ 3 <
+	if
+		cyoa-good-dialog
+		($ swap .name@ " starts flipping out about this whole situation... until KING ZOMBIE raises its decrepit hand and, nonchalantly, croaks 'COOL IT'." $) cyoa-text!
+	then;
+
+	cyoa-bad-dialog
+	"Nobody really wants to flip out about this. Everyone stays quiet."
+	cyoa-text!
+;
+
+: try-flipout-choice
+	choice( "FLIP OUT about it" )choice: kz-flip-out
+;
+
+: collect-choices
+	try-food-choice
+	try-dingus-choice
+	try-charm-choice
+	try-coolit-choice
+	try-flipout-choice
+;
+
+: kzombi
+	cyoa-new
+		"ENCOUNTER" cyoa-title!
+		 1 to cyoaicon cyoaicon // The image in the CYOA dialog
+
+		"You see KING ZOMBIE." cyoa-text!
+
+		collect-choices
+;
+
+// ' kzombi 3 hotkey!
+
+}

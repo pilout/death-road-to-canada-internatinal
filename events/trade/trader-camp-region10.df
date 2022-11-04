@@ -1,0 +1,84 @@
+// "../deathforth/events/rareloc/weird.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/exterior/yall-maker.df" $load
+
+"
+:map 1
+:tags yallmart
+:scriptA checkout 
+:scriptB 5 7 rnd carts-here 
+:scriptC regiondef{ traderinside } 
+:scriptD bed 
+:scriptE regiondef{ trader-weapon-buyer-inside }
+:size 23 17 
+:off 2 2 
+:tiles 
+22222222222222222222222
+23333333333333333333332
+211111111E1111111111112
+21111111111111111111D12
+21111111111111111111112
+21111111111111111151112
+21111111111111111151D12
+21111111111111111151112
+2111C1111C1111C11151112
+21111111111111111151D12
+21111111111111111111112
+21111111111111122222222
+211A11A11A1111133333332
+21111111111111111111B12
+21111111111111111111112
+22222222222222222222222
+33333333333333333333333
+"
+value CAMPYALL
+CAMPYALL $parse-rooms
+
+locdef{
+
+location
+		tags: yallmart
+		max-rooms: 3
+		entry-tags: yallmart
+		
+		script: yall-theme 
+
+		: yalltradecamp
+			2 for random-door "restroom" only-with-door map{ block-last-door } next
+			regiondef{ tnomey-spawn } scatter
+		;
+		
+		room-choice: yallmart
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: yalltradecamp
+			filter-only
+
+		room-choice: restroom
+			room-weight: 1
+			room-count: 2
+			room-script: nad floor-bath		
+
+}
+			
+regiondef{
+
+: yalltradesetup 
+	setup-yallmart-tiny
+	1 no_time!
+	7 14 rnd o'clock
+	20 %chance if 1 2 frnd weather! -1 -2 frnd wind_force! else -1 1 frnd wind_force! then
+	mission{ no-edge-spawns }
+
+;
+
+	 region: tradercamp10
+		w: 26
+		h: 15
+
+		trade-mode
+		no-prefab
+
+		post-script: yalltradesetup
+}

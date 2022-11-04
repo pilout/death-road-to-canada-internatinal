@@ -1,0 +1,136 @@
+
+road{ 
+
+}
+
+: all-leave
+	mission{ all-leaving }
+;
+
+: roadsdiff 
+	road{ road-difficulty }
+;
+
+mission{
+
+	0 value siege-end-noclear
+	0 value siege-wave
+	0 value swave-total
+	// swave-total mostly for debugging
+	
+	: swave-go
+		12 1 difficulty / >int
+		3 8 clamp
+	;
+	
+	: siege-over-leave
+		all-leave
+		' cyoa-leave-location to main-event-mission-location-leave
+	;
+
+
+	: .zpacify dup .zomb? not if drop then; 0 over .zomb.state! drop ;
+	: pacify-zombies ' .zpacify foreach-active-thing ;
+	: kill-zombies-outside-when-inside-only curmapview 0 = if then; kill-zombies-outside ;
+
+	cyoa{ cyoa: siege-over-cyoa "PHEW!" cyoa-title! "The siege is over!
+	You can now try to escape!" cyoa-text! ; }
+
+	: siege-over
+		cyoa{ siege-over-cyoa }
+		(* pacify-zombies *)
+		0 region.zombie_basespawn!
+		2 region.zombie_aggro!
+		1 region.zombie_alertscale!
+		( clear-all-pickles )
+		siege-end-noclear 1 < if kill-zombies-outside-when-inside-only then
+		siege-over-leave
+		' noop to main-event-mission-periodic
+		end-siege-music
+	;
+	
+	// digorceil lead to both diggers and ceiling droppers happening at same time, I wanted it to alternate
+	: digorceil 50 %chance if xyzombceil else xyzombdigdirt then ;
+	: siege-wave-inside 
+		// ' xyzombceil 2sdiff 40 90 rnd zwave-ex 
+		curmapview 0 = if 
+			' xyzombdigdirt 2sdiff 40 90 rnd zwave-ex
+		else
+			' xyzombceil 2sdiff 40 90 rnd zwave-ex 
+		then
+	; 	
+	
+	: siege-wave-reset ' swave-total ++ 0 to siege-wave ;
+	
+	// old: sdiff %chance if 2sdiff 40 90 rnd zwave-dig then
+	: siege-logic-common
+		hour siege-endtime = if siege-over (* else beep *) then;
+		FLASHY "SIEGE!" $cat 60 view_w 0.5 * 16 msgtickxy
+		' siege-wave ++ // Gets to 30 for a 2 hour one, 15 for 1 hour
+		1 1 camera.pos alertlcxy
+	;
+
+	: siege-logic-dig
+		siege-logic-common
+		roadsdiff 0.9 > if
+			siege-wave swave-go >= if
+				' xyzombdigdirt 2sdiff 40 90 rnd zwave-ex
+				siege-wave-reset
+			then
+		then
+	;
+	
+	: siege-logic 
+		siege-logic-common
+		roadsdiff 0.9 > if
+			siege-wave swave-go >= if
+				siege-wave-inside siege-wave-reset
+			then
+		then
+	;
+
+	: no-escape-siege
+		no-leaving
+		' door-sieged to main-event-mission-location-leave
+	;
+	
+	: bottom-spawn EDGE_BOTTOM region.edge_spawn! ;
+	: top-spawn EDGE_TOP region.edge_spawn! ;
+	: left-spawn EDGE_LEFT region.edge_spawn! ;
+	: right-spawn EDGE_RIGHT region.edge_spawn! ;
+
+	: no-edge-spawns
+		0 bottom-spawn
+		0 top-spawn
+		0 left-spawn
+		0 right-spawn
+	;
+
+	: siege-start-common 
+		3 region.zombie_aggro!
+		3 region.zombie_alertscale!
+		10sdiff region.zombie_basespawn!
+		0 to siege-wave
+		0 region.zombie_nightspawn!
+		no-escape-siege
+		9999 region.zombie_pickletime!
+		siege-music
+	;
+	
+	: siege-start
+		' siege-logic to main-event-mission-periodic 3 main-event-period!
+		0 to siege-end-noclear
+		siege-start-common
+	;
+	
+	: siege-start-noclear
+		siege-start 1 to siege-end-noclear
+	;
+	
+	: siege-start-dig
+		// ' siege-logic-dig to main-event-mission-periodic 3 main-event-period! siege-start-common 
+		siege-start
+	;
+
+}
+

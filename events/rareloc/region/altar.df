@@ -1,0 +1,72 @@
+"../deathforth/rooms/city.txt" $add-rooms
+"events/inner/basehouses.df" $load
+
+" 
+:map 1 
+:tags altar  
+:scriptA altar 
+:size 9 9 
+:off 10 1 
+:tiles 
+222222222
+233333332
+211111112
+211111112
+2111A1112
+211111112
+211111112
+222222222
+333333333
+"
+value ALTARROOM
+ALTARROOM $parse-rooms
+
+: redtint
+	1 0.2 0.2 tint_near!
+	0 0 0 tint_far!
+	1 light_mode!
+	60 tint_trigger
+;
+
+locdef{
+
+location: altarhouse
+		max-rooms: 12
+		entry-tags: open1
+		script: set-theme-house
+		pre-script: set-theme-house
+		post-script: 10diff %zombs redtint
+
+		2bed2bath9open evaluate
+		
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath commonranged
+		
+		room-choice: altar
+			room-weight: 20
+			room-count: 1
+			room-script: nad 4 for skelscat next
+					
+		room-choice: bedroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad		
+			room-post-script: bigloot
+		
+}		
+
+regiondef{			
+
+	region: altarhouse
+		script: timeofday o'clock
+
+		inside
+					
+		loc-choice: altarhouse
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 5diff %zombs inspawn
+}

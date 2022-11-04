@@ -1,0 +1,49 @@
+// - Look in locgen.df for the theme helper words I used
+
+locations-start
+
+locations-reset
+
+	location
+		tags: bedroom house
+		max-rooms: 7
+		entry-tags: entry
+
+		: set-theme
+
+			rnd5050 if floor-carpet else floor-wood then
+
+			0 3 rnd loc-wtheme!
+			0 4 rnd loc-dtheme!
+			0 5 rnd to theme-num 
+
+		;
+
+		: nad 0 auto-doors! ; 
+		: ndx 0 %auto-door-escape ;
+		
+		script: set-theme 
+		pre-script: set-theme
+		post-script: 0 2 rnd zombs
+		
+
+		room-choice: entry
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: dhall
+			filter-only
+
+		room-choice: closet
+			room-weight: 10
+			room-count: 5
+			room-script: nad
+
+		room-choice: hall
+			room-weight: 10
+			room-count: 2
+			room-script: ndx
+			room-post-script: dbathroom
+				
+locations-end
+

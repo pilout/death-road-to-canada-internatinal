@@ -1,0 +1,52 @@
+"../deathforth/rooms/arcadegym.txt" $load-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+"events/inner/gymloc.df" $load
+
+location: swarmgym
+		max-rooms: 4
+		entry-tags: gymstart
+		pre-script: set-theme-arcade
+		script: set-theme-arcade
+
+		: swarmgymentry
+		random-door "gym-entry" only-with-door
+		random-door "gym-entry" only-with-door
+		random-door "restroom" only-with-door
+		;
+		
+		room-choice: gymstart
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: 5diff %zombs swarmgymentry
+			filter-only
+			
+		room-choice: gym-entry
+			room-weight: 10
+			room-count: 2
+			room-script: 
+			room-post-script: 10diff %zombs
+			filter-only
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: nad floor-bath	
+			room-post-script: 5diff %zombs
+			filter-only			
+
+regiondef{
+	
+	 region: gym
+		w: 15
+		h: 12
+		script: timeofday o'clock
+		post-script: inspawn
+
+		inside no-prefab
+		
+		loc-choice: swarmgym
+			loc-weight: 1
+			loc-count: 1
+
+}

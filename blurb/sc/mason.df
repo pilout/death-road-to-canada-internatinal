@@ -1,0 +1,77 @@
+: mason-stareat
+	blurbslot 0= if 
+		solo if 
+			($ "stares at nothing in particular while sharpening his machete." $) blurbdo 
+		then;
+		($ "stares at " ..  2nd-char .name@ .. " while sharpening his machete." $) blurbdo
+	else
+		blurbslot 2 < if
+			50 %chance if
+				($ "Uhhh... crap." $) blurbsay
+			else
+				($ "squirms in discomfort." $) blurbdo
+			then
+			99 %chance if 
+				($ "continues staring." $) 1st-char .blurbdo
+			else
+				($ "HI I'M MASON MOORHIZ" $) 1st-char .blurbsay
+			then
+			STAT_MORALE me .stat--
+		then
+	then
+;
+
+	: MASON-oneline1 " stares silently." ;
+	: MASON-oneline2 " quietly seethes with rage." ;
+	: MASON-oneline3 " emits an aura of malice." ;
+	: MASON-oneline4 " stares at nothing." ;
+	: MASON-oneline5 " wheezes menacingly." ;
+	: MASON-oneline6 " sits completely motionless while holding a cleaver." ;
+	: MASON-oneline7 " thinks about something, probably murder." ;
+	: MASON-oneline8 " contemplates the meaning of life." ;
+	: MASON-oneline9 " briefly grunts to itself." ;
+	: MASON-oneline10 " develops a cramp from sitting around." ;
+	: MASON-oneline11 " wipes blood off of cleaver." ; 
+	: MASON-oneline12 " wipes blood off of mask." ; 
+	: MASON-oneline13 " holds cleaver over head, ready to swing at anything." ;
+	: MASON-oneline14 " somehow has more blood on himself than he did a couple minutes ago." ;
+
+	deck-new
+		card: MASON-oneline1
+		card: MASON-oneline2
+		card: MASON-oneline3
+		card: MASON-oneline4
+		card: MASON-oneline5
+		card: MASON-oneline6
+		card: MASON-oneline7
+		card: MASON-oneline8
+		card: MASON-oneline9
+		card: MASON-oneline10
+		card: MASON-oneline11
+		card: MASON-oneline12
+		card: MASON-oneline13
+		card: MASON-oneline14
+	constant MASON-ONELINERS
+	MASON-ONELINERS var mason-oneliners
+	MASON-ONELINERS shuffles to mason-oneliners
+
+: mason-oneliner
+	mason-oneliners depths 0= if MASON-ONELINERS shuffles to mason-oneliners then
+	blurbslot 0= if
+		qmsg ($ me .name@ .. mason-oneliners drawcard $) txt
+	then
+;
+
+: ...say
+	blurbslot 0= if 
+		"..." blurbsay
+	then
+;
+
+	deck-new
+	14 cards: mason-oneliner
+	5 cards: ...say
+
+	constant BLURB-MASON-DECK
+	BLURB-MASON-DECK var blurb-mason-deck
+	BLURB-MASON-DECK shuffles to blurb-mason-deck

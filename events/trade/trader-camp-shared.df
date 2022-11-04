@@ -1,0 +1,1181 @@
+
+map{ regiondef{
+
+// common trade camp stuff
+
+: rdrift args( amt ) lt .pos 2 for <- amt dup neg rnd + swap next
+	lt .pos!
+;
+
+: campfirerain 10 %chance if 0 0.4 frnd weather! then ;
+
+: lt-here xyp.xy tile>pos lt .pos! ;
+
+: dotirestack tirestack lt-here 8 rdrift ;
+: docarwreck carwreck lt-here drift ;
+	
+: testbox spawn car_wrecks_base_id 0x 7 + spriteid! bbox immovable lt-here ;
+
+: wooded xyp.xy tile>pos 0 1 frnd * pine lt .pos! lt .sprw 0.5 * 4 + lt .wallbox.x! drift ;
+
+: spawnhere spawn lt-here ;
+
+: smallball bbox lt .rad.x@ lt .rad.y@ min 0 lt .rad.y! lt .rad.x! ;
+
+: missionchar? #teamchar .party@ if 1 then; 0 ;
+
+: .tent-enter args( tent thing )
+	<- tent <- thing .enter
+;
+
+: camping-road-start
+	"SAY THAT WAS A NICE SLEEP, MAYBE SOMEONE GOT HEALED OR IS NOT SICK ANYMORE OR HAD A WEIRD DREAM OR SOMETHING"
+	$cyoa-ok-dialog
+;
+
+// NOTE: Could also queue this in the road stack as before... just testing new stuff
+: end-camping to-road 90 global_delay! -90 fade_to 1 ' camping-road-start timer_add ;
+
+: cyoa-tent args( thing )
+
+	player .inside_id@ if then;
+
+	<- thing player .tent-enter
+	0 <- thing .cyoa!
+	90 fade_to
+
+	120 ' end-camping timer_add
+;
+
+: cyoa-chatter args( thing )
+	"HEY I MAYBE SOMEONE CAN TREAT MY WOUNDS OR MY COUSIN HAS A HIDDEN BUNKER IN THE WOODS OR I HEARD SOME URBAN LEGEND"
+	" TO INVESTIGATE AS A TRIP-LENGTHENING SIDE-QUEST OR WE CAN JUST CHAT ABOUT STUFF" .. $cyoa-ok-dialog
+	// TODO: ... And then a side quest could be QUEUED into the road event stack
+;
+
+: tentlt
+	special_objects48_base_id 0x 2b 0 4 rnd + + lt .spriteid!
+	bbox 0 lt .rad.y! 0.5 lt .rad.x@ * lt .rad.x!
+	15 lt .hitpoints!
+	100 lt .flammability!
+	1 lt .no_hit!
+	0.25 lt .wind!
+	rnd5050 lt .flip!
+	immovable
+;
+
+: tenthere spawnhere tentlt
+	' cyoa-tent lt .cyoa!
+	particles_base_id 0x 3d + lt .action_icon!
+;
+
+: ttenthere spawnhere tentlt 8 rdrift ;
+
+cyoa{ regiondef{
+
+cyoa-choice: cyoa-fire-rest
+	someicon clear-cyoa "A day passes in the trading camp." text!
+	road{ dailyheal } basic-tone
+	($ Thegroup .. " is able to get some much needed rest." $) +crtext
+	team-count -2 *  LOOT_FOOD trunk.loot+ road{ 1 calendar-day+ } sleep 
+	' .morale++ foreach-team-char o'clock@ 3 6 rnd + o'clock
+;
+
+cyoa: cyoa-fire
+	"Trader's Campfire" cyoa-title!
+	weather@ 0.25 < if
+		"The fire is very welcoming." text!
+	else
+		// TODO: Change camp options based on weather
+		"The weather in camp is miserable." text!
+	then
+	($ Thegroup .. " could stay in this camp for a day to rest and check wounds, if you can spare the time and food." $) +crtext
+	choice( "No time to rest" )choice
+	trunk-food team-count 2 * 1 - > if
+		choice( "Rest for a day" )choice: cyoa-fire-rest
+	then
+;
+} }
+
+
+: campfire-events args( me eventid )
+	<- eventid THING_EVENT_TIMER <> if then;
+	0.1 <- me
+
+	5 10 rnd <- me .timer!
+
+	weather@ 0.25 < if
+		special_objects48_base_id 0x 29 + <- me .spriteid!
+
+		10 onein if .flames else
+			rnd5050 if
+				.licks
+			else
+				.embers
+				rnd5050 if
+					sfx{ noise 0.1 0.25 frnd fx .scale! 1 10 frnd fx .pitch!
+						5000 fx .filt_high!
+						2 10 rnd fx .a!
+						5 15 rnd fx .d! 0.7 0.95 fx .q! }
+					<- me .adjust-vol
+				then
+			then
+		then
+
+		1 <- me .no_lighting!
+
+		<- me .clr.r@ 1 < if 1 else 0.9 then <- me .clr.r!
+		0.9 <- me .clr.g!
+		0.9 <- me .clr.b!
+
+		<- me .timer@ 1- <- me .pos ticklight
+		1 0.4 0.1 lt .clr! 80 100 frnd lt .item.hint!
+
+	else
+		0 <- me .no_lighting!
+		special_objects48_base_id 0x 2a + <- me .spriteid!
+	then
+;
+
+
+: himher if "her" else "him" then ;
+
+: gravename .thingseed@ dup 1 & seeded-name ;
+: gravehimher .thingseed@ 1 & himher ;
+
+: mourner-chat dup .followed args( me grave )
+	 ($ "Alas, poor " .. <- grave gravename .. ". I knew " .. <- grave gravehimher .. ", " .. pchar .name@ .. "..." $)
+	 <- me .sprayit
+;
+
+0 stack
+	"I heard some people are going for Canada, LOL " trollface .. shove
+	"How about those zombies, what a pain am I right?" shove
+	"Be careful out there!" shove
+	"Heh, hang in there..." shove
+	"Beware the clown." shove
+	"I hear there's a monster out there named The G*rf." shove
+	"You'll put your eye out, kid!" shove
+	"Nothing but old cans of food to eat!" shove
+	"You'll need some serious firepower to make it to Canada." shove
+	"No, YOU cool it!" rbold shove
+	"I bet Canada doesn't even exist! It's a conspiracy!" shove
+	"I always knew the zombie apocalypse would happen!" shove
+	"I'm fine with zombies but I can't handle ghosts" shove
+	"The Well of Wishes hides in the Crypt of Decay" shove
+	"I was in a big team once but everyone got eaten." shove
+	"If I could only find a suit of plate armor..." shove
+	"I'm never leaving this camp!" shove
+	"Cats still exist, but they've grown really big now!" shove
+	"You doin' this!" shove
+	"Good luck with Canada!" shove
+	"Keep moving! That's the best way to not get bit!" shove
+	"I used to have a flamethrower but a teammate stole it" shove
+	"Don't trade away too much food, you might need it later" shove
+	"Don't hoard your food, trade it before bandits get it!" shove
+	"Is the Death Road really as bad as the name implies?" shove
+	"What is this... Can-adoh you speak of?" shove
+	"What's your favorite type of canned food?" shove
+	"Can gasoline go bad?" shove
+	"Who in their right mind would crawl into a gas tank?" shove
+	RAINBOW 0x dd $chr .. " EVERY DAY ON THE DEATH ROAD! IS A DAY TO MAKE FRIENDS! "  .. 0x de $chr .. shove
+	RAINBOW 0x dd $chr .. " Every day on the Death Road is a new adventuuuure! " .. 0x de $chr .. shove
+	"I'm taking a little break before I get back on the Death Road" pbold shove
+	"Someone needs to fix the roads! " rbold DX .. shove
+	"Just take things a day at a time" pbold shove
+	"I would trade my fortune for a real roll of toilet paper" shove
+	"Secret tip: Shopping carts are the ultimate weapon " ;) .. shove
+	"Keep dying? GIT GUD " trollface .. shove
+	"I AM ERROR" shove
+	"Think you can make it to Canada? That's horse trash!" shove
+	"Hi. Be kind to animals." shove
+value random-sayings-base
+random-sayings-base shuffles var random-sayings
+
+: random-npc-saying
+	random-sayings depths 0= if random-sayings-base shuffles to random-sayings then
+	pops nip
+;
+
+// Pick the same saying each time based on the camper's thingseed
+: .random-npc-same-saying
+	random-sayings depths rot .thingseed@ abs swap % 1+ picks nip
+;
+
+
+: camper-unique-chat args( me ) random-npc-saying <- me .sprayit clear-cyoa ( $cyoa-ok-dialog ) ; 
+
+: camper-same-chat args( me ) <- me .random-npc-same-saying <- me .sprayit ; 
+
+: camper-chat camper-same-chat ; // Change to camper-unique-chat if you don't like this way
+
+// TODO: Make it so traders get angry if you loot their fridge etc.
+: getout-chat args( me ) "HEY! GET OUT OF OUR HOUSE!" <- me .sprayit  ;
+
+: trader-event args( me eventid ) THING_EVENT_TIMER <- eventid <> if then;
+
+	<- me .cyoa@ 0= if then; // Just time out, don't display icon anymore
+
+	15 <- me .repeating_timer
+
+	<- me .nearest? if "" <- me .report then;
+
+	<- me .loot@ dup 0= if drop 1 GREEN "$" .. else looticon then
+
+	1 swap <- me .reportdurnow
+;
+
+
+// ********** BEGINNING OF NEW-CAMPRECRUIT-NPC ****************
+
+: camprecruit-last-npc lt .character@ args( ch )
+	' trader-event lt .events!
+	1 lt .timer!
+
+	lt-here
+
+	// drawpair just pulls out a pair from the specified stack, which we can then use to set up our new-npc:
+	camprecruit-draw-picker // returns ( 'setup-word 'cyoa-word )
+	lt .cyoa! <- ch swap execute // Assign cyoa, execute setup word on character
+;
+
+: new-camp-npc new-npc
+	(* 60 onein if
+		lt .character@ dup statmod{ .doggify .superdog }
+		WEAPON_CLAW lt .character@ .weapona! // This makes them stand up
+	then *)
+
+;
+
+: new-camper new-camp-npc lt .character@ args( ch )
+	// Previously 179, 185 works for having them be a random direction in facing.
+	185 rnd5050 + lt .aim_angle!
+	0.025 <- ch .ai.wander_chance!
+	50 <- ch .ai.safety_leash!
+	' camper-chat lt .cyoa!
+	lt-here
+;
+
+: new-recruit new-camper camprecruit-last-npc ;
+
+// HUMERUS
+
+: familiarrecruit-last-npc lt .character@ args( ch )
+	' trader-event lt .events!
+	1 lt .timer!
+
+	lt-here
+
+	camprecruit-drawpair-familiar
+	lt .cyoa! <- ch swap execute
+;
+
+: new-familiar-recruit new-camper familiarrecruit-last-npc ;
+
+0 value camprecruit-spawned
+
+: new-camper-or-recruit
+	// Hijacking new-camper above. Set to always be a camprecruit for now.
+	// Likely change this to always be a chatter like it was, and then go into campfirehere below and other places to change when new-camprecruit-npc's are spawned.
+	
+	camprecruit-spawned 1 < if
+		new-recruit
+		' camprecruit-spawned ++
+	else
+		new-camper
+	then
+;
+
+// ********** END OF NEW-CAMPRECRUIT-NPC ****************
+
+: getout-npc still-npc args( ch )
+	50 <- ch .ai.safety_leash!
+	' getout-chat lt .cyoa!
+;
+
+
+: campfire-base spawnhere lt args( t )
+	special_objects48_base_id 0x 29 + lt .spriteid!
+	rnd5050 lt .flip!
+	1 lt .no_hit!
+	0 lt .flammability!
+	smallball
+	immovable
+	' campfire-events lt .events!
+	1 lt .timer!
+	1 lt .no_lighting!
+	1 lt .uncentered!
+;
+
+
+: campfire-simple
+	campfire-base
+//	' cyoa-fire lt .cyoa!
+;
+
+: campfirehere
+	campfire-simple
+	' cyoa-fire lt .cyoa!
+	lt thing# 1 3 rnd for dup new-camper-or-recruit lt .ai.followid! next drop
+;
+
+
+(* : campfirehere spawnhere lt args( t )
+	special_objects48_base_id 0x 29 + lt .spriteid!
+	rnd5050 lt .flip!
+	1 lt .no_hit!
+	0 lt .flammability!
+	smallball
+	immovable
+	' campfire-events lt .events!
+	1 lt .timer!
+	1 lt .no_lighting!
+	1 lt .uncentered!
+
+	' cyoa-fire lt .cyoa!
+
+	1 3 rnd for new-camper-or-recruit <- t thing# lt .ai.followid! next
+; *)
+
+
+: .caulbubble args( self )
+
+	sfx{ pip 50 fx .freq! 500 fx .freq2! 0.5 2.5 frnd fx .pitch! 0.25 fx .scale! <- self .adjust-vol 1 fx .k!
+		100 fx .filt!
+		0.5 fx .q!
+		15 fx .a!
+		}
+
+	particle{ new <- self .pos 0 360 frnd anglexy 2 6 frnd xymul 0.5 * xyadd pos!
+		pos.y@ 17 - pos.y!
+		5 fade_in!
+		5 fade_out!
+		30 40 rnd ticks!
+		-0.1 -0.3 frnd vel.y!
+		-0.1 0.1 frnd vel.x!
+		0.78 0.92 0.35 rgb!
+		0 global_colour!
+		// glowy
+		0.75 scale!
+		1.01 grow!
+		particles_base_id 0x 5e + spriteid!
+		// 1 layer!
+	}
+;
+
+
+: cauldron-events args( me eventid )
+	<- eventid THING_EVENT_TIMER <> if then;
+	0.1 <- me
+
+//	5 10 rnd <- me .timer!
+	5 <- me .timer!
+
+	4 onein if <- me .caulbubble then
+
+	rnd5050 if
+		10 onein if .flames else
+			rnd5050 if
+				.licks
+			else
+				.embers
+				rnd5050 if
+					sfx{ noise 0.1 0.25 frnd fx .scale! 1 10 frnd fx .pitch!
+						5000 fx .filt_high!
+						2 10 rnd fx .a!
+						5 15 rnd fx .d! 0.7 0.95 fx .q! }
+					<- me .adjust-vol
+				then
+			then
+		then
+	then
+
+	1 <- me .no_lighting!
+
+	<- me .clr.r@ 1 < if 1 else 0.9 then <- me .clr.r!
+	0.9 <- me .clr.g!
+	0.9 <- me .clr.b!
+
+	<- me .timer@ 1- <- me .pos ticklight
+	1 0.2 0.0 lt .clr! 50 60 frnd lt .item.hint!
+;
+
+
+: cauldron spawnhere lt args( t )
+	special_objects48_base_id 0x 4c + lt .spriteid!
+	1 lt .no_hit!
+	0 lt .flammability!
+	smallball
+	immovable
+	' cauldron-events lt .events!
+	1 lt .timer!
+//	1 lt .no_lighting!
+	1 lt .uncentered!
+
+//	' cyoa-cauldron lt .cyoa! // DRINK BROTH? PROVIDE INGREDIENTS?
+;
+
+: tradercartype
+	0 9 rnd args( n )
+
+	<- n 3 < if CAR_VAN then;
+	<- n 6 < if CAR_STATIONWAGON then;
+	<- n 9 < if CAR_FOODTRUCK then;
+
+	rnd5050 if CAR_MUSCLE1 else CAR_MUSCLE2 then
+;
+
+: tradercarhere tradercartype spawncar lt-here 0 lt .cyoa! 8 rdrift
+	lt .car-which CAR_FOODTRUCK = if then;
+	rnd5050 lt .flip!
+;
+
+: quietgravehere 3 onein if then;
+	spawnhere special_objects32_base_id 0x 8f + lt .spriteid!
+	rnd5050 lt .flip!
+	bbox immovable 
+	8 rdrift
+;
+
+: gravehere 3 onein if then;
+	quietgravehere
+	3 onein if
+		lt thing# new-camper ' mourner-chat lt .cyoa! lt .ai.followid!
+	then
+;
+
+
+: covered-boxes spawn special_objects48_base_id 0x 10 + 0 9 rnd + lt .spriteid! bbox immovable ;
+
+: trader-generic-cargo args( trader )
+	rnd5050 if covered-boxes <- trader .pos lt .pos! 8 rdrift then;
+
+	3 for indcrate <- trader .pos lt .pos! immovable drift next
+;
+
+: trader-gas-stand dup .character@ args( trader chara )
+	CAR_RUSTY_TRUCK spawncar <- trader .pos lt .pos! immovable 8 rdrift rnd5050 lt .flip!
+
+	// Can't steal
+	// TODO: Make it stealable if at the right edge?
+	0 lt .events!
+	0 lt .cyoa!
+
+	// Always male
+	0 <- chara .female!
+	LOOT_GAS <- trader .loot!
+	// With a beard
+	<- chara .facetype@ 0= if 1 <- chara .facetype! then
+;
+
+: strength-events args( me eventid )
+
+	<- eventid THING_EVENT_TIMER <> if then;
+
+	<- me .followed 0= if 0 <- me .ai.followid! then;
+
+	<- me .retrigger_timer
+	<- me .fatigue@ if then;
+
+	<- me .followed .pos <- me .pos xysub xymag 24 > if then;
+
+	<- me .anim.substate@ 5 >= if
+		0 <- me .anim.substate! 90 <- me .fatigue!
+		rnd5050 if "Feel that PUMP!" else "NO PAIN!" cr$ .. "NO GAIN!" .. then DEATH swap .. <- me .yellmsg
+	then;
+	<- me .anim.substate@ 1+ <- me .anim.substate!
+
+	90 <- me .pause!
+	0 0 0 <- me .vel3!
+	0 <- me .pos.z@
+	<- me dup .followed face-each-other
+	<- me statmod{ .grunt }
+
+	-2 <- me .followed .vel.z!
+	<- me .followed .pos.x@ <- me .pos.x!
+	<- me .pos.y@ <- me .followed .pos.y@ - sign 6 * <- me .followed .pos.y@ + <- me .pos.y!
+	15 <- me .character@ .ai.safety_leash!
+;
+
+: trader-strength-stand dup .character@ args( trader chara )
+	// Always male
+	0 <- chara .female!
+
+	// Not a dog
+	<- chara statmod{ .depettify } 
+
+	// With a beard
+	<- chara .facetype@ 0= if 1 <- chara .facetype! then
+
+	// And old
+	12 <- chara .haircolour!
+
+	// With grey sweatsuit
+	9 <- chara .torsotype!
+	10 <- chara .legstype!
+
+	// Go right up to barbell
+	1 <- chara .ai.wander_chance!
+	1 <- chara .ai.flock_dist!
+	0 <- chara .ai.follow_leash!
+	0 <- chara .ai.safety_leash!
+	90 <- chara .thing@ .stun!
+	6 <- chara .fitness!
+	6 <- chara .strength!
+
+	' strength-events <- chara .thing@ .events!
+	90 <- chara .thing@ .repeating_timer
+
+	dumbrack <- trader .pos lt .pos! 1 movey
+	olympicbar <- trader .pos lt .pos! 8 rdrift 1 lt .no_hit!
+
+	// Concrete slab to get swole on
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: trader-female-cargo
+	1 over .character@ .female!
+	trader-generic-cargo
+;
+
+: trader-male-cargo
+	0 over .character@ .female!
+	trader-generic-cargo
+;
+
+: trader-male-stand
+	0 over .character@ .female!
+	// TODO: Hand-build wooden stand
+	trader-generic-cargo
+;
+
+: trader-medical-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+	LOOT_MEDICAL <- trader .loot!
+	stockpile-boxes-medical <- trader .pos lt .pos! drift
+;
+
+: .smiley-icon 0x 64 particles_base_id + swap .action_icon! ;
+
+: trader-medicalt-stand dup .character@ args( trader chara )
+	<- trader silentkillit
+	CAR_VAN spawncar <- trader .pos lt .pos! immovable 8 rdrift -1 movey rnd5050 lt .flip!
+	' trade-medicalt cyoa! 
+	lt .smiley-icon
+;
+
+: trader-fitness-stand dup .character@ args( trader chara )
+	// TODO: Woman running in place
+	1 <- chara .female!
+	3 <- chara .bodytype!
+	19 <- chara .hairtype!
+	0 <- chara .hattype!
+	13 <- chara .legstype!
+	1 <- chara .torsotype!
+	treadmill <- trader .pos lt .pos! immovable
+	gymbike <- trader .pos lt .pos! 8 rdrift
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: trader-shoot-stand dup .character@ args( trader chara )
+	1 <- chara .female!
+	WEAPON_HUNTING <- chara .weapona!
+	1 LOOT_RIFLE_SHELL <- chara .lootamt!
+	chair <- trader .pos lt .pos! immovable
+	// TODO: Add something here that isn't a chair?
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: trader-allammo-stand dup .character@ args( trader chara )
+	<- chara dup statmod{ .doggify .superdog }
+	WEAPON_CLAW <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	3 for indcrate <- trader .pos lt .pos! immovable drift next
+	// TODO: Need ammo boxes you can't pick up as decoration.
+;
+
+: trader-groupheal-stand dup .character@ args( trader chara )
+	1 <- chara .female!
+	stretcher <- trader .pos lt .pos! immovable
+	hospitalcurtain  <- trader .pos lt .pos! -2 movey immovable
+	hospitalcurtain  <- trader .pos lt .pos! 2 movey immovable
+	wheelchair <- trader .pos lt .pos! 8 rdrift 1 movex
+	// hospitalmachine lt-here 8 rdrift -2 movex
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: trader-mechanic-stand dup .character@ args( trader chara )
+	// Woman running in place
+	1 <- chara .female!
+	25 <- chara .hattype!
+	6 <- chara .legstype!
+	3 <- chara .torsotype!
+	0 <- chara .glassestype!
+	30 %chance if WEAPON_WRENCH <- chara .weapona! then
+	carwreck <- trader .pos lt .pos! 2 movey immovable
+	dotirestack <- trader .pos lt .pos! 8 rdrift -1 movey
+	50 %chance if tire else bigtire then <- trader .pos lt .pos! 8 rdrift -1 movey
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: trader-anime-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+	9 <- chara .hattype!
+	CAR_FOODTRUCK spawncar <- trader .pos lt .pos! immovable 8 rdrift -2 movey
+	0 lt .events!
+	0 lt .cyoa!
+;
+
+: trader-shotgun-shell-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+
+	LOOT_SHOTGUN_SHELL <- trader .loot! // Shows loot icon as what they sell
+
+	CAR_ICECREAM spawncar <- trader .pos lt .pos! immovable 8 rdrift -2 movey
+	0 lt .events!
+	0 lt .cyoa!
+;
+
+: trader-pipebomb-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+	2 <- chara .bodytype!
+	5 <- chara .torsotype!
+	3 for
+		bbqtank <- trader .pos lt .pos! immovable drift
+		0x 92 special_objects32_base_id + lt .spriteid! // Box of pipebombs!
+	next
+;
+
+: trader-army-stand dup .character@ args( trader chara )
+	 <- trader silentkillit
+	 edumpster <- trader .pos lt .pos! immovable 
+	 // LOOT_FOOD lt .loot! ' trader-event lt .events!
+	 ' trade-army cyoa! 
+;
+
+: trader-blade-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+	WEAPON_OTAKU <- chara .weapona!	
+	cinderblock <- trader .pos lt .pos! immovable
+;
+
+: trader-fanatic-stand dup .character@ args( trader chara )
+	WEAPON_CHAINSAW <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	1 <- chara .carrying.slot_count!
+	1 <- chara .female!
+	21 <- chara .hairtype!
+	// TODO: Find mohawk
+	0 <- chara .hattype!	
+	indcrate <- trader .pos lt .pos! immovable
+;
+
+: trader-shotgun-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+	WEAPON_SHOTGUN <- chara .weapona!
+	1 LOOT_SHOTGUN_SHELL <- chara .lootamt!
+	indcrate <- trader .pos lt .pos! immovable
+;
+
+: trader-rifle-stand dup .character@ args( trader chara )
+	1 <- chara .female!
+	0 <- chara .bodytype!
+	WEAPON_RIFLE <- chara .weapona!
+	indcrate <- trader .pos lt .pos! immovable
+;
+
+: trader-firearms-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+	10 <- chara .hattype!
+	WEAPON_MINIGUN <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	1 LOOT_RIFLE_SHELL <- chara .lootamt!
+	covered-boxes <- trader .pos lt .pos! immovable
+;
+
+: trader-axe-stand dup .character@ args( trader chara )
+	86 <- chara .specialtype!
+	10 73 rnd <- chara .specialhead!
+	// TODO: Get art for the strange figure?
+	WEAPON_FIRE <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	indcrate <- trader .pos lt .pos! immovable
+;
+
+: trader-rifle-shell-stand dup .character@ args( trader chara )
+	1 <- chara .female!
+	LOOT_RIFLE_SHELL <- trader .loot!
+	3 for indcrate <- trader .pos lt .pos! immovable drift next
+;
+
+: trader-bullet-stand dup .character@ args( trader chara )
+	1 <- chara .female!
+	LOOT_BULLET <- trader .loot!
+	3 for indcrate <- trader .pos lt .pos! immovable drift next
+;
+
+: trader-rare-coldsteel-stand dup .character@ args( trader chara )
+	<- chara .lynnify
+	pictable <- trader .pos lt .pos! immovable drift
+;
+
+: trader-rare-skelknight-stand dup .character@ args( trader chara )
+	<- chara .skelknightify
+	6 for skel <- trader .pos lt .pos! immovable drift next
+	bombskull <- trader .pos lt .pos! .drift
+;
+
+: trader-rare-witch-stand
+	dup .character@ args( trader chara )
+
+	<- chara .witchify
+	<- chara .get-black-cat lt .scatter
+
+	lt // the cat...
+
+	cauldron <- trader .pos lt .pos! immovable drift
+
+	lt swap .follow // ...follows the cauldron
+;
+
+: trader-rare-kip-stand
+	dup .character@ args( trader chara )
+
+	28 <- chara .specialtype!
+	0 <- chara .female!
+
+	labmachine <- trader .pos lt .pos! immovable -2 movey
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: trader-rare-doc-stand
+	dup .character@ args( trader chara )
+
+	24 <- chara .specialtype!
+	0 <- chara .female!
+	WEAPON_GOLF <- chara .weapona!
+	
+	stretcher <- trader .pos lt .pos! 1 movex immovable
+	hospitalcurtain  <- trader .pos lt .pos! -2 movey immovable
+	hospitalmachine lt-here 8 rdrift -1 movex immovable
+
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: crystal-ball-table spawnhere lt args( t )
+	special_objects48_base_id 0x 4f + lt .spriteid!
+	1 lt .no_hit!
+	0 lt .flammability!
+	smallball
+	immovable
+;
+
+: trader-rare-wiz-stand	dup .character@ args( trader chara )
+	<- chara .wizardify
+	crystal-ball-table <- trader .pos lt .pos! immovable drift
+;
+
+: trader-rare-book-stand
+	dup .character@ args( trader chara )
+
+	1 <- chara .female!
+	3 <- chara .glassestype!	
+		
+	5 9 rnd cyoa{ to bookmagtype }
+	
+	6 8 rnd for 
+		book <- trader .pos lt .pos! drift
+	next
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: trader-blunt-stand dup .character@ args( trader chara )
+	1 <- chara .female!
+	WEAPON_SLEDGE <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	cinderblock <- trader .pos lt .pos! immovable
+;
+
+: trader-polearm-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+	WEAPON_MODSPEAR <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	cinderblock <- trader .pos lt .pos! immovable
+;
+
+: trader-rare-sleep-stand dup .character@ args( trader chara )
+	<- chara .liedown
+	0 <- chara .ai.wander_chance! 0 <- chara .ai.attack_chance!
+	rndsign 90 * lt .angle!
+	160 190 frnd lt .aim_angle! 
+;
+
+: trader-rare-chicken-stand	dup .character@ args( trader chara )
+	<- chara .chickenify
+;
+
+: trader-rare-nerd-stand dup .character@ args( trader chara )
+	3 <- chara .glassestype!
+	new-npc lt .character@ .redturretify <- trader .pos lt .pos! -1.5 movey immovable drift
+	2 for new-npc lt .character@ .greenturretify <- trader .pos lt .pos! 1.5 movey immovable drift next
+;
+
+: trader-silent-stand dup .character@ args( trader chara )
+	19 <- chara .hattype!
+	WEAPON_SILENTRIFLE <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	indcrate <- trader .pos lt .pos! immovable drift
+;
+
+: trader-handy-stand dup .character@ args( trader chara )
+	// 1 <- chara .female!
+	WEAPON_TACTICOP <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	// 26 <- chara .glassestype! - Gasmask, use for Spray Master instead
+	2 for indcrate <- trader .pos lt .pos! immovable drift next
+;
+
+: trader-heavy-stand dup .character@ args( trader chara )
+	0 <- chara .female!
+	11 <- chara .hattype!
+	WEAPON_BAZOOKA <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	WEAPON_BAZOOKA <- chara .weaponb!
+	1 <- chara .weapon_nodropb!
+	WEAPON_BAZOOKA <- chara .weaponc!
+	1 <- chara .weapon_nodropc!	
+	2 for indcrate <- trader .pos lt .pos! immovable drift next
+;
+
+: trader-drawpair-reset
+	0 to gas-bought
+	0 to bullet-bought
+	0 to shotgun-shell-bought
+	0 to rifle-shell-bought
+	0 to medical-bought
+	0 to allammo-bought
+	0 to allammo-dogpal
+	// weapons.df stuff
+	0 to army-1
+	0 to army-2
+	0 to army-3
+	0 to army-4
+	0 to army-5
+	0 to army-6
+	0 to army-7
+	0 to shotgun-1
+	0 to shotgun-2
+	0 to shotgun-3
+	0 to shotgun-4
+	0 to rifle-1
+	0 to rifle-2
+	0 to rifle-3
+	0 to rifle-4
+	0 to fanatic-1
+	0 to fanatic-2
+	0 to fanatic-3
+	0 to fanatic-4
+	0 to fanatic-5
+	0 to fanatic-6
+	0 to blade-claymore
+	0 to blade-knight
+	0 to blade-machete
+	0 to blade-katana
+	0 to axe-medieval
+	0 to axe-guitar
+	0 to axe-fireaxe
+	0 to axe-hatchet
+	0 to firearms-flame
+	0 to firearms-assault
+	0 to firearms-autoshot
+	0 to firearms-uzi
+	0 to firearms-goodstuff
+	0 to firearms-shotgun
+	0 to firearms-cowboy
+	0 to firearms-revolver
+	0 to pipebomb-8
+	0 to pipebomb-5
+	0 to pipebomb-2
+	0 to anime-1
+	0 to anime-2
+	0 to anime-3
+	0 to anime-4
+	0 to blunt-sledge
+	0 to blunt-megamaul
+	0 to polearm-boot
+	0 to polearm-spear
+	0 to polearm-bardiche
+	0 to silent-pistol
+	0 to silent-rifle
+	0 to silent-shotgun
+	0 to handy-flashlight
+	0 to handy-spray
+	0 to handy-tacticop
+	0 to heavy-mine2
+	0 to heavy-glaunch
+	0 to heavy-mine1
+	0 to heavy-bazooka
+;
+
+// Deck containing ordered pairs for CYOA word and SETUP word
+// NOTE: DO NOT SHUFFLE IT! 
+
+deck-new
+	card-pair: trade-rare-doc		trader-rare-doc-stand
+	card-pair: trade-rare-lab		trader-rare-kip-stand
+	card-pair: trade-rare-witch		trader-rare-witch-stand
+	card-pair: trade-rare-wiz		trader-rare-wiz-stand
+	card-pair: trade-rare-book		trader-rare-book-stand
+	card-pair: trade-rare-coldsteel		trader-rare-coldsteel-stand
+	card-pair: trade-rare-skelknight	trader-rare-skelknight-stand
+	card-pair: trade-rare-sleep			trader-rare-sleep-stand
+	card-pair: trade-rare-chicken		trader-rare-chicken-stand
+	card-pair: trade-rare-nerd			trader-rare-nerd-stand
+constant TRADER-LIST-RARE
+TRADER-LIST-RARE var trader-list-rare
+
+: trader-drawpair-rare trader-list-rare depths 2 < if 
+		TRADER-LIST-RARE to trader-list-rare 8 250 debug-tone 
+	then drawpair 	
+;
+
+deck-new
+	card-pair: trade-firearms		trader-firearms-stand
+	card-pair: trade-shotgun		trader-shotgun-stand
+	card-pair: trade-rifle			trader-rifle-stand
+	card-pair: trade-axe			trader-axe-stand
+	card-pair: trade-blade          trader-blade-stand
+	card-pair: trade-fanatic        trader-fanatic-stand
+	card-pair: trade-army           trader-army-stand
+	card-pair: trade-pipebomb       trader-pipebomb-stand
+	card-pair: trade-anime          trader-anime-stand
+	card-pair: trade-mechanic       trader-mechanic-stand
+	card-pair: trade-fitness        trader-fitness-stand
+	card-pair: trade-shoot          trader-shoot-stand
+	card-pair: trade-groupheal      trader-groupheal-stand
+	card-pair: trade-medical        trader-medical-stand
+	card-pair: trade-rifle-shell    trader-rifle-shell-stand
+	card-pair: trade-strength       trader-strength-stand
+	card-pair: trade-shotgun-shell  trader-shotgun-shell-stand
+	card-pair: trade-bullet         trader-bullet-stand
+	card-pair: trade-gas            trader-gas-stand 
+	card-pair: trade-medicalt       trader-medicalt-stand
+	card-pair: trade-allammo        trader-allammo-stand
+	card-pair: trade-blunt          trader-blunt-stand
+	card-pair: trade-polearm        trader-polearm-stand
+	card-pair: trade-handy			trader-handy-stand
+	card-pair: trade-silent			trader-silent-stand
+	card-pair: trade-heavy			trader-heavy-stand
+constant TRADER-LIST
+TRADER-LIST var trader-list
+
+deck-new
+	card-pair: trade-rare-doc		trader-rare-doc-stand
+	card-pair: trade-rare-doc		trader-rare-doc-stand
+	card-pair: trade-rare-doc		trader-rare-doc-stand
+constant TRADER-LIST-TEST
+// Easy trader testing by uncommenting below line
+// TRADER-LIST-TEST var trader-list
+
+: trader-drawpair trader-list depths 2 < if 
+		TRADER-LIST to trader-list 8 250 debug-tone 
+		// Add -TEST to above for easier testing
+		trader-drawpair-reset
+	then drawpair 
+;
+
+29 value TRADER-NORMAL-CHANCE
+
+: trader-normal-number TRADER-NORMAL-CHANCE gstats{ ugnome-raretrader } 3 * - ;
+
+// 25 normal traders, then 10 rare traders
+// Currently the normal traders are inflated to make rare traders rarer, will tweak this down as more rare traders are added. Was 35 for a long time, now experimenting with less.
+deck-new
+	trader-normal-number cards: trader-drawpair
+	card: trader-drawpair-rare
+constant TRADER-DRAW-PICK
+TRADER-DRAW-PICK shuffles var trader-draw-pick
+
+: trader-draw-picker trader-draw-pick depths 0= if 
+		TRADER-DRAW-PICK shuffles to trader-draw-pick 8 250 debug-tone
+	then drawcard
+;
+
+: new-trader-inside new-camp-npc lt dup .character@ args( trader ch )
+	0.05 <- ch .ai.wander_chance!
+	50 <- ch .ai.safety_leash!
+	50 <- ch .ai.follow_leash!
+	179 rnd5050 + lt .aim_angle!
+	' trader-event lt .events!
+	1 <- trader .timer!
+;
+
+: new-trader new-trader-inside lt-here ;
+
+: tradercommon
+	// BECAUSE this may be called from within a room, the outdoor map-plotter's xyp values aren't tracking tile
+	// plotting coordinates
+	xyp.x 0= if tanchorx to xyp.x then
+	xyp.y 0= if tanchory to xyp.y then
+
+	lt trader-draw-picker args( trader setup cyoa )
+
+	// In case of bad trader setup for some reason
+	<- cyoa 0= if <- trader silentkillit then; 
+	<- setup 0= if <- trader silentkillit then;
+
+	// Set the CYOA for this trader
+	<- cyoa <- trader .cyoa!
+
+	// Execute their setup logic
+	<- trader <- setup execute
+
+	// Don't set the trader to follow itself
+	lt thing# <- trader thing# = if then;
+
+	// Follow the last spawned item for the trader's anchor point (pretty hacky assumption)
+	lt <- trader .follow
+;
+
+: traderrareonly
+	xyp.x 0= if tanchorx to xyp.x then
+	xyp.y 0= if tanchory to xyp.y then
+
+	lt trader-drawpair-rare args( trader setup cyoa )
+
+	<- cyoa 0= if <- trader silentkillit then; 
+	<- setup 0= if <- trader silentkillit then;
+
+	<- cyoa <- trader .cyoa!
+
+	<- trader <- setup execute
+
+	lt thing# <- trader thing# = if then;
+	lt <- trader .follow
+	
+	
+;
+
+: traderinside new-trader-inside tradercommon ;
+
+: traderhere new-trader tradercommon ;
+
+: traderinside-rare new-trader-inside traderrareonly ;
+: traderhere-rare new-trader traderrareonly ;
+
+// Campfires currently in: final, 2, 3, 4, 5, 14
+// Gas buyer is currently in: final, 4, 5, 9, 14, 15 
+: trader-food-for-gas
+	new-trader lt args( trader )
+
+	0 <- trader .character@ .female!
+
+	LOOT_FOOD <- trader .loot!
+
+//	<- trader ' trade-gas-food cyoa! // Woops
+	// Above is leaving thing#X.human:'Name' 1 on the stack consistently, could use some cleaning up or I'll just add 'drop' here
+
+	' trade-gas-food <- trader .cyoa! 
+
+	// covered-boxes 
+	// indbigtank <- trader .pos lt .pos! 8 rdrift
+
+	CAR_SUV spawncar lt-here immovable 8 rdrift -1 movey rnd5050 lt .flip!
+	0 lt .events! 0 lt .cyoa!
+	lt <- trader .follow
+
+;
+
+// Weapon buyer currently in: final, 7, 9, 10, 14, 13 ... was briefly in 2 but I took it out
+: trader-weapon-buyer-common
+	lt args( trader )
+
+	1 <- trader .character@ .female!
+
+	LOOT_FOOD <- trader .loot!
+
+	' trade-weapon-buy <- trader .cyoa! 
+
+	// covered-boxes 
+	// indbigtank <- trader .pos lt .pos! 8 rdrift
+	stockpile-boxes-food  <- trader .pos lt .pos! -2 movey -3 movex
+	stockpile-boxes-food  <- trader .pos lt .pos! -2 movey 3 movex
+	trader-awning  <- trader .pos lt .pos! -2 movey
+	
+	0 lt .events! 0 lt .cyoa!
+	lt <- trader .follow
+
+;
+
+: trader-weapon-buyer-inside new-trader-inside trader-weapon-buyer-common ;
+: trader-weapon-buyer new-trader trader-weapon-buyer-common ;
+
+// tnomey the trader gnome
+
+: tnomey-spawn
+	gstats{ ugnome-trader 1 < } tnome-bought 0 > or if then;
+
+	new-camper
+	lt .character@ .gnomify2
+	' trader-event lt .events!
+	1 lt .timer!
+	lt to the-tnome
+	
+	lt-here
+
+	' tnomey-start lt .cyoa!
+;
+
+// shared map building
+
+0 value dx
+0 value dy
+0 value sy
+
+: trade-camp-reset
+	// dochead-pick-stack-base shuffles to dochead-pick-stack-base
+	// Above if I want the mad doctor's heads to reshuffle every camp
+	tnome-seen 0 > if d1-up d2-up d3-up 0 to tnome-seen then
+	0 to gas-to-food-bought
+	0 to camp-charm
+	0 to camprecruit-talked
+	0 to camprecruit-spawned
+	mission{ 1 to skipsummary }
+	0 to dx 0 to dy 0 to sy
+	60 ticksim
+;
+
+: dirtstart xyp.x to dx xyp.y to dy ;
+: dirtend dx dy xyp.x xyp.y map{ 4dup dirtbox grasshole } ;
+: gravelendw dx 1- dy xyp.x 1+ xyp.y map{ 4dup gravelbox grasshole } ;
+
+: grassedge
+	tile@ dup LAYER_FLOORTOP street_tiles_base_id 0x 71 + .lspriteid!
+	LAYER_FLOORTOP 0 0 -3 rnd .tile_layer.off!
+;
+
+: grassstart2 xyp.y 1- to sy ;
+: grassstart xyp.y to sy ;
+: grassend map{ -1 sy w xyp.y grasslot } ;
+: grassend2 map{ -1 sy w xyp.y 1+ grasslot } ;
+
+: campsite-light tint_default 1 light_mode!
+	1 0.5 0 tint_near!
+	0 0 1 tint_far!
+;
+
+: %chars-up 0 100 clamp 100 / map{ pixelh * pixelh } swap - args( posy )
+	team-stack begin depths while
+		pops .cur_thingid@ dup if
+			<- posy over #thing .pos.y! drop
+		else drop then
+	repeat
+	drop
+
+	player .pos.y@ camera.pos.y!
+;
+
+//	: iconxy particle{ new pos! spriteid! 1 ticks! 0 layer! 0 global_colour! } ;
+
+} }
+

@@ -1,0 +1,299 @@
+
+free-all-rooms
+// "../deathforth/hack/disco51.txt" $load-rooms
+"
+
+:map 1 
+:tags disco entry  
+:size 14 8 
+:off 0 0 
+:tiles 
+22222222222222
+23333333333332
+21111111111112
+21111111111112
+21111111111112
+21111111111112
+22222222222222
+33333333333333
+
+:map 2 
+:tags disco bathroom  
+:scriptA gasbath 
+:size 4 7 
+:off 0 0 
+:tiles 
+0400
+2222
+2332
+2A12
+2112
+2222
+3333
+
+:map 3 
+:tags disco closet  
+:size 3 5 
+:off 0 0 
+:tiles 
+222
+232
+2A2
+222
+333
+
+:map 4 
+:tags disco anything  
+:size 9 8 
+:off 0 0 
+:tiles 
+222222222
+233333332
+211111112
+211111112
+211111112
+211111112
+222222222
+333333333
+" $parse-rooms
+
+map{ roomgen{
+
+	: mirror tanchor 1- tile@ LAYER_WALLTOP inside_tiles_shelves_id 0x 19 + .lspriteid! ;
+	: gasbath sink -1 movey mirror toilet toiletloot -1 movey 1 movex ;
+	: gasfridge storefridge 3 rarefood -1 movey ;
+
+} }
+
+map{ regiondef{
+
+: disco-club locals( x y ) prefab{
+		tanchor tile>pos -> y -> x
+		tanchorx 6 - tanchorx!
+		auto-picklocid addloc
+
+		GREEN "Area 51 " .. RED .. BLINKY .. "ALL NIGHT " .. RAINBOW .. "Disco" .. sign-text!
+		0 0 0 sign-bg!
+		0 1 0 sign-border!
+		1 1 1 sign-fg!
+		1 sign-glow!
+
+		1 13 1 shop2nogable
+
+		tanchory 3 - tanchory!
+
+		pavement
+		room-garbage
+		room-junk
+		no-music
+} ;
+
+: outside args( eventid )
+	<- eventid MAP_EVENT_VIEW_ENTER = if
+		1 light_mode!
+		1 0 0 tint_far!
+		0 0 1 tint_near!
+	then;
+;
+
+(*
+: site-setup
+	' outside room_here_events! 
+; *)
+
+locdef{
+
+	: .clr! args( me )
+		0.5 * <- me .clr.b!
+		0.5 * <- me .clr.g!
+		0.5 * <- me .clr.r!
+	;
+
+	: disco-events map{ selected } args( me eventid mapsel )
+		<- eventid THING_EVENT_TIMER <> if then;
+		<- me .retrigger_timer
+
+		0 3 frnd 45 * <- me .angle!
+
+		rnd5050 <- me .flip!
+
+		<- me .pos3 particle{ new pos3!
+			<- me } .spriteid@ particle{ spriteid!
+			<- me } .angle@ particle{ angle!
+			glowy
+
+			rndsign 90 * rotate!
+
+			<- me .anim.hint@ 1 & if
+				0 360 frnd angle-colour clr.b! clr.g! clr.r!
+			then
+
+			<- me .timer@ ticks!
+		}
+
+		<- me .anim.hint@ 1+ <- me .anim.hint!
+
+		// Sign
+		curmapview 0= if
+			<- me .anim.hint@ 2 >> 120 * angle-colour sign-border!
+			madticks 8 & if 0 0 1 tint_near! else 0.1 0 1 tint_near! then
+		then
+
+		curmapview map{ selected } = if
+			1 light_mode!
+			10 gloom_lighting!
+			<- me .anim.hint@ 1 & if
+				0 360 frnd angle-colour 3dup tint_near! tint_far!
+				0 360 frnd angle-colour tint_thing_near!
+				0 360 frnd angle-colour tint_thing_far!
+				10 tint_trigger
+			then
+		then
+
+		<- me .anim.hint@ 1 & if
+			sfx{
+				noise 0.5 fx .scale!
+				<- me .anim.hint@ 2 >> 1 & 7 * 1 + fx .pitch!
+				3500 fx .filt_high!
+				0.25 fx .s! 125 fx .r!
+				50 fx .d!
+				0.5 fx .q!
+				curmapview map{ selected } <> if 0.025 fx .scale! then
+			}
+		then
+
+		sfx{ pip
+			1 fx .j!
+			150 fx .freq!
+			<- me .anim.hint@ 63 & 48 < if
+				100 fx .freq2!
+			else
+				200 fx .freq2!
+			then
+			<- me .anim.hint@
+			21 & 0.25 * 
+
+			fx .pitch!
+
+			125 fx .d!
+			0.5 fx .s!
+			125 fx .r!
+			0.35 fx .scale!
+
+			750 fx .filt!
+
+			<- me .anim.hint@ 15 & 15 / 0.9 * fx .q!
+
+			curmapview map{ selected } <> if 0.025 fx .scale! then
+		}
+	;
+
+	: discoball
+		spawn special_objects32_base_id 0x 91 + lt .spriteid!
+		0 lt .gravity!
+		1 lt .nocollide!
+		1 lt .no_hit!
+		0 lt .vel.x! 0 lt .vel.y! 0 lt .vel.z!
+		map{ pixelw 0.5 * lt .pos.x! }
+		map{ pixelh 0.5 * lt .pos.y! }
+		-50 lt .pos.z!
+		1 lt .no_lighting!
+		' disco-events lt .events!
+		8 lt .repeating_timer
+		0.5 lt .clr.r!
+		0.5 lt .clr.g!
+		0.5 lt .clr.b!
+	;
+
+	: hoppin args( me eventid )
+		<- eventid THING_EVENT_TIMER <> if then;
+		<- me .retrigger_timer
+		-1.5 <- me .vel.z!
+	;
+
+	: partiers
+		5 for
+			new-npc lt .character@ .alien
+			0 lt .character@ .weapona!
+			0 lt .leaveok!
+			0.01 lt .character@ .ai.wander_chance!
+			' hoppin lt .events!
+			32 lt .repeating_timer
+			0 360 frnd lt .aim_angle!
+			drift
+		next
+	;
+
+	: disco-entry
+		3 max-auto-doors!
+		discoball
+		partiers
+	;
+
+	: disco-theme 2 loc-wtheme! 20 loc-ftheme! 1 loc-dtheme! ;
+	: gbath-theme disco-theme floor-bath ;
+	: gcloset-theme disco-theme floor-concrete wall-cinderblock ;
+
+	: reset-light tint_default 0 light_mode! tint_retrigger ;
+
+	: redroom args( eventid )
+		<- eventid MAP_EVENT_VIEW_ENTER = if
+			1 light_mode!
+			1 0 0.5 tint_far! 1 0 0 tint_near!
+		then;
+	;
+
+	: darkroom args( eventid )
+		<- eventid MAP_EVENT_VIEW_ENTER = if
+			1 light_mode!
+			0 0 0 tint_far! 0 0 1 tint_near!
+		then;
+	;
+
+	: defroom args( eventid )
+		<- eventid MAP_EVENT_VIEW_ENTER = if reset-light then;
+		<- eventid MAP_EVENT_VIEW_LEAVE = if reset-light then;
+	;
+
+	: default-room-setup ' defroom room_here_events! 1 auto-doors! ;
+
+	: anything-setup wall-cinderblock floor-concrete 1 auto-doors! ;
+
+
+	location: disco51
+		max-rooms: 5
+		entry-tags: disco entry
+
+		// Called once on location creation
+		script: beep "SCRIPT" print ' outside room_here_events! 
+
+		// Called for each room on creation
+		pre-script: default-room-setup
+
+		room-choice: disco entry
+			room-script: disco-theme
+			room-post-script: disco-entry
+			room-weight: 1
+			room-count: 1
+			filter-only
+
+		room-choice: disco closet
+			room-script: nad gcloset-theme room-garbage 
+			room-weight: 1
+			room-count: 1
+			room-post-script: ' darkroom room_here_events!
+
+		room-choice: disco bathroom
+			room-script: nad gbath-theme room-garbage 
+			room-weight: 10
+			room-count: 2
+			room-post-script: ' redroom room_here_events!
+
+		room-choice: disco anything
+			room-weight: 10
+			room-count: 1
+			room-script: ndx anything-setup
+
+}
+
+} }

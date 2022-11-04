@@ -1,0 +1,111 @@
+
+"
+:map 1
+:tags toilet-throneroom  
+:scriptA toilet 
+:size 13 15 
+:off 5 0 
+:tiles 
+2222222222222
+2333333333332
+2111111111112
+2111111111112
+211A11A11A112
+2111111111112
+2111111111112
+211A11A11A112
+2111111111112
+2111111111112
+211A11A11A112
+2111111111112
+2111111111112
+2222222222222
+3333333333333
+
+:map 2
+:tags toilet-endroom  
+:scriptA megatoilet 
+:size 9 12 
+:off 9 4 
+:tiles 
+222222222
+233333332
+211111112
+211111112
+211222112
+211232112
+2113A3112
+211111112
+211111112
+211111112
+222222222
+333333333
+"
+value TOILETHEAVENROOMS
+TOILETHEAVENROOMS $parse-rooms
+
+roomgen{
+
+: megatoilet toilet LOOT_FOOD loot! 10 amount! ;
+
+}
+
+locdef{
+		
+location: toiletheaven
+		max-rooms: 11
+		entry-tags: bathroom
+		script: yall-theme
+
+		9 value toiletheavencountdown
+				
+		: toiletendroom
+			nad
+			random-door "toilet-endroom" only-with-door
+			random-door "toilet-endroom" only-with-door
+		;
+		
+		: toiletheavendoor
+			random-door "restroom" only-with-door
+			random-door "bathroom" only-with-door
+		;
+		
+		: toiletendcheck
+			floor-bath 10diff %zombs nad
+			' toiletheavencountdown --
+			toiletheavencountdown 4 < if
+				33 %chance if
+					2 for random-door "toilet-throneroom" only-with-door next
+				then 
+			then
+			toiletheavencountdown 1 < if
+				2 for random-door "toilet-throneroom" only-with-door next
+			then
+				toiletheavendoor
+			
+		
+		;
+		
+		room-choice: bathroom
+			room-weight: 100
+			room-count: 6
+			room-post-script: toiletendcheck
+
+		room-choice: restroom
+			room-weight: 100
+			room-count: 3
+			room-post-script: toiletendcheck
+			
+		room-choice: toilet-throneroom
+			room-weight: 1
+			room-count: 1
+			room-post-script: floor-bath toiletendroom
+			filter-only
+			
+		room-choice: toilet-endroom	
+			room-weight: 10
+			room-count: 1
+			room-post-script: floor-bath nad
+			filter-only
+			
+}

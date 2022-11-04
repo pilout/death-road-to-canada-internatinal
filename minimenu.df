@@ -1,0 +1,57 @@
+// Pure-scripting live mini menu... it burns through the temporary text pad at 60FPS, so just be aware
+
+CMD_FLAG_USE CMD_FLAG_ATTACK | CMD_FLAG_SWAP | constant CMD_FLAG_ALL_ACTIONS
+
+: gaps$ "" swap for 0x 2 $chr .. next ;
+0x 8e $chr 16 gaps$ .. 0x 8b $chr .. constant CURSOR_LINE
+10 constant VSPACE
+
+0 var menustack
+0 value menuselect
+0 value menuticks
+0 value menucount
+0 value menutimestamp
+
+: menustart 0 stack to menustack 0 to menucount 0 to menuselect ;
+: menuadd menustack over enqueues nip over enqueues 2drop ' menucount ++ ;
+: menushow
+
+	madticks menutimestamp 1+ > if madticks to menutimestamp then;
+
+	madticks to menutimestamp
+
+	menustack menucount for
+		i 2 * picks 1 view_w 0.5 * view_h 10 - i 10 * - msgtickxy
+	next drop
+
+	menuticks 15 & 8 < menuticks 0 > or if
+		CURSOR_LINE 1 view_w 0.5 * view_h 10 - menucount menuselect - 10 * - msgtickxy
+	then
+;
+
+: menunav args( dir ) menuselect
+	 <- dir ' menuselect +! menuselect 0 menucount 1- clamp to menuselect
+	menuselect = if then;
+	5 <- dir 2 * - sfx{ fm fx .pitch! 50 fx .d! 0.5 fx .scale! }
+	15 to menuticks 
+;
+
+: menuact menustack menucount 1- menuselect - 2 * 1+ picks nip execute ;
+
+: menurun
+	player .stun@ if then;
+	menucount 0= if then;
+	menushow
+
+	' menuticks --
+
+	player .actioncmd@ 0= if menuticks 0 > if 0 to menuticks then then;
+
+	menuticks 0 > if then;
+
+	player .actioncmd@ CMD_FLAG_ALL_ACTIONS & if menuact then;
+	player .actioncmd@ CMD_FLAG_UP & if -1 menunav then;
+	player .actioncmd@ CMD_FLAG_DOWN & if 1 menunav  then;
+;
+
+

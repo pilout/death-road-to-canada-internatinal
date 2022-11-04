@@ -1,0 +1,705 @@
+"load boot.df" to eval-buf
+
+
+: empty depth remove ;
+
+: sc player .charid@ #character .specialtype! ;
+
+: box
+	spawn
+	0x 4 themed spriteid!
+	bbox
+	openable container
+	as-cloth
+;
+
+: junkloot 30 %chance if LOOT_JUNK loot! 1 2 rnd amount! else opened noloot then ;
+
+: ebox box junkloot ;
+: edrawers drawers junkloot ;
+: esmallshelf smallshelf junkloot ;
+: ebigshelf bigshelf junkloot ;
+: ecupboard cupboard junkloot ;
+: efridge fridge opened noloot ;
+
+: erndbox 1 4 rnd case 1 of ebox endof 2 of esmallshelf endof 3 of ebigshelf endof 4 of edrawers endof endcase ;
+
+: stall
+	spawn
+	0x 1e themed spriteid!
+	bbox immovable
+;
+
+: diningset
+	table
+	75 %chance if chair -1 movey drift then
+	75 %chance if chair 1 movey drift then
+	50 %chance if chair -1 movex drift then
+	50 %chance if chair 1 movex drift then
+;
+
+: dbasement UP column-door "bathroom" with-door ;
+
+// Weapon and bullet spawning
+
+// Deprecated alt words for weapons
+
+: huntcowboy 90 %chance if rifle else hunting then ;
+: mopbroom 50 %chance if mop else broom then ;
+
+: baseball 90 %chance if baseball else spikedbat then ;
+: aluminum 90 %chance if aluminum else megaspikedbat then ;
+: nightstick 80 %chance if nightstick else tacticop then ;
+: pistol 80 %chance if pistol else snubnose then ;
+: shotgun 90 %chance if shotgun else dshotgun then ;
+
+: nicer-meleeweapons 1 6 rnd case 
+	1 of 10 %chance if firepoker else otaku then endof
+	2 of nightstick endof
+	3 of 90 %chance if sledge else megamaul then endof
+	4 of 50 %chance if scalpel else shiv then endof
+	5 of aluminum endof
+	6 of 90 %chance if machete1 else machete2 then endof 
+	endcase
+;
+
+: meleeweapons 1 11 rnd case 
+	1 of 95 %chance if nail else cardboard then endof 
+	2 of 30 %chance if cleaver else kitch then endof
+	3 of 25 %chance if cricket else baseball then endof 
+	4 of 30 %chance if crowbar else wrench then endof 
+	5 of 50 %chance if cane else umbrella then endof 
+	6 of 90 %chance if hatchet else fire then endof
+	7 of 50 %chance if purse else knitting then endof
+	8 of 70 %chance if clawhammer else ballpeen then endof
+	9 of 50 %chance if mallet else screwdriver then endof
+	10 of 60 %chance if tennis else hockey then endof
+	11 of 70 %chance if scissors else golf then endof
+	endcase 
+;
+
+: nicercommon-gun 40 %chance if 1 8 rnd sshot shotgun else 80 %chance if 2 15 rnd srifle huntcowboy else 1 12 rnd sbullet dolt then then .scatter ;
+
+: commonranged
+1 2 rnd case
+1 of 
+95 %chance if 
+	10 30 rnd sbullet pistol 
+else 
+	50 %chance if
+		20 50 rnd sbullet uzi 
+	else 
+		20 40 rnd srifle ak47 
+	then 
+then endof
+2 of 
+	50 %chance if 10 20 rnd srifle huntcowboy else 6 15 rnd sshot shotgun then
+endof
+endcase ;
+
+: niceranged
+1 2 rnd case
+1 of commonranged endof
+2 of 20 %chance if 8 30 rnd srifle ak47 else 50 %chance if 17 40 rnd sbullet uzi else 8 16 rnd sshot shotgun then then endof
+endcase ;
+
+: exoticweapons 50 %chance if 20 50 rnd sgas chainsaw else woodclub then ;
+: niceweapons 30 %chance if meleeweapons else 30 %chance if commonranged else 90 %chance if niceranged else exoticweapons then then then ;
+
+: tableware
+	33 %chance if spoon else
+		50 %chance if tfork else butter then
+	then .scatter 
+;
+
+: hauntedware
+	33 %chance if hauntspoon else
+		50 %chance if hauntfork else hauntknife then
+	then .scatter 
+;
+
+: kitchenweapons 
+	25 %chance if spatula .scatter then 10 %chance if frying .scatter then
+	tableware 50 %chance if tableware then
+	5 %chance if icepick .scatter then
+	70 %chance if 
+		kitch 
+	else 
+		cleaver 
+	then
+;
+
+: cheapweapons 60 %chance if meleeweapons else 50 %chance if commonranged else 50 %chance if niceweapons else kitchenweapons then then then ;
+ 
+: batme WEAPON_BASEBALL 1 #character .weapona! ;
+: cleaverme WEAPON_CLEAVER 1 #character .weapona! ;
+: gunme WEAPON_PISTOL 1 #character .weapona! 30 LOOT_BULLET 1 #character .lootamt! ;
+
+: maulme WEAPON_SLEDGE 1 #character .weaponb! ;
+: chainme WEAPON_CHAINSAW 1 #character .weaponb! 500 LOOT_GAS 1 #character .lootamt! ;
+: shotme WEAPON_SHOTGUN 1 #character .weaponb! 20 LOOT_SHOTGUN_SHELL 1 #character .lootamt! ;
+
+: hsmalltable spawn 0x 10 themed spriteid! rndflip bbox as-wood ;
+
+: dkitchen random-door "kitchen" with-door ;
+: dbathroom random-door "bathroom" only-with-door empty ;
+: dhall random-door "hall" with-door empty ;
+: dliving random-door "living" with-door ;
+: dcloset random-door "closet" only-with-door empty ;
+: beddoor 50 %chance if dcloset then 50 %chance if dbathroom then ;
+: dnapt n edge-inc n random-door "bedroom" with-door empty ;
+: dwrand w edge-inc w random-door empty ;
+: derand e edge-inc e random-inset-door empty ;
+
+: trashdoor map{ add-blocked-up-door } ;
+// OLD: -1 column-door map{ block-last-door }
+
+: dsewerhall random-door "sewer-hall" with-door empty ;
+: dsewerloot
+	50 %chance if
+		50 %chance if 
+			w edge-inc random-door 
+		else
+			e edge-inc random-door 
+		then
+		"treasure" only-with-door
+	then 
+;
+
+: dsewerend
+	50 %chance if 
+		w edge-inc random-door 
+	else
+		e edge-inc random-door 
+	then
+	3 250 tone
+	"sewer-end" only-with-door
+;
+
+: indhall random-door "indust-hall" with-door ;
+: indroom random-door "indust-room" with-door ;
+: industbranch 30 %chance if indhall then 50 %chance if indroom then ; 
+	
+: flippy rndsign dup -1 * ;	
+
+// LOOSE LOOT
+
+// FILL IN LLWEIRD AND LLTHROW LATER
+
+: LLmelee
+	10 %chance if nicer-meleeweapons else meleeweapons then .scatter
+;
+: LLranged
+	50 %chance if 
+		pistol .scatter 50 %chance if 3 15 rnd sbullet then
+	else 
+		nicercommon-gun
+	then
+;
+: LLweapon 70 %chance if LLmelee else LLranged then ;
+
+: pipescat pipebomb .scatter ;
+: grenscat grenade .scatter ;
+: molscat molotov .scatter ;
+
+: %zpskullchance %chance if zp-skull scatter then ;
+: zpskullchance 2 %zpskullchance ;
+: zpskullchance-high 20 %zpskullchance ;
+: zpskullchance-ultra 60 %zpskullchance ;
+
+: LLweird 
+	50 %chance if 
+		5 for skeldog scatter next 
+	else
+		skelscat 6 for bottle .scatter next
+	then zpskullchance-ultra
+;
+
+: LLthrow 
+	50 %chance if
+		molscat 50 %chance if molscat then 20 %chance if molscat then
+	else
+		70 %chance if
+			pipescat 50 %chance if pipescat then 20 %chance if pipescat then
+		else
+			grenscat 40 %chance if grenscat then
+		then
+	then
+	skelscat zpskullchance-high
+ ;
+ 
+: LLgasmed 10 %chance if 1 LOOT_FOOD spawnscat else 30 %chance if 20 40 rnd LOOT_GAS spawnscat else 1 LOOT_MEDICAL spawnscat then then ;
+ 
+: LLmiscdrop 10 %chance if 20 40 rnd LOOT_GAS spawnscat else 60 %chance if 1 LOOT_FOOD spawnscat else 1 LOOT_MEDICAL spawnscat then then ;
+: LLmiscmulti skelscat 2 for LLmiscdrop next 20 %chance if LLmiscdrop then ;
+: LLmischeaps skelscat 3 for LLmiscdrop 5 %chance if LLmiscdrop skelscat then next ;
+: LLmisc 80 %chance if LLmiscdrop else 90 %chance if LLmiscmulti else LLmischeaps then then
+20 %chance if LLweapon then 
+;
+
+: LLkitchen 1 LOOT_FOOD spawnscat 2 for 20 %chance if skelscat 1 LOOT_FOOD spawnscat then next zpskullchance ;
+
+: LLammobox 50 %chance if 11 21 rnd LOOT_BULLET spawnscat else 50 %chance if 8 18 rnd LOOT_RIFLE_SHELL spawnscat else 5 12 rnd LOOT_SHOTGUN_SHELL spawnscat then then ;
+: LLammomulti skelscat 2 for LLammobox next 30 %chance if LLammobox then ;
+: LLammoheaps skelscat 3 for LLammobox 20 %chance if LLammobox skelscat then next ;
+: LLammo 80 %chance if LLammobox else 90 %chance if LLammomulti else LLammoheaps then then 
+ LLweapon
+;
+: looseloot 1 %chance if LLweird else 5 %chance if LLthrow else 50 %chance if LLmisc else LLammo then then then zpskullchance ;
+: looselootgasmed 1 %chance if LLweird else 5 %chance if LLthrow else 50 %chance if LLgasmed else LLammo then then then ;
+	
+roomgen{
+
+: bathhealspray
+	2 %chance if
+		1 2 rnd #healspray scatter
+	then
+;
+
+: bathrndloot 1 LOOT_MEDICAL loot! amount! ;
+: bathlootf 50 %chance if cupboard bathrndloot else drawers bathrndloot then ;
+: bathloote 50 %chance if ecupboard else edrawers then ;
+: bathloot 50 %chance if bathlootf else bathloote then bathhealspray zpskullchance ;
+
+// Advanced Toilet Stuff
+
+: .temp-invince >r 60 r> .invincible_counter! ;
+
+: .pop-out
+	-0.5 0.5 frnd over .vel.x!
+	4 over .pos.y@ + over .pos.y!
+	-1 -2 frnd over .vel.z!
+	.temp-invince 
+;
+
+: .pop-outta ( parent me ) 2dup to-thing-pos nip .pop-out ;
+
+: open-thing-popout-act args( activator me )
+
+	// Move toilet count to an open-toilet-popout-act word if this is used for more objects later
+	gstats{ ' toilets-opened ++ }
+	
+	<- activator if <- activator <- me container-loot-act then
+
+	<- me .user_word@ if <- me .user_word@ then
+	<- me .carryid@ not if then;
+
+	0 <- me .carryid@ #thing .inside_id!
+	<- me <- me .carryid@ #thing .pop-outta
+	<- me .carryid@ #thing .sproink
+	0 <- me .carryid! 	
+;
+
+: .put-in-container args( container other )
+	' open-thing-popout-act <- container .action!
+	<- other thing# <- container .carryid!
+	<- container thing# <- other .inside_id!
+//	1 <- container .action_icon!
+;
+
+: toiletloot
+	
+	// gstats{ ugnome-toilet 3 > if 1 zombop+! then }
+				
+	gstats{ ugnome-toilet } 2 > if		
+		10 %chance if
+			0 3 rnd case
+			0 of 1 LOOT_SHOTGUN_SHELL loot! amount! endof
+			1 of 1 LOOT_MEDICAL loot! amount! endof
+			2 of 1 LOOT_RIFLE_SHELL loot! amount! endof
+			3 of 1 LOOT_FOOD loot! amount! endof
+			endcase
+		then;
+	then
+ 
+	10 %chance if
+		gstats{ ugnome-toilet } 1 > if 2 else 1 then LOOT_BULLET 
+	else 
+		gstats{ ugnome-toilet } 0 > if 2 else 1 then LOOT_GAS 
+	then loot! amount!
+
+;
+
+// : bathtoilet 100 %chance if skel lt toilet noloot lt swap .put-in-container else spawn 0x 1b themed spriteid! bbox immovable 25 health! then ;
+: bathtoilet 
+	// Usually 30 and 20%
+	gstats{ ugnome-toilet } 2 > if 30 else 20 then %chance if 
+		gstats{ ugnome-toilet } 2 > 5 %chance and if
+			50 %chance if LLmelee else skel then lt toilet noloot lt swap .put-in-container
+		else
+			toilet toiletloot 
+		then
+	else
+		toilet opened 
+	then ; 
+
+: bathset
+	only-chosen; bathtoilet
+	sink rndsign 1 * movex
+;
+
+: nbathset
+	only-chosen;
+	sink -10 movey
+	flippy
+	bathtub drift -10 movey 10 * movex
+	bathtoilet drift -10 movey 10 * movex
+	80 %chance if bathloot drift -10 movey then
+;
+
+: nbathsetsmall
+	only-chosen;
+	sink -10 movey
+	flippy
+	bathtoilet drift -10 movey 5 * movex
+	50 %chance if bathloot else bathtub then drift -10 movey 5 * movex
+;
+
+: nbathsettiny
+	only-chosen;
+	sink -10 movey
+	bathtoilet drift -10 movey rndsign 5 * movex
+;
+
+: rndshelf
+40 %chance if smallshelf exit then
+40 %chance if bigshelf exit then
+60 %chance if drawers exit then 
+;
+
+: rndhshelf
+only-chosen;
+rndshelf
+;
+
+: hallset
+	only-chosen;
+	1 7 rnd case
+	1 of 25 %chance if skel drift then 20 %chance if cheapweapons .drift then 50 %chance if chair scatter then 70 %chance if endtable scatter then empty endof
+	2 of chair scatter chair scatter 50 %chance if chair then endof
+	3 of smalltable endof
+	4 of rnd5050 chair endof
+	5 of drawers endof
+	6 of 50 %chance if box then endof
+	7 of 50 %chance if chair then 20 %chance if cheapweapons .scatter then endof endcase
+	10 %chance if looseloot then
+;
+
+// DEATH AND TREASURE AND CLOSETS
+
+: closetloot 50 %chance if LLammobox else LLmiscdrop then ;
+: closetset 0 1 rnd zombs 50 %chance if closetloot else mopbroom .drift then ;
+
+: ammodumploot 30 %chance if 30 50 rnd LOOT_BULLET else 50 %chance if 23 40 rnd LOOT_RIFLE_SHELL else 19 30 rnd LOOT_SHOTGUN_SHELL then then loot! amount! zpskullchance ;
+: rndloot
+	1 4 rnd case
+	1 of rndhshelf endof
+	2 of box endof
+	3 of 75 %chance if cupboard then endof
+	4 of 75 %chance if drawers then endof
+	endcase
+;
+
+: rnddanger
+	1 3 rnd case
+	1 of skel endof
+	2 of skeldog endof
+	3 of 20 %chance if box then endof
+	endcase
+;
+
+: DRhoarder skel drift bed drift LLmiscdrop 60 %chance if cheapweapons .drift then 2 for 50 %chance if box drift then next ;
+: DRstandoff 3 for 50 %chance if skel drift then next 2 for 30 %chance if niceweapons .drift then next ;
+: DRtonskele 4 for 50 %chance if skel scatter then next 2 for 20 %chance if skeldog scatter then next ;
+: DRdeco 30 %chance if DRhoarder else 40 %chance if DRstandoff else DRtonskele then then ;
+
+: DRammodump box ammodumploot LLammo drift 2 for 60 %chance if box ammodumploot scatter then next ;
+: DRboxscat box scatter 2 for 60 %chance if box scatter LLmiscdrop then next ;
+: DRboxes 50 %chance if DRboxscat else DRammodump then ;
+: DRtriloot rndloot rndloot -1 movex rndloot 1 movex looseloot ;
+: DRloot 0 2 rnd zombs 30 %chance if niceweapons .drift else 40 %chance if DRtriloot else 90 %chance if DRboxes else exoticweapons .drift then then then zpskullchance-high ;
+
+: DRzomb 50 %chance if 10 %zombs exit then 20 %chance if 20 %zombs exit then 20 %chance if 30 %zombs exit then 20 %chance if 50 %zombs exit then 5 %chance if 100 %zombs exit then empty ;
+: deathroom only-chosen; 2 4 rnd zombs DRzomb 50 %chance if DRloot then DRdeco ;
+: lootroom only-chosen; 20 %chance if DRzomb then DRloot DRdeco ;
+
+: biglootdead skelscat 3 for 30 %chance if skelscat then next ;
+: biglootdeco 50 %chance if erndbox else skelscat then ;
+: biglootbox box 50 %chance if 1 3 rnd LOOT_FOOD loot! amount! else ammodumploot then scatter ; 
+: biglootroll biglootbox 10 %chance if biglootbox then 
+10 %chance if niceweapons .drift then 20 %chance if cheapweapons .drift then 20 %chance if DRzomb then ;
+: bigloot LLmiscdrop LLammobox looseloot biglootroll biglootdeco biglootdead zpskullchance-high ;
+
+
+// LIVINGROOM STUFF
+
+: livingdeco 1 4 rnd case 1 of lazyboy endof 2 of 20 %chance if drawers else lazyboy then endof 3 of endtable endof 4 of 50 %chance if lazyboy then endof endcase ;
+: ldecopair livingdeco 1 movex dup movey 30 %chance if drift then livingdeco -1 movex dup movey 30 %chance if drift then ;
+: ldecopairdrift livingdeco 1 movex dup movey drift livingdeco -1 movex dup movey drift ;
+
+: nlivingset
+	only-chosen;
+	couch -10 movey
+	flippy
+	30 %chance if rndhshelf -10 movey 10 * movex then
+	50 %chance if livingdeco -10 movey 10 * movex then
+	80 %chance if 50 %chance if endtable else smalltable then -10 movey drift then empty
+	20 %chance if looseloot then
+;
+
+: rndliving
+	only-chosen;
+	1 5 rnd case
+	1 of box endof
+	2 of skel endof
+	3 of 60 %chance if rndhshelf then endof
+	4 of cheapweapons .drift endof
+	5 of livingdeco endof
+	endcase
+;
+
+: lcouchend 80 %chance if endtable drift then couch -1 movey -1 1 rnd movex 80 %chance if lazyboy 1 movey -1 1 rnd movex then 20 %chance if box scatter then ;
+: lskelechair chair drift skel scatter 50 %chance if skel scatter then cheapweapons .scatter chair drift 40 %chance if chair drift then ;
+: lcouchdeco couch drift 25 %chance if box drift then livingdeco -2 2 rnd movex 60 %chance if endtable then ;
+: lendlazy endtable flippy lazyboy 1.5 * movex 80 %chance if lazyboy 1.5 * movex then 25 %chance if box scatter then ;
+: llazyloot 25 %chance if 50 %chance if rndhshelf scatter -5 movey else cheapweapons .scatter then then lazyboy 1 movex drift lazyboy -1 movex drift 70 %chance if endtable then ;
+: lcouchtable1 flippy hsmalltable 1 movey couch -1 movey livingdeco -0.5 movey 2 * movex 40 %chance if livingdeco -0.5 movey 2 * movex then ;
+: lcouchtable2 50 %chance if couch else livingdeco then // 50
+	-1.5 movey hsmalltable flippy lazyboy 1.3 movey 1 * movex  
+	60 %chance if lazyboy 1 * movex 1.3 movey else drop then // 60
+;
+: lcouchends couch -1 movey hsmalltable 1 movey 60 %chance if endtable -1.5 movex -1 movey then 60 %chance if endtable 1.5 movex -1 movey then 60 %chance if livingdeco -1.5 movex 0.9 movey then 60 %chance if livingdeco 1.5 movex 0.9 movey then ;
+: ltrideco flippy livingdeco 1 * movey ldecopair empty ;
+: l4decos livingdeco -1 movex -1 movey drift livingdeco 1 movex -1 movey drift livingdeco 1 movex 1 movey drift livingdeco -1 movex 1 movey drift ;
+: llazypair 40 %chance if couch else 50 %chance if rndhshelf else hsmalltable then then -1 movey lazyboy -1 movex 1 movey lazyboy 1 movex 1 movey ;
+
+: livingsets
+	only-chosen;
+	lcouchtable2
+;
+
+: livingset
+	only-chosen;
+	1 11 rnd case
+	1 of lcouchend endof
+	2 of lskelechair endof
+	3 of lcouchdeco endof
+	4 of lendlazy endof
+	5 of llazyloot endof
+	6 of lcouchtable1 endof
+	7 of lcouchends endof
+	8 of l4decos endof
+	9 of ltrideco endof
+	10 of llazypair endof
+	11 of lcouchtable2 endof endcase
+	20 %chance if looseloot then
+;
+
+// KITCHEN KORNER
+
+: krndloot 1 3 rnd LOOT_FOOD loot! amount! ;
+: klootf 50 %chance if cupboard krndloot else 50 %chance if smallshelf krndloot else bigshelf krndloot then then ;
+: kloote 50 %chance if ecupboard else 50 %chance if esmallshelf else ebigshelf then then ;
+: kloot 50 %chance if klootf else kloote then ;
+: stoveloot 50 %chance if 5 10 rnd LOOT_GAS else 1 LOOT_FOOD then loot! amount! ;
+
+: KLzomb 1 6 rnd zombs 2 for 60 %chance if skel scatter then next 80 %chance if kitchenweapons .drift then ;
+: KLdouble kitchenweapons .drift 40 %chance if kitchenweapons .scatter then 20 %chance if skeldog drift then ;
+: KLbonus kitchenweapons .drift box scatter ;
+: KLtonskele 4 for 50 %chance if skel scatter then next 2 for 20 %chance if skeldog scatter then next ;
+: KLroll 0 3 rnd zombs 30 %chance if KLbonus else 40 %chance if KLdouble else 50 %chance if KLzomb else KLtonskele then then then 1 %chance if blowtorch drift then ;
+: KLchance 20 %chance if trashcan scatter then 50 %chance if KLroll then 50 %chance if LLkitchen then ;
+
+: kstove stove 40 %chance if stoveloot else opened then ;
+: kfridge 60 %chance if fridge krndloot else efridge then ;
+: kcounterpair 50 %chance if kitchensink -1 movex dup movey kstove 1 movex dup movey else kitchensink 1 movex dup movey stove -1 movex dup movey then ;
+: onlyfridge only-chosen; kfridge ;
+
+: fridgespread
+	only-chosen;
+	70 %chance if smalltable drift then
+	flippy kfridge 2 * movex
+	70 %chance if kloot 2 * movex then empty
+;
+
+: kcounter 50 %chance if kitchensink -1 movex -1 movey kstove 1 movex -1 movey else kitchensink 1 movex -1 movey kstove -1 movex -1 movey then ;
+
+: rndkitchen
+only-chosen;
+40 %chance if diningset exit then
+40 %chance if smalltable exit then
+30 %chance if kloot exit then
+;
+
+: kitchensethalf
+	only-chosen;
+	kitchensink -10 movey
+	flippy 80 %chance if kloot -10 movey 10 * movex then kstove -10 movey 10 * movex
+	empty KLchance
+;
+
+: nkitchensettiny
+	only-chosen;
+	flippy
+	kfridge -10 movey 10 * movex
+    kitchensink -10 movey 10 * movex KLchance
+;
+
+: nkitchenset
+	only-chosen;
+	kcounter flippy
+	kfridge -10 movey 3 * movex
+	80 %chance if kloot -10 movey 3 * movex then empty KLchance
+;
+
+: kitchencentral
+	only-chosen;
+	flippy kfridge 1 * movey kcounterpair empty KLchance
+;
+
+// BEDROOM STUFF
+
+: beddeco 1 4 rnd case 1 of box endof 2 of lazyboy endof 3 of endtable endof 4 of chair endof endcase ;
+: rndbed only-chosen; 60 %chance if beddeco else box -1 1 rnd movex then ;
+: beddecopair beddeco 1 movex dup movey beddeco -1 movex dup movey ;
+: rndhshelfflip rndhshelf 1 * movex -1 movey ;
+
+: bsidedrawers flippy bed drawers 1 * movex 30 %chance if drawers 1 * movex then ;
+: bsidedrawersV flippy bed 1 movey drawers 1 * movex -1 movey 30 %chance if drawers 1 * movex -1 movey then ;
+: bsidedrawersS bed -0.6 movey drawers 0.6 movey ;
+: bsiderndshelf bed 1 movey flippy rndhshelfflip 20 %chance if rndhshelfflip then empty ;
+: bsidechaos1 2 for skel scatter next bed drift ebox drift ;
+: bsidechaos2 3 for 50 %chance if skel scatter then next bed 1 movey drift erndbox -1 movey drift 50 %chance if erndbox -1 movey drift then ;
+: beddecosV flippy bed 1 * movey beddecopair empty ; 
+: randbedndecos	mrand dup 4corners bed movex movey 1+ dup 4corners beddeco movex movey 1+ dup 4corners beddeco movex movey 1+ 4corners beddeco movex movey ;
+: beddecostwin flippy bed beddeco -1.5 1.5 rnd movey 1.8 * movex beddeco -1.5 1.5 rnd movey 1.8 * movex ;
+
+: BLzomb 1 6 rnd zombs 2 for 60 %chance if skel scatter then next 20 %chance if niceweapons .drift then ;
+: BLdouble cheapweapons .drift 40 %chance if cheapweapons .scatter then 20 %chance skeldog drift ;
+: BLbonus cheapweapons .drift box scatter ;
+: BLtonskele 4 for 50 %chance if skel scatter then next 2 for 20 %chance if skeldog scatter then next ;
+: bedloot 0 3 rnd zombs 30 %chance if BLbonus else 40 %chance if BLdouble else 50 %chance if BLzomb else BLtonskele then then then ;
+
+( : bedset only-chosen; bsiderndshelf ; )
+
+// problem with bsidedrawers and some bedloot	
+: bedset
+	only-chosen; 1 10 rnd case
+	1 of bsidedrawers endof
+	2 of bsidedrawersV endof
+	3 of bsidedrawersS endof
+	4 of bsiderndshelf endof
+	5 of bsidechaos1 endof
+	6 of bsidechaos2 endof
+	7 of beddecosV endof
+	8 of randbedndecos endof
+	9 of randbednchairs endof
+	10 of beddecostwin endof endcase
+	5 %chance if bedloot then
+	10 %chance if looseloot then
+;
+
+: nbedset
+	only-chosen;
+	bed -10 movey
+	flippy
+	endtable drift -10 movey 10 * movex
+	drawers drift -10 movey 10 * movex
+	10 %chance if looseloot then
+;
+
+}
+
+map{ roomgen{
+
+	// restrooms
+	: mirror inside_tiles_shelves_id 0x 19 + tanchor 1- wallhang ;
+	: gasbath sink -1 movey mirror toilet toiletloot -1 movey 1 movex ;
+	: restsink sink -1 movey mirror ;
+	
+	// common finds
+	: gasfridge storefridge 3 rarefood -1 movey ;
+	: gasvend vending 1 rarefood ;
+	: 2vend vending 2 rarefood ;
+	: 3vend vending 3 rarefood ;
+	
+	// common walldeco
+	: tackboard
+		special_objects32_base_id 0x 41 + tanchor 1- wallhang
+	// tanchor 1- tile@ LAYER_WALLTOP special_objects32_base_id 0x 41 + lt .spriteid!
+	;
+	: wallbulletin special_objects32_base_id 0x 4e + tanchor 1- wallhang ;
+	: wallflag special_objects32_base_id 0x 4c + tanchor 1- wallhang ;
+	: painting1	special_objects32_base_id 0x 44 + tanchor 1- wallhang ;
+	: painting2	special_objects32_base_id 0x 45 + tanchor 1- wallhang ;
+	: diploma special_objects32_base_id 0x 42 + tanchor 1- wallhang ;
+	: phonestand
+		spawn special_objects32_base_id 0x 49 + lt .spriteid!
+		25 health! bbox swolebolt as-metal 
+	;
+	: policebench
+		spawn special_objects32_base_id 0x 4a + lt .spriteid!
+		bbox as-metal
+	;
+	: flagstand	spawn special_objects32_base_id 0x 48 + lt .spriteid! as-wood postify ;
+	: policecounter
+		spawn special_objects32_base_id 0x 68 + lt .spriteid!
+		25 health! bbox immovable as-wood dropswood
+	;	
+	// common office stuff
+	: watercooler spawn special_objects32_base_id 0x 7 + lt .spriteid! bbox ;
+	: hockeytable spawn special_objects32_base_id 0x f + lt .spriteid! bbox ;
+	: officechair spawn special_objects32_base_id 0x 12 0 2 rnd + + lt .spriteid! bbox 3 health! rndflip 1 mass! ;
+	: officechairs for officechair scatter next ;
+	: officedesk spawn special_objects32_base_id 0x 15 0 1 rnd + + lt .spriteid! bbox as-metal ;
+	: filecabinet spawn special_objects32_base_id 0x 4 + lt .spriteid! bbox as-metal 6 health! ;
+	: %filecabinet %chance if filecabinet then ;
+	
+	// example currently unused stuff
+	: policefloor // Plots by room coordinate, can be put in a room script
+	//	0x 13 to floorboxtheme 2 2 6 6 floorbox
+	2 2 5 5 0x 13 boxfloor
+	;
+
+	: policefloorcenter // Needs anchor, does a radius around a center
+	2 1 0x 13 tanchorfloor ;
+	
+	: .zombspawn nearest .tpos anchor! zombs ;
+	
+	: tradecamploot 
+	1 11 rnd case
+		1 of pipebomb .drift endof
+		1 of 1 3 rnd for 1 LOOT_FOOD spawnloot scatter next endof
+		2 of 1 2 rnd for 1 LOOT_MEDICAL spawnloot scatter next endof
+		3 of grenade .drift endof
+		4 of 1 2 rnd for 5 10 rnd sbullet next endof
+		5 of 1 2 rnd for 4 8 rnd srifle next endof
+		6 of 1 2 rnd for 3 6 rnd sshot next endof
+		7 of 20 30 rnd sgas endof
+		8 of regiondef{ getout-npc } endof
+		9 of commonranged .drift endof
+		11 of meleeweapons .drift endof
+	endcase	
+;
+	
+	10 value stockchance
+	LOOT_FOOD value stockloot
+	1 value stockamt
+	
+	: rollshelfloot tile@ args( t )
+		<- t .id@ TILE_SHELF = not if then;
+		stockchance %chance not if then;
+		stockamt stockloot <- t tile.loot!
+	;
+	
+	: shelfstock map-extents ' rollshelfloot boxcall ;
+	: 10shelfstock 10 to stockchance LOOT_FOOD to stockloot shelfstock ;
+
+	: 10shelffood-20junk 20 to stockchance LOOT_JUNK to stockloot shelfstock  10shelfstock ;
+	
+} }
+
+\ MOTD Loading
+
+// load? kepa/motd.df
+// load? kepa/roadstart.df // NOTE: Starts on the road by default now

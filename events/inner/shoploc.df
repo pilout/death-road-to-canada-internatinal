@@ -1,0 +1,504 @@
+
+cyoa{
+
+0 value lovetest-used
+
+: ltestnames 
+	0 stack
+		"HUNKY STUD" shove
+		"ULTRA BABE" shove
+		"DATE HAVER" shove
+		"POWER WAIF" shove
+		"HANDSOME LAD" shove
+		"CASANOVA" shove
+		"CLEOPATRA" shove
+	shuffles pops nip
+;
+
+: ltestbad
+	0 stack
+		"FART BUTT" shove
+		"ICEY WIENER" shove
+		"SMELLY JERK" shove
+		"DINGUS" shove
+		"COLD FISH" shove
+		"STINK DUDE" shove
+		"FUTURE SKELETON" shove
+	shuffles pops nip
+;
+
+: lrating
+	lovetest-used 2 < if
+		ltestnames
+	else
+		ltestbad
+	then
+;
+
+cyoa-choice: lovetest-go
+	' lovetest-used ++
+	($ cname .. "'s Love Tester rating: " pbold .. lrating rbold $) cyoa-text!
+	lovetest-used 2 < if
+		($ cname .. " feels oddly flattered by this!" $) +crtext
+		morale++ goodfx
+		"The Love Tester makes a terrible grinding noise. Something in it must have broken." +crtext
+	else
+		cchar .morale 1 < if
+			ctemper+ if
+				($ cname .. " ignores " .. chis .. " strong impulse to smash the machine." $)
+				badfx
+			else
+				($ cname .. " smashes the machine until it stops working!" $)
+				clear-cyoa bitefx
+			then +crtext temperREV
+		else
+			badfx
+			cattitude+ if
+				($ cname .. " laughs this off, but a part of " .. chim .. " dies this day." $) +crtext
+			else
+				($ cname .. " is infuriated by this humiliation!" $) +crtext
+				morale--
+			then
+			attitudeREV
+		then
+	then
+;
+	
+	cyoa: lovetest
+	"The Love Tester" cyoa-title!
+	picon!
+	($ "It's an old fashioned Love Tester machine! 
+	Will this reveal HIDDEN TRUTHS about " .. pname .. "?" $) cyoa-text!
+	cpet? if
+		($ "This wasn't designed with " .. pname .. " in mind. Yet another example of human and more-or-less human favoritism." $)
+	+crtext then;
+		choice( "Leave it for now" )choice
+		pchar charchoice( ": Use Love Tester" )choice: lovetest-go
+;
+
+}
+
+map{ roomgen{
+
+	: barcounter
+		spawn special_objects48_base_id 0x 3 + lt .spriteid!
+		rndflip 25 health! bbox immovable as-wood nohit
+	;
+
+	: bararcade
+		spawn special_objects32_base_id 0x 27 + lt .spriteid!
+		bbox as-wood
+	;
+
+	: barstool
+		spawn special_objects32_base_id 0x 1f + lt .spriteid!
+		bbox as-wood
+	;
+
+	: lovetest spawn special_objects32_base_id 0x b + spriteid! bbox as-metal 25 health! 20 mass!
+		cyoa{ ' lovetest cyoa! }
+	;
+	
+	: pooltable
+		spawn special_objects32_base_id 0x 26 + lt .spriteid!
+		30 health! bbox swolebolt as-wood
+		1 2 rnd for poolcue .drift next
+		10 %chance if poolspear .drift then
+	;	
+	
+	: mallwindow
+		special_objects64_base_id 0x a + tanchor 1- wallhang
+		// TODO: SMASH! smash-n-loot
+	;
+	
+	: mallshutter
+		special_objects64_base_id 0x b + tanchor 1- wallhang
+	;
+
+} }
+
+locdef{
+		
+location: bar
+		max-rooms: 1
+		entry-tags: bar
+		script: set-theme-cabin 
+
+	: bottle-scatter 6 for bottle .scatter next ;
+	: barloot
+		bottle-scatter
+		new-drunk-npc -3 movey drop
+		skelscat
+		30 %chance if skelscat then
+		1 4 rnd case
+			1 of dolt .drift 12 sbullet endof
+			2 of shotgun .drift 8 sshot endof
+			3 of 3 for molscat next 50 LOOT_GAS spawnscat endof
+			4 of pistol .drift 30 sbullet endof
+		endcase
+	;
+
+		room-choice: bar
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: barloot
+			filter-only
+
+location: gunshop
+		max-rooms: 1
+		entry-tags: shop
+		script: yall-theme 
+
+	: gunshoploot
+		3 6 rnd for skelscat next
+		3 carts-scatter
+		3 for LLammobox next
+		90 %chance if pistol .scatter 10 15 rnd sbullet then
+		25 %chance if shotgun .scatter pistol .scatter then
+		50 %chance if LLammobox then
+		10 %chance if LLammobox then
+		30 %chance if 1 4 rnd case
+			1 of dolt .scatter 12 sbullet endof
+			2 of shotgun .scatter 8 sshot endof
+			3 of huntcowboy .scatter 15 srifle endof
+			4 of niceranged .scatter endof
+		endcase	then
+	;
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 10diff %zombs gunshoploot
+			filter-only
+			
+location: foodshop
+		max-rooms: 1
+		entry-tags: shop
+		script: yall-theme 
+
+	: foodshoploot
+		1 3 rnd for skelscat next
+		3 carts-scatter
+		3 for LLkitchen next
+		roomgen{ KLroll 10shelfstock }
+		
+	;
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 10diff %zombs foodshoploot
+			filter-only
+			
+location: drugshop
+		max-rooms: 1
+		entry-tags: shop
+		script: yall-theme 
+
+	: drugshoploot
+		1 3 rnd for skelscat next
+		2 carts-scatter
+		2 3 rnd smed
+		30 %chance if 1 LOOT_FOOD spawnscat then
+	;
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 10diff %zombs drugshoploot
+			filter-only
+
+location: umbrellashop
+		max-rooms: 1
+		entry-tags: shop
+		script: yall-theme 
+
+	: umbrellashoploot
+		0 1 rnd for skelscat next
+		2 carts-scatter
+		2 6 rnd for umbrella .scatter next
+		30 %chance if beach .scatter then
+	;
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 10diff %zombs umbrellashoploot
+			filter-only			
+			
+location: hardwareshop
+		max-rooms: 1
+		entry-tags: shop
+		script: yall-theme 
+
+	: hardwareshoploot
+		3 6 rnd for skelscat next
+		3 carts-scatter
+		2 for 
+		1 6 rnd case
+			1 of wrench .scatter endof
+			2 of 90 %chance if sledge else megamaul then .scatter endof
+			3 of screwdriver .scatter endof
+			4 of clawhammer .scatter endof
+			5 of 90 %chance if ballpeen else blackhammer then .scatter endof
+			6 of 50 %chance if mallet else woodsaw then .scatter endof
+		endcase 
+		next
+		30 %chance if nail .scatter then
+		2 5 rnd for 2x4 .scatter next
+		15 %chance if 
+			50 %chance if pickaxe else pitchfork then 
+		.scatter then
+		20 %chance if metal .scatter then
+		60 %chance if 20 40 rnd sgas then 
+		30 50 rnd sgas
+		15 %chance if crowbar .scatter then
+		20 %chance if 
+			70 %chance if chainsaw else echainsaw lt then
+		.scatter then
+		40 %chance if 
+			70 %chance if whacker else ewhacker lt then
+		.scatter then
+		40 %chance if
+			70 %chance if blower else eblower lt then
+		.scatter then
+		5 %chance if blowtorch scatter then
+		15 %chance if branchtrim .scatter then
+		20 %chance if
+			50 %chance if shovel else snowshovel then 
+		.scatter then
+		20 %chance if
+			50 %chance if rake else hoe then
+		.scatter then
+	;
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 10diff %zombs hardwareshoploot
+			filter-only				
+			
+location: campingshop
+		max-rooms: 1
+		entry-tags: shop
+		script: yall-theme 
+
+	: campingshoploot
+		2 4 rnd for skelscat next
+		2 carts-scatter
+		1 2 rnd sfood
+		1 6 rnd case
+			1 of hatchet .scatter endof
+			2 of frying .scatter hatchet .scatter endof
+			3 of machete2 .scatter endof
+			4 of huntcowboy .scatter 15 srifle endof
+			5 of shotgun .scatter 8 sshot endof 
+			6 of bow scatter endof
+		endcase
+		50 %chance if machete1 .scatter then
+		fishing .scatter
+		5 %chance if blowtorch scatter then
+		20 %chance if 20 50 rnd sgas then
+	;
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 10diff %zombs campingshoploot
+			filter-only
+
+location: petshop
+		max-rooms: 1
+		entry-tags: shop
+		script: yall-theme 
+
+	: petshoploot
+		10 20 rnd for skelscat next
+		20 30 rnd for femur .scatter next
+		2 carts-scatter
+		3 5 rnd sfood
+		// 2 5 rnd for new-veryferaldog next
+		new-feraldog new-feraldog
+		10 %chance if new-feraldog then
+	;
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: petshoploot
+			filter-only				
+
+location: jockshop
+		max-rooms: 1
+		entry-tags: shop
+		script: yall-theme 
+
+	: jockweapons
+		for 
+		1 7 rnd case
+			1 of baseball .scatter endof
+			2 of cricket .scatter endof
+			3 of golf .scatter endof
+			4 of aluminum .scatter endof
+			5 of 90 %chance if hockey else xtreme then .scatter endof 
+			6 of tennis .scatter endof
+			7 of paddle .scatter endof
+		endcase
+		next
+	;
+	: jockshoploot
+		0 2 rnd for skelscat next
+		2 carts-scatter
+		2 3 rnd jockweapons
+		60 %chance if baseball .scatter then
+		60 %chance if tennis .scatter then
+		60 %chance if 
+			30 %chance if 50 else 30 then airhorn .item.charges! lt .scatter
+		then
+		10 %chance if bow scatter then
+	;
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: 10diff %zombs jockshoploot
+			filter-only				
+
+location: sportingshop
+		max-rooms: 2
+		entry-tags: shop
+		script: yall-theme 
+
+	: sportingloot
+		jockshoploot campingshoploot 15 25 rnd zombs
+	;
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script:
+			room-post-script: 10diff %zombs sportingloot
+			filter-only	
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath	
+			
+location: restaurant
+		max-rooms: 4
+		entry-tags: restaurant
+		script: set-theme-restaurant
+		post-script: 10diff %zombs nad
+
+	: restaurant-start
+		random-door "restroom" only-with-door
+		random-door "rest-kitchen" only-with-door
+		10diff %zombs
+	;		
+
+	: restaurant-loot 1 2 rnd sfood skelscat 30 %chance if skelscat then ;
+	
+	: rest-kitchenrooms
+		random-door "rest-storage" only-with-door
+		restaurant-loot
+	;		
+
+		room-choice: restaurant
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: restaurant-start map{ room-garbage }
+			filter-only		
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			
+		room-choice: rest-kitchen 
+			room-weight: 10
+			room-count: 1
+			room-script: floor-kitchen 
+			room-post-script: rest-kitchenrooms
+			
+		room-choice: rest-storage
+			room-weight: 10
+			room-count: 1
+			room-script: floor-kitchen
+			room-post-script: rest-kitchenrooms
+			filter-only		
+	
+location: bookshop
+		max-rooms: 2
+		entry-tags: shop
+		script: set-theme-bookstore
+
+: bookshoploot
+	map{ room-papers }
+	6 for book scatter next
+	randombook scatter
+;
+		
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 10diff %zombs bookshoploot
+			filter-only		
+ 
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+	
+}
+		
+map{ roomgen{
+
+: storefurniture
+	0 10 rnd case
+		0 of chair endof
+		1 of chair endof
+		2 of lazyboy endof
+		3 of bed endof
+		4 of endtable endof
+		5 of smalltable endof
+		6 of table endof
+		7 of spawn 0x 1a themed spriteid! bbox endof
+		8 of spawn 0x 1d themed spriteid! bbox endof
+		9 of spawn 0x 1c themed spriteid! bbox endof
+		10 of chair endof
+	endcase	99 health!
+;
+
+} }			
+
+locdef{
+
+location: furnstore
+		max-rooms: 2
+		entry-tags: furnstore
+		script: set-theme-furnstore
+
+		room-choice: furnstore
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 10diff %zombs roomgen{ 10shelfstock }
+			filter-only		
+
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			
+}

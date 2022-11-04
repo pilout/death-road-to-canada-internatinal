@@ -1,0 +1,147 @@
+
+map{ roomgen{
+
+: cellsink
+	spawn special_objects32_base_id 0x 6b + lt .spriteid! bbox
+	25 health! immovable as-metal
+;	
+: cellcombine
+	spawn special_objects32_base_id 0x 6c + lt .spriteid! bbox
+	25 health! immovable as-metal
+;	
+: cellbench
+	spawn special_objects32_base_id 0x 6d + lt .spriteid! bbox
+	25 health! immovable as-metal
+;
+: celltoilet
+	spawn special_objects32_base_id 0x 6e + lt .spriteid! bbox
+	25 health! immovable as-metal
+;
+: cellbed
+	spawn special_objects32_base_id 0x 6a + lt .spriteid!
+	bbox as-metal
+;
+
+: cellbath cellsink -1 movey celltoilet -1 movey -1 movex ;
+	
+: wallbadge	special_objects32_base_id 0x 4d + tanchor 1- wallhang ;
+
+(*
+// TODO: Once tile draw sorting is working... tile versions
+: cellbars special_objects32_base_id 0x 60 + tanchor solidwall ;
+: celldoor special_objects32_base_id 0x 61 + tanchor solidwall ;
+: cellbars48
+	special_objects32_base_id 0x 60 + tanchor solidwall
+	special_objects32_base_id 0x 61 + tanchorx 1- tanchory solidwall
+;
+: cellbars64
+	special_objects32_base_id 0x 61 + tanchor solidwall
+	special_objects32_base_id 0x 60 + tanchorx 1- tanchory solidwall
+	special_objects32_base_id 0x 60 + tanchorx 1+ tanchory solidwall
+;
+
+*)
+
+: cellbars
+	spawn special_objects32_base_id 0x 4f + lt .spriteid!
+	bbox immovable as-metal
+;
+
+: cellbars48
+	spawn special_objects48_base_id 0x c + lt .spriteid!
+	bbox immovable as-metal
+;
+
+: cellbars64
+	spawn special_objects64_base_id 0x 9 + lt .spriteid!
+	bbox immovable as-metal
+;
+
+: evidenceloot
+	75 %chance if skelscat then
+	20 %chance if nightstick .scatter then
+	40 %chance if shiv .drift then
+	1 5 rnd case
+		1 of 90 %chance if snubnose .drift 12 LOOT_BULLET else autoshot .drift 15 LOOT_SHOTGUN_SHELL then spawnloot drift endof
+		2 of 2 LOOT_MEDICAL spawnloot drift endof
+		3 of 3 for pipebomb .drift next endof
+		4 of otaku .drift endof
+		5 of knucks .drift endof
+	endcase
+;
+
+: evidencelootHQ
+	75 %chance if skelscat then
+	15 %chance if nightstick .scatter then
+	40 %chance if shiv .drift then
+	1 5 rnd case
+		1 of 90 %chance if snubnose .drift 12 LOOT_BULLET else autoshot .drift 15 LOOT_SHOTGUN_SHELL then spawnloot drift endof
+		2 of 2 LOOT_MEDICAL spawnloot drift endof
+		3 of 2 for pipebomb .drift next endof
+		4 of 80 %chance if shotgun .drift 8 LOOT_SHOTGUN_SHELL else uzi .drift 30 LOOT_BULLET then spawnloot drift endof
+		5 of knucks .drift endof
+	endcase
+;
+
+
+} }
+
+locdef{
+
+location: police
+		max-rooms: 6
+		entry-tags: policestart
+		pre-script: set-theme-police
+		script: set-theme-police
+		post-script: 10diff %zombs nad ndx
+
+	: startpolicehall 
+		random-door "restroom" only-with-door
+		random-door "office" only-with-door
+	;
+	
+	: policeoffice
+		random-door "policecells" only-with-door
+	;
+	
+	: policetoloot
+		random-door "copevidence" only-with-door
+		random-door "restroom" only-with-door
+		10diff %zombs
+	;
+
+		room-choice: policestart
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: startpolicehall
+			filter-only
+
+		room-choice: copevidence
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 
+			filter-only
+			
+		room-choice: policecells
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: policetoloot
+			filter-only
+
+		room-choice: office
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 0 3 rnd roomgen{ officechairs } policeoffice
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 2
+			room-script: floor-bath
+			filter-only
+
+}

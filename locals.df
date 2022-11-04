@@ -1,0 +1,125 @@
+
+namespace locals
+
+locals{
+
+0 stack var mappings
+0 stack var locals
+0 value locindex
+0 value foundindex
+
+: findvar rot 1+ -rot 2dup $= if rot dup to locindex -rot then drop ;
+
+: findvar? 0 to locindex 0 swap mappings ' findvar foreach 3drop locindex ;
+
+: domakevar
+	dup findvar?
+	0= if mappings swap shove 0 else 1 then
+	nip
+;
+
+: makevar dup domakevar 0= if domakevar then drop ;
+
+: checkvar dup findvar? 0=
+	if ($ "local " .. swap .. " not found" $) $abort then drop
+;
+
+: $set checkvar
+	($ "locals swap " .. locindex neg .. " swaps- drop" $) evaluate
+; immediate
+
+: set token postpone $set ; immediate
+
+: $get checkvar
+	($ "locals " .. locindex neg .. " picks nip" $) evaluate
+; immediate
+
+: get token postpone $get ; immediate
+
+// A more instantly visible shorthand
+: <- postpone get ; immediate
+: -> postpone set ; immediate
+
+: addlocals locals swap for 0 shove next drop ;
+: removes ( dumplocals ) for pops drop next drop ;
+
+: endlocals mappings depths nip
+	postpone locals postpone literal postpone removes
+; immediate
+
+(*
+: endlocals
+	postpone locals postpone pops postpone removes
+; immediate
+*)
+
+: then; postpone endlocals postpone then; ; immediate
+
+: exit
+	postpone endlocals postpone exit
+; immediate
+
+: ; postpone endlocals postpone } postpone ; ; immediate
+
+}
+
+: dumpstack "STACK> " type depths for 0 i - picks . next cr drop ;
+: dumplocals locals{ locals } dumpstack ;
+
+: locals( locals{
+	0 stack to mappings postpone locals{
+	begin 
+		in? 0= if -1 else
+			token dup ")" $= if drop -1 else makevar 0 then
+		then
+	until
+
+	mappings depths nip	postpone literal postpone addlocals
+} ; immediate
+
+
+// Automatically assign all inputs as arguments
+: args( locals{
+	0 stack to mappings postpone locals{
+	begin 
+		in? 0= if -1 else
+			token dup ")" $= if drop -1 else makevar 0 then
+		then
+	until
+
+	mappings depths 2dup
+	nip	postpone literal postpone addlocals
+
+	for depths i swap - 1- picks postpone $set next
+	drop
+
+} ; immediate
+
+
+: dtest 0 stack 1 shove 2 shove 3 shove ;
+
+: testlocals locals( a )
+;
+
+: ltest2 locals( c )
+	locals{ dumplocals }
+	3 -> c
+	locals{ dumplocals }
+;
+
+: ltest locals( a b )
+	1 -> a 2 -> b
+	locals{ dumplocals }
+	ltest2
+	locals{ dumplocals }
+
+	($ "A " .. <- a  .. " B " .. <- b $) print
+;
+
+
+: handle-error
+	locals{ 0 stack to locals 0 stack to mappings }
+;
+
+// If there's ever an ERROR, this is called
+' handle-error doerror!

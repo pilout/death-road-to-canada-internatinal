@@ -1,0 +1,133 @@
+			
+map{ roomgen{
+			
+: officecounter
+	spawn special_objects32_base_id 0x 4b + lt .spriteid!
+	25 health! bbox immovable as-wood dropswood
+;
+
+: execdesk
+	spawn special_objects32_base_id 0x 69 + lt .spriteid!
+	bbox as-wood
+;
+
+: execdeskup
+	spawn special_objects32_base_id 0x 5d + lt .spriteid!
+	bbox as-wood
+;
+	
+} }
+
+locdef{
+			
+location: office
+		max-rooms: 7
+		entry-tags: officstart
+		pre-script: set-theme-office
+		script: set-theme-office
+		post-script: 10diff %zombs nad ndx
+
+: execsupply
+	1 4 rnd case
+		1 of 1 3 rnd sfood endof
+		2 of 1 2 rnd smed endof
+		3 of grenade .drift 0 1 rnd for 20 30 rnd LOOT_GAS spawnscat next endof
+		4 of 1 2 rnd for 5 10 rnd LOOT_BULLET spawnscat next endof
+	endcase
+;
+: execweapon
+	1 4 rnd case
+		1 of 70 %chance if pistol .drift 20 30 else dolt .drift 6 12 then rnd LOOT_BULLET spawnloot drift endof
+		2 of 90 %chance if golf .drift else uzi .drift 30 50 rnd LOOT_BULLET spawnloot drift then endof
+		3 of grenade .drift 1 LOOT_MEDICAL spawnloot drift endof
+		4 of 2 3 rnd sfood endof
+	endcase
+;
+
+: execweaponmini
+	1 4 rnd case
+		1 of pistol .drift 15 20 rnd LOOT_BULLET spawnloot drift endof
+		2 of golf .drift endof
+		3 of grenade .drift 1 LOOT_MEDICAL spawnloot drift endof
+		4 of 2 3 rnd sfood endof
+	endcase
+;
+
+: execlootmini
+	skel drift
+	1 2 rnd for golf .drift next
+	execweaponmini
+	execsupply
+;
+	
+: execloot
+	skel drift
+	1 3 rnd for golf .drift next
+	execweapon
+	execsupply
+;
+	
+	: %officeexec %chance if random-door "execoffic" only-with-door then ;	
+	: %officerestroom %chance if random-door "restroom" only-with-door then ;
+	: %officekitchen %chance if random-door "emplounge" only-with-door then ;
+		
+	: startofficehall 
+		30 %officerestroom
+		random-door "office" only-with-door
+	;
+	
+	: tryexecoffice 
+		rooms-left 1 > if then;
+		random-door "execoffic" only-with-door
+	;
+	
+	: officerooms
+		rooms-left . "rooms left" print
+		0 3 rnd roomgen{ officechairs }
+		rooms-left 2 < if then;
+		random-door "office" only-with-door
+		rooms-left 3 < if then; 
+		30 %officerestroom
+		25 %officekitchen
+		rooms-left 3 > if then;
+		100 %officerestroom
+		100 %officekitchen
+	;
+	
+	: officefood 1 3 rnd sfood skelscat 30 %chance if skelscat then ; 
+	
+		room-choice: officstart
+			room-weight: 10
+			room-count: 1
+			room-script:  
+			room-post-script: startofficehall
+			filter-only
+
+		room-choice: execoffic
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: execloot
+			filter-only
+		
+		room-choice: emplounge
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: officefood
+			filter-only
+
+		room-choice: office
+			room-weight: 10
+			room-count: 3
+			room-script: 
+			room-post-script: officerooms tryexecoffice
+			filter-only
+			
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+			filter-only
+			
+}

@@ -1,0 +1,73 @@
+"../deathforth/rooms/cabin.txt" $load-rooms
+"../deathforth/rooms/city.txt" $add-rooms
+
+: cabinloot 
+	2 for looseloot LLkitchen next
+	30 %chance if 30 60 rnd sgas chainsaw .scatter then
+;
+
+location
+		tags: cabin-E
+		max-rooms: 2
+		entry-tags: randcabin
+				
+		script: set-theme-cabin
+		pre-script: set-theme-cabin
+		post-script: 6 %zombs
+
+		room-choice: randcabin
+			room-weight: 80
+			room-count: 1
+			room-script: ndx
+			room-post-script: cabinloot new-rescue-npc
+			
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad
+			
+location
+		tags: cabin-E
+		max-rooms: 2
+		entry-tags: randcabin
+				
+		script: set-theme-cabin
+		pre-script: set-theme-cabin
+		post-script: 6 %zombs
+
+		room-choice: randcabin
+			room-weight: 80
+			room-count: 1
+			room-script: ndx
+			room-post-script: cabinloot
+			
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad
+			room-post-script: new-rescue-npc
+			
+regiondef{
+
+	 region: forest cabin
+		w: 17
+		h: 10
+		on-foot
+		script: timeofday o'clock
+
+		no-prefab // Don't build that default city
+		
+		: make-a-cabin map{
+			"cabin-E" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
+			addloc // Add a location using the resulting location definition  ( locdefid -- locid )
+			prefab{ 8 cabin } // Create a cabin of 5 width using the new location ( locid w -- <build cabin centered in upper part of map> )
+			}
+		;
+
+		: setup-cabin-forest
+			map{ grass make-a-cabin 4 pines }
+			mission{ siege-start-dig 50 left-spawn }
+		;
+
+		post-script: setup-cabin-forest 5sdiff %zombs
+}

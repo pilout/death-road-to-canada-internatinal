@@ -1,0 +1,55 @@
+
+"../deathforth/rooms/cabin.txt" $load-rooms
+"../deathforth/rooms/city.txt" $add-rooms
+
+: cabinloot 
+	2 4 rnd for skelscat next LLammo
+	1 2 rnd for machete1 .scatter next
+	40 60 rnd sgas
+	carkeys
+;
+	
+location
+		tags: cabin-E
+		max-rooms: 2
+		entry-tags: randcabin
+				
+		script: set-theme-cabin
+		pre-script: set-theme-cabin
+		post-script: 20 %zombs
+
+		room-choice: randcabin
+			room-weight: 80
+			room-count: 1
+			room-script: ndx
+			room-post-script: cabinloot
+			
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad
+
+regiondef{
+
+	 region: forest cabin
+		w: 35
+		h: 35
+		script: timeofday o'clock
+
+		no-prefab // Don't build that default city
+
+		: make-a-cabin map{
+			"cabin-E" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
+			addloc // Add a location using the resulting location definition  ( locdefid -- locid )
+			prefab{ 10 cabin } // Create a cabin of 5 width using the new location ( locid w -- <build cabin centered in upper part of map> )
+			}
+			resetcarkeys
+			spawn-locked-car map{ pixelh 100 - lt .pos.y! }
+		;
+
+		: setup-cabin-forest
+			map{ grass make-a-cabin 30 pines }
+		;
+
+		post-script: setup-cabin-forest 2diff %zombs
+}

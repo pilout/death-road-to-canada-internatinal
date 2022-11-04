@@ -1,0 +1,176 @@
+uses paul/region-layout.df
+
+" 
+:map 1
+:tags familiar  
+:scriptA 4j-familiar 
+:size 19 11 
+:off 4 0 
+:tiles 
+2222222222222222222
+2333333333333333332
+2AAAAAAAAAAAAAAAAA2
+2AAAAAAAAAAAAAAAAA2
+2AAAAAAAAAAAAAAAAA2
+2AAAAAAAAAAAAAAAAA2
+2AAAAAAAAAAAAAAAAA2
+2111111111111111112
+2222211111111122222
+3333222222222223333
+0000333333333330000
+
+"
+value 4JMODEROOMS
+4JMODEROOMS $parse-rooms
+
+cyoa{
+
+0 value 4j-recruit-count
+
+: 4j-recruit-left 2 4j-recruit-count - rbold ;
+
+
+: .chara-link args( chara thing )
+
+	<- chara character# <- thing .charid!
+	<- thing thing# <- chara .cur_thingid!
+;
+
+: .4j-setup-familiar .thing@ 0 args( thing newchara )
+
+	// No familiars? Just go with the rando char
+	draw-familiar dup 0= if drop then;
+
+	// Save the familiar that we drew
+	-> newchara
+
+	// Free the old rando chara from the NPC
+	<- thing .character@ char-free
+
+	// Link the familiar character to the NPC
+	<- newchara <- thing .chara-link
+	<- newchara .ai_defaults
+;
+
+cyoa-bridge: 4j-campyes-familiar
+	($ rname .. " is raring to go!" $) cyoa-text! basic-tone
+	clear-cyoa
+	team-full? if
+		($ "The group is full.
+		Who would you like to replace to make room for " .. rname .. "?" $) +crtext
+		road{ ' recruit-familiarreplace cyoa-team-choice }
+	else
+		recruited goodfx
+		road{ familiar-recruit-check }
+		' 4j-recruit-count ++
+	then
+;
+
+cyoa: 4j-rec-familiar
+	"Pick Your Jerks" cyoa-title!
+	nearest .character@ choosechar
+	cchar to recruitee ricon
+		
+	($ rname .. " is ready for a road trip!" $) cyoa-text! basic-tone
+	
+	4j-recruit-count 1 > if ($ "You've recruited enough jerks! The car is full!" bbold $) +crtext then;
+	
+	recruitee .trait@ $len 0= if
+		($ rHe .. " claims to know you, but you swear you've never seen this person before..." $) +crtext
+	else
+		($ "TRAIT: " pbold .. recruitee .trait@ $) +crtext 
+		($ "  PERK: " pbold .. recruitee .perk@ $) +text 
+	then
+
+	($ "You can recruit " bbold .. 4j-recruit-left .. " more jerks!" bbold $) +crtext
+	
+	choice( "Leave " .. rname .. " for now" )choice
+
+		choice( "Recruit " .. rname .. "!" )choice: 4j-campyes-familiar
+;
+
+deck-new
+	card-pair: 	4j-rec-familiar			.4j-setup-familiar
+constant 4J-LIST-FAMILIAR
+4J-LIST-FAMILIAR var 4j-list-familiar
+
+: 4j-drawpair-familiar 
+	// pick pulls pops 4j-rec-familiar 	pick 1- pulls pops .4j-setup-familiar
+	4J-LIST-FAMILIAR drawpair
+;
+
+: 4j-familiar-last lt .character@ args( ch )
+	regiondef{ ' trader-event lt .events!
+	1 lt .timer!
+
+	4j-drawpair-familiar }
+	lt .cyoa! <- ch swap execute
+
+;
+
+}
+
+: 4j-camper
+	regiondef{ new-camp-npc } lt .character@ args( ch )
+	185 rnd5050 + lt .aim_angle!
+
+	0 <- ch .ai.wander_chance!
+	0 <- ch .ai.safety_leash!
+;
+
+// : 4jrecruit-in	still-npc cyoa{ ' 4j-recruit cyoa! }  NOT USED ' trader-event lt .events! 1 lt .timer! ;
+
+locdef{
+
+: tradermallsetup random-door map{ block-last-door } ;
+
+location: familiar
+		max-rooms: 1
+		entry-tags: familiar
+		pre-script: yall-theme
+		script: yall-theme
+		post-script: 
+		
+		room-choice: familiar
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: 
+			filter-only
+						
+}
+
+map{ roomgen{
+
+: 4j-familiar familiar-stack depths 0= if drop then;
+	4j-camper cyoa{ 4j-familiar-last }
+	// regiondef{ new-familiar-recruit }
+;
+	
+} }
+
+map{ regiondef{
+
+trade-camp-reset
+
+: site-setup
+	1 no_time!
+	8 18 rnd o'clock
+	mission{ no-edge-spawns }
+;
+
+// "events/4jerksmode.df" $load-region to-mission
+
+region: 4jerksregion
+	
+	inside
+					
+		loc-choice: familiar
+			loc-weight: 99
+			loc-count: 1
+			
+	trade-mode
+
+	post-script: site-setup
+
+} }

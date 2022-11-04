@@ -1,0 +1,93 @@
+
+cyoa{
+
+: npc-cat-recruit
+	cchar to recruitee goodfx clear-cyoa
+	($ "Should " .. pname .. " recruit the cat?" $) +crtext
+	pchar .morale3+ 
+	// pchar .loyaltyREV pchar .attitudeREV
+	recruitee .loyaltyREV recruitee .fitnessREV
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yesno
+;
+
+cyoa-bridge: npc-cat-oscar
+	cchar to recruitee clear-cyoa
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yes
+	pchar .morale3+ 
+	recruitee .loyaltyREV recruitee .fitnessREV recruitee .temperREV
+	"BONUS: Oscar's morale always stays above zero!" fbold +crtext
+	
+;
+
+cyoa-bridge: npc-cat-food
+	LOOT_FOOD pchar .lootamt@ 0 > if
+		($ pname .. " offers the cat some food.
+		The cat sniffs at it carefully, then devours it in an instant. It decides not to kill " .. pname .. " at this moment in time." $) text!
+		npc-cat-recruit
+		-1 add-food
+	else
+		($ pname .. " has no food right now! Hopefully there's some in a nearby building..." $) text!
+	then
+;
+
+cyoa-bridge: npc-cat-poke
+	($ "Well, your call, I suppose.
+	" .. pname .. " reaches out to poke the cat but is interrupted due to " .. "GETTING MURDERED" fbold .. " by a flurry of claws and bites." $) text!
+	pchar .kill
+;
+
+// pchar .nonfatal if then
+
+cyoa: npc-catrecruit
+	nearest .character@ choosechar cicon
+	
+	cchar .bodytype@ 9 = if
+		"The Last Good Cat" cyoa-title!
+			($ pname .. " finds a cat that has made its den here. It seems different than all other post-zombocalypse cats. 
+			The cat is super calm and doesn't radiate a desire to murder humans! How bizarre!
+			He is wearing a name tag that reads:" .. " OSCAR" rainbold $) text!
+		choice( "Leave Oscar behind" )choice
+		choice( "Recruit Oscar!" )choice: npc-cat-oscar
+	then;
+	
+	"The Cat Nest" cyoa-title!
+	($ pname .. " finds a cat that has made its den in this trashed house. The cat stares at " .. phim .. " with a lazy glance that is tinged with " .. "MURDEROUS INTENT." rainbold $) text!
+	// "Cats got huge some time after the apocalypse. The small cats of the past are now a thing of distant memory." +crtext 
+	"WARNING: Will kill you. If not now, maybe later." rbold +crtext
+		choice( "Leave it alone" )choice
+		choice( "Poke the cat! Yeah!" fbold )choice: npc-cat-poke
+		choice( "Coax it with food" )choice: npc-cat-food
+;
+
+}
+
+: .catrecruit args( char )
+	<- char
+	2 %chance kspet-checker 1 < and if
+		.oscarcatify
+	else
+		.catify
+	then
+	<- char cyoa{ ' npc-catrecruit cyoa! }
+	drop
+;
+
+locdef{
+		
+location
+		tags: catnest
+		max-rooms: 2
+		entry-tags: trashed
+		script: set-theme-house
+		pre-script: set-theme-house
+		
+		room-choice: trashed
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+			room-post-script: still-npc .catrecruit 3 5 rnd for skelscat next
+			filter-only
+			
+}

@@ -1,0 +1,286 @@
+// uses hack/region-downtown-test.df
+uses paul/region-layout.df
+
+// "../deathforth/hack/gasbar.txt" $load-rooms
+// "additional-rooms.txt" $add-rooms
+
+cyoa{ regiondef{
+
+0 value trader-ruined-1
+0 value trader-ruined-2
+0 value trader-ruined-3
+
+: trader-ruined-1name
+	trader-ruined-1 case
+		0 of "NOTHING" endof
+		1 of "50 Bullets" endof
+		2 of "60 Gas" endof
+		3 of "30 Shotgun Shells" endof
+		4 of "40 Rifle Ammo" endof
+		5 of "6 Medical" endof
+	endcase
+;
+
+: trader-ruined-2name
+	trader-ruined-2 case
+		0 of "NOTHING" endof
+		1 of "3 Grenades" endof
+		2 of "Sturdy Machete" endof
+		3 of "5 Pipebombs" endof
+		4 of "Aluminum Bat" endof
+		5 of "Double Barrel Shotgun" endof
+		6 of "Bow + 50 Arrows" endof
+	endcase
+;
+
+: trader-ruined-3name
+	trader-ruined-3 case
+		0 of "NOTHING" endof
+		1 of "Uzi" endof
+		2 of "Chainsaw" endof
+		3 of "9 Molotovs" endof
+		4 of "Mega Maul" endof
+		5 of "Scythe" endof
+		6 of "Ultimate Log" endof
+		7 of "Blowtorch XL" endof
+		8 of "Napalm Launcher" endof
+	endcase
+;
+
+cyoa-choice: trader-ruined-buy1
+	($ Thegroup .. " gets an amazing fire sale deal for " .. trader-ruined-1name fbold .. "!" $) cyoa-text!
+	"THESE DEALS ARE SO HOT! I MIGHT CATCH ON FIRE!" fbold +crtext goodfx someicon
+	trader-ruined-1 case
+		0 of goblin-laugh endof
+		1 of 50 trunk-bullet+ endof
+		2 of 60 trunk-gas+ endof
+		3 of 30 trunk-shotgun-shell+ endof
+		4 of 40 trunk-rifle-shell+ endof
+		5 of 6 trunk-medical+ endof
+	endcase
+	0 to trader-ruined-1 -3 trunk-food+
+;
+
+cyoa-choice: trader-ruined-buy2
+	($ Thegroup .. " gets an amazing fire sale deal for " .. trader-ruined-2name fbold .. "!" $) cyoa-text!
+	"YOU KNOW, I'VE ALWAYS HATED THIS LOCATION!
+	TOO MANY SKELETONS!" fbold +crtext goodfx someicon
+	trader-ruined-2 case
+		0 of 1 WEAPON_FEMUR endof
+		1 of 3 WEAPON_GRENADE endof
+		2 of 1 WEAPON_MACHETE2 endof
+		3 of 5 WEAPON_PIPEBOMB endof
+		4 of 1 WEAPON_ALUMINUM endof
+		5 of 1 WEAPON_DSHOTGUN endof
+		6 of 50 WEAPON_BOW endof
+	endcase trunk.weapon+
+	0 to trader-ruined-2 -6 trunk-food+
+;
+
+cyoa-choice: trader-ruined-buy3
+	($ Thegroup .. " gets an amazing fire sale deal for " .. trader-ruined-3name fbold .. "!" $) cyoa-text!
+	"WOW! WHAT AN AMAZING FIRE SALE DEAL! WOOOOOW!" fbold +crtext goodfx someicon
+	trader-ruined-3 case
+		0 of 1 WEAPON_FEMUR endof
+		1 of 1 WEAPON_UZI endof
+		2 of 1 WEAPON_CHAINSAW endof
+		3 of 9 WEAPON_MOLOTOV endof
+		4 of 1 WEAPON_MEGAMAUL endof
+		5 of 1 WEAPON_SCYTHE endof
+		6 of 1 WEAPON_ULTIMALOG endof
+		7 of 500 WEAPON_XLBLOWTORCH endof
+		8 of 50 WEAPON_NAPALM endof
+	endcase trunk.weapon+
+	0 to trader-ruined-3 -10 trunk-food+
+;
+
+cyoa: trader-ruined
+	"Last Trader in Ruined Camp" cyoa-title!
+	
+	trunk-food 6 < if 0 to trader-ruined-2 then
+	trunk-food 10 < if 0 to trader-ruined-3 then
+	
+	trader-ruined-1 0 > trader-ruined-2 0 > trader-ruined-3 0 > or or if
+	
+		trunk-food 3 < if
+			"YOU'RE MY LAST CUSTOMER!
+			AND YOU DON'T HAVE ANY FOOD??
+			I GOT OUT OF BED
+			FOR THIS???!??!!!" fbold cyoa-text! clear-cyoa badfx
+		else
+			"I'M HAVING A FIRE SALE!
+			ABSOLUTELY EVERYTHING MUST GO!" fbold cyoa-text! +cr foodamt
+		
+			choice( "Resist hot deals for now" )choice
+			trader-ruined-1 0 > if choice( trader-ruined-1name .. " for 3 food" )choice: trader-ruined-buy1 then
+			trader-ruined-2 0 > if choice( trader-ruined-2name .. " for 6 food" )choice: trader-ruined-buy2 then
+			trader-ruined-3 0 > if choice( trader-ruined-3name .. " for 10 food" )choice: trader-ruined-buy3 then
+			
+		then
+				
+	else
+	
+	"SALE OVER! NOW I'M OUTTA BUSINESS!
+	SMELL YOU LATER!" fbold cyoa-text! clear-cyoa
+	
+	then 
+;
+
+} }
+
+map{ regiondef{
+
+trade-camp-reset
+
+0 value gbx
+0 value gby
+
+' plotdirt >defer ft
+
+: campfire-dead
+	campfire-simple
+	lt thing# 1 3 rnd for skel lt-here drift next drop
+;
+
+: trader-dead
+	skel lt-here lt args( deadtrader )
+	2 for indcrate <- deadtrader .pos lt .pos! immovable drift next
+;
+
+: trader-lot-dead
+	skel lt-here 1 movey drift lt args( deadtrader )
+	covered-boxes <- deadtrader .pos lt .pos! immovable -2 movey drift
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: trader-ruined
+	// still-npc - Didn't use due to not being seen by zombies
+	// nomove-npc - Doesn't move at all vs zombies
+	
+	new-trader lt args( trader ) lt-here
+	
+	' trader-event lt .events! 1 lt .timer!
+	
+	0 <- trader .character@ .female!
+	
+	// LOOT_FOOD <- trader .loot!
+	
+	1 <- trader .character@ .carrying.slot_count!
+	WEAPON_SHOTGUN <- trader .character@ .weapona!
+	30 LOOT_SHOTGUN_SHELL <- trader .character@ .lootamt!
+	
+	' trader-ruined <- trader .cyoa!
+	
+	indcrate <- trader .pos lt .pos! immovable 1 movey drift
+	
+	map{ xyp.x 2 - xyp.y 2 - xyp.x 2 + xyp.y 2 + LAYER_FLOORTOP min-layer! conclot }
+	
+	// lt thing# <- trader thing# = if then;
+	lt <- trader .follow
+;
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char v = if carwreck lt-here then;
+	xyp.i char V = if burningwreck lt-here then;
+	xyp.i char P = if pictable1 lt-here 8 rdrift then;
+	
+	xyp.i char b = if medburnpatch lt-here then;
+	xyp.i char B = if bigburnpatch lt-here then;
+	
+	xyp.i char c = if campfire-dead then;
+	xyp.i char * = if ttenthere 1 lt .no_hit! 150 lt .hitpoints! burning then;
+	
+	xyp.i char T = if trader-dead then;
+	xyp.i char L = if trader-lot-dead then;
+	xyp.i char A = if trader-awning lt-here then;
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx 1- gby xyp.xy swap 1+ swap gravellot then;
+	xyp.i char z = if xyp.xy tanchor! 12 zombs-clump then;
+	xyp.i char R = if trader-ruined then;
+	
+	xyp.i char w = if docarwreck then;
+	xyp.i char s = if dotirestack then;
+	
+	xyp.i char t = if wooded then;
+	xyp.i char { = if dirtstart then;
+	xyp.i char } = if dirtend then;
+	xyp.i char [ = if dirtstart then;
+	xyp.i char ] = if gravelendw then;
+	xyp.i char ( = if grassstart then;
+	xyp.i char ) = if grassend then;
+	xyp.i char Z = if tnomey-spawn then;
+	
+;
+
+"
+..z...z...z..z...z...
+.....................
+.....................
+.....................
+.....................
+ttttttttttttttttttttt
+.....................
+ttttttttttttttttttttt
+......ttttttttt......
+tttt.............tttt
+.....................
+tttt......A..........
+.....................
+t.........R..........
+.....L.........L.....
+.....................
+.....................
+..V..................
+.....................
+........{...*........
+...T......c......T...
+.....................
+...Z........}..V.....
+.....................
+.....................
+[.........v..........
+...v.............v...
+.....................
+.....................
+.....................
+.....................
+.....................
+....................]
+..w..................
+.........V......V....
+.w..................."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	18 21 rnd o'clock // 22 was a little too dark maybe
+
+	-1 1 frnd wind_force!
+	campfirerain
+
+	' plotgrass to ft
+	plotmap
+	// mission{ no-edge-spawns } - The only trading camp thus far with zombie edge spawns
+	
+	18 %mv-up
+	20 %chars-up
+
+	cyoa{ 1 5 rnd to trader-ruined-1 1 6 rnd to trader-ruined-2 1 8 rnd to trader-ruined-3 }
+;
+
+region: tradecamp12
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+
+	post-script: site-setup
+
+} }
+

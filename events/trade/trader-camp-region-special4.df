@@ -1,0 +1,222 @@
+uses paul/region-layout.df
+
+// "../deathforth/rooms/TEMPROOM.txt" $load-rooms
+
+" 
+:map 1 
+:tags tradermall  
+:scriptA checkout 
+:scriptB revcheckout 
+:scriptC trademallwindow 
+:scriptD regiondef{ traderinside } 
+:scriptE regiondef{ trader-weapon-buyer-inside } 
+:scriptF regiondef{ traderinside-rare }
+:scriptG trademall-cop1
+:scriptH trademall-cop2
+
+:size 55 18 
+:off 1 0 
+:tiles 
+0000000000004000000000000000000000000000000000000000000
+0222222222222222000000000000000000000000000000000000000
+0233333353333332222222222222222222222222222222222222000
+0211111151111112553555352553553552555555532335555552000
+0211D111511D1112551555152551551552555555512115555552000
+0211111151111112111111112111111112111111112111111112000
+0211111151111112111111112111111112111111112111111112000
+021515111111111211D111B121A111D11211D111A121B111F112000
+0215151111111112111111112111111112111111112111111112000
+0211111151111B12111111112111111112111111112111111112000
+0211111151111112222221222221222222222221222221122222222
+0211D11151111112333331333331333333333331333331133333332
+421111115111111311C11111G11111C11111C11111H111111C11112
+021111115111111111111111111111111E111111111111111111112
+0211111111111112111111111111111111111111111111111111112
+0222222222222222111111111111111111111111111111111111112
+0333333333333332222222222222222222222222222222222222222
+0000000000000003333333333333333333333333333333333333333
+"
+value TRADERMALL
+TRADERMALL $parse-rooms
+
+locdef{
+
+: tradermallsetup random-door map{ block-last-door } ;
+
+location: tradermall
+		max-rooms: 2
+		entry-tags: tradermall
+		pre-script: yall-theme
+		script: yall-theme
+		post-script: 
+		
+		room-choice: tradermall
+			room-weight: 10
+			room-count: 1
+			room-script: ndx 
+			room-post-script: tradermallsetup
+			filter-only
+
+}
+
+map{ roomgen{
+
+	: trademallwindow
+		special_objects64_base_id 50 %chance if 0x a else 0x b then + tanchor 1- wallhang
+	;
+
+} }
+
+roomgen{
+
+: trademall-AI
+		lt .character@ .notake 
+		lt .character@ .nocarry 
+		lt .character@ .nopickups
+		0 lt .character@ .ai.loot_chance!
+		0 lt .character@ .ai.attack_level!
+		1 lt .character@ .ai.rush_chance!
+;
+
+: trademall-chat2 args( me ) 
+		0 5 rnd case
+			0 of "SKATEBOARDING IS A CRIME" endof
+			1 of "I'VE GOT MY EYE ON YOU" endof
+			2 of "NO SHOPLIFTING" endof
+			3 of "BUY SOMETHING OR LEAVE" endof
+			4 of "GETTIN 2 OLD 4 THIS" endof
+			5 of "I'M A CRACK SHOT" endof	
+		endcase
+<- me .sprayitfast ;
+
+: trademall-cop2
+	map{ selected } . cr new-npc@ .mallcop2 
+	trademall-AI
+	' trademall-chat2 lt .cyoa!
+;
+	
+: trademall-chat1 args( me ) 
+		0 5 rnd case
+			0 of "WELCOME TO THE LAST MALL ON EARTH" endof
+			1 of "WHEEEEEZE" endof
+			2 of "I'M ON PATROL" endof
+			3 of "ALWAYS READY 2 ROCK" endof
+			4 of "I'M THE GUARDIAN OF THIS PLACE" endof
+			5 of "WELCOME TO THE MALL, CITIZEN" endof	
+		endcase
+<- me .sprayitfast ;
+
+: trademall-cop1
+	map{ selected } . cr new-npc@ .mallcop1
+	trademall-AI
+	' trademall-chat1 lt .cyoa!
+	
+;
+	
+}
+
+map{ regiondef{
+
+trade-camp-reset
+
+: bldg tanchor!
+	"tradermall" $picklocid addloc 
+		prefab{
+		BLUE "HARRY HAMM MEMORIAL MALL" .. sign-text!
+		1 1 1 sign-bg!
+		0 1 1 sign-border!
+		1 1 1 sign-fg!
+		1 sign-glow!
+		0 3 rnd 22 4 shop }
+	
+;
+	
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+' plotpave >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char < = if xyp.xy to gby to gbx then;
+	xyp.i char > = if gbx 1- gby xyp.xy swap 1+ swap gravellot then;
+	xyp.i char ( = if xyp.xy to gby2 to gbx2 then;
+	xyp.i char ) = if gbx2 1- gby2 xyp.xy swap 1+ swap gravellot then;
+		
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	
+	xyp.i char x = if ' plotdirt to ft then;
+	xyp.i char G = if ' plotgrass to ft xyp.xy ft then;
+	xyp.i char $ = if xyp.xy grassedge then;
+	xyp.i char { = if dirtstart then;
+	xyp.i char } = if dirtend then;
+
+	xyp.i char t = if pictable2 lt-here 8 rdrift then;		
+	xyp.i char w = if pine lt-here drift then;
+	xyp.i char V = if tradercarhere then;
+	xyp.i char f = if campfirehere then;
+		
+	// xyp.i char W = if trader-weapon-buyer then;
+	xyp.i char T = if traderhere then;
+	xyp.i char Z = if tnomey-spawn then;
+	xyp.i char W = if trader-food-for-gas then;
+	
+	xyp.i char @ = if xyp.xy bldg then;
+;
+
+"
+P....................
+(....................
+.....................
+.....................
+.....................
+.....................
+.....................
+@...................)
+.....................
+.....................
+.....................
+.....................
+G$$$$$$$$$$$$$$$$$$$$
+....{................
+..........f..........
+.......Z........W....
+.....................
+................}....
+....................."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+	1 no_time!
+	8 18 rnd o'clock
+
+	' plotdirt to ft
+
+	30 %chance if 0 0.2 frnd weather! -1 2 frnd wind_force! else -1 1 frnd wind_force! then
+
+	plotmap
+	mission{ no-edge-spawns }
+
+	// Put char and chars in middle of map
+	50 %mv-up
+	48 %chars-up
+	
+	map{ street-junk }
+;
+
+region: specialcamp-3
+	w: maplayout layoutw
+	h: maplayout layouth
+
+	trade-mode
+
+	post-script: site-setup
+
+} }

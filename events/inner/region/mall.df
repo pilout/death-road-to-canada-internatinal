@@ -1,0 +1,131 @@
+"../deathforth/rooms/mall.txt" $load-rooms
+"../deathforth/rooms/shop.txt" $add-rooms
+"../deathforth/rooms/restroom.txt" $add-rooms
+
+"events/inner/shoploc.df" $load	
+
+	: mall-loot
+		0 stack
+			' gunshoploot shove
+			' foodshoploot shove
+			' umbrellashoploot shove
+			' campingshoploot shove
+			' jockshoploot shove
+			' skelscat shove
+		shuffles pops execute drop
+	;
+
+: mallclosed
+	n edge-inc n random-edge-door "shop" with-door empty
+	n edge-inc n random-edge-door "shop" with-door empty
+	n random-edge-door "shop" with-door
+	random-door "restroom" only-with-door
+;
+: storage ;
+: rest ;
+
+0 value malldir
+: randew rnd5050 if e else w then ;
+: setup-mall 
+	yall-theme
+	randew to malldir	
+;
+
+location
+		tags: mall
+		max-rooms: 7
+		entry-tags: mall-open		
+		
+		2 value mallcountdown
+		
+		: mallopen
+			' mallcountdown --
+			mallcountdown 1 < if
+				malldir random-edge-door "mall-closed" only-with-door
+			then
+			malldir random-edge-door "mall-open" only-with-door
+			70 %chance if random-door "restroom" only-with-door then
+		;
+		
+		script: setup-mall
+		post-script: 10diff %zombs 0 3 rnd for skelscat next
+	
+		room-choice: mall-open
+			room-weight: 10
+			room-count: 2
+			room-script: nad
+			room-post-script: mallopen
+			filter-only
+			
+		room-choice: mall-closed
+			room-weight: 10
+			room-count: 1
+			room-script: ndx
+			room-post-script: mallclosed
+			filter-only
+
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: gunshoploot
+			filter-only
+			
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: foodshoploot
+			filter-only
+			
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: umbrellashoploot
+			filter-only		
+			
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: campingshoploot
+			filter-only	
+			
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: nad 
+			room-post-script: jockshoploot
+			filter-only	
+			
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: bookshoploot
+			filter-only	
+						
+		room-choice: restroom
+			room-weight: 10
+			room-count: 2
+			room-script: nad floor-bath	
+			room-post-script: 
+			filter-only
+			
+regiondef{
+
+	 region: mall
+		w: 26
+		h: 30
+		script: timeofday o'clock
+
+		// no-prefab
+		inside
+		
+		loc-choice: mall
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: 5diff %zombs inspawn
+}

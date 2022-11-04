@@ -1,0 +1,44 @@
+cyoa{
+
+cyoa: comicbook
+	"The Spandex League" cyoa-title!
+	picon!
+	($ cname .. " finds a comic book in good condition among the ruined ones littering the floor. 
+	It seems to be about burly superheroes in tights that run around and punch people. Great!
+	" .. cHe .. " stuffs it into " .. chis .. " pack." $) cyoa-text!
+	deleteme
+	clear-cyoa goodfx ' comicbook-2 stack-road-action
+;
+
+}
+
+locdef{
+		
+location: comicstore
+		max-rooms: 2
+		entry-tags: shop
+		script: yall-theme
+
+: comicbook
+	magazine cyoa{ ' comicbook cyoa! } 
+;
+		
+: comicshoploot
+	map{ room-papers }
+	8 for magazine scatter next
+	comicbook scatter
+;
+		
+		room-choice: shop
+			room-weight: 10
+			room-count: 1
+			room-script: 
+			room-post-script: 20diff %zombs comicshoploot
+			filter-only		
+ 
+		room-choice: restroom
+			room-weight: 10
+			room-count: 1
+			room-script: floor-bath
+	
+}

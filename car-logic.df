@@ -1,0 +1,471 @@
+
+particles_base_id 0x 3b + constant GET_IN_ICON
+particles_base_id 0x 3c + constant GET_OUT_ICON
+
+: .car-cyoa-default
+	vehicle-default-cyoa@ over .cyoa!
+	GET_IN_ICON over .action_icon!
+	drop
+;
+
+: .car-which .spriteid@ cars_base_id - 6 / 1 + >int ;
+: .car-variant .thingseed@ ;
+: .clear-events
+	dup 0= if drop then;
+	0 swap .events!
+;
+
+: carscount car_wrecks_base_id cars_base_id - 6 / ;
+
+: cartype-variant-spriteid args( t v ) <- t 1- 6 * <- v 3 & + cars_base_id + ;
+: group-car-spriteid vehicle.which@ vehicle.variant@ cartype-variant-spriteid ;
+
+: car-start% car-engine car-max-engine / dup * 100 * 10 100 clamp ;
+
+: car-get-out player .inside_id@ #thing player .leave ;
+
+: car-honk
+	mission.vehicle@ .stun@ if then;
+
+	sfx{ 2 nextpri pulse
+		50 fx .a!
+		50 fx .d!
+		0.1 fx .duty!
+		1000 fx .filt!
+		0.95 fx .q!
+		fx .freq@ 100 400 clamp fx .freq!
+		1 fx .priority!
+		10000 mission.vehicle@ .sprw mission.vehicle@ .sprh * 10000 + / dup * dup * 300 * 100 + fx .freq!
+		mission.vehicle@ .adjust-vol
+		1.5 pitch!
+	}
+
+	2 mission.vehicle@ .shudder!
+	3 mission.vehicle@ .stun!
+	3 to menuticks
+
+	1 0.25 mission.vehicle@ .pos alertlcxy
+;
+
+defer car-start
+defer car-go
+
+: car-menu-setup args( me )
+	menustart
+	<- me .anim.state@ -2 = if
+		' car-get-out "SORTIR" menuadd
+	then;
+	<- me .anim.state@ 0= if
+		' car-start "DEMARRER LA VOITURE" menuadd
+	else
+		' car-go rnd5050 if "ROULER!" else "ROULER!" then menuadd
+	then
+	' car-honk "KLAXONNER" menuadd
+	' car-get-out "SORTIR" menuadd
+;
+
+: car-go_
+	mission.vehicle@ .stun@ if then;
+
+	mission.vehicle@ .anim.state@ if
+
+		5 mission.vehicle@ .anim.counter@ + mission.vehicle@ .anim.counter!
+		mission.vehicle@ .anim.counter@ 0 120 clamp mission.vehicle@ .anim.counter!
+
+		0 0.1 mission.vehicle@ .pos alertlcxy
+
+		mission.vehicle@ .anim.counter@ 120 < if
+			madticks 3 & 0= if
+				-3 mission.vehicle@ .shudder!
+			then
+			mission.vehicle@ .anim.counter@ 30 >= if
+				mission.vehicle@ .vel.x@ sign -1 * mission.vehicle@ .vel.x!
+				1 0.1 mission.vehicle@ .pos alertlcxy
+			then
+		else
+			30 mission.vehicle@ .anim.counter!
+			1 1 mission.vehicle@ .pos alertlcxy
+			driveout
+		then;
+	else
+		mission.vehicle@ car-menu-setup
+	then;
+;
+
+last to car-go
+
+: .destpos! dup >r .destpos.y! r> .destpos.x! ;
+
+: car-start_ player .inside_id@ #thing args( me )
+
+	// Car was started
+	<- me .anim.state@ 1 = if
+		5 <- me .anim.counter@ + <- me .anim.counter!
+		<- me .anim.counter@ 3 & <- me .shudder!
+		<- me .anim.counter@ 0 120 clamp <- me .anim.counter!
+	then;
+
+	<- me .stun@ if
+		<- me .stun@ to menuticks
+	then;
+
+	<- me .anim.counter@ 0= if
+		0 <- me .anim.info!
+		<- me .pos <- me .destpos!
+		sfx{ noise
+			25 fx .a!
+			100 fx .freq!
+			50 fx .freq2!
+			100 fx .d!
+			0.25 fx .s!
+			250 fx .r!
+			0.5 fx .q!
+			3 fx .pitch!
+			1 fx .scale!
+			1000 fx .filt!
+			<- me .adjust-vol
+		}
+	then
+
+	-2 <- me .shudder!
+	5 <- me .anim.info@ + 0 30 clamp dup <- me .stun! to menuticks
+
+	// Ignition on
+	3 <- me .anim.state!
+
+	<- me .anim.info@ <- me .report
+
+	sfx{ noise
+		50 menuticks 1 60 / * + fx .a!
+		75 menuticks 1 60 / * + fx .d!
+		100 fx .freq!
+		50 fx .freq2!
+		0.5 fx .q!
+		3 fx .pitch!
+		0.5 fx .scale!
+		1500 fx .filt_high!
+		1000 fx .filt!
+		<- me .adjust-vol
+	}
+
+	sfx{ pip
+		50 menuticks 1 60 / * + fx .a!
+		75 menuticks 1 60 / * + fx .d!
+		0.1 fx .duty!
+		0.25 fx .duty2!
+		5 fx .i!
+		2 fx .k!
+		75 fx .freq!
+		50 fx .freq2!
+		1000 fx .filt_high!
+		<- me .stun@ 15 + <- me .anim.counter!
+		1 fx .scale!
+		<- me .adjust-vol
+
+		1 <- me .anim.info@ 1 + / dup * 3 * 2 + fx .pitch!
+		fx .pitch@ 2 * fx .pitch!
+	}
+
+	0 0.25 mission.vehicle@ .pos alertlcxy
+
+	<- me .anim.info@ 1+ <- me .anim.info!
+
+	// Don't start without turning over a few times
+	<- me .anim.info@ 4 < if then;
+
+	// Try to start the car
+	car-start% %chance if
+		1 <- me .anim.state!
+		1 <- me .anim.substate!
+		20 <- me .stun!
+		-30 <- me .shudder!
+
+		sfx{ noise
+			50 fx .a!
+			50 fx .freq!
+			100 fx .freq2!
+			100 fx .d!
+			0.5 fx .s!
+			1000 fx .r!
+			0.5 fx .q!
+			3 fx .pitch!
+			0.5 fx .scale!
+			1000 fx .filt!
+			<- me .adjust-vol
+		}
+
+		BLINKY "CAR START!" .. <- me .report
+
+		1 0.25 mission.vehicle@ .pos alertlcxy
+
+		<- me car-menu-setup
+	then
+;
+
+last to car-start
+
+: mv-break
+	0 vehicle.which!
+//	road{ ' car-lost stack-road-action }
+	road{ ' walk-day-pick stack-road-action }
+	mv@ .pos xyboom
+	8 for mv@ .spitspark next
+	0 mv!
+;
+
+: car-break args( me )
+	// TODO: SPECIAL FX
+	mv@ <- me if mv-break then
+;
+
+: car-event args( me eventid )
+	<- eventid THING_EVENT_BREAK = if <- me car-break then;
+	<- eventid THING_EVENT_TIMER <> if then;
+
+	// Special case of empty driving car
+	<- me .anim.extra@ if then;
+
+	// Outside of the car, so make sure to shut the car off and stop all events
+	<- me player .insideof? 0= if
+		0 <- me .anim.state!
+		<- me .car-cyoa-default
+//		<- me .clear-events
+	then;
+
+	<- me .retrigger_timer
+
+	1 <- me .repeating_timer
+
+	<- me .cyoa@ if
+		<- me car-menu-setup
+		0 <- me .cyoa!
+	then
+
+	<- me .vel.x@ 1 > if then;
+
+	// Car was started, do a bit of an engine rev
+	<- me .anim.substate@ if 
+		<- me .stun@ if 2 <- me .anim.counter@ + <- me .anim.counter! then
+		<- me .anim.counter@ 0= if 0 <- me .anim.substate! then;
+	then;
+
+	menurun
+;
+
+: .start-events
+	' car-event over .events!
+	30 over .repeating_timer
+	drop
+;
+
+: .as-current-car args( car )
+	<- car .car-which use-cartype
+	<- car .car-variant vehicle.variant!
+
+	<- car .chassis@ to car-chassis
+	<- car .chassis_max@ to car-max-chassis
+	<- car .engine@ to car-engine  
+	<- car .engine_max@ to car-max-engine
+	<- car .armour@ to car-armor
+	<- car .armour_max@ to car-max-armor
+	<- car .carspeed@ to car-speed
+	<- car .carspeed_max@ to car-max-speed
+	<- car .mpg@ to car-mpg
+	<- car .repair@ to car-repair
+
+	<- car .start-events
+
+	<- car mv!
+;
+
+: .calc-hitpoints args( car )
+	car-chassis CAR_HEALTH_SCALAR * CAR_HEALTH_SCALAR 4 / + <- car .hitpoints!
+	"CAR HITPOINTS: " type <- car .hitpoints@ print
+;
+
+: .from-road-car args( car )
+	car-chassis <- car .chassis!
+	car-max-chassis <- car .chassis_max!
+	car-engine <- car .engine!
+	car-max-engine <- car .engine_max!
+
+	car-armor <- car .armour!
+	car-max-armor <- car .armour_max!
+	car-speed <- car .carspeed!
+	car-max-speed <- car .carspeed_max!
+	car-repair <- car .repair!
+	car-mpg <- car .mpg!
+
+	<- car .calc-hitpoints
+	<- car .car-cyoa-default
+
+	vehicle.variant@ <- car .thingseed!
+	group-car-spriteid <- car .spriteid!
+
+	<- car mission.vehicle!
+;
+
+: .setup-mission-car args( car )
+	<- car .from-road-car
+	<- car .as-current-car
+	<- car .start-events
+;
+
+: cyoa-car args( car )
+	<- car player .insideof? 0= if
+
+		<- car player .enter
+		<- car .as-current-car
+		GET_OUT_ICON <- car .action_icon!
+	then;
+
+	<- car player .leave
+	<- car .car-cyoa-default
+;
+
+' cyoa-car vehicle-default-cyoa!
+
+: car-start-mission amend main-event-mission-start
+	loud-vol
+	vehicle.which@ 0= if then;
+
+	mv@ 0= if then;
+
+	mv@ .setup-mission-car
+	mv@ .anim.state@ 2 = if
+		-2 mv@ .anim.state! // So we know it's driving in, -2 is the alt driving state
+	then
+; last to main-event-mission-start
+
+: spawncar args( id )
+	carstats>stack
+
+	<- id use-cartype
+
+	spawn ITEM_VEHICLE lt .subtypeid!
+
+	lt .thingseed@
+
+	lt .from-road-car
+
+	vehicle.variant@ if	lt .thingseed! else drop then // If no variant, vehicle.variant will be 0
+
+	<- id lt .thingseed@ cartype-variant-spriteid lt .spriteid!
+
+	bbox 12 lt .rad.y!
+	immovable
+
+	lt .car-cyoa-default
+
+	stack>carstats
+;
+
+// //////////////
+// OLD CAR STUFF
+// //////////////
+0 value carkey
+
+mission{ cyoa{
+
+0 value thecar
+
+: thething dup .subtypeid@ ITEM_VEHICLE =
+	if to thecar else drop then ;
+: getcar ' thething foreach-active-thing ; 
+
+: lift-car interactee player .carry ($ DEATH .. "RAUUUGH!!!" $) me .say sfx{ pip 10 fx .freq! 250 fx .freq2! 0.01 fx .duty! 500 fx .d! } ;
+
+// Also tried : lift-car me .interact_id@ #thing me .carry ;
+
+: get-into-car
+	interactee .as-current-car
+	interactee .car-cyoa-default
+	interactee player .enter
+;
+
+: cyoa-outside-car
+	cyoa-start
+
+	getcar
+	"OUTSIDE OF A CAR" cyoa-title!
+	"It's a car. WHAT NOW?" cyoa-text!
+
+	cyoa-add-choice
+		"Get in." cyoa-choice-text!
+		' get-into-car cyoa-choice-handler!
+	
+	// Change this from soloer later
+	cyoa-add-choice
+		"Pick up the car." cyoa-choice-text!
+		' lift-car cyoa-choice-handler!
+	
+	cyoa-add-choice
+		"Nevermind." cyoa-choice-text!
+
+	cyoa-show
+;
+
+
+cyoa: locked-car-hotwire
+	"Hotwired!" cyoa-title!
+	($ "It doesn't take long for " .. pname .. " to break into the car and get it running. No keys necessary!" $) cyoa-text!
+		2 to carkey goodfx get-into-car
+	o'clock@ 1 + o'clock
+;
+
+cyoa: cyoa-locked-car
+	carkey 1 > if cyoa-car then;
+
+	carkey 0 > if
+	"Let's Roll!" cyoa-title!
+		($ "The keys fit perfectly!
+		" .. pname .. " unlocks the car door." $) cyoa-text!
+			2 to carkey goodfx
+			choice( "Get in the car" )choice: get-into-car
+			choice( "Leave it be for now" )choice
+			interactee .car-cyoa-default
+	else
+	"Locked Car" cyoa-title!
+		"This car looks like it's in really good condition. 
+		But where are the keys?" cyoa-text!
+		choice( "Leave it be for now" )choice
+		pchar .cmechanic+ if
+			pchar charchoice( " hotwires the car!" )choice: locked-car-hotwire
+		then
+	then
+	STAT_STRENGTH cyoachar .effstat 99 > if
+		choice( "Pick up the car" )choice: lift-car
+	then
+
+;
+
+cyoa: carkeyz
+	"Car Keys" cyoa-title!
+	($ "This is a set of keys, including some car keys.
+	" .. pname .. " picks it up." $) cyoa-text! goodfx
+	1 to carkey deleteme
+;
+
+} }
+
+: spawn-locked-car 
+	50 %chance if
+		tireiron 50 %chance if -8 else 8 then movex .drift
+	then
+	10 30 rnd LOOT_GAS spawnloot 6 8 rnd movey 50 %chance if 2 else 10 then movex 
+	1 17 rnd spawncar mission{ cyoa{ ' cyoa-locked-car cyoa! } }
+	0 lt .action_icon!
+;
+
+: carkeys keychain scatter mission{ cyoa{ ' carkeyz cyoa! } } delete-covering ;
+
+: resetcarkeys mission{ 0 to carkey } ;
+
+: car-map-posy args( ypos car ) <- ypos <- car .destpos.y! <- ypos <- car .pos.y!
+	<- car player .insideof? not if then;
+	// Put the camera on the moved car if the player is in it
+	<- car .pos.y@ camera.pos.y!
+;
+
+: scale-car-up args( pct car ) map{ pixelh dup <- pct * - } <- car car-map-posy ;
+: %mv-up mv@ 0= if drop then; 0 100 clamp 100 / mv@ scale-car-up ;
