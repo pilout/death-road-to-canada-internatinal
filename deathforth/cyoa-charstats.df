@@ -5,7 +5,7 @@
 
 
 : recruited 
-	+cr ($ rname .. " joins the team!
+	+cr ($ rname .. " a rejoin l'equipe!
 	Onward to Canada! " $) +text
 	recruitee .morale@ 2 < if
 		2 recruitee .morale!
@@ -20,19 +20,19 @@
 
 // Word replacements that alter pronouns and such to the situation
 
-: xhis .female@ if "her" else "his" then ;
-: xHis .female@ if "Her" else "His" then ;
-: xhim .female@ if "her" else "him" then ;
-: xhe .female@ if "she" else "he" then ;
-: xHe .female@ if "She" else "He" then ;
+: xhis .female@ if "son" else "son" then ;
+: xHis .female@ if "Son" else "Son" then ;
+: xhim .female@ if "elle" else "lui" then ;
+: xhe .female@ if "elle" else "il" then ;
+: xHe .female@ if "Elle" else "Il" then ;
 
-: ghis solo if soloer xhis else "their" then ;
-: gHis solo if soloer xHis else "Their" then ;
-: ghim solo if soloer xhim else "them" then ;
-: ghe solo if soloer xhe else "the group" then ;
-: gHe solo if soloer xHe else "The group" then ;
-: gthey solo if soloer xhe else "they" then ;
-: gThey solo if soloer xHe else "They" then ;
+: ghis solo if soloer xhis else "leur" then ;
+: gHis solo if soloer xHis else "Leur" then ;
+: ghim solo if soloer xhim else "eux" then ;
+: ghe solo if soloer xhe else "le groupe" then ;
+: gHe solo if soloer xHe else "Le groupe" then ;
+: gthey solo if soloer xhe else "ils" then ;
+: gThey solo if soloer xHe else "Ils" then ;
 
 // Below words for putting in an extra s depending on group
 
@@ -41,7 +41,7 @@
 : gs solo if "" else "s" then ;
 : gS solo if "" else "S" then ;
 
-: gare solo if "is" else "are" then ;
+: gare solo if "est" else "sont" then ;
 : gwere solo if "was" else "were" then ;
 : gtheywere gthey .. " " .. gwere ;
 : gtheyare gthey .. " " .. gare ;
@@ -184,10 +184,10 @@ cyoa{
 ;
 
 cyoa-choice: toiletwishA
-	"Riches and Gold" cyoa-title!
-		($ "Cans of food start raining from the ceiling.
-		Finally. You're rich!
-		Then the roof collapses on top of " .. pname .. "... " $) cyoa-text! goodfx clear-cyoa
+	"Richesse et or" cyoa-title!
+		($ "Des boites de conserve commencent a pleuvoir du plafond.
+		Enfin, vous etes riche!
+		Puis le toit s'effondre sur " .. pname .. "... " $) cyoa-text! goodfx clear-cyoa
 	15 20 rnd sfood
 	' xyzombceil 10 40 90 rnd zwave-ex	
 ;
@@ -229,11 +229,11 @@ cyoa: toiletwishgenie // Added an underscore so that "toiletwish" isn't redefine
 ' toiletwish_ to toiletwish
 
 : foodamt
-	($ " You have " .. LOOT_FOOD looticon .. "" .. trunk-food .. " food left. " $) +text
+	($ " Vous avez " .. LOOT_FOOD looticon .. "" .. trunk-food .. " nourriture restante. " $) +text
 ;
 
 : gasamt
-	($ " You have " .. LOOT_GAS looticon .. "" .. trunk-gas .. " gas left. " $) +text
+	($ " Vous avez " .. LOOT_GAS looticon .. "" .. trunk-gas .. " essence restante. " $) +text
 ;
 
 cyoa: just-testing beep "TESTING POST-MISSION ROAD-STACKED CYOA" cyoa-text! ;
@@ -329,11 +329,11 @@ cyoa-bridge: recruit-replace4
 	// Doesn't use this: recruit-dog-feed recruit-familiarreplace? and the camp-recruits
 	team-count 3 > if
 		' recruit-replace 2 #cyoa-team-choice
-		choice( "Pick someone else" )choice: recruit-replace4
+		choice( "Choisissez quelqu'un d'autre" )choice: recruit-replace4
 	else
 		' recruit-replace cyoa-team-choice
 	then
-	choice( "Leave " .. rname .. " behind" )choice
+	choice( "Laisser " .. rname .. " derriere" )choice
 ;
 
 (* : recruit-replace?-3 // The old recruit-replace?, currently used twice for annoying recruits in cyoa-k-recruit ... but I got rid of it because I added the pick someone else options to recruit-replace?
@@ -343,35 +343,35 @@ cyoa-bridge: recruit-replace4
 
 cyoa: recruit-yes
 	team-full? if
-		($ "The group is full.
-		Who would you like to replace to make room for " .. rname .. "?" $) cyoa-text!
+		($ "Le groupe est complet.
+		Qui voudriez-vous remplacer pour faire de la place " .. rname .. "?" $) cyoa-text!
 		recruit-replace?
 	then;
 	ricon
-	($ Thegroup .. " accepts " .. rname .. " to the team!" $) cyoa-text! 2 300 tone
+	($ Thegroup .. " accepte " .. rname .. " dans l'equipe!" $) cyoa-text! 2 300 tone
 		recruited
 ;
 
 cyoa: recruit-yes-food args( food )
 	team-full? if
-		($ "The group is full. Who would you like to replace to make room for " .. rname .. "?" $) cyoa-text!
+		($ "Le groupe est complet. Qui voudriez-vous remplacer pour faire de la place " .. rname .. "?" $) cyoa-text!
 			<- food -1 * trunk-food+
 			' recruit-replace cyoa-team-choice 
 	then;
 	ricon
-	($ Thegroup .. " recruits " .. rname .. " to the team!" $) cyoa-text! 2 300 tone
+	($ Thegroup .. " recrute " .. rname .. " dans l'equipe!" $) cyoa-text! 2 300 tone
 		<- food -1 * trunk-food+ recruited
 ;
 
 : recruit-yesno
-	choice( "Ask " .. rname .. " to join" )choice: recruit-yes
-	choice( "Leave " .. rname .. " behind" )choice
+	choice( "Demander a " .. rname .. " de venir avec vous" )choice: recruit-yes
+	choice( "Laisser " .. rname .. " derriere" )choice
 ;
 
 : npc-died 
-	"Lost to the Death Road" cyoa-title! 
-	($ pname .. " gets there too late.
-	There's nothing that you can do for " .. chim .. " now." $) cyoa-text!
+	"Perdu sur la route de la mort" cyoa-title! 
+	($ pname .. " arrive trop tard.
+	Il n'y a rien que vous puissiez faire pour " .. chim .. " maintenant." $) cyoa-text!
 	clear-cyoa badfx
 ; 
 
