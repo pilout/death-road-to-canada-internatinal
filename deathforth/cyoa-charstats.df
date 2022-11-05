@@ -5,7 +5,7 @@
 
 
 : recruited 
-	+cr ($ rname .. " a rejoin l'equipe!
+	+cr ($ rname .. " a rejoint l'equipe!
 	Onward to Canada! " $) +text
 	recruitee .morale@ 2 < if
 		2 recruitee .morale!
@@ -56,12 +56,12 @@
 : gaVSs ($ g1a .. swap .. gs $) ;
 : ganVSs ($ g1an .. swap .. gs $) ;
 
-: I-or-we team-count-alive 1 = if " I " else " we " then ;
-: I-or-WE team-count-alive 1 = if " I " else " WE " then ;
+: I-or-we team-count-alive 1 = if " Je " else " on " then ;
+: I-or-WE team-count-alive 1 = if " Je " else " On " then ;
 
 : cname-he solo if soloer xhe else cname then ;
 : cname-He solo if soloer xHe else cname then ;
-: thegroup-him solo if soloer xhim else "the group" then ;
+: thegroup-him solo if soloer xhim else "le groupe" then ;
 : chis cchar xhis ;
 : cHis cchar xHis ;
 : chim cchar xhim ;
@@ -90,19 +90,19 @@
 : bHe bully xHe ;
 
 
-: Thegroup solo if soloer .colourname else "The group" then ;
-: thegroup solo if soloer .colourname else "the group" then ;
-: yourteam solo if soloer .colourname else "your team" then ;
+: Thegroup solo if soloer .colourname else "Le groupe" then ;
+: thegroup solo if soloer .colourname else "le groupe" then ;
+: yourteam solo if soloer .colourname else "votre equipe" then ;
 
-: Theothers team-count 2 = if notcname else "The other members" then ;
-: theothers team-count 2 = if notcname else "the other members" then ;
-: Theothersarename team-count 2 = if ($ notcname .. " is" $) else "The others are" then ;
+: Theothers team-count 2 = if notcname else "Les autres membres" then ;
+: theothers team-count 2 = if notcname else "les autres membres" then ;
+: Theothersarename team-count 2 = if ($ notcname .. " est" $) else "Les autres sont" then ;
 
-: everyone team-count 2 = if notcname else "everyone" then ;
-: Everyone team-count 2 = if notcname else "Everyone" then ;
+: everyone team-count 2 = if notcname else "tout le monde" then ;
+: Everyone team-count 2 = if notcname else "Tout le monde" then ;
 
-: Theothersare team-count 2 = if "The other member is" else "The other members are" then ;
-: theothersare team-count 2 = if "the other member is" else "the other members are" then ;
+: Theothersare team-count 2 = if "L'autre membre est" else "Les autres membres sont" then ;
+: theothersare team-count 2 = if "l'autre membre est" else "les autres membres sont" then ;
 
 : attitudeREV STAT_ATTITUDE cchar .reveal ;
 : temperREV STAT_COMPOSURE cchar .reveal ;
@@ -544,15 +544,15 @@ cyoa: rescuedme
 	rescue to recruitee ricon
 	0 rescue .party!
 	recruitee .alive? if
-		"Rescue Successful!" cyoa-title!
-		($ rname .. " catches up with " .. thegroup .. " at a safe spot.
-		" .. rHe .. " offers a reward in thanks for saving " .. rhim .. "!" $) cyoa-text!
+		"Sauvetage reussi!" cyoa-title!
+		($ rname .. " rattrape " .. thegroup .. " a un endroit sur.
+		" .. rHe .. " offre une recompense en remerciement d'avoir sauve " .. rhim .. "!" $) cyoa-text!
 		rescue-reward
 		judgerecruit
 	else
-		"Yeah Well Nobody's Perfect" cyoa-title!
-		($ Thegroup .. " feels pretty guilty about " .. rname .. " getting eaten.
-		Such is life, I suppose." $) cyoa-text!
+		"Ouais et bien personne n'est parfait" cyoa-title!
+		($ Thegroup .. " se sent assez coupable de " .. rname .. " qui s'est fait manger.
+		Ainsi va la vie, je suppose." $) cyoa-text!
 		morale--all
 	then
 ;
@@ -562,17 +562,17 @@ cyoa: rescueddog
 	rescue to recruitee ricon
 	0 rescue .party!
 	recruitee .alive? if
-		"Rescue Successful!" cyoa-title!
+		"Sauvetage reussi!" cyoa-title!
 		gstats{ ugnome-extraZP 0 > if 1 zombop+! then }
-		($ rname .. " catches up with " .. thegroup .. " at a safe spot.
-		" .. rHe .. " seems like " .. rhe .. " wants to stick around!" $) cyoa-text!
+		($ rname .. " rattrape " .. thegroup .. " a un endroit sur.
+		" .. rHe .. " semble vouloir qu'" .. rhe .. " reste ici!" $) cyoa-text!
 		recruit-choice
-		choice( "Set " .. rname .. " free" )choice: morale2+all
+		choice( "Liberer " .. rname .. " !" )choice: morale2+all
 		judgerecruit
 	else
-		"Dog Adoption Failed" cyoa-title!
-		($ Thegroup .. " feels guilty about " .. rname .. " getting eaten.
-		A dog could have been really handy." $) cyoa-text!
+		"Echec de l'adoption du chien" cyoa-title!
+		($ Thegroup .. " se sent assez coupable de " .. rname .. " qui s'est fait manger.
+		Un chien aurait pu etre tres utile." $) cyoa-text!
 		morale2-all
 	then
 ;
@@ -808,42 +808,42 @@ cyoa: feralrescue
 ;
 
 : safe1-get 20 add-shell shotgun southofcyoa ;
-: safe1 choice( "Shotgun with 20 shells" )choice: safe1-get ;
+: safe1 choice( "Shotgun avec 20 balles de Shotgun." )choice: safe1-get ;
 : safe2-get 36 add-bullet dolt southofcyoa ;
-: safe2 choice( "Magnum and 36 bullets" )choice: safe2-get ;
+: safe2 choice( "Magnum et 36 balles." )choice: safe2-get ;
 : safe3-get 75 add-bullet ;
-: safe3 choice( "Box of 75 bullets" )choice: safe3-get ;
+: safe3 choice( "Boite de 75 balles" )choice: safe3-get ;
 : safe4-get 80 add-gas ;
-: safe4 choice( "Container of 80 gas" )choice: safe4-get ;
+: safe4 choice( "Bidon de 80 essence" )choice: safe4-get ;
 : safe5-get 45 add-shell ;
-: safe5 choice( "Box of 45 shells" )choice: safe5-get ;
+: safe5 choice( "Carton de 45 balles de Shotgun" )choice: safe5-get ;
 : safe6-get 60 add-rifle ;
-: safe6 choice( "Box of 60 rifle ammo" )choice: safe6-get ;
+: safe6 choice( "Boite de 60 munitions de fusil" )choice: safe6-get ;
 : safe7-get 10 add-medical ;
-: safe7 choice( "Pack of 10 medical" )choice: safe7-get ;
+: safe7 choice( "Pack de 10 trousse de soins" )choice: safe7-get ;
 : safe8-get 15 add-food ;
-: safe8 choice( "Stockpile of 15 food" )choice: safe8-get ;
+: safe8 choice( "Stock de 15 nourritures" )choice: safe8-get ;
 : safe9-get uzi southofcyoa ;
-: safe9 choice( "Submachine Gun" )choice: safe9-get ;
+: safe9 choice( "Mitraillette" )choice: safe9-get ;
 : safe10-get hunting southofcyoa ;
-: safe10 choice( "Hunting Rifle" )choice: safe10-get ;
+: safe10 choice( "Fusil de chasse" )choice: safe10-get ;
 : safe11-get 30 add-rifle rifle southofcyoa ;
-: safe11 choice( "Cowboy Rifle and 30 ammo" )choice: safe11-get ;
+: safe11 choice( "Fusil de Cowboy et 30 munitions" )choice: safe11-get ;
 : safe12-geta knight southofcyoa ;
 : safe12-getb ak47 southofcyoa ;
 : safe12-getc autoshot southofcyoa ;
 : safe12-getd slug southofcyoa ;
 : safe12
 	20 %chance if
-		choice( "Knight Sword" )choice: safe12-geta
+		choice( "Epee de chevalier" )choice: safe12-geta
 	else
 		25 %chance if
-			choice( "Rifled Slug Shotgun" )choice: safe12-getd
+			choice( "Fusil à pompe raye" )choice: safe12-getd
 		else
 			50 %chance if
-				choice( "Auto Shotgun" )choice: safe12-getc
+				choice( "Shotgun automatique" )choice: safe12-getc
 			else
-				choice( "Assault Rifle" )choice: safe12-getb
+				choice( "Fusil d'assaut" )choice: safe12-getb
 			then
 		then
 	then
