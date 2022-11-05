@@ -58,9 +58,13 @@ WEAPON_CUSTOM value custom
 : melee_fatigue_knockback_scale: lev> melee_fatigue_knockback_scale! ;
 : melee_fatigue_cooldown_scale: lev> melee_fatigue_cooldown_scale! ;
 : melee_score_scale: lev> melee_score_scale! ;
+: melee_score_add: lev> melee_score_add! ;
 : melee_pickup_scale: lev> melee_pickup_scale! ;
+: melee_pickup_add: lev> melee_pickup_add! ;
 : melee_range_hint: lev> melee_range_hint! ;
 : melee_range_min_hint: lev> melee_range_min_hint! ;
+: melee_range_uses_action_cooldown: lev> melee_range_cooldown_hint! ;
+: ranged_score_add: lev> ranged_score_add! ;
 : thrown_lift: lev> thrown_lift! ;
 : no_zombie_break: lev> no_zombie_break! ;
 : no_discard: lev> no_discard! ;
@@ -148,6 +152,55 @@ WEAPON_CUSTOM value custom
 : pointblank_far 50 point_blank_dist! 150 range_guess! ;
 : ai_mule 1 no_ai_use! 1 no_discard! ;
 
+100 constant TIERV
+
+// Weapon Tiers
+: Etier 10 melee_score_add! 10 melee_pickup_add! ;
+: Dtier 
+	TIERV melee_score_add!
+	TIERV melee_pickup_add! ;
+: Ctier
+	TIERV 2 * melee_score_add!
+	TIERV 2 * melee_pickup_add! ;
+: Btier
+	TIERV 3 * melee_score_add!
+	TIERV 3 * melee_pickup_add! ;
+: Atier
+	TIERV 4 * melee_score_add!
+	TIERV 4 * melee_pickup_add! ;
+: Stier
+	TIERV 5 * melee_score_add!
+	TIERV 5 * melee_pickup_add! ;
+: Gtier // Gnomey Tier
+	TIERV 6 * melee_score_add!
+	TIERV 6 * melee_pickup_add! ;
+: Ptier // PEARLS BEFORE SWINE, low pickup, max wield
+	TIERV 7 * melee_score_add!
+	TIERV 1 * melee_pickup_add! ;
+
+: Drangedtier
+	TIERV ranged_score_add!
+;
+: Crangedtier
+	TIERV 2 * ranged_score_add!
+;
+: Brangedtier
+	TIERV 3 * ranged_score_add!
+;
+: Arangedtier
+	TIERV 4 * ranged_score_add!
+;
+: Srangedtier
+	TIERV 5 * ranged_score_add!
+;
+: Grangedtier
+	TIERV 6 * ranged_score_add!
+;
+: Prangedtier
+	TIERV 7 * ranged_score_add!
+;
+
+
 // Sprite offsets within sheet
 0 constant GUNS1
 16 constant MELEE1
@@ -160,6 +213,10 @@ WEAPON_CUSTOM value custom
 176 constant GUNS2
 192 constant MELEE7
 MELEE7 16 + constant MISC1
+: SHEET_ROW 16 * ;
+
+
+
 
 }
 
@@ -200,6 +257,7 @@ custom: Karate
 	no_held_sprite: 1
 	melee_range: 10
 	swoosh_vel: 0.25
+	Ctier
 
 custom: Boxing
 	spriteid: 0
@@ -215,6 +273,7 @@ custom: Boxing
 	melee_range: 10
 	swoosh_vel: 0.5
 	skin_colour: 1
+	Dtier
 
 custom: Kung Fu
 	spriteid: 0
@@ -230,6 +289,7 @@ custom: Kung Fu
 	melee_range: 10
 	swoosh_vel: 0.5
 	skin_colour: 1
+	Ctier
 	
 custom: Sumo
 	spriteid: 0
@@ -246,6 +306,7 @@ custom: Sumo
 	melee_range: 10
 	swoosh_vel: 0.5
 	skin_colour: 1
+	Btier
 
 // Some predefs still needed because of special functions
 // TODO: fix somehow, perhaps with parameterization
@@ -258,7 +319,7 @@ custom: Sumo
 WEAPON_FLAMETHROWER clone-to: blowtorch
 	spriteid: MELEE1 0x 10 +
 	weapon: blowtorch
-	name: Chalumeau
+	name: Blowtorch
 	ammo_type: 0
 	chargename: Butane
 	stack_as_charges: 1
@@ -266,7 +327,7 @@ WEAPON_FLAMETHROWER clone-to: blowtorch
 	half-fatigue
 	cooldown: 0
 	lock_drift: 0.01
-	melee_break_scale: 0.5
+	melee_break_scale: 0
 	ai_mule
 	reload: 0
 	func: WEAPON_FUNC_CUSTOM_AIMING
@@ -406,6 +467,7 @@ custom: Chainsaw
 	func: WEAPON_FUNC_CHAINSAW
 	burn_active: 40
 	burn_idle: 160
+	Atier
 	
 // CUSTOM WEAPONS
 custom: Baseball bat
@@ -414,6 +476,7 @@ custom: Baseball bat
 	power: 1					// damage power scale - damage is calculated as a random number between 1 and 5, scaled by POWER
 	cooldown: 0.75				// in seconds
 	melee_break_scale: 0.02 	// 2%
+	Dtier
 
 custom: Nail board
 	spriteid: MELEE1 3 +
@@ -427,8 +490,9 @@ custom: Nail board
 	melee_break_scale: 0.05 	// 5%
 	melee_extra_hits: 2
 	lightcooldown
+	Etier
 
-custom: Cle anglaise
+custom: Wrench
 	spriteid: MELEE1 1 +
 	power: 1.3
 	knockback: 1
@@ -436,8 +500,9 @@ custom: Cle anglaise
 	melee_shift.x: -3
 	melee_reach: 5
 	melee_break_scale: 0
+	Dtier
 	
-custom: Masse
+custom: Sledgehammer
 	spriteid: MELEE1 2 +
 	power: 1.5
 	knockback: 3
@@ -455,8 +520,9 @@ custom: Masse
 	melee_break_scale: 0
 	melee_extra_hits: 1
 	melee_extra_chance: 0.6
+	Ctier
 
-custom: Couteau de cuisine
+custom: Kitchen knife
 	spriteid: MELEE1 9 +
 	power: 0.75
 	knockback: 0.25
@@ -470,15 +536,16 @@ custom: Couteau de cuisine
 	melee_break_scale: 0.01  // 1%
 	lightcooldown
 
-custom: Couperet a viande
+custom: Meat cleaver
 	spriteid: MELEE1 
 	power: 1
 	knockback: 0.25
 	melee_break_scale: 0.0025
 	melee_extra_hits: 1
 	lightcooldown
+	Dtier
 
-custom: Spatule
+custom: Spatula
 	spriteid: MELEE1 11 +
 	power: 0
 	knockback: 0.1
@@ -487,7 +554,7 @@ custom: Spatule
 	no_zombie_break: 1 // NO BREAKS WHEN SLAPPING ZOMBIES WITH A SPATULA
 	trashmelee
 
-custom: Hachette
+custom: Hatchet
 	spriteid: MELEE1 10 +
 	power: 1.25
 	knockback: 0.5
@@ -496,11 +563,12 @@ custom: Hachette
 	melee_reach: 5
 	melee_extra_hits: 1
 	melee_extra_chance: 0.1
+	Ctier
 
 	
 // Before was estimating 2 clips for each gun, now more like 6
 
-custom: Fusil de cow-boy
+custom: Cowboy rifle
 	spriteid: GUNS1 10 +
 	gun_muzzle_height: 2
 	ammo_type: LOOT_RIFLE_SHELL
@@ -523,8 +591,9 @@ custom: Fusil de cow-boy
 	skill_angle_range: 20
 	badmelee
 	pointblank_far
+	Drangedtier
 
-custom: Fusil de chasse
+custom: Hunting rifle
 	spriteid: GUNS1 1 +
 	gun_muzzle_height: 2
 	ammo_type: LOOT_RIFLE_SHELL
@@ -549,6 +618,7 @@ custom: Fusil de chasse
 	skill_angle_range: 22
 	badmelee
 	pointblank_far
+	Crangedtier
 
 // Knockback is PER BULLET
 custom: Shotgun
@@ -575,8 +645,9 @@ custom: Shotgun
 	melee_break_scale: 0
 	skill_angle_range: 25
 	pointblank_near
+	Drangedtier
 	
-custom: Shotgun automatique
+custom: Autoshotgun
 	spriteid: GUNS1 9 +
 	gun_muzzle_height: 3
 	ammo_type: LOOT_SHOTGUN_SHELL
@@ -602,6 +673,7 @@ custom: Shotgun automatique
 	skill_angle_range: 25
 	badmelee
 	pointblank_near
+	Arangedtier
 	
 custom: Slug Shotgun
 	spriteid: GUNS1 13 +
@@ -627,6 +699,7 @@ custom: Slug Shotgun
 	skill_angle_range: 25
 	badmelee
 	pointblank_far
+	Brangedtier
 	
 custom: BIG DAWG
 	spriteid: GUNS1 8 +
@@ -652,6 +725,7 @@ custom: BIG DAWG
 	melee_break_scale: 0
 	skill_angle_range: 30
 	pointblank_near
+	Grangedtier
 	
 custom: Dolt 45
 	spriteid: GUNS1 3 +
@@ -673,9 +747,10 @@ custom: Dolt 45
 	melee_break_scale: 0
 	skill_angle_range: 20
 	pointblank_mid
+	Crangedtier
 
 
-custom: Pistolet
+custom: Pistol
 	spriteid: GUNS1 4 +
 	gun_muzzle_height: 3
 	ammo_type: LOOT_BULLET
@@ -711,6 +786,7 @@ custom: Snubnose
 	shoot_thru_scale: 0.5
 	melee_break_scale: 0
 	pointblank_mid
+	Drangedtier
 
 custom: Uzi
 	spriteid: GUNS1 5 +
@@ -731,6 +807,7 @@ custom: Uzi
 	shoot_thru_scale: 0.5
 	badmelee
 	pointblank_mid
+	Arangedtier
 
 custom: AK47
 	spriteid: GUNS1 7 +
@@ -754,8 +831,9 @@ custom: AK47
 	shoot_thru_scale: 0.5
 	melee_break_scale: 0
 	pointblank_mid
+	Arangedtier
 
-custom: Canne
+custom: Cane
 	spriteid: MELEE3
 	knockback: 1
 	power: 1
@@ -763,13 +841,14 @@ custom: Canne
 	melee_break_scale: 0.02
 	lightcooldown
 	
-custom: Poele a frire
+custom: Frying Pan
 	spriteid: MELEE3 1 +
 	knockback: 1
 	power: 1
 	cooldown: 0.9
+	Etier
 	
-custom: Katana Otaku
+custom: Otaku katana
 	spriteid: MELEE1 12 +
 	melee_start_angle: -45
 	melee_end_angle: -135
@@ -782,8 +861,9 @@ custom: Katana Otaku
 	melee_extra_hits: 2
 	melee_extra_chance: 0.6
 	lightcooldown
+	Dtier
 
-custom: Morceau de bois
+custom: Piece of wood
 	spriteid: MELEE1 0x e +
 	knockback: 1
 	power: 0.75
@@ -797,36 +877,40 @@ custom: Morceau de bois
 	spreadability: 75
 	trashmelee
 
-custom: Pied de biche
+custom: Crowbar
 	spriteid: MELEE1 0x f +
 	knockback: 2
 	power: 1.5
 	cooldown: 1.1
 	melee_break_scale: 0
+	Dtier
 
-custom: Matraque
+custom: Nightstick
 	spriteid: MELEE1 0x d +
 	knockback: 1.5
 	power: 0.8
 	cooldown: 0.65
 	melee_break_scale: 0
 	wepscorebonus
+	Ctier
 
-custom: Batte de cricket
+custom: Cricket bat
 	spriteid: MELEE1 0x 12 +
 	knockback: 2.2
 	power: 1.1
 	cooldown: 0.7
 	melee_break_scale: 0.01
 	lightcooldown
+	Dtier
 
-custom: Batte en aluminium
+custom: Aluminum bat
 	spriteid: MELEE1 0x 14 +
 	knockback: 2
 	power: 1
 	cooldown: 0.75
 	melee_break_scale: 0
 	wepscorebonus
+	Ctier
 
 custom: Femur
 	spriteid: MELEE1 0x 13 +
@@ -836,15 +920,16 @@ custom: Femur
 	melee_break_scale: 0.05
 	trashmelee
 
-custom: Club de golf
+custom: Golf Club
 	spriteid: MELEE2 5 +
 	knockback: 2
 	power: 0.5
 	cooldown: 0.55
 	melee_break_scale: 0.02
 	lightcooldown
+	Etier
 	
-custom: Hache medievale
+custom: Medieval Axe
 	spriteid: MELEE2 6 +
 	knockback: 2
 	power: 3
@@ -852,10 +937,11 @@ custom: Hache medievale
 	melee_break_scale: 0
 	melee_extra_hits: 2
 	wepscorebonus
+	Btier
 	
-custom: Katana solide
+custom: Strong Katana
 	tags: truekatana
-	spriteid: MELEE1 12 +
+	spriteid: MELEE7 50 +
 	melee_start_angle: -45
 	melee_end_angle: -135
 	melee_shift.x: -3
@@ -868,8 +954,9 @@ custom: Katana solide
 	melee_extra_chance: 0.6
 	lightcooldown
 	wepscorebonus
+	Btier
 	
-custom: Epee de chevalier
+custom: Knight Sword
 	spriteid: MELEE2 8 +
 	knockback: 1.5
 	power: 2.5
@@ -877,6 +964,7 @@ custom: Epee de chevalier
 	melee_break_scale: 0
 	melee_extra_hits: 1
 	wepscorebonus
+	Btier
 	
 custom: Claymore
 	spriteid: MELEE2 9 +
@@ -890,6 +978,7 @@ custom: Claymore
 	melee_reach: 6
 	melee_range: 9
 	wepscorebonus
+	Stier
 	
 custom: Zweihander
 	tags: zwei
@@ -906,8 +995,9 @@ custom: Zweihander
 	melee_reach: 16
 	melee_range: 12
 	wepscorebonus
+	Stier
 	
-custom: Hache d'incendie
+custom: Fire Axe
 	spriteid: MELEE2 0x a +
 	knockback: 2
 	power: 2
@@ -915,8 +1005,9 @@ custom: Hache d'incendie
 	melee_break_scale: 0
 	melee_extra_hits: 1
 	melee_extra_chance: 0.5
+	Ctier
 
-custom: Parapluie
+custom: Umbrella
 	spriteid: MELEE2 0x e +
 	knockback: 1.5
 	power: 0.5
@@ -924,8 +1015,9 @@ custom: Parapluie
 	melee_break_scale: 0.02
 	melee_extra_hits: 1
 	lightcooldown
+	Etier
 	
-custom: Parasol
+custom: Beach Umbrella
 	spriteid: MELEE2 0x b +
 	knockback: 2
 	power: 0.75
@@ -936,8 +1028,9 @@ custom: Parasol
 	melee_break_scale: 0.02
 	melee_extra_hits: 2
 	wepscorebonus
+	Etier
 	
-custom: Crosse de hockey
+custom: Hockey Stick
 	spriteid: MELEE2 0x c +
 	knockback: 2
 	power: 0.75
@@ -945,8 +1038,9 @@ custom: Crosse de hockey
 	melee_reach: 5
 	melee_break_scale: 0.02
 	lightcooldown
+	Dtier
 
-custom: Crosse de hockey Xtreme
+custom: Xtreme Hockey Stick
 	spriteid: MELEE2 0x d +
 	knockback: 4
 	power:  1
@@ -956,8 +1050,9 @@ custom: Crosse de hockey Xtreme
 	melee_extra_chance: 0.3
 	lightcooldown
 	wepscorebonus
+	Atier
 	
-custom: Baton de hockey Mountie
+custom: Mountie Hockey Stick
 	spriteid: MELEE2 0x d +
 	knockback: 8 // 4
 	power: 1
@@ -966,8 +1061,9 @@ custom: Baton de hockey Mountie
 	melee_extra_hits: 4
 	melee_extra_chance: 0.7
 	lightcooldown
+	Gtier
 
-custom: Tube en carton
+custom: Cardboard Tube
 	spriteid: MELEE2 0x f +
 	knockback: 8
 	power: 0
@@ -976,8 +1072,9 @@ custom: Tube en carton
 	melee_extra_hits: 5
 	lightcooldown
 	wepscorebonus
+	Ptier
 	
-custom: Fourche
+custom: Pitchfork
 	spriteid: MELEE3 2 +
 	knockback: 1
 	power: 1.5
@@ -1000,8 +1097,9 @@ custom: Fourche
 	swoosh_vel: 1
 
 	leaning: 0
+	Ctier
 	
-custom: Pelle
+custom: Shovel
 	spriteid: MELEE3 3 +
 	knockback: 2
 	power: 1.5
@@ -1009,8 +1107,9 @@ custom: Pelle
 	melee_break_scale: 0
 	melee_extra_hits: 2
 	melee_extra_chance: 0.5
+	Ctier
 	
-custom: Branche d'arbre
+custom: Tree Branch
 	tags: treebranch
 	spriteid: MELEE3 4 +
 	knockback: 0.5
@@ -1018,7 +1117,7 @@ custom: Branche d'arbre
 	cooldown: 0.5
 	melee_break_scale: 0.05
 	
-custom: Tuyau en metal
+custom: Metal Pipe
 	spriteid: MELEE3 5 +
 	power: 2
 	knockback: 2
@@ -1026,8 +1125,9 @@ custom: Tuyau en metal
 	melee_start_angle: 60
 	melee_reach: 5
 	melee_break_scale: 0
+	Etier
 	
-custom: Machette rouillee
+custom: Rusty Machete
 	tags: machete1
 	spriteid: MELEE3 6 +
 	knockback: 1
@@ -1037,8 +1137,9 @@ custom: Machette rouillee
 	melee_extra_hits: 1
 	melee_extra_chance: 0.2
 	lightcooldown
+	Dtier
 	
-custom: Machette robuste
+custom: Sturdy Machete
 	tags: machete2
 	spriteid: MELEE3 7 +
 	knockback: 1
@@ -1049,8 +1150,9 @@ custom: Machette robuste
 	melee_extra_chance: 0.2
 	lightcooldown
 	wepscorebonus
+	Btier
 	
-custom: Parcmetre
+custom: Parking Meter
 	spriteid: MELEE3 8 +
 	power: 2
 	knockback: 2
@@ -1061,8 +1163,9 @@ custom: Parcmetre
 	melee_break_scale: 0
 	melee_extra_hits: 4
 	melee_extra_chance: 0.3
+	Ctier
 	
-custom: Belle baguette
+custom: Lovely Wand
 	spriteid: MELEE3 9 +
 	knockback: 1.5
 	power: 0.5
@@ -1071,6 +1174,7 @@ custom: Belle baguette
 	melee_aiming: 0
 	melee_range_hint: 150
 	lightcooldown
+	Atier
 	
 voc{ mission
 
@@ -1185,8 +1289,9 @@ custom: Rapier
 
 	leaning: 0
 	lightcooldown
+	Btier
 
-custom: Jouet Marteau
+custom: Toy Hammer
 	spriteid: MELEE3 0x b +
 	knockback: 5
 	power: 0
@@ -1195,6 +1300,7 @@ custom: Jouet Marteau
 	melee_extra_hits: 1
 	melee_extra_chance: 0.6
 	lightcooldown
+	Ctier
 
 custom: Gauntlet
 	spriteid: MELEE3 0x c +
@@ -1209,22 +1315,12 @@ custom: Gauntlet
 	melee_weapon_angle: 90
 	melee_shift.x: -2
 	melee_reach: 15	
-	
-custom: Punchquest Gauntlet
-	spriteid: MELEE3 0x c +
-	knockback: 2
-	power: 1
-	cooldown: 0.6
-	melee_break_scale: 0	
-//	melee_weapon_angle: -55
-	melee_windup_angle: -200
-	melee_start_angle: -160
-	melee_end_angle: 0
-	melee_weapon_angle: 90
-	melee_shift.x: -2
-	melee_reach: 15
+	Ctier
 
-custom: Gant de boxe
+// TODO: Can split out more of these if you want, put them in a weapondefs folder or whatever
+load weapondef/pq_gauntlet.df
+
+custom: Boxing Glove
 	spriteid: MELEE3 0x d +
 	knockback: 1.5
 	power: 0.75
@@ -1268,6 +1364,7 @@ custom: Morning Star
 	melee_extra_hits: 4
 	melee_extra_chance: 0.5
 //	melee_extra_chance: 1 // for testing
+	Atier
 
 custom: Pool1
 	spriteid: MELEE3 0x e +
@@ -1285,16 +1382,17 @@ custom: Pool2
 
 // Special char weapons
 	
-custom: Parapluie Debutant
+custom: Debutante Umbrella
 	spriteid: MELEE2 0x e +
 	knockback: 1.5
-	power: 0.8
+	power: 1
 	cooldown: 0.7
 	melee_break_scale: 0
 	melee_extra_hits: 1
 	lightcooldown
+	Btier
 
-custom: Machette de mason
+custom: Mason's Machete
 	tags: masonmachete
 	spriteid: MELEE4 4 + 
 	power: 2
@@ -1304,11 +1402,13 @@ custom: Machette de mason
 	melee_extra_hits: 3
 	melee_extra_chance: 0.3
 	lightcooldown
+	Atier
 
-custom: Couteau Rambeux
+custom: Rambeux Knife
 	spriteid: MELEE4 3 +
 	power: 1.2
 	melee_extra_hits: 1
+	cooldown: 0.7
 	knockback: 0.25
 	melee_start_angle: 90
 	melee_windup_angle: 120
@@ -1320,6 +1420,7 @@ custom: Couteau Rambeux
 	melee_break_scale: 0
 	lightcooldown
 	wepscorebonus
+	Btier
 
 custom: Minigun
 	spriteid: GUNS1 0x b +
@@ -1342,8 +1443,9 @@ custom: Minigun
 	func: WEAPON_FUNC_SHOOT
 	melee_break_scale: 0
 	pointblank_mid
+	Grangedtier
 
-custom: Pistolet ridicule
+custom: Ridiculous Pistol
 	spriteid: GUNS1 4 +
 	gun_muzzle_height: 3
 	ammo_type: LOOT_BULLET
@@ -1361,6 +1463,7 @@ custom: Pistolet ridicule
 	auto_eject: 1
 	melee_break_scale: 0
 	pointblank_mid
+	Drangedtier
 	
 custom: Vlambeer Shotgun
 	spriteid: GUNS1 2 +
@@ -1385,9 +1488,11 @@ custom: Vlambeer Shotgun
 	ammo_max: 50
 	melee_break_scale: 0
 	pointblank_near
+	Crangedtier
 	
-custom: Katana de ninja
-	spriteid: MELEE1 12 +
+custom: Ninja katana
+	weapon: nkatana
+	spriteid: MELEE7 51 +
 	melee_start_angle: -45
 	melee_end_angle: -135
 	melee_shift.x: -3
@@ -1400,6 +1505,7 @@ custom: Katana de ninja
 	melee_extra_chance: 0.6
 	lightcooldown
 	wepscorebonus
+	Btier
 
 mission{
 
@@ -1506,9 +1612,10 @@ custom: Take This
 	swoosh_range: 0
 	thrust_range: 8
 	leaning: 0
+	Ctier
 
 
-custom: Epee blanche
+custom: White Sword
 	tags: whitesword
 	spriteid: MELEE4 2 +
 	knockback: 2
@@ -1529,8 +1636,9 @@ custom: Epee blanche
 	thrust_range: 8
 	leaning: 0
 	wielder_handler: last
+	Ctier
 
-custom: Master Sword
+custom: M#ster Sword
 	tags: hero
 	spriteid: MELEE2 7 +
 	knockback: 1
@@ -1539,6 +1647,7 @@ custom: Master Sword
 	melee_break_scale: 0
 	melee_extra_hits: 1
 	wielder_handler: last
+	Atier
 
 custom: Grenade
 	spriteid: GUNS1 15 +
@@ -1589,9 +1698,6 @@ custom: Pipe bomb
 	ai_mule
 
 mission{
-
-: flipx 2 * 1 - ;
-: .flipx .flip@ flipx ;
 
 210 constant PIPETIME
 
@@ -1701,7 +1807,7 @@ thing-event: lnkbomb-events
 	melee_thrown_handler: last
 }
 
-custom: Bouteille
+custom: Bottle
 	spriteid: MELEE4 5 +
 	melee_thrown: 1
 	melee_thrown_lob: 2
@@ -1756,6 +1862,7 @@ custom: Kunai
 //	melee_extra_chance: 0.6 // BECAUSE NINJA I SAID
 
 	leaning: -2
+	Btier
 
 mission{
 	thing-event: kunai-events
@@ -1780,6 +1887,7 @@ custom: Shuriken
 	melee_shift.x: 1
 	stack_max: 12
 	melee_range_hint: 50
+	Dtier
 
 mission{
 thing-event: shuriken-events
@@ -1811,7 +1919,7 @@ thing-event: shuriken-events
 }
 	melee_thrown_handler: last
 
-custom: Bombe fumigene
+custom: Smoke Bomb
 	tags: smokebomb
 	spriteid: MELEE4 8 +
 	melee_thrown: 1
@@ -1897,7 +2005,7 @@ thing-event: smokebomb-events
 	melee_thrown_handler: last
 
 
-custom: Boomerang en bois
+custom: Wooden Boomerang
 	tags: woodboom
 	spriteid: MELEE4 10 +
 	power: 0.5
@@ -2000,7 +2108,7 @@ thing-event: boom-events
 //	wielder_handler:
 
 
-custom: Boomerang en metal
+custom: Metal Boomerang
 	tags: metalboom
 	spriteid: MELEE4 11 +
 	power: 0.5
@@ -2044,6 +2152,7 @@ custom: Wind Shuriken
 	melee_thrown_handler: last
 	wepscorebonus
 	melee_range_hint: 60
+	Ctier
 
 mission{
 
@@ -2244,6 +2353,7 @@ custom: Mjollin'er
 	melee_thrown_speed: 2
 	melee_thrown_handler: ' mjolnir-events
 	wielder_handler: ' mjol-wield
+	Stier
 
 }
 
@@ -2480,7 +2590,7 @@ mission{
 	;
 }
 
-custom: Lance-flammes
+custom: Flamethrower
 	tags: flamethrower
 	spriteid: GUNS1 12 +
 	gun_muzzle_height: 2
@@ -2557,30 +2667,31 @@ thing-event: molotov-events
 
 } : molotov molotov mission{ ' molotov-events } lt .events! 100 lt .flammability! ; weapondef{
 
-custom: Jambe de zombie
+custom: Zombie Leg
 	tags: zombleg
 	spriteid: MELEE4 0x d +
 	knockback: 3
 	power: 0.5
 	cooldown: 0.75
 	melee_break_scale: 0.0025
+	Etier
 
-custom: Colonne vertebrale
+custom: Spine
 	tags: spine
 	spriteid: MELEE4 0x e +
 	knockback: 1
 	power: 1
 	cooldown: 0.7
 	melee_break_scale: 0.01
-	trashmelee
 
-custom: Colonne vertebrale avec crane
+custom: Spine w/ Skull Accessory
 	tags: spineskull
 	spriteid: MELEE4 0x f +
 	knockback: 1.5
 	power: 1.5
 	cooldown: 0.7
 	melee_break_scale: 0.005
+	Etier
 
 custom: Re-bar
 	tags: rebar
@@ -2649,6 +2760,7 @@ custom: Devil Fork
 	swoosh_vel: 1
 	leaning: 0
 	glow: 1
+	Btier
 	
 custom: Broom
 	spriteid: MELEE5 0x 11 +
@@ -2743,7 +2855,7 @@ mission{
 	wielder_handler: last
 
 
-custom: Serpilliere
+custom: Mop
 	spriteid: MELEE5 0x 12 +
 	knockback: 1.5
 	power: 0.6
@@ -2752,16 +2864,17 @@ custom: Serpilliere
 	melee_extra_hits: 1
 	lightcooldown
 	
-custom: Serpilliere Ultra
+custom: UltraMop
 	spriteid: MELEE5 0x 12 +
-	knockback: 1.5
-	power: 1.2
+	knockback: 2
+	power: 0.8
 	cooldown: 0.8
 	melee_break_scale: 0
-	melee_extra_hits: 1
+	melee_extra_hits: 4
 	lightcooldown
+	Btier
 	
-custom: Canne a peche
+custom: Fishing Pole
 	tags: fishing
 	spriteid: MELEE4 0x 17 +
 	knockback: 1
@@ -2770,16 +2883,17 @@ custom: Canne a peche
 	melee_break_scale: 0.1
 	lightcooldown
 
-custom: Canne a peche ridicule
+custom: Ridiculous Fishing Pole
 	tags: vlamfishing
 	spriteid: MELEE4 0x 17 +
 	knockback: 1
 	power: 0.8
 	cooldown: 0.5 
 	melee_break_scale: 0
-	lightcooldown	
+	lightcooldown
+	Ctier
 	
-custom: Guitare electrique
+custom: Electric Guitar
 	tags: guitar
 	spriteid: MELEE4 0x 18 +	
 	melee_shift.x: 1
@@ -2789,6 +2903,7 @@ custom: Guitare electrique
 	power: 1.5
 	cooldown: 0.86
 	melee_break_scale: 0
+	Ctier
 
 custom: Moose Antlers
 	name: antlers
@@ -2836,6 +2951,7 @@ custom: Ray Gun
 	pointblank_mid
 	// TODO: GET IT TO SHOOT!
 //	func: WEAPON_FUNC_CUSTOM_AIMING
+	Brangedtier
 
 mission{
 thing-event: raygun-events
@@ -2871,7 +2987,7 @@ custom: 2x4
 	melee_extra_hits: 1
 
 custom: flashlight
-	name: Lampe de poche
+	name: Flashlight
 	spriteid: MELEE5 0x c +
 	knockback: 0.25
 	power: 0.7
@@ -2898,6 +3014,7 @@ custom: Pokin'
 	swoosh_vel: 0.5
 	skin_colour: 1
 	lightcooldown
+	Ctier
 
 custom: EHZER beam
 	name: ehzerbeam
@@ -2908,7 +3025,7 @@ custom: EHZER beam
 	no_held_sprite: 1
 	melee_range: 60
 
-custom: Griffes feroces
+custom: Fierce Claws
 	spriteid: 0
 	cooldown: 0
 	power: 1.5
@@ -2918,7 +3035,7 @@ custom: Griffes feroces
 	swoosh_particle2: 0x 6b
 	no_held_sprite: 1
 	
-custom: Tronconneuse de Mason
+custom: Mason's Chainsaw
 	tags: masonsaw
 	spriteid: MELEE1 0x 5 +
 	fuel_type: LOOT_GAS
@@ -2934,6 +3051,7 @@ custom: Tronconneuse de Mason
 	melee_break_scale: 0
 	burn_active: 80
 	burn_idle: 320
+	Atier
 	
 custom: Kill Fu
 	tags: masterkung
@@ -2950,8 +3068,9 @@ custom: Kill Fu
 	melee_range: 10
 	swoosh_vel: 0.5
 	skin_colour: 1
+	Btier
 
-custom: Marteau
+custom: Hammer
 	tags: clawhammer
 	spriteid: MELEE5 0x 17 +
 	knockback: 1
@@ -2960,8 +3079,9 @@ custom: Marteau
 	melee_reach: 10
 //	melee_range: 8
 	melee_break_scale: 0
+	Dtier
 
-custom: Marteau a bille
+custom: Ballpein hammer
 	tags: ballpeen
 	spriteid: MELEE5 0x 18 +
 	knockback: 1.2
@@ -2969,8 +3089,9 @@ custom: Marteau a bille
 	cooldown: 0.85
 	melee_reach: 10
 	melee_break_scale: 0
+	Dtier
 
-custom: Maillet en caoutchouc
+custom: Rubber mallet
 	tags: mallet
 	spriteid: MELEE5 0x 19 +
 	knockback: 1.5
@@ -2979,8 +3100,9 @@ custom: Maillet en caoutchouc
 	cooldown: 0.75
 	melee_reach: 10
 	melee_break_scale: 0
+	Dtier
 
-custom: Tournevis
+custom: Screwdriver
 	spriteid: MELEE5 0x 16 +
 	power: 0.7
 	knockback: 0.1
@@ -2994,7 +3116,7 @@ custom: Tournevis
 	melee_break_scale: 0.0
 	lightcooldown
 
-last-weapon clone-to: Ciseaux
+last-weapon clone-to: Scissors
 	spriteid: MELEE5 0x 1a +
 	melee_break_scale: 0.02
 
@@ -3018,8 +3140,9 @@ last-weapon clone-to: Scalpel
 	swoosh_range: 90
 	swoosh_particle1: 0x 6c
 	swoosh_particle2: 0x 6c
+	Etier
 
-custom: Pic a glace
+custom: Ice pick
 	tags: icepick
 	spriteid: MELEE5 0x 15 +
 	knockback: 0
@@ -3079,6 +3202,7 @@ custom: Shiv
 	leaning: 0.25
 	lightcooldown
 	half-fatigue
+	Dtier
 
 WEAPON_KNITTING clone-to: Pool cue
 	tags: poolcue
@@ -3137,15 +3261,18 @@ WEAPON_CLAWHAMMER clone-to: Fire poker
 	swoosh_particle1: 0x 6c
 	swoosh_particle2: 0x 6c
 	swoosh_range: 90
+	Dtier
 
-WEAPON_ALUMINUM clone-to: Tire iron
+custom: Tire iron
 	tags: tireiron
 	spriteid: MELEE5 0x 20 +
 	knockback: 1
 	power: 0.8
 	cooldown: 0.6
+	melee_break_scale: 0
 	lightcooldown
-
+	Dtier
+	
 WEAPON_BASEBALL clone-to: Tennis racket
 	weapon: tennis
 	spriteid: MELEE5 0x 21 +
@@ -3155,6 +3282,7 @@ WEAPON_BASEBALL clone-to: Tennis racket
 	melee_break_scale: 0.03
 	half-fatigue
 	lightcooldown
+	Etier
 
 WEAPON_BASEBALL clone-to: Oar
 	weapon: paddle
@@ -3165,6 +3293,7 @@ WEAPON_BASEBALL clone-to: Oar
 	cooldown: 0.5
 	melee_break_scale: 0.03
 	melee_extra_hits: 2
+	Etier
 
 WEAPON_NAIL clone-to: Log
 	weapon: log
@@ -3177,6 +3306,7 @@ WEAPON_NAIL clone-to: Log
 	melee_extra_chance: 1
 	melee_range: 3
 	heavycooldown
+	Etier
 
 WEAPON_NAIL clone-to: Big frickin' log
 	weapon: biglog
@@ -3191,6 +3321,7 @@ WEAPON_NAIL clone-to: Big frickin' log
 	melee_range: 8
 	melee_reach: -8
 	heavycooldown
+	Dtier
 
 custom: Air horn
 
@@ -3322,6 +3453,7 @@ WEAPON_ZWEI clone-to: Scythe
 	cooldown: 1.4	
 	melee_off.x: 3
 	melee_off.y: 1
+	Ctier
 	
 WEAPON_SCYTHE clone-to: The Grim Reaper
 	weapon: reaper
@@ -3334,6 +3466,7 @@ WEAPON_SCYTHE clone-to: The Grim Reaper
 	melee_shift.y: 6
 	melee_shift.x: 0
 	melee_extra_hits: 4 // Capped at 3?
+	Stier
 
 WEAPON_MACHETE2 clone-to: Sickle
 	weapon: sickle
@@ -3342,12 +3475,14 @@ WEAPON_MACHETE2 clone-to: Sickle
 	power: 1.3
 	cooldown: 0.75
 	melee_extra_chance: 0.5
+	Ctier
 	
 WEAPON_BROOM clone-to: Witch's Broom
 	weapon: witch
 	knockback: 1.5
 	power: 0.5
 	melee_break_scale: 0
+	Ctier
 	
 // 70 constant WIZ_COUNTER
 100 constant WIZ_COUNTER
@@ -3390,7 +3525,7 @@ defer new-spark
 
 	<- self .overlap_id@ <- self .targetid@ = <- overlap .alt-hittable? or if
 		WIZ_POWER <- self .pos xyblast .hitcheck.power! 1 lt .hitcheck.mode! ( -1 lt .hitcheck.blast! 5 lt .hitcheck.rad! )
-		sfx{ fm2 2000 freq2! 0.5 1 frnd pitch! 0.5 scale! <- self .adjust-vol -5 priority! }
+		sfx{ fm 2000 freq2! 0.5 1 frnd pitch! 0.5 scale! <- self .adjust-vol -5 priority! }
 		<- self .anim.hint@ 1- <- self .anim.hint!
 //		<- self .vel -1 xymul <- self .vel!
 
@@ -3498,6 +3633,7 @@ custom: Wizzle stick
 //	melee_fatigue_scale: 1
 	heavycooldown
 	wepscorebonus
+	Gtier
 
 
 3 constant HEALSPRAY_CHARGES
@@ -3661,7 +3797,7 @@ custom: Healing Spray
 	melee_end_angle: 0
 	melee_fatigue_scale: 0
 	cooldown: 0
-	stack_max: HEALSPRAY_CHARGES
+	stack_max: 10
 	stack_as_charges: 1
 	ai_mule
 	power: 0
@@ -3680,6 +3816,7 @@ WEAPON_FRYING clone-to: Cacerola
 	power: 1.5
 	melee_extra_hits: 1
 	melee_extra_chance: 0.5
+	Btier
 	
 WEAPON_SLEDGE clone-to: Mega Maul
 	spriteid: MELEE6 0x 8 +
@@ -3690,6 +3827,7 @@ WEAPON_SLEDGE clone-to: Mega Maul
 	melee_extra_chance: 0.8
 	cooldown: 1.4
 	wepscorebonus
+	Btier
 
 WEAPON_CLAW clone-to: Weak Claw
 	weapon: weakclaw
@@ -3722,10 +3860,12 @@ custom: Foam Hand
 	cooldown: 0.65
 	melee_break_scale: 0
 	wepscorebonus
+	Ctier
 	
 WEAPON_AIRHORN clone-to: Sports Horn
 	weapon: sportshorn
 	no_ai_use: 0
+	Btier
 	
 WEAPON_MEGAMAUL clone-to: Skull Hammer
 	weapon: skullmace
@@ -3735,6 +3875,7 @@ WEAPON_MEGAMAUL clone-to: Skull Hammer
 	melee_off.x: 5
 	melee_off.y: -1
 	melee_range: 9
+	Atier
 	
 WEAPON_MACHETE2 clone-to: Gladius
 	weapon: gladius
@@ -3742,6 +3883,7 @@ WEAPON_MACHETE2 clone-to: Gladius
 	melee_extra_chance: 0.5
 	power: 2.5
 	cooldown: 0.8
+	Btier
 	
 WEAPON_GRENADE clone-to: Bomb Skull
 	weapon: bombskull
@@ -3766,6 +3908,7 @@ WEAPON_DEVILFORK clone-to: Tactical Spear
 //	melee_pickup_scale: 2
 	wepscorebonus
 	half-fatigue
+	Btier
 	
 WEAPON_MODSPEAR clone-to: Poolcue Spear
 	weapon: poolspear
@@ -3773,6 +3916,7 @@ WEAPON_MODSPEAR clone-to: Poolcue Spear
 	cooldown: 0.6
 	melee_break_scale: 0.0025
 	melee_extra_chance: 0.3
+	Dtier
 	
 WEAPON_SCYTHE clone-to: Stick Boot
 	weapon: stickboot
@@ -3782,6 +3926,7 @@ WEAPON_SCYTHE clone-to: Stick Boot
 	cooldown: 1.2
 	melee_break_scale: 0.001
 	melee_extra_chance: 0.6
+	Ptier
 	
 WEAPON_MEDIEVAL clone-to: Bardiche
 	weapon: bardiche
@@ -3793,16 +3938,65 @@ WEAPON_MEDIEVAL clone-to: Bardiche
 	melee_off.x: 3
 	melee_reach: 12
 	melee_range: 10
+	Btier
+	
+WEAPON_BARDICHE clone-to: Heavy Golden Axe
+	// 28% more power, 1 extra hit so 25% more cleave, 8% slower cooldown
+	spriteid16x32: 0x e
+	weapon: goldenaxe2
+	power: 4.5
+	cooldown: 2.5
+	melee_extra_hits: 4
+	Atier
+	
+	:noname args( me eventid )
+
+		THING_EVENT_ANIMATE <- eventid = if
+			1 <- me .timer!
+
+			// Golden glow!
+			1 gameticks 90 * sin 0.1 * 0.7 +  0 60 <- me .aim_angle@ anglexy 16 xymul <- me .pos xyadd d-light
+		then;
+	;
+
+	wielder_handler: last
+	
+WEAPON_FIRE clone-to: Golden Axe
+	// Fire axe: 2 power, 1.2 cooldown, 1 extra hit, 0.5 hit chance
+	// This has 50% more power, is 25% slower, and consistently cleaves 3 enemies
+	// Medieval Axe is really similar but is at 1.75 cooldown instead
+	spriteid16x32: 0x d
+	weapon: goldenaxe1
+	power: 3
+	cooldown: 1.5
+	melee_extra_hits: 2
+	melee_extra_chance: 1
+	Atier
+	
+	:noname args( me eventid )
+
+		THING_EVENT_ANIMATE <- eventid = if
+			1 <- me .timer!
+
+			// Golden glow!
+			1 gameticks 90 * sin 0.1 * 0.7 +  0 60 <- me .aim_angle@ anglexy 16 xymul <- me .pos xyadd d-light
+		then;
+	;
+
+	wielder_handler: last
 	
 WEAPON_CLEAVER clone-to: Sturdy Cleaver
 	weapon: scleaver
-	melee_break_scale: 0	
+	spriteid: MELEE6 0x 22 +
+	melee_break_scale: 0
+	Btier
 	
 WEAPON_SUMO clone-to: Super Sumo
 	weapon: supersumo
 	power: 1
 	melee_extra_hits: 3
 	melee_extra_chance: 0.7
+	Atier
 	
 WEAPON_PISTOL clone-to: Ded9
 	spriteid: GUNS2 0 +
@@ -3812,6 +4006,7 @@ WEAPON_PISTOL clone-to: Ded9
 	ammo_max: 80
 	shot_power: 2.5
 	spread_factor: 1
+	Brangedtier
 	
 WEAPON_PISTOL clone-to: Modded Ded9
 	spriteid: GUNS2 1 +
@@ -3821,12 +4016,14 @@ WEAPON_PISTOL clone-to: Modded Ded9
 	ammo_max: 120
 	shot_power: 2.5
 	shoot_thru: 0.15
+	Brangedtier
 	
 WEAPON_ALUMINUM clone-to: Skateboard
 	weapon: bortboard
 	spriteid: MELEE6 0x 9 +
 	melee_extra_hits: 1
 	cooldown: 1.1
+	Btier
 	
 WEAPON_ZWEI clone-to: Guster Sword
 	weapon: guster
@@ -3834,6 +4031,7 @@ WEAPON_ZWEI clone-to: Guster Sword
 	power: 4.5
 	cooldown: 2.0 // Maybe 2.2 if this is too strong
 	knockback: 5
+	Stier
 
 WEAPON_ZWEI clone-to: Cold Steel Greatsword
 	weapon: demozwei
@@ -3844,14 +4042,17 @@ WEAPON_BORTBOARD clone-to: Wooden Club
 	knockback: 3
 	melee_extra_chance: 0.5
 	spriteid: MELEE6 20 +
+	Ctier
 	
 WEAPON_MODSPEAR clone-to: Golden Spear
 	weapon: goldspear
 	spriteid: MELEE7 0x d +
+	// Compared to Tac Spear: 40% more power, 28% slower cooldown, 1 extra hit, 7x extra chance
 	power: 2.5
 	cooldown: 0.9
 	melee_extra_hits: 2
 	melee_extra_chance: 0.7
+	Atier
 
 	:noname args( me eventid )
 
@@ -3876,6 +4077,7 @@ WEAPON_DEVILFORK clone-to: Hot poker
 	power: 0.3
 	melee_extra_hits: 0
 	melee_extra_chance: 0
+	Atier
 
 	: .add-burning args( me ) <- me .burning@ 15 < if 15 <- me .burning! then ;
 
@@ -3911,6 +4113,7 @@ WEAPON_RAYGUN clone-to: Mazer Pistol
 	// cooldown: 0.4
 	FLASHY "MAZAPS" .. WHITE .. chargename!
 	gun_muzzle_height: 3
+	Brangedtier
 
 	: mazer-events args( me eventid )
 
@@ -3939,6 +4142,7 @@ WEAPON_FLASHLIGHT clone-to: TactiCop Lite(TM)
 	melee_break_scale: 0
 	no_ai_use: 0
 	wepscorebonus
+	Crangedtier
 
 WEAPON_BUTT clone-to: Pig Butt
 	weapon: pigbutt
@@ -3964,7 +4168,7 @@ custom: Pukeyball
 	spriteid: MELEE6 0x 1a +
 	melee_thrown: 1
 	melee_thrown_lob: 2
-	stack_max: 3
+	stack_max: 9
 
 	defer spawn-a-pukeymon
 
@@ -3987,29 +4191,35 @@ WEAPON_SHOVEL clone-to: Pickaxe
 	power: 2
 	cooldown: 1.2
 	melee_extra_chance: 0.35
+	Ctier
 	
 WEAPON_LOG clone-to: Lady's Log
 	weapon: logladylog
 	spriteid16x32: 6
 	cooldown: 1.2
 	wepscorebonus
+	Btier
 	
 WEAPON_BIGLOG clone-to: ULTIMATE LOG
 	weapon: ultimalog
 	spriteid16x32: 7
 	power: 3.5
 	knockback: 9
+	Ctier
 	
 WEAPON_GUSTER clone-to: MegaKnight Blade
 	weapon: megaknight
 	spriteid16x32: 10
+	Stier
 	
 WEAPON_KITCH clone-to: Golden Knife
 	weapon: goldknife
 	spriteid: MELEE6 21 +
+	// 5x stronger than a Kitchen Knife
 	power: 4
 	melee_break_scale: 0
 	half-fatigue
+	Atier
 
 	:noname args( me eventid )
 
@@ -4026,6 +4236,7 @@ WEAPON_GUITAR clone-to: Lute
 	spriteid: MELEE6 0x f +
 	melee_extra_hits: 1
 	melee_extra_chance: 0.5
+	Btier
 	
 WEAPON_RAMBEUX clone-to: Dagger
 	weapon: dagger
@@ -4034,12 +4245,14 @@ WEAPON_RAMBEUX clone-to: Dagger
 	power: 1.5
 	cooldown: 0.65
 	melee_start_angle: 130
+	Btier
 	
 WEAPON_BARDICHE clone-to: Halberd
 	weapon: halberd
 	spriteid: MELEE5 0x 2c +
 	cooldown: 1.4
 	power: 2.5
+	Btier
 	
 WEAPON_KUNAI clone-to: Sai
 	weapon: sai
@@ -4094,11 +4307,13 @@ WEAPON_BASEBALL clone-to: Spiked Bat
 	spriteid: MELEE6 0x 2f +
 	power: 1.5
 	melee_break_scale: 0.005
+	Dtier
 	
 WEAPON_ALUMINUM clone-to: The Whammer
 	weapon: megaspikedbat
 	spriteid: MELEE6 0x 2e +
 	power: 1.5
+	Ctier
 	
 custom: ThrowingBoot
 	spriteid: MELEE6 0x 20 +
@@ -4107,6 +4322,7 @@ custom: ThrowingBoot
 //	melee_thrown_speed: 0
 	stack_max: 2
 	melee_range_hint: 40
+	Ptier
 	
 mission{
 thing-event: throwboot-events
@@ -4130,11 +4346,14 @@ WEAPON_GAUNTLET clone-to: Brass Knucks
 	weapon: knucks
 	cooldown: 0.6
 	knockback: 1.5
+	Ctier
 	
 WEAPON_ZWEI clone-to: Firelunk Greatsword
 	spriteid: MELEE7 1 +
 	weapon: firelink
 	power: 2.2
+	glow: 1
+	Gtier
 
 	: firelink-handler args( me eventid )
 
@@ -4160,6 +4379,7 @@ WEAPON_GUSTER clone-to: Dragonslayer
 	spriteid: MELEE7 2 +
 	weapon: dragonslayer
 	cooldown: 1.7
+	Stier
 	
 WEAPON_KNIGHT clone-to: Cavalry Sabre
 	spriteid: MELEE7 3 +
@@ -4169,6 +4389,7 @@ WEAPON_KNIGHT clone-to: Cavalry Sabre
 	6 melee_off.x!
 	-2 melee_off.y!
 	melee_range: 12
+	Atier
 
 WEAPON_CAVALRY clone-to: Pirate Cutlass
 	spriteid: MELEE7 4 +
@@ -4176,6 +4397,7 @@ WEAPON_CAVALRY clone-to: Pirate Cutlass
 	cooldown: 1.1
 	melee_extra_hits: 1
 	melee_start_angle: -30
+	Atier
 	
 WEAPON_CAVALRY clone-to: Branch Trimmer
 	spriteid: MELEE7 0x b +
@@ -4184,6 +4406,7 @@ WEAPON_CAVALRY clone-to: Branch Trimmer
 	knockback: 0.3
 	10 melee_off.x!
 	melee_extra_chance: 0.6
+	Dtier
 	
 
 custom: GIGA GUSTER
@@ -4203,6 +4426,8 @@ custom: GIGA GUSTER
 	stack_as_charges: 1
 	stack_no_show: 1
 	shoot_thru_scale: 1
+	
+	Stier
 
 	0.7 custom_retract!
 
@@ -4340,6 +4565,7 @@ WEAPON_BIGLOG clone-to: Giant Club
 	melee_off.x: 14
 	melee_start_angle: 50
 	melee_range: 12
+	Stier
 
 // A unique symbol to use as an identifier in user_word
 variable TURRET-OP
@@ -4444,6 +4670,7 @@ WEAPON_HUNTING clone-to: Sniper Rifle
 	boom_factor: 0
 	shot_power: 3.5
 	shoot_thru: 0.4
+	Brangedtier
 	
 WEAPON_AUTOSHOT clone-to: Quiet Shotgun
 	spriteid: GUNS2 7 +
@@ -4451,6 +4678,7 @@ WEAPON_AUTOSHOT clone-to: Quiet Shotgun
 	boom_factor: 0
 	shot_power: 0.4
 	reload: 0.7
+	Brangedtier
 	
 WEAPON_MAZER clone-to: Solar Mazer
 	weapon: solarmazer	
@@ -4483,6 +4711,7 @@ custom: Pirate Cannon
 
 	0.9 custom_retract!
 	heavycooldown
+	Atier
 
 	: cball-events args( me eventid )
 		<- eventid
@@ -4680,6 +4909,7 @@ custom: Weed whacker
 	stack_as_charges: 0
 	0.8 custom_retract!
 	ammo_max: 30
+	Ctier
 
 	// Chainsaw
 //	burn_active: 40
@@ -4818,6 +5048,8 @@ custom: Leaf blower
 	reload: 0
 	0.8 custom_retract!
 	ammo_max: 30
+	Ctier
+	
 	func: WEAPON_FUNC_CUSTOM_AIMING
 
 	: windpush-events args( me eventid )
@@ -4879,7 +5111,7 @@ custom: Leaf blower
 		then
 
 		gameticks 1 & not if
-			sfx{ -6 nextpri fm2 150 freq! 100 freq2! 0.2 duty2!
+			sfx{ -6 nextpri fm 150 freq! 100 freq2! 0.2 duty2!
 				1 i!
 				500 <- me .weapon_state.val@ 100 * + filt!
 				250 <- me .weapon_state.val@ 50 * + filt_high!
@@ -4930,6 +5162,7 @@ WEAPON_RAYGUN clone-to: Off-brand Plasms Rifle
 	func: WEAPON_FUNC_SHOOT
 	stack_max: 300
 	wepscorebonus
+	Srangedtier
 
 	: plasma-events args( me eventid )
 
@@ -4980,6 +5213,7 @@ WEAPON_SHOTGUN clone-to: Double-barrel shotgun
 	reload: 1.3
 	power: 0.30
 	ammo_max: 60
+	Crangedtier
 	
 WEAPON_MASONSAW clone-to: Chainsaw Hand
 	weapon: chainhand
@@ -4988,12 +5222,14 @@ WEAPON_MASONSAW clone-to: Chainsaw Hand
 	burn_active: 60
 	burn_idle: 240
 	ammo_max: 30
+	Btier
 	// ammo_max doesn't seem to work for chainsaws (because it just uses carried fuel)
 	
 WEAPON_DSHOTGUN clone-to: Farmer's Shotgun
 	weapon: farmdshotgun
 	shot_power: 0.8
 	reload: 1
+	Brangedtier
 
 custom: Bow
 	weapon: bow
@@ -5015,6 +5251,7 @@ custom: Bow
 	lock_drift: 0.025
 	melee_range_hint: 100
 	melee_range_min_hint: 40
+	Dtier
 
 	10 constant BOW_FRESH_DRAW // originally 3
 	90 BOW_FRESH_DRAW * constant BOW_DRAW_TIME // originally 15, for 45 DRAW_TIME total
@@ -5114,6 +5351,7 @@ WEAPON_BOW clone-to: Cupid's Bow
 	stack_max: 60
 //	chargename: <3
 	RED "LOVE" .. WHITE .. chargename!
+	Btier
 
 : #cupidbow cupidbow .item.charges! ;
 root{ : cupidbow 60 #cupidbow ; }
@@ -5125,6 +5363,7 @@ WEAPON_UPPERCUT clone-to: Bonesaw
 	knockback: 0.4
 	cooldown: 1.2
 	wepscorebonus
+	Ctier
 	
 WEAPON_BLOWTORCH clone-to: Blowtorch XL
 	weapon: xlblowtorch
@@ -5139,7 +5378,7 @@ custom: Electric Chainsaw
 	3 constant YSHIFT
 	spriteid: MELEE7 32 +
 	weapon: echainsaw
-	chargename: Juice
+//	chargename: Juice
 	cooldown: 0.7
 	reload: 0
 	power: 0.3
@@ -5152,6 +5391,7 @@ custom: Electric Chainsaw
 	stack_max: 250
 	stack_as_charges: 1
 	0.8 custom_retract!
+	Atier
 
 	// Chainsaw
 
@@ -5248,6 +5488,7 @@ WEAPON_ECHAINSAW clone-to: Moody Chainsaw
 	weapon: moodysaw
 	spriteid: MELEE7 36 +
 	stack_max: 50
+	// Arangedtier
 	
 custom: Bazooka
 	50 constant BAZOOKA_COOLDOWN // Formerly 60, and then 30
@@ -5379,7 +5620,7 @@ custom: Bazooka
 
 root{
 : #bazooka bazooka .item.charges! ;
-: bazooka 30 #bazooka ; }
+: bazooka 3 #bazooka ; }
 
 WEAPON_BAZOOKA clone-to: Moody Launcher
 	weapon: moodyrocket
@@ -5513,7 +5754,7 @@ custom: Grenade Launcher
 
 root{
 : #glaunch glaunch .item.charges! ;
-: glaunch 30 #glaunch ; }
+: glaunch 6 #glaunch ; }
 
 
 custom: Landmine
@@ -5606,6 +5847,7 @@ custom: Karatay
 	melee_range: 5
 	swoosh_vel: 0.25
 	half-fatigue
+	Ctier
 
 custom: Roundhouse
 	weapon: roundhouse
@@ -5623,6 +5865,7 @@ custom: Roundhouse
 	melee_range: 8
 	swoosh_vel: 0.25
 	half-fatigue
+	Ctier
 
 custom: Punchball
 	weapon: punchball
@@ -5641,6 +5884,7 @@ custom: Punchball
 	swoosh_vel: 0.25
 	melee_range_hint: 100
 	melee_range_min_hint: 25
+	Btier
 
 	90 constant FIREBALL_DURATION
 	60 constant FIREBALL_ACTION
@@ -5761,6 +6005,8 @@ custom: E-whacker
 	stack_max: 250
 	stack_as_charges: 1
 	0.8 custom_retract!
+	Ctier
+	
 	func: WEAPON_FUNC_CUSTOM_AIMING
 
 	: anim-spin args( me )
@@ -5866,6 +6112,7 @@ custom: E-blower
 	melee_end_angle: 45
 	cooldown: 0
 	reload: 0
+	Ctier
 
 	lock_drift: 0.01
 	targeting: 0
@@ -5908,7 +6155,7 @@ custom: E-blower
 
 		<- me .weapon_state.val@ if
 			gameticks 1 & not if
-				sfx{ -6 nextpri fm2 150 freq! 200 freq2! 0.1 duty2!
+				sfx{ -6 nextpri fm 150 freq! 200 freq2! 0.1 duty2!
 					1 i!
 					50 <- me .weapon_state.val@ 50 * + filt!
 					2000 filt_high!
@@ -5951,6 +6198,7 @@ custom: Blacksmith hammer
 	melee_extra_hits: 1
 	melee_extra_chance: 0.2
 	wepscorebonus
+	Ctier
 
 mission{
 
@@ -6032,6 +6280,7 @@ custom: Napalm thrower
 	melee_windup_angle: -190
 	melee_end_angle: 90
 	melee_reach: 0
+	melee_break_scale: 0
 	targeting: 0
 	lock_drift: 0.007 // Flamethrower was 0.01
 	func: WEAPON_FUNC_CUSTOM_AIMING
@@ -6064,12 +6313,14 @@ WEAPON_RAKE clone-to: Hoe
 	knockback: 1.1
 	power: 0.5
 	cooldown: 0.7
+	Etier
 
 WEAPON_MACHETE1 clone-to: Saw
 	weapon: woodsaw
 	spriteid: MELEE7 45 +
 	power: 0.7
 	cooldown: 0.5
+	Etier
 
 custom: Spoon
 	weapon: spoon
@@ -6116,6 +6367,7 @@ WEAPON_TFORK clone-to: Haunted Fork
 	melee_break_scale: 0
 	unbreakable: 1
 	melee_range_hint: 100
+	Dtier
 
 	: .seekthrower 0 0 0 args( me them diffx diffy )
 		<- me .throwerid@ not if then;
@@ -6266,6 +6518,7 @@ WEAPON_TFORK clone-to: Haunted Fork
 		melee_windup_angle: 45
 		melee_start_angle: 65
 		melee_end_angle: 320
+		Ctier
 
 		weapon: snowshovel
 
@@ -6400,7 +6653,127 @@ WEAPON_CLAW clone-to: Rat bite
 	weapon: ratbite
 	swoosh_particle1: 0x 3
 	swoosh_particle2: 0x 9c
-	power: 0
+	power: 0.25
+	
+WEAPON_ANTLERS clone-to: Nugssercut
+	weapon: nugspunch
+	swoosh_particle1: 3
+	swoosh_particle2: 3
+	melee_extra_hits: 3
+	power: 2.5
+	knockback: 4
+	cooldown: 1.5
+	melee_start_angle: 40
+	
+WEAPON_RAMBEUX clone-to: Survival Knife
+	weapon: survknife
+	
+WEAPON_MODRED9 clone-to: Golden Pistol
+	weapon: goldpistol
+	spriteid: MELEE7 52 +
+	ammo_max: 90	
+	Srangedtier
+	
+	:noname args( me eventid )
+
+		THING_EVENT_ANIMATE <- eventid = if
+			1 <- me .timer!
+
+			// Golden glow!
+			1 gameticks 90 * sin 0.1 * 0.7 +  0 60 <- me .aim_angle@ anglexy 16 xymul <- me .pos xyadd d-light
+		then;
+	;
+
+	wielder_handler: last
+	
+WEAPON_SHOTGUN clone-to: LIL' DAWG
+	weapon: lildawg
+	spriteid: MELEE7 53 +
+	boom_factor: 0.25
+	reload: 0.6
+	shoot_thru: 0.15
+	shot_knockback: 4
+	cock_sound: 2
+	shot_power: 0.2
+	projectiles: 6
+	ammo_max: 90
+	Srangedtier
+
+WEAPON_SCALPEL clone-to: Golden Scalpel
+	// Double power, same cooldown, no breaking, half-fatigue tag added
+	weapon: goldscalp
+	power: 3
+	spriteid: MISC1 0 +
+	half-fatigue
+	melee_break_scale: 0
+	Atier
+	
+	:noname args( me eventid )
+
+		THING_EVENT_ANIMATE <- eventid = if
+			1 <- me .timer!
+
+			// Golden glow!
+			1 gameticks 90 * sin 0.1 * 0.7 +  0 60 <- me .aim_angle@ anglexy 16 xymul <- me .pos xyadd d-light
+		then;
+	;
+
+	wielder_handler: last
+	
+
+load weapondef/jackhammer.df
+
+
+: install-dummy-npc 0 args( container npc )
+
+	<- container .targetid@ if then;
+
+	dummy-npc lt -> npc
+
+	1 <- npc .no_hit! <- container <- npc .enter
+
+	// Keep track of the NPC inside so we can delete it later
+	<- npc thing# <- container .targetid!
+;
+
+
+: remove-dummy-npc ( container )
+	.targetid@ #thing dup if silentkillit else drop then
+;
+
+
+load weapondef/firecrackers.df
+load weapondef/fireworks.df
+load weapondef/M-sycamore.df
+
+weapondef{
+
+custom: Egg
+	weapon: egg
+	spriteid: MELEE6 0x 1b +
+	melee_thrown: 1
+	melee_thrown_lob: 2
+	stack_max: 12
+
+	: spawn-a-chicken 
+		new-npc 30 lt .fade! lt .character@ ".tempchickenify" evaluate // Evaluate because word is defined later
+	;
+
+	:noname args( me eventid )
+		<- eventid THING_EVENT_BREAK = if
+			spawn-a-chicken <- me lt-to-thing
+			<- me mission{ .smokepoof }
+		then;
+
+		<- eventid THING_EVENT_BOUNCE = <- eventid THING_EVENT_WALL = or if
+			<- me .smack <- me killit
+		then;
+	;
+	melee_thrown_handler: last
+	root{ : egg } egg 0 lt .flip! ;
+
+}
+
 
 }
 

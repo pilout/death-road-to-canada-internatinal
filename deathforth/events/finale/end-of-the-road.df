@@ -55,6 +55,32 @@ particle{ : new new 0 global_colour! ; }
 	"Mountie" canuck .name!
 ;
 
+// New for calculating best-gamemode-streak for hat unlocking
+: gamemodestreak-current
+	gstats{
+	wins-normal-streak 0 > if 1 else 0 then
+	wins-long-streak  0 > if 1 else 0 then
+	wins-special-streak  0 > if 1 else 0 then
+	wins-family-streak  0 > if 1 else 0 then
+	wins-specialEX-streak 0 > if 1 else 0 then
+	wins-familyEX-streak 0 > if 1 else 0 then
+	wins-kepa-streak 0 > if 1 else 0 then
+	wins-short-streak 0 > if 1 else 0 then
+	wins-marathon-streak 0 > if 1 else 0 then
+	wins-deadlier-streak 0 > if 1 else 0 then
+	wins-endless-streak 0 > if 1 else 0 then
+	wins-opp-streak 0 > if 1 else 0 then
+	wins-quickdeath-streak 0 > if 1 else 0 then
+	wins-4jerks-streak 0 > if 1 else 0 then
+	wins-4jerksEX-streak 0 > if 1 else 0 then
+	} + + + + + + + + + + + + + +
+;
+
+: gamemodestreak-calc
+	gamemodestreak-current gstats{ best-gamemode-streak } > if
+		gstats{ gamemodestreak-current to best-gamemode-streak }
+	then
+;
 
 : modedefeated
 	gstats{ ' wins-streak ++ }
@@ -212,6 +238,8 @@ particle{ : new new 0 global_colour! ; }
 			"!"
 		then $)
 	then
+		
+	gamemodestreak-calc
 		
 	filesave{ save-global-stats }
 ;

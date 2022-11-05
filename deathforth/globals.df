@@ -16,6 +16,55 @@
 0 value need-save
 0 value last-saved
 
+// ===============
+// Dates and stuff
+// ===============
+
+// Check if a date is CHINESE NEW YEAR (using year and day between 0-364)
+// - It will cover 3-4 days due to the granularity of moon phase calculation, but that'll give people more time to
+// catch it
+// - Always falls between Jan 21 and Feb 21
+: yd-chinese-new-year? args( y d )
+	// If not a new moon...
+	<- y <- d moonphaseyd if false then;
+
+	// If outside of date range...
+	<- d 20 < if false then;
+	<- d 51 > if false then;
+	true
+;
+
+
+// Is it Chinese New year now?
+: chinese-new-year? time.year time.year.day yd-chinese-new-year? ;
+
+
+// Sp00ky stuff
+
+0 debugvar halloween_debug
+
+// Check if a month/day falls within the special Steam Hallowe'en period
+// - Using 0-based month because that's what the time functions do
+: md-steam-halloween? args( m d )
+	<- m 9 = <- d 24 > and if 1 then;
+	<- m 10 = <- d 1 = and if 1 then;
+	0
+;
+
+// Debug test, pass in the date you want to check for and it will set the debug flag to make halloween happen!
+: md-steam-halloween-debug-test ( m d ) md-steam-halloween? to halloween_debug ;
+
+// Actual time halloween check
+: halloween? time.month time.month.day md-steam-halloween? halloween_debug or ;
+
+
+// : halloween? time.month 9 = time.month.day 31 = and halloween_debug or ;
+
+: fullmoon? time.moonphase 4 = ;
+: newmoon? time.moonphase 0 = ;
+: friday_the_13th? time.week.day 5 = time.month.day 13 = and ;
+
+
 // A way to schedule game saves
 : need-to-save 1 to need-save ;
 
@@ -86,16 +135,30 @@ road{
 ;
 
 : extrahatcheck 
+	// 15 for 2 challenge statues, 29 hats currently
 	gstats{ challenge-statue1 } 1 < if 0 else 
-		gstats{ challenge-statue1 } 2 < if 9 else 15 then
+		gstats{ challenge-statue1 } 2 < if 9 else 
+			gstats{ challenge-statue1 } 3 < if 15 else
+					gstats{ challenge-statue1 } 4 < if 27 else 45
+				then
+			then 
+		then
 	then unlock_extra_hats! 
 ;
 extrahatcheck
 
+: extraglassescheck
+	gstats{ challenge-statue1 } 2 < if 0 else 8
+	then unlock_extra_glasses! 
+;
+extraglassescheck
+
+16 skin_roll_max!
+
 : char-gen char-gen args( chara )
-	
+
 		// Happy Halloween
-		time.month 9 = time.month.day 31 = and if 
+		halloween? if 
 			70 %chance if
 				0 10 rnd case
 					0 of 1 endof
@@ -120,6 +183,11 @@ extrahatcheck
 		then
 		
 	3 <- chara .charm! // Noticed that this stat was being assigned but not used, so it's now set to 3
+	
+	// General thoughts: A lot of the new character options in LIVER are unusual, so probably shouldn't be used for random characters. The below would make them for custom characters, only
+	0 15 rnd <- chara .skincolour! // skin colors 16 through 23 are new in LIVER
+	0 30 rnd <- chara .headtype! // heads 28 through 31 are new in LIVER, moving the weirdest ones to last
+	
 	<- chara .default-ai-setup
 	<- chara
 ;
@@ -151,3 +219,7 @@ extrahatcheck
 voc{ cyoa
 
 }
+
+: road? game.location LOCATION_ROAD = ;
+: mission? game.location LOCATION_MISSION = ;
+

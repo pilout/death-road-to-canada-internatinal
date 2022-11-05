@@ -1,18 +1,27 @@
 // uses hack/region-downtown-test.df
-uses paul/region-layout.df
+// uses paul/region-layout.df
 
 // "../deathforth/hack/gasbar.txt" $load-rooms
 // "additional-rooms.txt" $add-rooms
 
+
+uses paul/camping-tent-events.df
+
+
 map{ regiondef{
 
-: wooded xyp.xy tile>pos 0 1 frnd * pine lt .pos! lt .sprw 0.5 * 4 + lt .wallbox.x! drift drift ;
+: wooded xyp.xy tile>pos 0 1 frnd * pine lt .pos! lt .sprw 0.5 * 4 + lt .wallbox.x! lt .drift lt .drift ;
 
-: spawnhere spawn xyp.xy tile>pos lt .pos! ;
+: treed xyp.xy tile>pos pine lt .pos! lt .sprw 0.5 * 4 + lt .wallbox.x! ;
+
+: treed-scatter treed scatter ;
+
+// : spawnhere spawn xyp.xy tile>pos lt .pos! ;
 
 : smallball bbox lt .rad.x@ lt .rad.y@ min 0 lt .rad.y! lt .rad.x! ;
 
 0 value splitdir
+0 value thetent
 
 : missionchar? #teamchar .party@ if 1 then; 0 ;
 
@@ -28,13 +37,47 @@ map{ regiondef{
 	<- tent <- thing .enter
 ;
 
-: camping-road-start
-	"SAY THAT WAS A NICE SLEEP, MAYBE SOMEONE GOT HEALED OR IS NOT SICK ANYMORE OR HAD A WEIRD DREAM OR SOMETHING"
-	$cyoa-ok-dialog
+
+: .leave-dirxy args( x y self )
+	<- self .pos <- x <- y xyadd <- self .face-pos // Turn towards desired exit dir
+	<- self .pos <- x <- y xynorm 8 xymul xyadd <- self .pos! // Nudge in that direction
+	<- self .leave
 ;
 
+
+: .leave-tent .thing@ args( self ) 0 1 <- self .leave-dirxy
+	0 <- self .cyoa!
+;
+
+
+: camping-tent-event
+	"SAY THAT WAS A NICE SLEEP, MAYBE SOMEONE GOT HEALED OR IS NOT SICK ANYMORE OR HAD A WEIRD DREAM OR SOMETHING"
+	$cyoa-ok-dialog
+
+//	pchar .leave-tent
+
+	 ' .leave-tent foreach-mission-char-shuffled
+;
+
+
+(* TODO:
+	- overnight tent card/deck events
+*)
+
 // NOTE: Could also queue this in the road stack as before... just testing new stuff
-: end-camping to-road 90 global_delay! -90 fade_to 1 ' camping-road-start timer_add ;
+// : end-camping to-road 90 global_delay! -90 fade_to 1 ' camping-road-start timer_add ;
+
+30 constant DELAY_FADE
+
+// : end-camping DELAY_FADE global_delay! DELAY_FADE neg fade_to 1 ' camping-tent-event timer_add ( timer_hint! );
+
+: end-camping DELAY_FADE neg fade_to ;
+
+
+: tent-events args( me eventid )
+;
+
+//	-30 fade_to
 
 : cyoa-tent args( thing )
 
@@ -43,9 +86,24 @@ map{ regiondef{
 	<- thing player .tent-enter
 	player team-follow-thing
 	0 <- thing .cyoa!
-	90 fade_to
+	DELAY_FADE fade_to
 
-	120 ' end-camping timer_add
+	DELAY_FADE 3 * ' end-camping timer_add
+;
+
+: tenthere spawnhere
+	special_objects48_base_id 0x 28 + lt .spriteid!
+	rnd5050 lt .flip!
+	bbox 0 lt .rad.y! 0.5 lt .rad.x@ * lt .rad.x!
+	15 lt .hitpoints!
+	100 lt .flammability!
+	1 lt .no_hit!
+	immovable
+	0.25 lt .wind!
+	splitdir 24 * lt .pos.x@ + lt .pos.x!
+	' cyoa-tent lt .cyoa!
+	particles_base_id 0x 3d + lt .action_icon!
+	lt to thetent
 ;
 
 : cyoa-chatter args( thing )
@@ -62,56 +120,8 @@ map{ regiondef{
 	repeat drop
 ;
 
-: tenthere spawnhere
-	special_objects48_base_id 0x 28 + lt .spriteid!
-	rnd5050 lt .flip!
-	bbox 0 lt .rad.y! 0.5 lt .rad.x@ * lt .rad.x!
-	15 lt .hitpoints!
-	100 lt .flammability!
-	1 lt .no_hit!
-	immovable
-	0.25 lt .wind!
-	splitdir 24 * lt .pos.x@ + lt .pos.x!
-	' cyoa-tent lt .cyoa!
-	particles_base_id 0x 3d + lt .action_icon!
-;
-
-
-: campfire-events args( me eventid )
-	<- eventid THING_EVENT_TIMER <> if then;
-	0.1 <- me
-
-	5 10 rnd <- me .timer!
-
-	hour 23 < hour 17 > and weather@ 0.2 < and if
-		special_objects48_base_id 0x 29 + <- me .spriteid!
-		10 onein if .flames else
-			rnd5050 if
-				.licks
-			else
-				.embers
-				rnd5050 if
-					sfx{ noise 0.1 0.25 frnd fx .scale! 1 5 frnd fx .pitch!
-						2000 5000 frnd fx .filt_high!
-						2 10 rnd fx .a!
-						5 15 rnd fx .d! 0.7 0.95 fx .q! }
-					<- me .adjust-vol
-				then
-			then
-		then
-
-		1 <- me .no_lighting!
-
-		<- me .clr.r@ 1 < if 1 else 0.9 then <- me .clr.r!
-		0.9 <- me .clr.g!
-		0.9 <- me .clr.b!
-
-	else
-		0 <- me .no_lighting!
-		special_objects48_base_id 0x 2a + <- me .spriteid!
-	then
-;
-
+: .campfire_on ( thing ) 0 swap .anim.state! ;
+: .campfire_off ( thing ) 1 swap .anim.state! ;
 
 : cyoa-fire
 	"HMMM WE COULD COOK AN EXTRA GOOD MEAL OR MARSHMALLOWS OR TELL SPOOKY STORIES OR HAVE AN NPC SHOW UP"
@@ -125,30 +135,81 @@ map{ regiondef{
 ;
 *)
 
+
+0 value the-campfire
+: my-campfire campfire-simple ' campfire-events lt .events! lt to the-campfire lt .campfire_on ;
+
+
+// Plot bush at TILE
+: solidbush ( TILE -- )
+	dup 0= if drop then;
+	dup TILE_BLOCK swap .id!
+	dup LAYER_WALLTOP special_objects32_base_id 0x b0 + 0 1 rnd + .lspriteid!
+	dup LAYER_WALLTOP 2 tile_layer.nrndshifts
+	LAYER_WALLTOP rnd5050 .tile_layer.flipx!
+;
+
+
+: solidrock args( tile )
+	<- tile 0= if then;
+	TILE_BLOCK <- tile .id!
+	<- tile LAYER_WALLTOP special_objects32_base_id 0x 9d + 0 2 rnd + .lspriteid!
+	<- tile LAYER_WALLTOP 2 tile_layer.nrndshifts
+;
+
+
+(* 
+: dirtstart xyp.x to dx xyp.y to dy ;
+: dirtend dx dy xyp.x xyp.y map{ 4dup dirtbox grasshole } ;
+
+: dirtup
+*)
+
+
+: digit? dup char 0 >= swap char 9 <= and ; 
+
+
 ' plotdirt >defer ft
 
 : pt
 	xyp.xy ft // Plot the current floor by default
 
-	xyp.i char c = if campfire-simple then;
+	xyp.i char B = if 0 #boulder xyp.xy tile>pos lt .pos! then;
+
+	xyp.i char r = if xyp.xy tile@ solidrock then;
+	xyp.i char b = if xyp.xy tile@ solidbush then;
+	xyp.i char x = if xyp.xy tile@ rnd5050 if solidrock else solidbush then then;
+
+	xyp.i char c = if my-campfire then;
 	xyp.i char C = if tenthere then;
-	xyp.i char t = if wooded then;
-	xyp.i char T = if wooded scatter then;
+	xyp.i char t = if treed then;
+	xyp.i char T = if treed-scatter then;
+	xyp.i char w = if wooded then;
+	xyp.i char S = if lt .scatter then;
+	xyp.i char D = if lt .drift lt .drift then;
+
+	// A stack parameter (0-9)! :D
+	xyp.i dup digit? if char 0 - exit else drop then;
+
 ;
 
+
+(* TODO:
+	- path leading up
+	- random interesting upper/lower map chunks
+*)
+
 "
-.....................
-.....................
-.....................
-.....................
-.....................
-.....................
-........t.t.t........
-.....t.t.t.t.t.t.....
-....t.t.t...t.t.t....
-...tt.....C.....tt...
-..tt.............tt..
-.tt.......c.......tt.
+xxx...............xxx
+xx.................xx
+xx.................xx
+x...................x
+x.......w.w.w.......x
+.....w.w.w.w.w.w.....
+....w.w.w...w.w.w....
+...ww.....C.....ww...
+..ww.............ww..
+.ww.......c.......ww.
 .....................
 .....................
 .....................
@@ -157,21 +218,38 @@ map{ regiondef{
 ....................."
 constant maplayout
 
+// 0 stack
+"
+xxx...............xxx
+xx.................xx
+x.....TTTTTTTT......x
+.....................
+.........xx..........
+........xxxx.........
+........xxxx.........
+.........xx..........
+.....................
+x...................x
+xx.................xx
+xxx...............xxx" // <s
+
+constant testmap
 
 "
+xxx...............xxx
+xx.................xx
+x...................x
+...x.............x...
 .....................
 .....................
 .....................
 .....................
-........T.T..........
-.......T.T.T.........
-........T.T..........
-.......T.T.T.........
-.....................
-.....................
-.....................
-....................."
-constant testmap
+...x.............x...
+x...................x
+xx.................xx
+xxx...............xxx" // <s
+
+constant testmap2
 
 : plotmap
 	0 -1 maplayout xyplot: pt
@@ -182,15 +260,44 @@ constant testmap
 	0 0 1 tint_far!
 ;
 
-: mapedgelink args( there edge here )
+: map-link-2-edges args( there edge here )
 
 	<- there <- edge <- here room_edge_map!
 	<- here <- edge 2 + <- there room_edge_map!
 ;
 
+: map-link-1-edge args( there edge here )
+	<- there <- edge <- here room_edge_map!
+;
+
+: map-unlink-joined-edge 0 args( edge here there )
+
+	<- edge <- here room_edge_map@ dup -> there
+	if
+		// If that there edge points here
+		<- edge 2 + <- there room_edge_map@ <- here = if 0 <- edge 2 + <- there room_edge_map! then
+	then
+
+	0 <- edge <- here room_edge_map!
+;
+
+
+// TODO: FIX - for some reason, args( ) messes with root{ behaviour, reverts to regiondef{ namespace after
 root{
+
+: rndpick 0 args( count ret )
+	 0 <- count 1- rnd pick -> ret
+	 <- count remove
+	 <- ret
+;
+
+}
+
+root{
+
 : hereedgelink@ ( edge ) curmapview room_edge_map@ ;
 : edgelinkback? args( edge ) <- edge 2 + <- edge curmapview room_edge_map@ room_edge_map@ curmapview = ;
+
 }
 
 0 constant lastmapid
@@ -205,13 +312,108 @@ root{
 	curmapview select
 ;
 
+
+(*
+	TODO:
+	- word to link up maps regularly
+	- word to link up maps all random wonky 
+*)
+
 (*
 	123
 	456
 	708
 *)
 
-: test 0 args( map )
+
+: maps-link-normal
+
+	// top left
+	7 EDGE_TOP 1 map-link-2-edges		// top wrap around
+	4 EDGE_BOTTOM 1 map-link-2-edges
+	3 EDGE_LEFT 1 map-link-2-edges 		// left wrap around 
+
+	// top middle
+	5 EDGE_TOP 2 map-link-2-edges		// top wrap around
+	5 EDGE_BOTTOM 2 map-link-2-edges
+	1 EDGE_LEFT 2 map-link-2-edges
+
+	// top right
+	8 EDGE_TOP 3 map-link-2-edges		// top wrap around
+	6 EDGE_BOTTOM 3 map-link-2-edges
+	2 EDGE_LEFT 3 map-link-2-edges
+
+	// middle left
+	1 EDGE_TOP 4 map-link-2-edges
+	7 EDGE_BOTTOM 4 map-link-2-edges
+	6 EDGE_LEFT 4 map-link-2-edges 		// left wrap around 
+
+	// middle middle
+	2 EDGE_TOP 5 map-link-2-edges
+	0 EDGE_BOTTOM 5 map-link-2-edges
+	4 EDGE_LEFT 5 map-link-2-edges
+
+	// middle right
+	3 EDGE_TOP 6 map-link-2-edges
+	8 EDGE_BOTTOM 6 map-link-2-edges
+	5 EDGE_LEFT 6 map-link-2-edges 		// left wrap around 
+
+	// bottom left
+	4 EDGE_TOP 7 map-link-2-edges
+	8 EDGE_LEFT 7 map-link-2-edges		// left wrap
+
+	// bottom right
+	6 EDGE_TOP 8 map-link-2-edges
+	7 EDGE_LEFT 8 map-link-2-edges
+;
+
+
+(*
+	123
+	456
+	7-8
+	 0
+*)
+
+
+: maps-link-wonky
+
+	// Top edge wonky-wrap
+	1 7 5 8 4 rndpick EDGE_TOP 1 map-link-1-edge
+	2 7 5 8 4 rndpick EDGE_TOP 2 map-link-1-edge
+	3 7 5 8 4 rndpick EDGE_TOP 3 map-link-1-edge
+
+	// Left edge wonky-wrap
+	1 3 6 8 4 rndpick EDGE_LEFT 1 map-link-1-edge
+	4 3 6 8 4 rndpick EDGE_LEFT 4 map-link-1-edge
+	7 3 6 8 4 rndpick EDGE_LEFT 7 map-link-1-edge
+
+	// Right edge wonky-wrap
+	3 1 4 7 4 rndpick EDGE_RIGHT 3 map-link-1-edge
+	6 1 4 7 4 rndpick EDGE_RIGHT 6 map-link-1-edge
+	8 1 4 7 4 rndpick EDGE_RIGHT 8 map-link-1-edge
+
+	// Bottom edge wonky-wrap
+	7 1 2 3 4 rndpick EDGE_BOTTOM 7 map-link-1-edge
+	8 1 2 3 4 rndpick EDGE_BOTTOM 8 map-link-1-edge
+	5 1 2 3 4 rndpick EDGE_BOTTOM 5 map-link-1-edge
+
+	// Start room rand connect
+	1 2 3 4 5 6 7 8 8 rndpick EDGE_TOP 0 map-link-2-edges
+
+
+;
+
+
+: maps-link-wonky2
+//	9 EDGE_TOP EDGE_LEFT rnd 5 map-link-2-edges
+	9 EDGE_TOP 5 map-link-2-edges
+;
+
+
+: test-unlink EDGE_TOP 5 map-unlink-joined-edge ;
+
+: create-maps 0 args( map )
 
 //	testmap $newmap
 //	lastmapid 0 curmapview mapedgelink
@@ -220,49 +422,51 @@ root{
 		testmap $newmap
 	next
 
-	6 EDGE_BOTTOM 3 mapedgelink
-	4 EDGE_BOTTOM 1 mapedgelink
+	testmap2 $newmap
+;
 
-	5 EDGE_BOTTOM 2 mapedgelink
-	3 EDGE_RIGHT 2 mapedgelink
-	1 EDGE_LEFT 2 mapedgelink
+: report-map player .mapid@ msg ;
+last 0 hotkey!
 
-	4 EDGE_LEFT 5 mapedgelink
-	6 EDGE_RIGHT 5 mapedgelink
-	0 EDGE_BOTTOM 5 mapedgelink
+(*
 
-	7 EDGE_LEFT 0 mapedgelink
-	8 EDGE_RIGHT 0 mapedgelink
+4 4 8 8 street_tiles_base_id 0x fd + map{ spritelot }
+4 4 8 8 map{ dirtbox }
 
-	4 EDGE_TOP 7 mapedgelink
-	6 EDGE_TOP 8 mapedgelink
 
-; last 0 hotkey!
+*)
 
 
 : site-setup
 	1 no_time!
 	// 1 light_mode!
-//	1 no_time! 1 light_mode!
-//	hour 19 < if 19 o'clock then
-	23 o'clock
+//	22 o'clock
 
-(*
-	0 0 0 tint_thing_near!
-	0 0.35 0.7 tint_thing_far!
-	0.1 0.1 0.25 tint_tile_far!
-	0 0 0 tint_tile_near!
-*)
 	rndsign to splitdir
 
 	-1 1 frnd wind_force!
 
 	' plotgrass to ft plotmap
-	mission{ no-leaving }
+//	' plotdirt to ft plotmap
+
+//	wipeon -30 fade_to
+	
+	team-camp-setup
+
+	create-maps
+	maps-link-normal
+//	maps-link-wonky
+//	maps-link-wonky2
+
+//	mission{ no-leaving }
 	mission{ no-edge-spawns }
 
-	-30 fade_to
-	team-camp-setup
+	mission{
+		0 mission-right-leave!
+		0 mission-left-leave!
+		0 mission-top-leave!
+	}
+
 
 	// NOTE: Don't let you just drive away! Or should we... (good way to abandon everyone)
 //	mission.vehicle@ if setup-vehicle then

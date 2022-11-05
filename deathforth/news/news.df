@@ -1,0 +1,120 @@
+
+voc{ news
+
+: news-off? gstats{ newschecked } BRANCHNAME $= ;
+
+// TITLE INFO
+
+		($ "My New Game:" .. cr$ .. "Cannibal Crossing" $) news_title!
+
+// NEWSBOX IMAGE INFO
+
+8 value imagecount
+3 sec>tick newsbox_ticker_dur!
+
+// BUTTONS INFO
+
+"See Trailer / Buy / Wishlist" value b0_text
+"http://www.cannibalcrossing.com" urlopener: b0_url
+
+"Official Discord" value b1_text
+"https://discord.gg/J7HChAa" urlopener:  b1_url
+
+"News Options" value b2_text
+
+
+0 value index
+
+: ticker_handler
+	($ "deathforth/news/" .. index .. ".png" $) newsbox_load_image
+
+	' index ++ index imagecount % to index
+;
+
+last newsbox_ticker_handler!
+
+
+b0_text		0 #news_btn_text!
+' b0_url	0 #news_btn_handler!
+b1_text 	1 #news_btn_text!
+' b1_url	1 #news_btn_handler!
+b2_text 	2 #news_btn_text!
+
+"http://www.twitter.com/rocketcatgames/" 	urlopener: rocketcat-twitter
+"http://www.facebook.com/rocketcatgames/" 	urlopener: rocketcat-facebook
+"http://www.twitter.com/madgarden/" 		urlopener: madgarden-twitter
+
+: show-news 
+	gstats{ 0 to newschecked save }
+	0 newsbox_disable!
+	0 0 #news_btn_disable!
+	0 1 #news_btn_disable!
+	0 2 #news_btn_disable!
+
+	1 refresh_layout!
+;
+
+: hide-news 
+	gstats{ BRANCHNAME to newschecked save }
+	// 0 news_enable!
+
+	1 newsbox_disable!
+	1 0 #news_btn_disable!
+	0 1 #news_btn_disable!
+	0 2 #news_btn_disable!
+
+	1 refresh_layout!
+;
+
+cyoa{
+
+cyoa-blank: social
+	"TWITTER AND FACEBOOK" cyoa-title!
+
+	"Read updates from Rocketcat Games on Twitter or Facebook for Death Road news and upcoming games!
+	Read Madgarden's Twitter for real Canadian Wisdom!" bbold text!
+	"We're quick to respond to feedback and suggestions on Twitter!" +crtext
+
+	choice( "Back" )choice
+	choice( "Rocketcat Twitter" )choice: rocketcat-twitter
+	choice( "Madgarden Twitter" )choice: madgarden-twitter
+	choice( "Rocketcat Facebook" )choice: rocketcat-facebook
+
+;
+
+cyoa-blank: weblinks
+	"NEWS OPTIONS" cyoa-title!
+
+	"Here are more ways to contact us, give feedback and suggestions, and see what we are up to for updates and new projects! 
+	We are very active on the Official Rocketcat Discord, where you can talk to us and other fans of our games." bbold text!
+	"You can also hide the news panel until the next major update." +crtext
+
+	choice( "Back" )choice
+	choice( "Twitter/Facebook" )choice: social
+	choice( "Official Rocketcat Discord" )choice: b1_url
+	news-off? if 
+		choice( "Show News" )choice: show-news
+	else
+		choice( "Hide News" )choice: hide-news
+	then
+;
+	
+}
+
+last 2 #news_btn_handler!
+
+: newschecker
+	1 news_enable! // Changing this to 0 shuts off news AND other stuff
+
+	news-off? if hide-news then;
+	
+	show-news
+	
+	// Uncomment below to hide news but not hide the news options and Discord buttons
+	hide-news
+	
+;
+
+newschecker
+
+}

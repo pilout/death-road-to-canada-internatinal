@@ -9,12 +9,13 @@ gstats{
 	perk-trademark 1 max +
 	perk-naturalshot 1 max +
 	perk-archer 1 max +
+	perk-pyro 1 max +
 ;
 
 : perk3-upgradecalc
 	// Total number of perks * 3 = possible upgrades
 	// Subtract by values of all perks added together with 1 max, floor of 1
-	7 3 * perk3-upgradetally -
+	8 3 * perk3-upgradetally -
 ;
 
 : perk3-unlocktally
@@ -26,11 +27,12 @@ gstats{
 	perk-trademark 0 > if 1 else 0 then +
 	perk-naturalshot 0 > if 1 else 0 then +
 	perk-archer 0 > if 1 else 0 then +
+	perk-pyro 0 > if 1 else 0 then +
 ;
 
 : perk3-unlockcalc
 	// Total number of perks, subtracted by total number of perks that are above 0
-	7 perk3-unlocktally -
+	8 perk3-unlocktally -
 ;
 
 : perk3-remaining
@@ -93,6 +95,12 @@ cyoa: perk3-archer-buy
 	"Bow and Arrows" "perk-archer" gstats{ perk-archer } perk-buy! ;
 cyoa-blank: perk3-archer
 	"Bow and Arrows" ARCHER_COST gstats{ perk-archer } ' perk3-archer-buy ' perk3back perk-confirm! ;
+	
+cyoa: perk3-pyro-buy
+	"THE PURIFYING FIRE" cyoa-title!
+	"Pyromaniac" "perk-pyro" gstats{ perk-pyro } perk-buy! ;
+cyoa-blank: perk3-pyro
+	"Pyromaniac" PYRO_COST gstats{ perk-pyro } ' perk3-pyro-buy ' perk3back perk-confirm! ;
 	
 (*
 cyoa: perk3-barbarian-buy
@@ -182,6 +190,9 @@ cyoa: perk3-dingus gstats{
 	then
 	perk-archer 3 < if 
 		"Bow and Arrows" ARCHER_COST perk-archer zpview ' perk3-archer perk-view!
+	then
+	perk-pyro 3 < if 
+		"Pyromaniac" PYRO_COST perk-pyro zpview ' perk3-pyro perk-view!
 	then	
 	(*
 	perk-barbarian 3 < if 

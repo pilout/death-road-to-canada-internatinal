@@ -1,0 +1,490 @@
+uses paul/region-layout.df
+// "../deathforth/rooms/TEMPROOM.txt" $load-rooms
+	
+" 
+:map 2 
+:tags prepperstairs
+:scriptA prepperturret 
+:size 7 10 
+:off 10 3 
+:tiles 
+2222222
+2333332
+21A1A12
+2111112
+2112112
+2112662
+2112662
+2112112
+2222222
+3333333
+
+:map 2
+:tags prepperend  
+:scriptA preppertrader
+:scriptB still-npc .redturretify
+:scriptC bed 
+:scriptD nkitchenset 
+:scriptE diningset 
+:scriptF nbathsetsmall 2 movex 
+:scriptG prepper-magchance 
+:scriptH livingset
+:size 27 23 
+:off 1 1 
+:tiles 
+000000000002222200000000000
+000000000002333200000000000
+000000000002111200000000000
+000000000002666200000000000
+000000000002666200000000000
+222222000002666200000002222
+233222222222666200000002332
+2C12223333326662000222221C2
+21133211F113111200023333112
+2A111211G111111222221111112
+211212222222212222221222112
+211213333333313333331232112
+2C12111111111111111112021C2
+222222221222222222122222222
+333233331333333333133332333
+0002111111111D111111A112000
+00021A111111111111111112000
+000211111122222221111A12000
+000211111122222221111112000
+00021111E123333321H11112000
+00021B111120000021111B12000
+000222222220000022222222000
+000333333330000033333333000
+"
+value PREPPERCAMP
+PREPPERCAMP $parse-rooms
+
+cyoa{
+
+: prepperturret-grab clear-cyoa deleteme goodfx turretgreen drop southofcyoa ;
+
+cyoa-choice: prepperturret-hack
+	cmechanic+ if
+		($ pname .. " uses their skills to figure out how to reset the turret into its deployable state!
+		" .. "FREE TURRET!" rainbold $) cyoa-text! mechanicREV prepperturret-grab
+	else
+		($ pname .. " tries to use brute force to smoosh the turret back into its carrying state!
+		" .. "GRAAAAAAAAAAAAAH!" rbold $) cyoa-text!
+		cstrength+ if
+			"Amazingly, this actually works!" +crtext prepperturret-grab
+		else
+			($ "This works about as well as you'd expect it to. In addition, " .. pname .. " gets shocked pretty badly." $) +crtext bitefx sting-- morale--
+		then strengthREV 
+	then
+;
+
+cyoa: prepperturret
+	"Turret Thief" cyoa-title!
+	picon!
+	($ "This turret is doing turret stuff. Whirring, scanning for hostiles, so on. Wow, look at it go!
+	One little problem: " .. "It's not YOUR turret!" rbold $) cyoa-text!
+		choice( "Leave it be" )choice
+		pchar charchoice( " tries to steal the turret" )choice: prepperturret-hack
+;
+
+0 value pt1-1
+0 value pt1-2
+0 value pt1-3
+
+cyoa-choice: trade-p1-3
+	($ Thegroup .. " buys a Napalm Thrower modded for double capacity!
+	" .. "Talk about friendly FIRE! Seriously, watch out for teammates." pbold $) cyoa-text! goodfx
+	100 WEAPON_NAPALM trunk.weapon+ -16 trunk-food+ someicon ' pt1-3 ++
+;
+
+cyoa-choice: trade-p1-2
+	($ Thegroup .. " buys a bazooka modded with eight rockets!
+	" .. "TOTAL carnage! I love it!" pbold $) cyoa-text! goodfx
+	8 WEAPON_BAZOOKA trunk.weapon+ -12 trunk-food+ someicon ' pt1-2 ++
+;
+
+cyoa-choice: trade-p1-1
+	($ Thegroup .. " buys a grenade launcher modded with 15 grenades!
+	" .. "See how many zombies you can splat at once!" pbold $) cyoa-text! goodfx
+	15 WEAPON_GLAUNCH trunk.weapon+ -12 trunk-food+ someicon ' pt1-1 ++
+;
+
+cyoa: preptrader1
+	"Carnage Weapons XL" cyoa-title!
+	($ "I've modded all of these already DEVASTATING weapons to have double capacity or more! You can't get these anywhere else!" pbold $) cyoa-text!
+	trunk-food 11 > if "NOW we're talking." +crtext then
+	basic-tone foodamt
+	trunk-food 12 < if
+		($ Thegroup .. " is DEVASTATED to learn that they can't afford anything." $) +crtext
+	else
+		choice( "Leave for now" )choice back-esc
+		trunk-food 15 > pt1-3 1 < and if
+			choice( "Napalm Launcher XL - 100 'palm - 16 food" )choice: trade-p1-3
+		then
+		trunk-food 11 > pt1-2 1 < and if
+			choice( "Bazooka XL - 8 shots - 12 food" )choice: trade-p1-2
+		then
+		trunk-food 11 > pt1-1 1 < and if
+			choice( "Grenade Launcher XL - 15 shots - 12 food" )choice: trade-p1-1
+		then
+	then
+;
+
+0 value pt2-1
+0 value pt2-2
+0 value pt2-3
+
+cyoa-choice: trade-p2-3
+	($ Thegroup .. " buys the " .. "Minigun!" fbold .. " It is the pinnacle of rifle ammo delivery!
+	" .. "I sold this at a massive discount because I accidentally got peanut butter stains on it." pbold $) cyoa-text! goodfx
+	1 WEAPON_MINIGUN trunk.weapon+ -35 trunk-food+ someicon ' pt2-3 ++
+;
+	
+cyoa-choice: trade-p2-2
+	($ Thegroup .. " buys the " .. "BIG DAWG" rbold .. ". It's a one of a kind custom shotgun! Every shot is a massive blast of zombie splattering." $) cyoa-text! goodfx ' pt2-2 ++
+	1 WEAPON_DAWG trunk.weapon+ -20 trunk-food+ picon
+;
+
+cyoa-choice: trade-p2-1
+	($ Thegroup .. " buys the " .. "GOLDEN PISTOL" rbold .. ". It has an unusual amount of power and shot penetration for a pistol, plus it is nice and shiny." $) cyoa-text! goodfx ' pt2-1 ++
+	1 WEAPON_GOLDPISTOL trunk.weapon+ -15 trunk-food+ picon
+;
+
+cyoa: preptrader2
+	"Pinnacle Weapons" cyoa-title!
+	($ "Welcome to " pbold .. "PREPPER PARADISE!" rainbold .. " I'm selling only the BEST weapons! The biggest shotgun, the fastest automatic rifle, and the shiniest pistol!" pbold $) cyoa-text!
+	basic-tone foodamt
+	trunk-food 15 < if
+		($ Thegroup .. " lacks enough food to buy anything!" $) +crtext
+		($ "Don't worry, I got you covered." pbold .. " The trader winks and then gives " .. thegroup .. " the " .. "LIL' DAWG!" rbold $) +crtext goodfx 1 WEAPON_LILDAWG trunk.weapon+ clear-cyoa
+	else
+		choice( "Leave for now" )choice back-esc
+		trunk-food 34 > pt2-3 1 < and if
+			choice( "Minigun - 35 food" )choice: trade-p2-3
+		then
+		trunk-food 19 > pt2-2 1 < and if
+			choice( "BIG DAWG Shotgun - 20 food" )choice: trade-p2-2
+		then
+		trunk-food 14 > pt2-1 1 < and if
+			choice( "Golden Pistol - 15 food" )choice: trade-p2-1
+		then
+	then
+;
+
+0 value pt3-1
+0 value pt3-2
+0 value pt3-3
+
+cyoa-choice: trade-p3-3
+	($ Thegroup .. " buys the " .. "Healing Spray XL!" rbold .. " Use it to heal yourself, or to damage a group of zombies.
+	" .. "Sometimes, I even spray it on my food." pbold $) cyoa-text! goodfx
+	10 WEAPON_HEALSPRAY trunk.weapon+ -10 trunk-food+ someicon ' pt3-3 ++
+;
+	
+cyoa-choice: trade-p3-2
+	($ Thegroup .. " buys a " .. "SURVIVAL KNIFE" rbold .. ". It's light, easy to swing even if exhausted, and can consistently hit two zombies in one slash." $) cyoa-text! goodfx ' pt3-2 ++
+	1 WEAPON_SURVKNIFE trunk.weapon+ -6 trunk-food+ picon
+;
+
+cyoa-choice: trade-p3-1
+	($ Thegroup .. " buys a " .. "BOW WITH 50 ARROWS" rbold .. ". Bows benefit from every stat: strength, fitness, and shooting all make bows more powerful." $) cyoa-text! goodfx ' pt3-1 ++
+	50 WEAPON_BOW trunk.weapon+ -5 trunk-food+ picon
+;
+
+cyoa: preptrader3
+	"Survival Gear" cyoa-title!
+	($ "I'm trading some affordable and effective survival gear!
+	Bows are great at taking down zombies silently, especially if you're athletic enough to use them well. If you have the food, I have a lot of extra arrows in stock." pbold $) cyoa-text!
+	basic-tone foodamt
+	trunk-food 5 < if
+		($ Thegroup .. " lacks enough food to even buy a bow!" $) +crtext
+		($ "The trader takes some pity on " .. thegroup .. " and hands out " .. "a free survival knife, and a bow with 12 arrows!" rbold $) +crtext goodfx 12 WEAPON_BOW trunk.weapon+ 1 WEAPON_SURVKNIFE trunk.weapon+ clear-cyoa
+	else
+		choice( "Leave for now" )choice back-esc
+		trunk-food 9 > pt3-3 1 < and if
+			choice( "Healing Spray XL - 10 Sprays - 10 food" )choice: trade-p3-3
+		then
+		trunk-food 5 > pt3-2 2 < and if
+			choice( "Survival Knife - 6 food" )choice: trade-p3-2
+		then
+		trunk-food 4 > pt3-1 8 < and if
+			choice( "Bow with 50 arrows - 5 food" )choice: trade-p3-1
+		then
+	then
+;
+
+: delta-good args( chara )
+	"Good " pchar .name@ $cat
+	"Bad " pchar .name@ $cat pchar .name!
+;
+
+: delta-cool args( chara )
+	"Cool " <- chara .name@ $cat
+;
+
+: deltrarecruit-rename
+	ricon recruitee .name! ($ "DELTA" pbold .. "'s name is now " .. rname .. "!" $) cyoa-text! goodfx
+;
+
+cyoa-choice: deltarecruit-name1
+	"Smellberto" deltrarecruit-rename
+	"What a completely awful new name! And yet, it does have a hint of the exotic." +crtext
+;
+
+cyoa-choice: deltarecruit-name2
+	"Harry Hamm" deltrarecruit-rename 
+	$( rname .. " was one of the most popular dog names, right before the Zombocalypse. Not to be confused with the very powerful human name, 'Harry Ham'." $) +crtext 
+;
+
+cyoa-choice: deltarecruit-name3
+	cchar delta-cool deltrarecruit-rename 
+	($ "This name is even more cool, somehow." $) +crtext
+;
+
+cyoa-choice: deltarecruit-name4
+	cchar delta-good deltrarecruit-rename 
+	"What a great name!" +crtext
+	($ pname .. " feels unhappy." $) +crtext
+	pchar .morale--
+;
+
+cyoa-bridge: deltarecruit-name
+	ricon "What should the supersoldier dog's new name be?" text!
+	choice( "Smellberto" )choice: deltarecruit-name1
+	choice( "Harry Hamm" )choice: deltarecruit-name2
+	choice( "Cool " .. rname )choice: deltarecruit-name3
+	choice( "Good " .. pchar .name@ )choice: deltarecruit-name4
+;
+
+cyoa-bridge: deltarecruit-go
+	ricon 4 recruitee .morale! clear-cyoa 0.25 recruitee .ai.wander_chance! 0 nearest .unseen!
+	($ "Now without a cause, DELTA decides to follow a new master...... YOU..........." rbold $) cyoa-text!
+	-10 trunk-food+ goodfx
+	
+	team-full? if
+		($ "The group is full.
+		Who would you like to replace to make room for " .. rname .. "?" $) +crtext
+		recruit-replace?
+	else
+		recruited
+		($ "Would you like to give " .. rname .. " a new name?" $) +crtext
+		choice( "NO" )choice
+		choice( "YES" )choice: deltarecruit-name
+	then
+	
+	WEAPON_SHOTGUN recruitee .weaponb! 	20 LOOT_SHOTGUN_SHELL recruitee .lootamt!
+;
+
+cyoa: deltarecruit
+	"PROJECT: DELTA" cyoa-title!
+	nearest .character@ choosechar cchar to recruitee ricon
+	($ cname .. " is a supersoldier dog trained by the government.
+	Now that the government has fallen, DELTA seeks a new master......... for the right price........" rbold $) cyoa-text!
+	" (About 10 cans of food)" bbold +text basic-tone
+	trunk-food 9 > if
+		choice( "Leave for now" )choice
+		choice( "Recruit DELTA - 10 food" )choice: deltarecruit-go
+	else
+		choice( "Can't spare the food" )choice
+	then		
+;
+	
+}
+
+roomgen{
+
+
+: .pt1 args( ch ) 
+	10 <- ch .hattype! // Helmet, modded explosives
+;
+: .pt2 args( ch ) 
+	11 <- ch .hattype! // General's Hat, fancy weapons
+;
+: .pt3 args( ch ) 
+	12 <- ch .hattype! // Camo Hat, cheap survival
+;
+
+: preptradercommon
+	still-npc regiondef{ ' trader-event lt .events! 1 lt .timer! }
+	
+;
+
+: preptrader1
+	preptradercommon .pt1 cyoa{ ' preptrader1 cyoa! }
+;
+
+: preptrader2
+	preptradercommon .pt2 cyoa{ ' preptrader2 cyoa! }
+;
+
+: preptrader3
+	preptradercommon .pt3 cyoa{ ' preptrader3 cyoa! }
+;
+
+: preptrader4
+	preptradercommon .deltaify cyoa{ ' deltarecruit cyoa! }
+;
+
+		0 stack
+			' preptrader1 shove
+			' preptrader2 shove
+			' preptrader3 shove
+			' preptrader4 shove
+		value preptrader-base
+		preptrader-base shuffles var preptrader-picker
+
+: preppertrader
+	preptrader-picker depths 0= if preptrader-base shuffles to preptrader-picker then pops nip execute ;
+
+: prepperturret
+	still-npc .greenturretify cyoa{ ' prepperturret cyoa! } ;
+
+}
+
+locdef{
+
+location: preppercamp
+		max-rooms: 2
+		entry-tags: prepperstairs
+		script: set-theme-bunker
+		pre-script: set-theme-bunker
+		post-script: nad 0 %zombs
+		
+		: prepstart
+			s edge-inc s random-edge-door "prepperend" only-with-door
+		;
+		
+		
+		room-choice: prepperstairs
+			room-weight: 10
+			room-count: 1
+			room-post-script: prepstart
+			filter-only
+		
+		room-choice: prepperend
+			room-weight: 10
+			room-count: 1
+			filter-only
+
+}
+		
+root{
+
+: prepper-magchance
+	20 %chance if
+		magazine 0 4 rnd cyoa{ to bookmagtype ' bookmag-get cyoa! } 50 health! drift
+	then
+;
+
+}
+		
+map{ regiondef{
+
+trade-camp-reset
+
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+0 value bfx
+0 value bfy
+
+: bldg tanchor!
+	"preppercamp" $picklocid addloc
+
+	prefab{ 5 bunker }
+	
+;
+
+: preplogs-big
+	2 for biglog 50 %chance if 40 160 else 270 390 then rnd 30 120 rnd lt .pos! next
+	ultimalog 10 420 rnd 10 40 rnd lt .pos!
+	// lt-here 60 rdrift
+;
+
+: pt
+	
+	xyp.i char 1 = if xyp.x to bfx then;
+	xyp.i char 2 = if bfx xyp.y xyp.x barbfence then;
+
+	xyp.i char t = if pine lt-here drift then;
+	// xyp.i char S = if trader-food-for-gas then;
+	xyp.i char U = if tnomey-spawn then;
+	xyp.i char W = if trader-weapon-buyer then;
+	
+	xyp.i char L = if 2 for log lt-here 40 rdrift next then;
+	xyp.i char B = if preplogs-big then;
+	
+	xyp.i char @ = if xyp.xy bldg then;
+
+	xyp.i char 5 = if xyp.xy to gby to gbx then;
+	xyp.i char 6 = if gbx 1- gby xyp.xy swap 1+ swap 4dup gravelbox grasshole then;
+	
+	xyp.i char < = if xyp.xy to gby2 to gbx2 then;
+	xyp.i char > = if gbx2 1- gby2 xyp.xy map{ 4dup dirtbox grasshole } then;
+;
+
+"
+...........................
+..t.t.t.t.t.t.t.t.t.t.t.t..
+.......................B...
+..t.t.....5...........t.t..
+...........................
+..t.t.................t.t..
+...........................
+..t.t..L...........L..t.t..
+...........@...............
+..t.t.................t.t..
+................6..........
+..t.t.................t.t..
+...........................
+..t.t.................t.t..
+...........................
+.<.........................
+1..........2....1.........2
+......W.............U......
+...........................
+...........>...............
+...........................
+...........................
+...........................
+...........................
+...........................
+...........................
+..........................."
+constant maplayout
+
+: specialcamp-6
+	0 -1 maplayout xyplot: pt
+;
+
+
+: site-setup
+
+	// Clear the map with grass
+	-1 -1 w h grassbox
+
+	// Plot trader stuff
+	specialcamp-6
+
+	// Add dirt road at bottom
+	-1 h 5 - w h 4dup map{ dirtbox grasshole }
+
+	1 no_time!
+	7 14 rnd o'clock
+	50 %chance if 1 2 frnd weather! -1 -2 frnd wind_force! else 1 2 frnd wind_force! then
+	
+	mission{ no-edge-spawns }
+	
+	18 %mv-up
+	30 %chars-up
+;
+
+	 region: specialcamp-6
+		w: maplayout layoutw
+		h: maplayout layouth
+
+		trade-mode
+
+		post-script: site-setup
+} }

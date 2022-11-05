@@ -24,6 +24,7 @@
 	enum CAR_WIENER
 	enum CAR_RUSTY_TRUCK
 	enum CAR_SNOWPLOW
+	enum CAR_BUS
 constant CAR_COUNT
 
 CAR_COUNT array var car-list
@@ -545,6 +546,8 @@ CAR_STARTER value starting-car
 	CAR_WIENER		' get-car-wiener	cartype
 	CAR_RUSTY_TRUCK	' get-car-rusty		cartype
 	CAR_SNOWPLOW	' get-car-rusty		cartype
+	
+	CAR_BUS			' get-car-rusty		cartype
 
 ; car-list-init
 
@@ -582,6 +585,17 @@ DOT1 value DOT
 : +repairstatus +purple "chassis" +text +white ;
 : +wearstatus +purple "engine" +text +white ;
 : +armourstatus +purple "armour" +text +white ;
+: +carspeed 
+	car-speed 2 < if 
+		+red "Slow"
+	else
+		car-speed 2 = if
+		+blue "Average"
+		else
+		+green "Fast"
+		then
+	then +text +white 
+;
 
 // TODO: Days left to CANADA
 : +canadadays +red road{ nearcanada-day 1 + road-trip-days - } +text +white ;
@@ -637,6 +651,8 @@ DOT1 value DOT
 			+armourstatus +cr
 		then
 		
+		+purple 2 +gaps "Car Speed:" +text 2 +gaps +carspeed +cr
+		
 		gamedef{ ' endlessmode gamemode? } if
 		
 			road{ road-trip-days } 2 < if 
@@ -652,6 +668,7 @@ DOT1 value DOT
 		then;
 		
 		+cr "Only " +text +canadadays " driving days until CANADA!!!" +text +cr
+		
 	then;
 
 	road{ road-trip-days nearcanada-day < } if
@@ -662,6 +679,7 @@ DOT1 value DOT
 	then;
 	
 	"Only " +text +canadadays " days until CANADA!!!" +text +cr	
+	
 ;
 
 }

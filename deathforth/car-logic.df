@@ -448,13 +448,17 @@ cyoa: carkeyz
 
 } }
 
+: spawn-locked-car-noloot
+	1 17 rnd spawncar mission{ cyoa{ ' cyoa-locked-car cyoa! } }
+	0 lt .action_icon!
+;
+
 : spawn-locked-car 
 	50 %chance if
 		tireiron 50 %chance if -8 else 8 then movex .drift
 	then
 	10 30 rnd LOOT_GAS spawnloot 6 8 rnd movey 50 %chance if 2 else 10 then movex 
-	1 17 rnd spawncar mission{ cyoa{ ' cyoa-locked-car cyoa! } }
-	0 lt .action_icon!
+	spawn-locked-car-noloot
 ;
 
 : carkeys keychain scatter mission{ cyoa{ ' carkeyz cyoa! } } delete-covering ;
@@ -467,5 +471,10 @@ cyoa: carkeyz
 	<- car .pos.y@ camera.pos.y!
 ;
 
+: bag-me dufflebag ;
+: bag-me-out bag-me map{ pixelw 2 / lt .pos.x! pixelh lt .pos.y! } ;
+
 : scale-car-up args( pct car ) map{ pixelh dup <- pct * - } <- car car-map-posy ;
-: %mv-up mv@ 0= if drop then; 0 100 clamp 100 / mv@ scale-car-up ;
+: %mv-up 0 100 clamp 100 / mv@ dup 0= if 
+		drop bag-me-out lt 
+	then scale-car-up ;

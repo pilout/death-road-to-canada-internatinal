@@ -42,7 +42,7 @@
 : gS solo if "" else "S" then ;
 
 : gare solo if "est" else "sont" then ;
-: gwere solo if "was" else "were" then ;
+: gwere solo if "etait" else "etaient" then ;
 : gtheywere gthey .. " " .. gwere ;
 : gtheyare gthey .. " " .. gare ;
 : gTheyare gThey .. " " .. gare ;
@@ -152,9 +152,9 @@
 : wits++ STAT_WITS cchar .stat++ ;
 
 : strength++ STAT_STRENGTH cchar .stat++ gstats{ ' total-str+ ++ } stat-cheevs ;
-: medical++ STAT_MEDICAL cchar .stat++ gstats{ ' total-med+ ++ } stat-cheevs ;
-: mechanic++ STAT_MECHANICAL cchar .stat++ gstats{ ' total-mech+ ++ } stat-cheevs ;
-: shooting++ STAT_SHOOTING cchar .stat++ gstats{ ' total-shoot+ ++ } stat-cheevs ;
+: medical++ STAT_MEDICAL cchar fastlearn-stat gstats{ ' total-med+ ++ } stat-cheevs ;
+: mechanic++ STAT_MECHANICAL cchar fastlearn-stat gstats{ ' total-mech+ ++ } stat-cheevs ;
+: shooting++ STAT_SHOOTING cchar fastlearn-stat gstats{ ' total-shoot+ ++ } stat-cheevs ;
 : fitness++ STAT_FITNESS cchar .stat++ gstats{ ' total-fit+ ++ } stat-cheevs ;
 
 : ricon recruitee character# cyoa-char-icon! ;
@@ -588,7 +588,7 @@ cyoa-choice: chicken-free
 	"The chicken leaves behind an egg!
 	This is a sign of good luck! Probably." text!
 	morale++all goodfx
-	1 WEAPON_EGG trunk.weapon+
+	1 weapondef{ WEAPON_EGG } trunk.weapon+
 ;
 
 root{ defer freechicken-cheevo }
@@ -1064,10 +1064,11 @@ cyoa-choice: altar-1
 	ouch2- bitefx 300 tint_trigger 0 light_mode!
 	alive? if 
 		($ cHe .. " manages to survive, and feels different than before." $) +crtext goodfx
-		33 %chance if strength++ else 50 %chance if fitness++ else shooting++ then then
+		strength++ fitness++ shooting++
 	else
 		($ "For " .. chis .. " sacrifice, the altar bestows a gift!
 		In the distance, a " .. "spooky goblin" fbold .. " laughs in a goblin-like fashion." $) +crtext
+		33 %chance if ' .strength++ else 50 %chance if ' .fitness++ else ' .shooting++ then then foreach-team-char
 		goblin-laugh
 		0 6 rnd case
 		0 of 30 sshot altarpush shotgun southofaltar endof
@@ -1092,6 +1093,7 @@ cyoa: altar
 	($ cname .. " stands near a stone altar. It must be the source of the ominous feeling coming from this entire place.
 	The altar seems " .. "extremely dangerous!" rbold .. " It's a bit weird that someone would have this in their house.
 	It probably shouldn't be messed with!" $) text!
+	"WARNING: WILL KILL ANYONE NOT AT FULL HEALTH!" rbold +crtext
 		choice( "Have " .. cname .. " touch altar" )choice: altar-1
 		choice( "Leave altar alone for now" )choice
 ;
@@ -1144,6 +1146,8 @@ cyoa: altar
 	1 lt .unseen! 0 lt .leaveok! 
 	npc@rescue lt cyoa{ ' dogrescue cyoa! } drop 
 ;
+
+// FIXME: Things like these NPC words should be somewhere else
 : inside-npc new-npc 0 lt .leaveok! 1 lt .unseen! lt .character@ ;
 : still-npc new-npc 0 lt .leaveok! 1 lt .unseen! 0 lt .character@ .ai.wander_chance! 185 rnd5050 + lt .aim_angle! lt .character@ ;
 : nomove-npc new-npc lt .character@ args( ch )

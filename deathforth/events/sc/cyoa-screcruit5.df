@@ -78,6 +78,115 @@ cyoa: feb14-scget
 		choice( "Too mushy for me" )choice
 ;
 
+// HALLOWEEN Event
+
+
+cyoa-choice: sans-test
+	"WHOAAAAAAAAAAAAAAAAAAAAAAAAA!" cyoa-title!
+	"Excellent choice! Here you go!" cyoa-text! goodfx
+	char-gen to recruitee recruitee .skelify
+	"Cameo Character" recruitee .name!
+	recruited
+;
+
+: sans2-test
+	sans-test ' .skelify foreach-team-char
+;
+
+cyoa-choice: halloween-cameos2
+	"EVEN BETTER CAMEOS" cyoa-title!
+
+	($ "Don't worry! we have more cameos lined up! Lots more! " .. "4 more!" rainbold $) cyoa-text! goodfx
+	
+	choice( "Freddie, the one from FNAF Part 12 [?]" rbold )choice: sans-test
+	choice( "Your favorite cameo character from FNF" rbold )choice: sans-test
+	choice( "The very often requested " .. "SHREK from FNFAFNF 8" rbold )choice: sans-test
+	choice( "Pick Sans after all, and regret not doing so sooner" )choice: sans2-test
+;
+
+cyoa-choice: halloween-cameos
+	"CAMEOS TIME" cyoa-title! picon
+
+	($ "Crossover cameos from popular videogames???? " .. "WHOAAAAAAAAAAAAAAAAAAAAA!" rbold .. " 
+	Finally! But choose wisely, because we'll only offer this one day a year! " .. "On HALLOWEEN" rainbold $) cyoa-text! goodfx
+	
+	"DEVELOPER NOTE: We will update this every year so we're on the cutting edge of cameos" bbold +crtext
+	
+	choice( "Sans and Helvetica from Undertale" rbold )choice: sans2-test
+	choice( "Amogus from Among Us" rbold )choice: sans-test
+	choice( "Fall Guys I guess?" rbold )choice: sans-test
+	choice( "Not good enough, I " .. "NEED" rbold .. " to see more options" )choice: halloween-cameos2
+;
+
+cyoa-bridge: event-dracula
+	"Just Like in My Twilight Novels" cyoa-title!
+	char-gen to recruitee ricon 4 recruitee .morale! recruitee .dracufy
+	($ "Hey, it's Dracula! Hi, Dracula." $) text! " BLUHD! BLAUGH!" rbold +text
+	($ pname .. " never thought " .. phe .. "'d meet a celebrity! He doesn't mind doing some of his catchphrases." $) +crtext
+	recruitee .fitnessREV goodfx
+	($ "Should " .. pname .. " recruit " .. rname .. "? He seems pretty lonely from being stuffed in a crypt for so long." $) +crtext
+	recruit-yesno
+;
+
+cyoa-choice: halloween-monsters
+	"MONSTER TIME" cyoa-title!
+
+	($ "You made the right choice! The candy from the " .. "TREAT" bbold .. " option was " .. "EXTREMELY poisonous." rbold .. " 
+	Pick your favorite monster, as a reward:" $) cyoa-text! goodfx
+	
+	choice( "A funny " .. "clown" rbold )choice: clown-test
+	choice( "MASON" rbold .. ", the friendly monster" )choice: mason-test
+	choice( "G*RF" rbold .. ", the Bane of Mondays" )choice: grf-test
+	choice( "DRACULA" rbold .. ", a celebrity cameo" )choice: event-dracula
+;
+
+cyoa-choice: halloween-treat
+	"Halloween Candy" cyoa-title!
+
+	($ "You made the right choice! If you picked any other option, I would have " .. "destroyed all your characters, instantly!" rbold .. " Here's your reward." $) cyoa-text! goodfx
+	"You got a single piece of hard candy.
+	It smells like the inside of a really old purse." bbold +crtext
+	1 trunk-food+
+	
+	choice( "THANKS " .. "a lot Obama" bbold )choice
+;
+
+
+cyoa-choice: halloween-hand2
+
+	($ cname .. " loses " .. chis .. " boring old hand and gets a " .. "Chainsaw Hand!" rainbold .. " This might be the most festive Halloween ever!" $) cyoa-text!
+	ctakeweapons WEAPON_CHAINHAND cchar .weapona! 1 cchar .weapon_nodropa!
+	cchar .trait@ "Specialist" $= if
+		($ cname .. " feels INCREDIBLY smug!" rainbold $) +crtext
+		2 cchar .carrying.slot_count! morale4+
+	then goodfx
+
+	choice( "Happy Halloween!" )choice
+
+;
+
+cyoa-bridge: halloween-hand
+	"Chainsaw Hand" cyoa-title! picon
+	solohuman if
+		choosehuman cchar halloween-hand2
+	then;
+	"Nothing quite says Halloween like replacing your hand with a chainsaw!
+	Who do you want to give a chainsaw hand to?" text!
+	' halloween-hand2 cyoa-human-choice
+;
+
+cyoa: halloween-event
+	"Halloween SCARETACULAR" cyoa-title!
+	($ "It's " .. "HALLOWEEN!" fbold .. " Get ready for a " .. "SPOOKY" fbold .. " experience!
+	You can pick from the following list of " .. "TRICKS" rbold .. ", or go for the safe, delicious, but boring option of a " .. "TREAT." bbold $) cyoa-text! basic-tone
+
+		choice( "TRICK: " rbold .. "Recruit a MONSTER" )choice: halloween-monsters
+		choice( "TRICK: " rbold .. "Popular game cameo crossover!" )choice: halloween-cameos
+		choice( "TRICK: " rbold .. "Get a CHAINSAW HAND" )choice: halloween-hand
+		choice( "Give me that " .. "TREAT" bbold )choice: halloween-treat
+
+;
+
 } }
 
 

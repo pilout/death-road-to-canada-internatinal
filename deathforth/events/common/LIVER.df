@@ -1,0 +1,285 @@
+
+// Various LIVER Events
+
+
+
+cyoa{ road{ 
+
+// Military Bunker
+
+cyoa: liver-mbunker
+	"Ruined Military Depot" cyoa-title!
+	($ Thegroup .. " drives through the remains of a military depot. Everything is burnt and collapsed into rubble, with the exception of an isolated concrete bunker.
+	" .. "WARNING: EXTRA SPICY CENTER!" fbold $) cyoa-text! basic-tone
+	2.4 12 16 rnd 0 zforecast // former 3.5, 2.4
+	"events/rareloc/region/mdepot.df" $load-region
+		choice( "Check it out" )choice: premission
+;
+
+cyoa-bridge: stamp-efudd-recruit
+	ricon
+	"THE CLIMACTIC STAMP BATTLE" cyoa-title!
+	"[STAND NAME] NUGS Chungus   [STAND MASTER] E*FUDD" bbold cyoa-text!
+	"DESTRUCTIVE POWER: S+   SPEED: C   RANGE: A
+	DURABILITY: S+   PRECISION: A   POTENTIAL: S" pbold +crtext goodfx
+	team-count 3 > if
+		"This man's body and hat already take up way too much room! Who should leave?" +crtext recruit-replace?
+	then;
+		recruited
+;
+
+cyoa: stamp-efudd-event
+	50 to stampuser-countdown
+	"Unfathomable Power" cyoa-title!
+	char-gen to recruitee
+	recruitee .efuddify ricon
+	3 recruitee .morale!
+	($ Thegroup .. " sees yet another extremely buff man walking by the side of the road. This one seems even more buff than the others, though maybe it's just due to the enormous hat.
+	" .. pname .. " takes one look and knows he is a 'Stamp User'. " .. pname .. " frowns intensely." $) cyoa-text! basic-tone
+	"YES, IT'S ME! E*FUDD!" pbold +crtext
+	"TRANSLATORS NOTE: WE HAD TO CHANGE E*FUDD'S STAMP NAME TO AVOID COPYRIGHT ISSUES, DESPITE THIS BEING AN ILLEGAL BOOTLEG TRANSLATION ANYWAY" rbold +crtext
+		choice( "Recruit him! Do it!" )choice: stamp-efudd-recruit
+		choice( "Don't recruit him, making a terrible mistake" )choice
+;
+
+cyoa-bridge: stamp-ziggy-recruit
+	ricon
+	"INTRODUCED IN SECOND HALF OF THE ANIME" cyoa-title!
+	"[STAND NAME] GIANT-DAWG   [STAND MASTER] Ziggy (the Dog)" bbold cyoa-text!
+	"DESTRUCTIVE POWER: C   SPEED: B   RANGE: B
+	DURABILITY: B   PRECISION: B   POTENTIAL: A" pbold +crtext goodfx
+	team-count 3 > if
+		"There's too many people, and this dog needs stretching room! Who should leave?" +crtext recruit-replace?
+	then;
+		recruited
+;
+
+cyoa: stamp-ziggy-event
+	30 to stampuser-countdown
+	"Is this dog... a Stamp User????!" cyoa-title!
+	char-gen to recruitee
+	recruitee .ziggify ricon
+	3 recruitee .morale!
+	($ Thegroup .. " sees a dog walking down the road. 
+	It's subtle at first, but on closer inspection the dog is also extremely buff and has nice cheekbones. It's probably a 'Stamp User', whatever that is. It's still a mystery, really." $) cyoa-text! basic-tone
+	"SFX: [MENACING]" pbold +crtext
+	"TRANSLATORS NOTE: PLEASE DONATE SO I CAN CONTINUE MY TRANSLATIONS AND ALSO BUY A NEW MALL KATANA" rbold +crtext
+		choice( "Recruit the dog!" )choice: stamp-ziggy-recruit
+		choice( "Leave him be" )choice
+;
+
+cyoa-bridge: stamp-hheck-recruit
+	ricon
+	"JUST LIKE IN MY PART 3 ANIMES" cyoa-title!
+	"[STAND NAME] ProPAIN   [STAND MASTER] Henk Heck" bbold cyoa-text!
+	"DESTRUCTIVE POWER: A   SPEED: D   RANGE: B
+	DURABILITY: D   PRECISION: C   POTENTIAL: B" pbold +crtext goodfx
+	team-count 3 > if
+		"There's no room in the car for this hard working man! Who should leave?" +crtext recruit-replace?
+	then;
+		recruited
+;
+
+cyoa: stamp-hheck-event
+	10 to stampuser-countdown
+	"ProPAIN and ProPAIN Accessories" cyoa-title!
+	char-gen to recruitee
+	recruitee .hheckify	ricon
+	3 recruitee .morale!
+	($ Thegroup .. " sees another extremely buff man walking by the side of the road. He is carrying a propane tank.
+	This man also claims to be a 'Stamp User', though " .. pname .. " still has no idea what this means and also interrupts any explanation." $) cyoa-text! basic-tone
+	"BWAAAAAAAAAAH!" pbold +crtext
+	"TRANSLATORS NOTE: IN THE ORIGINAL JAPANESE, THIS WAS 'EHHHHHHHHH???!!!'" rbold +crtext
+		choice( "Recruit him!" )choice: stamp-hheck-recruit
+		choice( "Leave him be" )choice
+;
+
+// Blank
+(*
+cyoa-choice: LIVER--
+
+;
+
+cyoa: LIVER-
+	" " cyoa-title!
+	($ " " $) text!
+		choice( " " )choice
+		choice( " " )choice
+;
+*)
+
+: roadstandcheck
+	stampuser-countdown 49 > if then;
+	stampuser-countdown 38 > if 
+		' stamp-efudd-event stack-road-action
+	then;
+	stampuser-countdown 29 > if then;
+	stampuser-countdown 15 > if 
+		' stamp-ziggy-event stack-road-action
+	then;
+	stampuser-countdown 9 > if then;
+	stampuser-countdown 3 > if
+		' stamp-hheck-event stack-road-action
+	then;
+;
+
+} }
+
+cyoa{ regiondef{
+
+// Tribute
+
+: rom-bye ($ "Good luck out there. I think you can make it." pbold $) +crtext clear-cyoa goodfx ;
+
+cyoa-choice: trade-tribute-weapons
+	"He gives you a very genre-savvy loadout of weapons." cyoa-text!
+	20 add-shell 20 add-gas
+	machete2 drop southofcyoa drop
+	dshotgun drop southofcyoa drop
+	chainsaw drop southofcyoa drop
+	rom-bye
+;
+
+cyoa-choice: trade-tribute-advice
+	"A little bit of advice can go a long way." cyoa-text!
+	' .strength++ foreach-team-char
+	' .fitness++ foreach-team-char
+	' .shooting++ foreach-team-char
+	rom-bye
+;
+
+cyoa: trade-rare-tribute
+	"Humble Assistance" cyoa-title!
+	nearest .character@ choosechar cchar to recruitee ricon
+	($ "You meet an older man who seems to radiate kindness. " .. Thegroup .. " talks to him for awhile, about nothing in particular. It's a pleasant conversation." $) cyoa-text!
+	morale++all
+	($ "Well, I think I'll help you out a little bit." pbold $) +crtext
+	"He gives you a small gift before you leave:"
+	basic-tone +cr
+		choice( "A few decent weapons" )choice: trade-tribute-weapons
+		choice( "Some good advice" )choice: trade-tribute-advice
+;
+
+} }
+
+0 value the-rom
+
+cyoa{
+
+cyoa: rom-dead
+	the-rom choosechar cicon
+	"YOU'VE REALLY DONE IT NOW" cyoa-title!
+	($ "With this character's death, the thread of prophecy is severed. Restore a saved game to restore the weave of fate, or persist in the doomed world you have created." rbold .. "
+		
+	Just kidding about the saved game part. " .. "YOU LOSE!
+	YOU LOSE!
+	YOU DINGUS!" fbold $) text!
+	sfx{ creepy }
+	clear-streak delete-the-game
+	mission{ killtally }
+	choice( "UH WOOPS" )choice: quit-to-title
+	choice( "DANG IT" )choice: quit-to-title
+;
+
+}
+
+: rom-main-events args( chara eventid )
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	// Thing events
+	( teid )
+
+	THING_EVENT_DIED ?( <- chara to the-rom cyoa{ rom-dead } );
+
+;
+
+: .romify args( chara )
+	111 <- chara .specialtype!
+	99 <- chara .vitality!
+	99 <- chara .health!
+	"Director" <- chara .name!
+	"is a legend, and the reason that this game even exists. That and everything in this entire genre." <- chara .job!
+	100 STAT_FITNESS <- chara .bonus!
+	100 STAT_SHOOTING <- chara .bonus!
+	100 STAT_STRENGTH <- chara .bonus!
+	WEAPON_MASTERKUNG  <- chara .weapon_default!
+	' rom-main-events <- chara .main_events!
+;
+
+: .deltaify args( chara )
+	<- chara .doggify
+	<- chara statmod{ .superdog }
+	3 <- chara .shooting!
+	6 <- chara .composure!
+	"DELTA" <- chara .name!
+	3 STAT_SHOOTING <- chara .bonus!
+	
+	2 <- chara .carrying.slot_count!
+	<- chara .yesswap
+	
+	"is a supersoldier trained by the US Government to reach combat potentials that can exceed normal humans/dogs." <- chara .job!
+;
+
+(* road{
+
+// Just used the simpler shortrare.df method instead
+
+	: CHARBRO-oneline1 "GOOD GRIEF!" ;
+	: CHARBRO-oneline2 "GOOD GRIEF!" ;
+	: CHARBRO-oneline3 "GOOD GRIEF!" ;
+	: CHARBRO-oneline4 "YARE YARE DAZE" ;
+	: CHARBRO-oneline5 "YARE YARE DAZE" ;
+	: CHARBRO-oneline6 "YARE YARE DAZE" ;
+	: CHARBRO-oneline7 "GOOD GRIEF! 'Translator's Note: This loosely means YARE YARE DAZE" ;
+	: CHARBRO-oneline8 "I feel like trying to open every wall for secret doors." ;
+	: CHARBRO-oneline9 "Needs more radioactive barrels..." ;
+	: CHARBRO-oneline10 "This three gun limit sucks." ;
+	: CHARBRO-oneline11 "Back in the day I could carry nine guns at once!" ;
+	: CHARBRO-oneline12 "I get more plasms ammo by cramming batteries and gum wrappers into my gun." ;
+	: CHARBRO-oneline13 "I have a ton of these chainsaws, I throw one away after each use." ;
+	: CHARBRO-oneline14 "I switched to disposable eco-friendly space chainsaws. No gas!" ;
+	: CHARBRO-oneline15 "I'm going to apologize in advance for accidentally blowing myself up." ;
+	: CHARBRO-oneline16 "I want all of the ammo!" ;
+
+	deck-new
+		card: CHARBRO-oneline1
+		card: CHARBRO-oneline2
+		card: CHARBRO-oneline3
+		card: CHARBRO-oneline4
+		card: CHARBRO-oneline5
+		card: CHARBRO-oneline6
+		card: CHARBRO-oneline7
+		card: CHARBRO-oneline8
+		card: CHARBRO-oneline9
+		card: CHARBRO-oneline10
+		card: CHARBRO-oneline11
+		card: CHARBRO-oneline12
+		card: CHARBRO-oneline13
+		card: CHARBRO-oneline14
+		card: CHARBRO-oneline15
+		card: CHARBRO-oneline16
+	constant CHARBRO-ONELINERS
+	CHARBRO-ONELINERS var charbro-oneliners
+	CHARBRO-ONELINERS shuffles to charbro-oneliners
+
+: CHARBRO-oneliner
+	charbro-oneliners depths 0= if CHARBRO-ONELINERS shuffles to charbro-oneliners then
+	blurbslot 0= if
+		drawcard blurbsay
+	then
+;
+
+	deck-new
+	16 cards: charbro-oneliner
+
+	constant BLURB-CHARBRO-DECK
+	BLURB-CHARBRO-DECK var blurb-charbro-deck
+	BLURB-CHARBRO-DECK shuffles to blurb-charbro-deck
+	
+} *)
+
+// LIVER testing words
+// : livert 40 trunk-food+ "events/trade/trader-camp-region-special6.df" $load-region to-mission ;
+// : liver1 "events/rareloc/region/mdepot.df" $load-region to-mission ;
+// : liver2 "events/trade/trader-camp-region-special1.df" $load-region to-mission ;

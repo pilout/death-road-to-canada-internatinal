@@ -1,0 +1,258 @@
+
+custom: Jackhammer
+	spriteid: 15 SHEET_ROW 6 +
+	weapon: jackhammer
+
+	reload: 0
+
+	power: 0.5
+	knockback: 1
+	cooldown: 1.25
+	
+	ammo_max: 80
+
+	melee_start_angle: -85
+	melee_windup_angle: -180
+	melee_end_angle: 90
+
+	melee_reach: 0
+	melee_shift.y: -3
+	melee_shift.x: -3
+	melee_aiming: 0
+	melee_start_angle: -75
+
+	lock_drift: 0.01
+	targeting: 0
+	
+	Atier
+
+	ammo_type: LOOT_GAS
+
+	// Jackhammer
+
+	func: WEAPON_FUNC_CUSTOM_AIMING
+
+
+	: jhamstrcheck .character@ STAT_STRENGTH swap .effstat 0.5 * 0.5 + 0 1 frnd > ;
+
+
+	: jhammer-anim-common args( me )
+
+		// Hammer out effect
+		<- me .weapon_state.off.x@ 1 > if
+			1 <- me .weapon_state.frame!
+
+			// PISTON noise
+			sfx{ -5 nextpri noise 2250 freq! 250 freq2! 2 a! 50 d! 0.75 1.25 frnd pitch! 0.1 scale!
+			<- me .adjust-vol }
+
+			0.7 <- me .pos xyblast .hitcheck.power!		// DAMAGE amount
+			4 lt .hitcheck.knockback!					// KNOCKBACK amount
+			4 lt .rad.x!								// HIT RADIUS
+			1 lt .hitcheck.mode!						// Don't hit players
+
+			// Aiming and weapon REACH
+			<- me .aim_angle@ anglexy 18 <- me .weapon_state.reach@ + xymul lt .pos xyadd lt .pos!
+
+			// Velocity needed for knockback
+			<- me .aim_angle@ anglexy 1 xymul lt .vel.y! lt .vel.x!
+
+			-1 lt .anim.substate! // Melee coloured blast
+		else
+			0 <- me .weapon_state.frame!
+		then
+
+		<- me .weapon_state.off.x@ 0.5 * <- me .weapon_state.off.x!
+	;
+
+
+	// Trigger the jackhammer activation if possible
+	: jhammer-trigger-common args( me )
+
+		<- me .action_cooldown@ if then;
+
+		// Check if piston is extended 
+		<- me .weapon_state.off.x@ 0.1 >= if then;
+
+		// PISTON OUT!
+		<- me .weapon_state.off.x@ 2 <- me .weapon_state.off.x!
+
+		// PISTON clank
+		sfx{ -5 nextpri ringmod 1000 freq! 1000 freq2!
+			4500 i! 350 j! 
+			1 a! 50 d! 0 filt! 1 1.025 frnd pitch! 0.5 scale!
+			<- me .adjust-vol }
+	;
+
+
+	: jhammer-running-gas? args( me )
+		<- me .ammocount <- me .weapon_state.info@ and
+	;
+
+
+	: jhammer-anim-gas args( me )
+		<- me jhammer-anim-common
+
+		// Animate cord-pull
+		<- me .weapon_state.angle_add@ 0.95 * <- me .weapon_state.angle_add!
+
+		// Stop engine if outta gas
+		<- me .ammocount 0= if 0 <- me .weapon_state.info! then;
+
+		<- me jhammer-running-gas? 0= if then;
+
+		// Engine sound
+		gameticks 1 & not if
+			sfx{ -6 nextpri pulse 100 freq! 90 freq2! 0.85 duty!
+				500 <- me .weapon_state.val@ 50 * + filt!
+				500 <- me .weapon_state.val@ 50 * + filt_high!
+				55 a! 5 d! 0 s!
+				0.7 <- me .weapon_state.val@ 0.04 * q!
+
+				0.9 1 frnd 0.6 * <- me .weapon_state.val@ 0.05 * dup * +
+					gameticks 5 % 0.05 * +
+					pitch!
+
+				0.5 scale! <- me .adjust-vol
+			}
+		then
+
+		// FUEL BURN RATES
+
+		<- me .weapon_state.val@ 5 > if // Revving
+			gameticks 40 % 0= if // ( chainsaw is 40 ticks )
+				<- me .useanammo
+			then
+		else
+			gameticks 160 % 0= if // ( chainsaw is 160 ticks )
+				<- me .useanammo
+			then
+		then
+
+		gameticks 3 & not if 23 <- me .weapon_state.val@ - onein if <- me .gas-smoke then then
+
+		// Rev down the engine
+		<- me .weapon_state.val@ 0.975 * <- me .weapon_state.val!
+	;
+
+
+	: rev-jhammer args( me )
+		// Engine rev amount
+		<- me .weapon_state.val@ 1 + 20 0 clamp <- me .weapon_state.val!
+	;
+
+
+	: jhammer-try-gas args( me )
+		<- me .action_cooldown@ if then;
+		<- me .ammocount 0= if then;
+
+		// Rev it
+		<- me jhammer-running-gas? if <- me rev-jhammer then;
+
+		// Pull the cord
+		10 <- me .shudder!
+		-6 <- me .pos.z!
+
+		<- me .flipx 90 * <- me .weapon_state.angle_add!
+
+		sfx{ dutypulse 300 freq! 50 freq2! 0 duty! 0.5 duty2!
+			4 value! 
+			500 d! 0.2 s! 50 r!  0.8 1 frnd pitch! 0.5 scale!
+			<- me .adjust-vol 
+		}
+
+		// Roll to start
+		<- me jhamstrcheck <- me .weapon_state.info!
+
+		// Retry delay/stun
+		50 <- me .action_cooldown!
+
+		<- me .action_cooldown@ 0.5 * <- me .stun!
+
+	;
+
+
+	: jhammer-trigger-gas args( me )
+		<- me .action_cooldown@ if then;
+
+		<- me jhammer-running-gas? if <- me jhammer-trigger-common then
+
+		<- me jhammer-try-gas
+	;
+
+
+	:noname args( me eventid )
+		<- me .carryid@ if then;		// Carrying something?
+		<- me .anim.state@ if then;		// Doing some animation?
+
+		// TODO: Check if needs started
+		<- eventid
+
+			THING_EVENT_SHOOT ?(
+				<- me jhammer-trigger-gas
+			);
+
+			THING_EVENT_ANIMATE ?(
+				<- me jhammer-anim-gas
+			);
+
+		drop
+	;
+
+	wielder_handler: last
+
+
+WEAPON_JACKHAMMER clone-to: E-Jackhammer
+	spriteid: 8 SHEET_ROW 13 +
+
+	weapon: ejhammer
+
+	ammo_type: 0
+
+	stack_max: 300
+	stack_as_charges: 1
+	0.8 custom_retract!
+
+	: jhammer-trigger-elec args( me )
+		<- me .action_cooldown@ if then;
+
+		<- me jhammer-trigger-common
+
+		gameticks 1 & not if
+			sfx{ -6 nextpri pulse 100 freq! 90 freq2! 0.975 duty!
+				15 a! 25 d! 0.2 s! 50 r!  0.9 1 frnd 6 * pitch! 0.15 scale!
+				<- me .adjust-vol 
+			}
+		then
+
+		// BATTERY USAGE
+		gameticks 20 % 0= if <- me .useanammo then  // ( gas jackhammer is 40 ticks )
+	;
+
+	: jhammer-anim-elec args( me )
+		<- me jhammer-anim-common
+	;
+
+	:noname args( me eventid )
+		<- me .carryid@ if then;		// Carrying something?
+		<- me .anim.state@ if then;		// Doing some animation?
+
+		// TODO: Check if needs started
+		<- eventid
+
+			THING_EVENT_SHOOT ?(
+				<- me jhammer-trigger-elec
+			);
+
+			THING_EVENT_ANIMATE ?(
+				<- me jhammer-anim-elec
+			);
+
+		drop
+	;
+
+	wielder_handler: last
+
+ root{
+ : ejhammer 130 ejhammer .item.charges! ; // TODO: Adjust charge value
+ }

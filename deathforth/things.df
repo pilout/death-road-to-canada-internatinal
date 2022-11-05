@@ -609,7 +609,12 @@ defer stat-toilet
 : .invisible
 	1 over .no_hit!
 	1 over .nocollide!
-	0 over .spriteid!
+
+	// NOTE: These two are new in M_UPDATE
+	1 over .invisible!
+	1 over .nopick!
+
+//	0 over .spriteid!
 	drop
 ;
 
@@ -639,7 +644,7 @@ defer stat-toilet
 ;
 
 : trashcan
-	time.month 9 = time.month.day 31 = and if jackolantern then;
+	halloween? if jackolantern then;
 	spawn special_objects16_base_id 10 + spriteid! as-metal 7 health! openable container
 	' trash-events lt .events! 
 //	' trash-action lt .action! 
@@ -649,7 +654,7 @@ defer stat-toilet
 : emptytrashcan trashcan opened ;
 
 : parkcan 
-	time.month 9 = time.month.day 31 = and if jackolantern then;
+	halloween? if jackolantern then;
 	trashcan special_objects16_base_id 12 + spriteid!
 	' trash-action lt .action!
 ;
@@ -784,6 +789,7 @@ defer stat-toilet
 
 // TODO: Make it explode with gas cloud if broken
 
+// TODO: Why in mission{ ?
 mission{
 
 	: particleme me me .pos me .pos.z@ particle{ new pos.z! pos! } ;
@@ -1333,3 +1339,58 @@ mission{
 : haunted-fridge
 	fridge lt .make-haunted
 ;
+
+: .zombie? .typeid@ THING_ZOMBIE = ;
+: .item? .typeid@ THING_ITEM = ;
+: .carried .carryid@ #thing ;
+
+
+// Use the valid player's position, or else the camera position for triggering things etc.
+: look.pos player if player .pos then; camera.pos ;
+: look.pos.x@ look.pos drop ;
+: look.pos.y@ look.pos nip ;
+
+: #new-npc #character args( chara )
+	<- chara character# spawn lt .charid!
+	lt .as-human
+	lt .id@ <- chara .cur_thingid!
+	0 360 frnd lt .aim_angle!
+;
+
+: new-npc
+	char-gen character# #new-npc
+	0 lt .character@ .ai.flock_dist!
+;
+
+: new-npc@ new-npc lt .character@ ;
+
+: dummy-npc new-npc lt .character@ args( ch )
+	0 <- ch .ai.wander_chance!
+	50 <- ch .ai.safety_leash!
+;
+
+: flipx 2 * 1 - ;
+: .flipx .flip@ flipx ;
+
+: dufflebag spawn
+	special_objects32_base_id 0x c0 + lt .spriteid!
+	particles_base_id 0x 68 + lt .action_icon!
+	' trunk.open lt .cyoa!
+	1 lt .no_hit!
+	1 lt .nopick!
+	1 lt .nocollide!
+;
+
+
+// Generic CHARGES access for both humans and items/weapons
+: .charges args( me )
+	<- me .typeid@ THING_HUMAN = if <- me .ammocount then;
+	<- me .item.charges@
+;
+
+: .useacharge args( me )
+	<- me .typeid@ THING_HUMAN = if <- me .useanammo then;
+	<- me .item.charges@ dup 0= if drop then;
+	1- <- me .item.charges!
+;
+

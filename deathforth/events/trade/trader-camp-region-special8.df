@@ -1,0 +1,627 @@
+uses paul/region-layout.df
+uses paul/region-road-layout.df
+// uses events/industrial/indust.df
+// "../deathforth/rooms/TEMPROOM.txt" $load-rooms
+	
+" 
+:map 2 
+:tags roboshack  
+:scriptA roboprof
+:scriptB robopunch 
+:scriptC robospeed 
+:scriptD indwalls 
+:scriptE indbluepanel 
+:scriptF indgreenpanel 
+:scriptG 3indwalls 
+:size 11 12 
+:off 1 1 
+:tiles 
+00222222200
+00233333200
+00211D11200
+2221E1F1222
+23311A11332
+21111111112
+21B11111C12
+21111111112
+22221112222
+33321112333
+00022222000
+00033333000
+
+:map 3 
+:tags toolshop  
+:scriptA tshopgas 
+:scriptB tshopelec 
+:scriptC cashcounter flipside 
+:scriptD cashcounter 
+:scriptE indshelf -1 movey 
+:scriptF industsmall 
+:size 15 13 
+:off 6 0 
+:tiles 
+222222202222222
+233333202333332
+21E1E12021E1E12
+2F111F202F111F2
+222122222221222
+332133333331233
+00211C111D11200
+002A1111111B200
+002111111111200
+002111111111200
+002222111222200
+003332222233300
+000003333300000
+
+:map 4 
+:tags toolschool  
+:scriptA schooltrader 
+:scriptB industsmall 
+:scriptC carwreck 
+:scriptD indshelf -1 movey 
+:scriptE 3indwalls 
+:size 13 11 
+:off 6 1 
+:tiles 
+2222222222222
+2333333333332
+2B1D1D111E112
+2B1111111C112
+211111A111112
+2111111111BB2
+2B111111111B2
+2BB111111B112
+2222211122222
+3333222223333
+0000333330000
+"
+value CAMP
+CAMP $parse-rooms
+
+cyoa{
+
+: cyoa-sale-car
+	carkey 0 > if cyoa-car then;
+
+	cyoa-start
+	"Car for Sale" cyoa-title!
+		"This car looks like it's both 'turnkey and good to go.'
+		You could buy it from the nearby sleazy car salesman!" cyoa-text!
+		choice( "Come back later" )choice
+		
+
+;
+
+cyoa-choice: tcarsales-go
+	($ Thegroup .. " buys a brand new car!
+	" .. "Just take whatever car off the lot that you want!" pbold $) cyoa-text! goodfx
+		1 to carkey clear-cyoa -5 trunk-food+ 50 trunk-gas+ someicon
+;
+
+cyoa: tcarsales
+	"Every Car Must Go!" cyoa-title!
+	($ "I gotta get these cars off the lot! You can buy any car, right now, for the low, low price of 5 food! Get it now! No financing! Turnkey and good to go!
+	I'll even throw in 50 gas!" pbold $) cyoa-text!
+	trunk-food 4 > if "That's quite a deal." +crtext then
+	basic-tone foodamt
+	trunk-food 5 < if
+		($ Thegroup .. " can't afford the life-changing purchase of a shiny new car." $) +crtext
+	else
+		choice( "Leave for now" )choice back-esc
+		trunk-food 4 > if
+			choice( "Buy a new car - 5 food" )choice: tcarsales-go
+		then
+	then
+;
+
+cyoa-choice: tgarage-1
+	($ Thegroup .. " pays for full chassis and engine repairs!
+	" .. "When you leave here, just drive your car down the road a bit and we'll repair it!" pbold $) cyoa-text! goodfx
+		clear-cyoa -5 trunk-food+ image-car-garage road{ ' mandible-repairgarage stack-road-action }
+;
+
+cyoa-choice: tgarage-2
+	($ Thegroup .. " pays for an array of advanced car modifications, plus full chassis and engine repairs!
+	" .. "When you leave here, just drive down the road a bit to the garage. Your car will get THE WORKS!" pbold $) cyoa-text! goodfx
+		clear-cyoa -35 trunk-food+ image-car-garage road{ ' mandible-megagarage stack-road-action }
+;
+
+cyoa: tgarage
+	"Expert Garage" cyoa-title!
+	($ "We have a garage full of expert mechanics just down the road, and we offer " pbold .. "THE WORKS" fbold .. ". Full car mods: Armor plating, speed increase, reinforced chassis, engine overhaul with increased fuel efficiency. All for 35 food.
+	We can also fully repair your car with no sweet mods, for 5 food." pbold $) cyoa-text!
+	trunk-food 34 > if "The perfect car is possible." +crtext else
+		trunk-food 4 > if "You could still buy full repairs." +crtext then
+	then
+	basic-tone foodamt
+	trunk-food 5 < if
+		($ Thegroup .. " can't afford this extensive yet tasteful car modding." $) +crtext
+	else
+		choice( "Leave for now" )choice back-esc
+		trunk-food 34 > if
+			choice( "Full Car Mods, " .. "THE WORKS" fbold .. " - 35 food" )choice: tgarage-2
+		then
+		trunk-food 4 > if
+			choice( "Full Repairs - 5 food" )choice: tgarage-1
+		then
+	then
+;
+
+0 value mt1-1
+0 value mt1-2
+0 value mt1-3
+0 value mt1-4
+
+cyoa-choice: trade-m1-4
+	($ Thegroup .. " buys a gas-powered jackhammer!
+	" .. "The connoisseur's choice for chiseling through hordes of zombies!" pbold $) cyoa-text! goodfx
+	1 WEAPON_JACKHAMMER trunk.weapon+ -20 trunk-food+ someicon ' mt1-4 ++
+;
+
+cyoa-choice: trade-m1-3
+	($ Thegroup .. " buys a gas-powered chainsaw! A classic!
+	" .. "Everyone knows this is THE answer for zombies! As long as you don't run out of gas." pbold $) cyoa-text! goodfx
+	1 WEAPON_CHAINSAW trunk.weapon+ -10 trunk-food+ someicon ' mt1-3 ++
+;
+
+cyoa-choice: trade-m1-2
+	($ Thegroup .. " buys a gas-powered leaf blower!
+	" .. "Blow the zombies away! Like leaves!" pbold $) cyoa-text! goodfx
+	1 WEAPON_BLOWER trunk.weapon+ -5 trunk-food+ someicon ' mt1-2 ++
+;
+
+cyoa-choice: trade-m1-1
+	($ Thegroup .. " buys a gas-powered weed whacker!
+	" .. "Excellent for trimming the zombie hordes! Somewhat decent for weeds." pbold $) cyoa-text! goodfx
+	1 WEAPON_WHACKER trunk.weapon+ -5 trunk-food+ someicon ' mt1-1 ++
+;
+
+cyoa: tshopgas
+	"Gas-Powered Tools" cyoa-title!
+	($ "Don't talk to the other guy! There's something about gas-powered weapons, that you just can't get from electric." pbold $) cyoa-text!
+	trunk-food 4 > if "Time to rev up." +crtext then
+	basic-tone foodamt
+	trunk-food 5 < if
+		($ Thegroup .. " is figuratively out of gas. The trader takes some pity on you and hands out some literal gas." $) +crtext clear-cyoa +30 trunk-gas+ goodfx
+	else
+		choice( "Leave for now" )choice back-esc
+		trunk-food 19 > mt1-4 1 < and if
+			choice( "Jackhammer - 20 food" )choice: trade-m1-4
+		then
+		trunk-food 9 > mt1-3 3 < and if
+			choice( "Chainsaw - 10 food" )choice: trade-m1-3
+		then
+		trunk-food 4 > mt1-2 3 < and if
+			choice( "Leaf Blower - 5 food" )choice: trade-m1-2
+		then
+		trunk-food 4 > mt1-1 3 < and if
+			choice( "Weed Whacker - 5 food" )choice: trade-m1-1
+		then
+	then
+;
+
+0 value mt2-1
+0 value mt2-2
+0 value mt2-3
+0 value mt2-4
+
+: mt2-firstbuy 
+	mt2-4 1 < mt2-3 1 < mt2-2 1 < mt2-1 1 < and and and
+;
+
+: mt2-firstbuy-done
+	($ "Enjoy your " pbold .. "DOUBLE CHARGE!" fbold $) +crtext
+;
+
+cyoa-choice: trade-m2-4
+	($ Thegroup .. " buys an electric jackhammer!
+	" .. "It's just so eco-friendly!" pbold $) cyoa-text! goodfx
+	mt2-firstbuy if mt2-firstbuy-done 255 else 130 then WEAPON_EJHAMMER trunk.weapon+ -20 trunk-food+ someicon ' mt2-4 ++ ;
+
+cyoa-choice: trade-m2-3
+	($ Thegroup .. " buys an electric chainsaw! You feel uncomfortably smug about saving the environment in the post-apocalypse.
+	" .. "Excellent for composting zombies!" pbold $) cyoa-text! goodfx
+	mt2-firstbuy if mt2-firstbuy-done 160 else 80 then WEAPON_ECHAINSAW trunk.weapon+ -10 trunk-food+ someicon ' mt2-3 ++ ;
+	
+cyoa-choice: trade-m2-2
+	($ Thegroup .. " buys an electric leaf blower!
+	" .. "Gently herd the zombies, a pacifist alternative to all this splatting!" pbold $) cyoa-text! goodfx
+	mt2-firstbuy if mt2-firstbuy-done 100 else 50 then WEAPON_EBLOWER trunk.weapon+ -5 trunk-food+ picon ' mt2-2 ++ ;
+
+cyoa-choice: trade-m2-1
+	($ Thegroup .. " buys an electric weed whacker!
+	" .. "Has multiple effective uses in Zomboculture farming methods." pbold $) cyoa-text! goodfx
+	mt2-firstbuy if mt2-firstbuy-done 100 else 50 then WEAPON_EWHACKER trunk.weapon+ -5 trunk-food+ picon ' mt2-1 ++ ;
+
+cyoa: tshopelec
+	"Electric-Powered Tools" cyoa-title!
+	($ "Don't talk to the other guy! Electric tools are eco-friendly, letting you cut down on gas emissions as you mow zombies down." pbold $) cyoa-text!
+	basic-tone foodamt
+	trunk-food 5 < if
+		($ Thegroup .. " lacks enough food to buy anything!" $) +crtext
+		($ "The trader takes pity on " .. thegroup .. " and hands out a " .. "DISCOUNT LEAF BLOWER!" rbold $) +crtext goodfx 30 WEAPON_EBLOWER trunk.weapon+ clear-cyoa
+	else
+		mt2-firstbuy if
+			($ "As a special deal, the trader will " .. "DOUBLE CHARGE" rainbold .. " your first purchase. It will have twice as much energy as what you would normally find!" $) +crtext
+		then
+		choice( "Leave for now" )choice back-esc
+		trunk-food 19 > mt2-4 1 < and if
+			choice( "Electric Jackhammer - 20 food" )choice: trade-m2-4
+		then
+		trunk-food 9 > mt2-3 2 < and if
+			choice( "Electric Chainsaw - 10 food" )choice: trade-m2-3
+		then
+		trunk-food 4 > mt2-2 2 < and if
+			choice( "Electric Leaf Blower - 5 food" )choice: trade-m2-2
+		then
+		trunk-food 4 > mt2-1 2 < and if
+			choice( "Electric Weed Whacker - 5 food" )choice: trade-m2-1
+		then
+	then
+;
+
+0 value mechtrained+
+
+: mech-train-amt numhums 2 * mechtrained+ 1 + * 1 + ; 
+: mech-train-pay? trunk-food mech-train-amt 1 - > notsolo notsolohuman and and ;
+: mech-train-pay mech-train-amt -1 * trunk-food+ ;
+
+: mech-solo-amt mechtrained+ 2 * 3 + ;
+: mech-solo-pay? trunk-food mech-solo-amt 1 - > ;
+: mech-solo-pay mech-solo-amt -1 * trunk-food+ ;
+
+cyoa-choice: mech-school-train
+	cchar .mechanical@ 6 < if
+		($ cname .. " watches carefully as the Professor really whangs at the car with a wrench. So THAT'S what engineering is about!" $) goodfx
+	else
+		($ cname .. " has already got their full engineering degree from this prestigious academy!
+		Your last payment is taken as a donation to build a new wing for the school." $) badfx
+	then cyoa-text! 
+	mech-solo-pay mechanicREV mechanic++ ' mechtrained+ ++
+;
+
+cyoa-choice: mech-school-group
+	($ "The entire group gets mechanical training! Everyone watches the Professor strike the car with a wrench. It's very illuminating." $) cyoa-text! goodfx
+	mech-train-pay someicon
+	regiondef{ ' trade-mechanic-group! foreach-human-char } numhums ' mechtrained+ +!
+;
+
+cyoa: mech-school-give
+	solohuman if
+		choosehuman mech-school-train
+	then;
+	"Who should get this vast mechanical knowledge?" cyoa-text!
+	' mech-school-train cyoa-human-choice
+;
+
+cyoa: schooltrader
+	($ "The Tool School" $) cyoa-title!
+	"Mechanical engineering is a true science. Unlike medicine, which is more of an art. Similar to Origami, or maybe intepretive dance." pbold text!
+	"The Professor of Mechanical repeatedly strikes the chassis of the wrecked car with a wrench while saying this, never breaking eye contact." +crtext foodamt
+		mech-solo-pay? not if
+			"You can't afford any more training." +crtext 
+		then;
+		choice( "Leave for now" )choice back-esc
+		mech-solo-pay? if
+			choice( "Give " .. mech-solo-amt .. " food for single training" )choice: mech-school-give
+		then
+		mech-train-pay? if
+			choice( "Give " .. mech-train-amt .. " food for group training" )choice: mech-school-group
+		then
+		
+;
+
+cyoa-bridge: robopunch-go
+	ricon 4 recruitee .morale! clear-cyoa 0.25 recruitee .ai.wander_chance! 0 nearest .unseen!
+	10 recruit-yes-food 
+	($ "A robot that dispenses beatings? Technology is pretty cool." $) +crtext
+	"#LOADING PUNCH PROTOCOLS#
+	#READY 2 PUNCH#" pbold +crtext
+	recruitee .strengthREV recruitee .fitnessREV
+;
+
+cyoa: robopunch
+	"The Perfect Mechanical Punch" cyoa-title!
+	nearest .character@ choosechar cchar to recruitee ricon
+	"#I AM PUNCH BOT#" pbold cyoa-text! basic-tone
+	"Now we're getting somewhere! This robot is designed for one purpose: Punching." +crtext
+	trunk-food 9 > if
+		choice( "Leave it for now" )choice
+		choice( "Buy PUNCHBOT - 10 food" )choice: robopunch-go
+	else
+		"You need 10 food to buy this punch bot." +crtext
+		choice( "Can't spare the food" )choice
+	then
+;
+
+cyoa-bridge: robospeed-go
+	ricon 4 recruitee .morale! clear-cyoa 0.25 recruitee .ai.wander_chance! 0 nearest .unseen!
+	15 recruit-yes-food 
+	($ "The robot does a doughnut real quick. So fast." $) +crtext
+	"#LOADING SPEED PROTOCOLS#
+	#GOT 2 GO FAST#" pbold +crtext
+	recruitee .strengthREV recruitee .fitnessREV
+;
+
+cyoa: robospeed
+	"So Speedy" cyoa-title!
+	nearest .character@ choosechar cchar to recruitee ricon
+	"#I AM SPEED BOT#" pbold cyoa-text! basic-tone
+	"With its sleek lines and tiny spinner hubcaps, even standing still, this robot exudes the concept of 'speed'.
+	Plus, it said the word 'speed' just now." +crtext
+	trunk-food 14 > if
+		choice( "Leave it for now" )choice
+		choice( "Buy SPEEDBOT - 15 food" )choice: robospeed-go
+	else
+		"You need 15 food to buy this speed bot." +crtext
+		choice( "Can't spare the food" )choice
+	then
+;
+
+}
+
+roomgen{
+
+
+: .ct1 args( ch ) // Mech Teacher
+	WEAPON_WRENCH <- ch .weapona!
+;
+: .ct2 args( ch ) // Gas tools
+	26 <- ch .glassestype! // Gas Mask
+;
+: .ct3 args( ch ) // Elec tools
+	21 <- ch .glassestype! // Green Goggles
+;
+: .ct4 args( ch ) // Garage
+	1 <- ch .female!
+	25 <- ch .hattype!
+	6 <- ch .legstype!
+	3 <- ch .torsotype!
+	0 <- ch .glassestype!
+;
+: .ct5 args( ch ) 
+	7 <- ch .hattype! // Cowboy hat
+;
+: .ct6 args( ch ) 
+	<- ch .speedbotify
+;
+: .ct7 args( ch ) 
+	<- ch .punchbotify
+;
+
+: camptradercommon
+	still-npc regiondef{ ' trader-event lt .events! 1 lt .timer! }
+	
+;
+
+: schooltrader
+	camptradercommon .ct1 cyoa{ ' schooltrader cyoa! }
+;
+
+: robopunch
+	camptradercommon .ct7 cyoa{ ' robopunch cyoa! }
+;
+
+: robospeed
+	camptradercommon .ct6 cyoa{ ' robospeed cyoa! }
+;
+
+: roboprof
+	// camptradercommon .ct8 cyoa{ ' roboprof cyoa! }
+;
+
+: tshopgas
+	camptradercommon .ct2 cyoa{ ' tshopgas cyoa! }
+;
+
+: tshopelec
+	camptradercommon .ct3 cyoa{ ' tshopelec cyoa! }
+;
+
+: tgarage
+	camptradercommon .ct4 cyoa{ ' tgarage cyoa! }
+;
+
+: tcarsales
+	camptradercommon .ct5 cyoa{ ' tcarsales cyoa! }
+;
+
+		0 stack
+			' camptradercommon shove
+			' camptradercommon shove
+			' camptradercommon shove
+			' camptradercommon shove
+		value preptrader-base
+		preptrader-base shuffles var preptrader-picker
+
+: preppertrader
+	preptrader-picker depths 0= if preptrader-base shuffles to preptrader-picker then pops nip execute ;
+
+
+}
+
+locdef{
+
+location: toolshop
+		max-rooms: 1
+		entry-tags: toolshop
+		script: set-theme-restaurant
+		pre-script: set-theme-restaurant
+		post-script: nad 0 %zombs
+				
+		room-choice: toolshop
+			room-weight: 10
+			room-count: 1
+			room-post-script: 
+			filter-only
+			
+location: toolschool
+		max-rooms: 1
+		entry-tags: toolschool
+		script: set-theme-bookstore
+		pre-script: set-theme-bookstore
+		post-script: nad 0 %zombs
+				
+		room-choice: toolschool
+			room-weight: 10
+			room-count: 1
+			room-post-script: 
+			filter-only
+		
+location: roboshack
+		max-rooms: 1
+		entry-tags: roboshack
+		script: factory-theme
+		pre-script: factory-theme
+		post-script: nad 0 %zombs
+				
+		room-choice: roboshack
+			room-weight: 10
+			room-count: 1
+			room-post-script:
+			filter-only
+			
+}
+		
+root{
+
+: prepper-magchance
+	20 %chance if
+		magazine 0 4 rnd cyoa{ to bookmagtype ' bookmag-get cyoa! } 50 health! drift
+	then
+;
+
+: sale-car 
+	1 22 rnd spawncar mission{ cyoa{ ' cyoa-sale-car cyoa! } }
+	0 lt .action_icon!
+;
+
+}
+		
+map{ regiondef{
+
+trade-camp-reset
+
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+0 value gbx3
+0 value gby3
+0 value bfx
+0 value bfy
+
+: bldg tanchor!
+	"roboshack" $picklocid addloc
+	"ROBO SHACK" sign-text! prefab{ 1 5 1 shop } 
+;
+: bldg2 tanchor!
+	"toolshop" $picklocid addloc
+	"TOOL SHOP" sign-text! prefab{ 2 5 1 shop } 
+;
+: bldg3 tanchor!
+	"toolschool" $picklocid addloc
+	"TOOL SCHOOL" sign-text! prefab{ 3 6 1 shop } 
+;
+
+
+' plotgrass >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+	
+	xyp.i char { = if xyp.xy to gby2 to gbx2 then;
+	xyp.i char } = if gbx2 1- gby2 xyp.xy swap 1+ swap gravellot then;
+	xyp.i char ( = if xyp.xy to gby to gbx then;
+	xyp.i char ) = if gbx 1- gby xyp.xy swap 1+ swap gravellot then;
+	xyp.i char [ = if xyp.xy to gby3 to gbx3 then;
+	xyp.i char ] = if gbx3 1- gby3 xyp.xy swap 1+ swap gravellot then;
+	
+	xyp.i char 1 = if xyp.x to bfx then;
+	xyp.i char 2 = if bfx xyp.y xyp.x barbfence then;
+
+	xyp.i char t = if sale-car lt-here then;
+	xyp.i char U = if tnomey-spawn then;
+	xyp.i char W = if trader-weapon-buyer then;
+	xyp.i char G = if trader-food-for-gas then;
+	xyp.i char S = if tgarage lt-here then;
+	xyp.i char M = if tcarsales lt-here then;
+		
+	xyp.i char @ = if xyp.xy bldg then;
+	xyp.i char 3 = if xyp.xy bldg2 then;
+	xyp.i char 4 = if xyp.xy bldg3 then;
+	
+	xyp.i char p = if ' plotpave to ft then;
+	xyp.i char $ = if xyp.xy grassedge then;
+;
+
+"
+...........................
+1.........................2
+...........................
+..................[....t...
+...........................
+...........................
+...........................
+.......L..........ML...t...
+..{........................
+.@....3....4...............
+...........................
+............(...}......t...
+..................S........
+...........................
+..........................]
+...........................
+1..........2....1.........2
+......G..U...........W....p
+$$$$$$$$$$$$....$$$$$$$$$$$
+...............)...........
+...........................
+...........................
+...........................
+...........................
+...........................
+...........................
+..........................."
+constant maplayout
+
+: specialcamp-6
+	' plotgrass to ft
+	0 -1 maplayout xyplot: pt
+;
+
+
+: site-setup
+
+	// Clear the map with grass
+	-1 -1 w h grassbox
+
+	pavement
+// Plot trader stuff
+	specialcamp-6
+
+	-1 -1 w 3 conclot // Top
+	-1 h 2 - w h conclot // Bottom
+
+	0 h 6 - w ' plotroadlines hline
+	
+
+	1 no_time!
+	7 14 rnd o'clock
+	// 50 %chance if 1 2 frnd weather! -1 -2 frnd wind_force! else 1 2 frnd wind_force! then
+	
+	mission{ no-edge-spawns }
+	
+	20 %mv-up
+	25 %chars-up
+;
+
+	 region: specialcamp-6
+		w: maplayout layoutw
+		h: maplayout layouth
+
+		trade-mode
+
+		post-script: site-setup
+} }

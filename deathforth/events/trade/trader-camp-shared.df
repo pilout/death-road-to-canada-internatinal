@@ -1,4 +1,5 @@
 
+
 map{ regiondef{
 
 // common trade camp stuff
@@ -820,6 +821,12 @@ random-sayings-base shuffles var random-sayings
 	2 for new-npc lt .character@ .greenturretify <- trader .pos lt .pos! 1.5 movey immovable drift next
 ;
 
+: trader-rare-tribute-stand dup .character@ args( trader chara )
+	<- chara .romify
+	<- chara .notake
+	spawn special_objects48_base_id 0x 24 + 3 + lt .spriteid! bbox <- trader .pos lt .pos! immovable
+;
+
 : trader-silent-stand dup .character@ args( trader chara )
 	19 <- chara .hattype!
 	WEAPON_SILENTRIFLE <- chara .weapona!
@@ -843,6 +850,19 @@ random-sayings-base shuffles var random-sayings
 	WEAPON_BAZOOKA <- chara .weaponb!
 	1 <- chara .weapon_nodropb!
 	WEAPON_BAZOOKA <- chara .weaponc!
+	1 <- chara .weapon_nodropc!	
+	2 for indcrate <- trader .pos lt .pos! immovable drift next
+;
+
+: trader-firework-stand dup .character@ args( trader chara )
+	1 <- chara .female!
+	17 <- chara .hattype!
+	23 <- chara .glassestype!
+	9 WEAPON_ROMANCANDLE <- chara .weapona!
+	1 <- chara .weapon_nodropa!
+	9 WEAPON_ROMANCANDLE <- chara .weaponb!
+	1 <- chara .weapon_nodropb!
+	9 WEAPON_ROMANCANDLE <- chara .weaponc!
 	1 <- chara .weapon_nodropc!	
 	2 for indcrate <- trader .pos lt .pos! immovable drift next
 ;
@@ -915,6 +935,10 @@ random-sayings-base shuffles var random-sayings
 	0 to heavy-glaunch
 	0 to heavy-mine1
 	0 to heavy-bazooka
+	0 to fireworks-4
+	0 to fireworks-3
+	0 to fireworks-2
+	0 to fireworks-1
 ;
 
 // Deck containing ordered pairs for CYOA word and SETUP word
@@ -931,6 +955,7 @@ deck-new
 	card-pair: trade-rare-sleep			trader-rare-sleep-stand
 	card-pair: trade-rare-chicken		trader-rare-chicken-stand
 	card-pair: trade-rare-nerd			trader-rare-nerd-stand
+	card-pair: trade-rare-tribute		trader-rare-tribute-stand
 constant TRADER-LIST-RARE
 TRADER-LIST-RARE var trader-list-rare
 
@@ -966,13 +991,14 @@ deck-new
 	card-pair: trade-handy			trader-handy-stand
 	card-pair: trade-silent			trader-silent-stand
 	card-pair: trade-heavy			trader-heavy-stand
+	card-pair: trade-firework		trader-firework-stand
 constant TRADER-LIST
 TRADER-LIST var trader-list
 
 deck-new
-	card-pair: trade-rare-doc		trader-rare-doc-stand
-	card-pair: trade-rare-doc		trader-rare-doc-stand
-	card-pair: trade-rare-doc		trader-rare-doc-stand
+	card-pair: trade-firework		trader-firework-stand
+	card-pair: trade-firework		trader-firework-stand
+	card-pair: trade-firework		trader-firework-stand
 constant TRADER-LIST-TEST
 // Easy trader testing by uncommenting below line
 // TRADER-LIST-TEST var trader-list
@@ -988,7 +1014,7 @@ constant TRADER-LIST-TEST
 
 : trader-normal-number TRADER-NORMAL-CHANCE gstats{ ugnome-raretrader } 3 * - ;
 
-// 25 normal traders, then 10 rare traders
+// 26 normal traders, then 11 rare traders
 // Currently the normal traders are inflated to make rare traders rarer, will tweak this down as more rare traders are added. Was 35 for a long time, now experimenting with less.
 deck-new
 	trader-normal-number cards: trader-drawpair
@@ -1112,19 +1138,19 @@ TRADER-DRAW-PICK shuffles var trader-draw-pick
 
 // tnomey the trader gnome
 
-: tnomey-spawn
-	gstats{ ugnome-trader 1 < } tnome-bought 0 > or if then;
+: tnomey-spawn-inside
+	gstats{ ugnome-trader 1 < } tnome-bought gstats{ ugnome-tnomemax } > or if then;
 
-	new-camper
+	new-camp-npc
 	lt .character@ .gnomify2
 	' trader-event lt .events!
 	1 lt .timer!
 	lt to the-tnome
 	
-	lt-here
-
 	' tnomey-start lt .cyoa!
 ;
+
+: tnomey-spawn tnomey-spawn-inside lt-here ;
 
 // shared map building
 

@@ -102,24 +102,24 @@ all-leaving
 	<- edge wordref? if <- edge execute then;
 
 	cyoa-start
-	"QUITTER" cyoa-title!
+	"LEAVING" cyoa-title!
 	ZOMBOTOWN if 
 		"EXITING ZOMBO TOWN" cyoa-title!
-		"Voulez-vous revenir à l'ecran titre?"
+		"Do you want to go back to the title screen?"
 	else
-		"Voulez-vous reprendre la route a pied?"
+		"Do you want to walk back to the road?"
 		
 		mv@ 0 > if
-			cr$ .. cr$ .. RED .. "Vous abandonnerez votre voiture " .. WHITE .. "si vous " .. RAINBOW .. "valser " .. WHITE .. " sans elle!" ..
+			cr$ .. cr$ .. RED .. "You will abandon your car " .. WHITE .. "if you " .. RAINBOW .. "waltz off" .. WHITE .. " without it!" ..
 		then
 	
 	then cyoa-text!
 	
 	cyoa-add-choice
-		"Non, rester ici." cyoa-choice-text!
+		"No, stay here." cyoa-choice-text!
 
 	cyoa-add-choice
-		"Oui, prenons la route." cyoa-choice-text!
+		"Yes, let's hit the road." cyoa-choice-text!
 		mv@ 0 = if
 			' walk-try-end-mission cyoa-choice-handler!
 		else
@@ -132,15 +132,15 @@ last to main-event-mission-edge
 : door-no-escape
 	cyoa-start
 	beep "door-no-escape" print
-	"PAS DE FUITE" cyoa-title!
-	"Vous ne pouvez pas partir de cet endroit. Vous devrez trouver une autre issue." cyoa-text!
+	"NO ESCAPE" cyoa-title!
+	"You can't leave from this location. You will have to find another way out." cyoa-text!
 ;
 
 : door-sieged
 	cyoa-start
 	beep "door-sieged" print
-	"PAS DE FUITE" cyoa-title!
-	"C'est trop dangereux dehors en ce moment. Vous ne pouvez pas encore partir de cet endroit." cyoa-text!
+	"NO ESCAPE" cyoa-title!
+	"It's too dangerous outside right now. You can't leave from this location yet." cyoa-text!
 ;
 
 
@@ -164,8 +164,8 @@ last to main-event-mission-location-leave
 
 : cyoa-pick-leader
 	cyoa-start
-	"OH NON" cyoa-title!
-	"Votre chef de mission est MORT ! Choisissez un nouveau chef:" cyoa-text!
+	"OH, NO" cyoa-title!
+	"Your mission leader has died! Pick a new leader:" cyoa-text!
 	' set-leader cyoa-mission-team-choice
 ;
 
@@ -187,7 +187,7 @@ last to main-event-mission-location-leave
 	cyoa-start
 	"FAILED!" cyoa-title!
 	"cyoa-car-fail" print
-	"Votre equipe de recuperation a ete aneantie! Mieux vaut sortir d'ici!"
+	"Your scavenging team was wiped out! Better get out of here!"
 		cyoa-text!
 	' car-fail2 cyoa-choice-handler!
 ;
@@ -198,8 +198,8 @@ last to main-event-mission-location-leave
 
 	dup character# cyoa-char-icon!
 
-	"OH NON" cyoa-title!
-	"Tous les autres sont morts ! " over .name@ $cat " est tout seul..." $cat cyoa-text!
+	"OH, NO" cyoa-title!
+	"Everyone else is dead! " over .name@ $cat " is all alone..." $cat cyoa-text!
 
 	.make-leader
 ;
@@ -258,9 +258,6 @@ last to main-event-mission-killed
 	clear-streak delete-the-game
 ;
 
-: road? game.location LOCATION_ROAD = ;
-: mission? game.location LOCATION_MISSION = ;
-
 // : back-esc cyoa{ cyoa-back-esc } ; - Now in cyoa.df instead
 
 // Quit from screens
@@ -268,31 +265,31 @@ last to main-event-mission-killed
 	cyoa-active? if then;
 //	4 500 tone
 	cyoa-new- 
-	"QUITTER?" cyoa-title!
+	"QUIT?" cyoa-title!
 
 	game.location 0 < if
-		"Sortir de la partie?" cyoa-text!
-		choice( "NON" )choice back-esc
-		choice( "OUI" )choice: mad_quit
+		"EXIT the game?" cyoa-text!
+		choice( "NO" )choice back-esc
+		choice( "YES" )choice: mad_quit
 	then;
 	
 	"ABORT the game and quit to the title screen?" cyoa-text!
-	choice( "NON" )choice back-esc
+	choice( "NO" )choice back-esc
 	road? if
 		"You can resume the game later with CONTINUE GAME!" +crtext
-		choice( "OUI" )choice: quit-to-title
+		choice( "YES" )choice: quit-to-title
 	then;
 	ZOMBOTOWN if
 		"EXIT ZOMBO TOWN" cyoa-title!
 		"Return to the title screen?
 		Any upgrades you have purchased are already saved." cyoa-text!
-		choice( "OUI" )choice: quit-to-title
+		choice( "YES" )choice: quit-to-title
 	then;
 	mission? if 
 		"WARNING: Quitting directly from a mission will delete the save!" rbold +crtext
-		choice( "QUITTER ET SUPPRIMER LA SAUVEGARDE" )choice: quit-from-mission
+		choice( "QUIT AND DELETE SAVE" )choice: quit-from-mission
 	then;
-	choice( "BIEN-SURE" )choice: quit-from-mission
+	choice( "SURE" )choice: quit-from-mission
 
 } ;
 
@@ -303,10 +300,10 @@ last to main-event-do-quit
 	game.location 0 < if
 		cyoa-active? if then;
 		cyoa-new- 
-		"QUITTER?" cyoa-title!
-		"Sortir de la partie?" cyoa-text!
-		choice( "NON" )choice back-esc
-		choice( "OUI" )choice: mad_quit
+		"QUIT?" cyoa-title!
+		"EXIT the game?" cyoa-text!
+		choice( "NO" )choice back-esc
+		choice( "YES" )choice: mad_quit
 	then;
 ;
 last to main-event-do-esc
@@ -321,7 +318,7 @@ last to main-event-do-esc
 
 	pchar .pet@ if
 		pchar statmod{ .superdog? } if then;
-		pchar .name@ " n'est qu'un " .. RED .. "animal stupide" .. WHITE .. " et ne peut pas mener une mission solo. C'est triste!" ..
+		pchar .name@ " is just a " .. RED .. "dumb animal" .. WHITE .. " and can't lead a solo mission. Sad!" ..
 			$cyoa-ok-dialog
 		0 premission_check!
 		picon

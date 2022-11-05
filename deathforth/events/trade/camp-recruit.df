@@ -389,7 +389,7 @@ cyoa: camp-rec-log
 
 cyoa-bridge: camp-fireproof-recruit
 	ricon 4 recruitee .morale! clear-cyoa
-	10 recruit-yes-food recruitee .strengthREV recruitee .fitnessREV
+	15 recruit-yes-food recruitee .strengthREV recruitee .fitnessREV
 ;
 
 cyoa: camp-rec-fireproof
@@ -398,11 +398,11 @@ cyoa: camp-rec-fireproof
 	($ "This person is covered head to toe in fireproof gear.
 	This would usually be more suspicious, but you're used to this sort of thing.
 	" .. "Hi. Did you know that zombies are highly flammable?" pbold $) cyoa-text! basic-tone
-	trunk-food 9 > if
+	trunk-food 14 > if
 		choice( "Leave for now" )choice
-		choice( "Recruit for 10 food" )choice: camp-fireproof-recruit
+		choice( "Recruit for 15 food" )choice: camp-fireproof-recruit
 	else
-		"You need 10 food to properly make friends." +crtext
+		"You need 15 food to properly make friends." +crtext
 		choice( "Can't spare the food" )choice
 	then		
 ;
@@ -535,6 +535,56 @@ cyoa: camp-rec-moody
 	trunk-food 14 > if
 		choice( "Leave him for now" )choice
 		choice( "Recruit him - 15 food" )choice: camp-moody-recruit
+	else
+		"You need 15 food to recruit him to the party." +crtext
+		choice( "Can't spare the food" )choice
+	then		
+;
+
+// A CharBro Reference
+
+cyoa-bridge: camp-charbro-recruit
+	ricon 4 recruitee .morale! clear-cyoa
+	15 recruit-yes-food
+	"[STAND NAME] S DOGGY DOGG   [STAND MASTER] CharBro" bbold +crtext
+	"DESTRUCTIVE POWER: B   SPEED: B   RANGE: C
+	DURABILITY: C   PRECISION: C   POTENTIAL: C" pbold +crtext
+	recruitee .strengthREV recruitee .fitnessREV
+;
+
+cyoa: camp-rec-charbro
+	"Finally, a CharBro Reference" cyoa-title!
+	nearest .character@ choosechar cchar to recruitee ricon
+	($ "This extremely buff man claims to be a 'Stamp User', though " .. pname .. " has no idea what this means and does not care to know." $) cyoa-text! basic-tone
+	"Yare yare daze...." pbold +crtext
+	"TRANSLATORS NOTE: LOOSELY TRANSLATED FROM JAPANESE, THIS MEANS 'GOOD GRIEF.'" rbold +crtext
+	trunk-food 14 > if
+		choice( "Leave him for now" )choice
+		choice( "Recruit him - 15 food" )choice: camp-charbro-recruit
+	else
+		"You need 15 food to recruit him to the party." +crtext
+		choice( "Can't spare the food" )choice
+	then		
+;
+
+// Construction Guy
+
+cyoa-bridge: camp-jackham-recruit
+	ricon 4 recruitee .morale! clear-cyoa
+	15 recruit-yes-food 
+	($ Thegroup .. " offers him a new job: Zombie crushing." $) +crtext
+	"Break over!" pbold +crtext
+	recruitee .strengthREV recruitee .fitnessREV
+;
+
+cyoa: camp-rec-jackham
+	"Under Construction" cyoa-title!
+	nearest .character@ choosechar cchar to recruitee ricon
+	($ "This man is dressed up like a construction worker, but what's being built? It seems like he's just standing around. Maybe he's been standing around for years." $) cyoa-text! basic-tone
+	"I'm on break!" pbold +crtext
+	trunk-food 14 > if
+		choice( "Leave him for now" )choice
+		choice( "Hire him - 15 food" )choice: camp-jackham-recruit
 	else
 		"You need 15 food to recruit him to the party." +crtext
 		choice( "Can't spare the food" )choice
@@ -896,6 +946,8 @@ deck-new
 	card-pair: 	camp-rec-farmshot			.farmshotify
 	card-pair: 	camp-rec-barbar				.barbarify
 	card-pair: 	camp-rec-moody				.moodguyify
+	card-pair: 	camp-rec-charbro			.charbroify
+	card-pair:	camp-rec-jackham			.jackhamify
 constant CAMPRECRUIT-LIST-RARE
 CAMPRECRUIT-LIST-RARE var camprecruit-list-rare
 
@@ -945,6 +997,17 @@ deck-new
 constant CAMPRECRUIT-DRAW-PICK
 CAMPRECRUIT-DRAW-PICK shuffles var camprecruit-draw-pick
 
+deck-new
+	card-pair: 	camp-rec-jackham	.jackhamify
+	card-pair: 	camp-rec-jackham	.jackhamify
+constant CAMPRECRUIT-DRAW-TEST
+CAMPRECRUIT-DRAW-TEST shuffles var camprecruit-draw-test
+
+: camprecruit-test camprecruit-draw-test depths 2 < if 
+		camprecruit-drawpair
+	then drawpair
+;
+
 : camprecruit-draw-picker 
 	
 	specialchar-mode 1 = if
@@ -955,9 +1018,11 @@ CAMPRECRUIT-DRAW-PICK shuffles var camprecruit-draw-pick
 		camprecruit-drawpair-familiar
 	then;
 	
-	camprecruit-draw-pick depths 0= if
-		CAMPRECRUIT-DRAW-PICK shuffles to camprecruit-draw-pick 8 250 debug-tone
-	then drawcard
+	// camprecruit-test
+	// Above line is for testing one new recruit, comment when done and uncomment below line
+			
+	camprecruit-draw-pick depths 0= if CAMPRECRUIT-DRAW-PICK shuffles to camprecruit-draw-pick 8 250 debug-tone then drawcard
+	
 ;
 
 

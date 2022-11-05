@@ -3,7 +3,7 @@
 0 constant DEBUG
 1 quit_button_mode!
 
-: debug-tone DEBUG_BUILD if tone else 2drop then ;
+: debug-tone ( pitch lengthms -- ) DEBUG_BUILD if tone else 2drop then ;
 : dprintout "DBG: LINE " type print ;
 : DBGLINE DEBUG_BUILD if line# postpone literal postpone dprintout then ; immediate
 
@@ -147,6 +147,17 @@ defer delete-the-game
 : repeats ( count 'word repeats -- ) >r begin 1- dup 0 >= while r@ swap >r execute r> repeat r> 2drop ;
 : repeati ( -- repeats-counter ) 1 postpone literal postpone rpick ; immediate
 
+// Execute the passed argument after the current word exits
+: later ( 'word -- ) postpone >xt postpone >r ; immediate
+
+// Run a fake "task", probably only works from the console
+// - the task must return 0 to continue or non-zero to exit
+: runtask begin yield dup execute until drop ;
+
+// No return value required
+: runtask! begin yield dup execute again drop ;
+
+// Time diff stuff for performance testing
 0 value lasttime
 : tstart madtime ;
 : tend madtime swap - dup to lasttime . cr ;
@@ -200,6 +211,9 @@ defer delete-the-game
 
 : ndup dup >r for 1 rpick 1- pick next r> drop ;
 : ndrop postpone remove ; immediate
+
+// Automatic URL opener
+: urlopener: constant does> @ openurl ;
 
 // Simple string construction syntax
 // eg. ($ "my string" .. my-var @ .. "another string" $)
@@ -331,6 +345,8 @@ SKULL constant DEATH
 : BAMP sfx{ pip  100 fx .d! 0.25 fx .pitch! 0 fx .duty! 0.5 fx .scale! } ;
 : .deny dup .report? not if ($ RED .. BLINKY .. 0x dc $chr $) swap .report then ( BAMP ) ;
 
+: .msg args( msg me ) 3 <- msg <- me .reportdurnow ;
+
 : PRINTSTACK DEBUG_BUILD if .s cr then ;
 
 : depths- depths nip ;
@@ -416,14 +432,20 @@ SKULL constant DEATH
 drop
 
 : console_clr! console_clr_b! console_clr_g! console_clr_r! ;
+: console_bg! console_bg_b! console_bg_g! console_bg_r! ;
 
 : ? 0= not ;
 
 : bin$ args( val )
 	"" 32 for
 		1 i 1- << <- val & if "1" else "0" then ..
-		i 1- 7 & 0= if " " .. then
+		i 1- 3 & 0= if " " .. then
 	next
 ;
 
 : .bin bin$ print ;
+
+// Creates a var that is always 0 unless DEBUG_BUILD is true
+: debugvar constant does> DEBUG_BUILD if @ else drop 0 then ;
+
+3.14159265358979323846 constant PI		

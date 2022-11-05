@@ -14,7 +14,7 @@ gstats{
 
 // Increase this number as more unlocks are added
 : gnome-unlockcalc
-	24 ugnome-unlocks -
+	28 ugnome-unlocks -
 ;
 
 : gnome-remaining
@@ -91,6 +91,11 @@ cyoa-blank: ugnome--view
 : ugnome-rarelocs3 "Rare Finder III" GNOMECOST_5 ;
 : ugnome-rarelocs4 "Rare Finder ULTIMATE" GNOMECOST_5 ;
 : ugnome-jerkstore1 "Challenge Hut" GNOMECOST_3 ;
+
+: ugnome-max6 "Max ZP Increase (75)" GNOMECOST_5 ;
+: ugnome-max7 "Max ZP Increase (99)" 75 ;
+: ugnome-tnomemax1 "DOUBLE TNOMEY" 75 ;
+: ugnome-tnomemax2 "TRIPLE TNOMEY" 99 ;
 	
 cyoa: ugnome-ZPmax1-buy
 	gstats{ 15 to ZOMBOP_CAP }
@@ -131,8 +136,30 @@ cyoa-blank: ugnome-ZPmax5
 	"YOU SEEMED TO LIKE THE LAST PURSE I MADE YOU
 	SO HERE'S A BETTER PURSE
 	VERY FASHIONABLE" pbold text!
-	($ "Increases your maximum ZP to 50! This lets you buy Unomey's most expensive unlocks." $) +crtext
+	($ "Increases your maximum ZP to 50! This lets you buy Unomey's more expensive unlocks." $) +crtext
 	ugnome-max5 ' ugnome-ZPmax5-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-ZPmax6-buy
+	gstats{ 75 to ZOMBOP_CAP }
+	ugnome-max6 gnome-buy!
+	gnomewallet-buysay ;
+cyoa-blank: ugnome-ZPmax6
+	"A NEW BREAKTHROUGH
+	BUT IS THE PERFECT PURSE REALLY POSSIBLE?
+	MAYBE IN SOME SHINING FUTURE" pbold text!
+	($ "Increases your maximum ZP to 75! This lets you hoard even more points!" $) +crtext
+	ugnome-max6 ' ugnome-ZPmax6-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-ZPmax7-buy
+	gstats{ 99 to ZOMBOP_CAP }
+	ugnome-max7 gnome-buy!
+	gnomewallet-buysay ;
+cyoa-blank: ugnome-ZPmax7
+	"THEY SAID IT COULD NOT BE DONE
+	THE ULTIMATE PURSE
+	IT'S A TINY PURSE THAT GOES ON THE LAST ONE" pbold text!
+	($ "Increases your maximum ZP to 99! The final ZP upgrade!" $) +crtext
+	ugnome-max7 ' ugnome-ZPmax7-buy ' gnomeback gnome-confirm! ;
 
 cyoa: ugnome-toilet1-buy
 	gstats{ 1 to ugnome-toilet }
@@ -387,6 +414,30 @@ cyoa-blank: ugnome-jerkstore1-view
 	($ "Unlocks a new building where you can view special challenges!
 	Beating these challenges can unlock new cosmetic features!" $) +crtext
 	ugnome-jerkstore1 ' ugnome-jerkstore1-buy ' gnomeback gnome-confirm! ;
+		
+cyoa: ugnome-tnomemax1-buy
+	gstats{ 1 to ugnome-tnomemax }
+	ugnome-tnomemax1 gnome-buy!
+	"DOUBLE TNOMEY" cyoa-title!
+	"You can now buy from Tnomey twice per game!" fbold +crtext ;
+cyoa-blank: ugnome-tnomemax1-view
+	"IF YOU LOVE TNOMEY SO MUCH
+	WHY DON'T YOU GET
+	DOUBLE THE TNOMEYS??" pbold text!
+	($ "Buy from Tnomey the Trade Gnome up to twice per game, instead of just once!" $) +crtext
+	ugnome-tnomemax1 ' ugnome-tnomemax1-buy ' gnomeback gnome-confirm! ;
+	
+cyoa: ugnome-tnomemax2-buy
+	gstats{ 2 to ugnome-tnomemax }
+	ugnome-tnomemax2 gnome-buy!
+	"TRIPLE TNOMEY" cyoa-title!
+	"You can buy from Tnomey up to three times per game!" fbold +crtext ;
+cyoa-blank: ugnome-tnomemax2-view
+	"TRIPLE THE VALUES
+	TRIPLE THE WHOLESOME WHIMSY
+	TRIPLE THE TNOMEYS" pbold text!
+	($ "Buy from Tnomey the Trade Gnome up to three times per game! Burn that ZP!" $) +crtext
+	ugnome-tnomemax2 ' ugnome-tnomemax2-buy ' gnomeback gnome-confirm! ;
 	
 		
 cyoa: unlockgnome gstats{
@@ -450,6 +501,7 @@ cyoa: unlockgnome gstats{
 	// 15 ugnome-unlocks total
 	// plus 7 added in Eyeball
 	// now 24 total
+	// NERVE: Now 28
 	
 	+cr zptally gnome-remaining
 	choice( "Leave this thing be" )choice
@@ -540,6 +592,25 @@ cyoa: unlockgnome gstats{
 	ugnome-rarelocs 3 = if
 		ugnome-rarelocs4 ' ugnome-rarelocs4-view perk-view!
 	then
+	
+// NERVE Update
+	
+	ZOMBOP_CAP 75 < ZOMBOP_CAP 45 > and if
+		ugnome-max6 ' ugnome-ZPmax6 perk-view!
+	then
+	
+	ugnome-tnomemax 0 = if
+		ugnome-tnomemax1 ' ugnome-tnomemax1-view perk-view!
+	then
+	
+	ZOMBOP_CAP 99 < ZOMBOP_CAP 70 > and if
+		ugnome-max7 ' ugnome-ZPmax7 perk-view!
+	then
+	
+	ugnome-tnomemax 1 = if
+		ugnome-tnomemax2 ' ugnome-tnomemax2-view perk-view!
+	then
+	
 	// jerk store ULTIMATE - Add some extras
 	// Gnomey House Upgrade - When everything else is bought
 

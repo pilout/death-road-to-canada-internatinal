@@ -1,0 +1,465 @@
+// Punchbot
+
+custom: Charged Punch
+	spriteid: 16 SHEET_ROW 4 +
+	weapon: chargepunch
+	knockback: 1
+	power: 0.75
+	targeting: 0
+	projectiles: 0
+	func: WEAPON_FUNC_CUSTOM_AIMING
+	stack_as_charges: 1 
+	stack_max: 9
+	melee_aiming: 0
+	lock_drift: 1
+	ai_mule
+
+// TEST: STRAIGHT PUNCH
+	cooldown: 0
+	melee_break_scale: 0
+	melee_start_angle: 0
+	melee_windup_angle: 0
+	melee_end_angle: melee_start_angle@
+	melee_aiming: 1
+	melee_reach: 20
+	melee_retract: 0.75
+	melee_range: 8
+	melee_aiming_offset: 0
+//	melee_shift.y: 0
+
+//	swoosh_particle1: 0x 6c
+	swoosh_particle2: 0x 4b
+
+	swoosh_abs_particle1: 0
+//	swoosh_abs_particle2: 0
+	swoosh_vel: 0.75
+
+	swoosh_range: 0
+	thrust_range: 8
+
+	leaning: 0
+// TEST: STRAIGHT PUNCH
+
+	// stack_no_show: 1
+
+	: charge-punch-go args( me )
+		<- me .aim_angle@ anglexy <- me .weapon_state.val@ 30 / 5 * 3 + xymul <- me .vel!
+
+		200000 <- me .mass!
+		15 <- me .rad.x!
+		15 <- me .rad.y!
+
+		sfx{ noise 100 a! 4 <- me .weapon_state.val@ 30 / - pitch! freq@ 0.5 * freq2! 0.1 s! 500 r!
+			0.5 scale!
+			<- me .adjust-vol
+		}
+	;
+
+	: chargeitup args( me eventid )
+	
+		<- eventid THING_EVENT_SHOOT = if
+
+			<- me .action_cooldown@ 0 > if 
+				RED 50 %chance if
+					"# PUNCH CHARGING #"
+				else
+					"# CHARGING PUNCH #"
+				then .. <- me .yellmsglong
+			then;
+
+			<- me .ammocount 0= if then;
+
+			<- me .weapon_state.val@ 23 + <- me .weapon_state.val!
+			<- me .weapon_state.off.x@ 2 - <- me .weapon_state.off.x!
+
+			sfx{ noise 4 <- me .weapon_state.off.x@ abs 1.5 / - pitch!
+				0.5 scale!
+				15 d! 0.2 s! 250 r!
+				<- me .adjust-vol
+			}
+
+			0 <- me .anim.extra!
+
+		then;
+
+		// This is bad, will be executed for all other events?
+		<- eventid THING_EVENT_TIMER <> if 
+
+			<- me .vel.x@ <- me .vel.x@ * <- me .vel.y@ <- me .vel.y@ * + 1.3 > if 
+				200000 <- me .mass!
+				15 <- me .rad.x!
+				15 <- me .rad.y!
+				<- me .pos xyblast // juicy AoE
+				-1 lt .hitcheck.blast! 15 lt .hitcheck.rad!
+				<- me .vel.x@ <- me .vel.x@ * <- me .vel.y@ <- me .vel.y@ * 10 / + lt .hitcheck.power!
+
+				<- me .dust
+			else
+				3 <- me .mass!
+				5 <- me .rad.x!
+				0 <- me .rad.y!
+
+				<- me .action_cooldown@ 1 = if
+					<- me .useanammo
+					sfx{ bzinkt 1.5 pitch! 0.125 scale! 2000 freq2! <- me .adjust-vol }
+				then
+
+			then
+
+			<- me .isattack? if 
+				<- me .weapon_state.val@ 80 > if 
+					<- me .action_cooldown@ 0 > if then;
+
+					<- me charge-punch-go
+
+					90 <- me .action_cooldown!
+					6 <- me .weapon_state.off.x!
+					4 <- me .weapon_state.off.y!
+					0 <- me .weapon_state.val!
+					1 <- me .weapon_state.info!
+				then
+			then
+		then
+
+		// This is bad, will be executed for all other events?
+		<- me .isattack? not if 
+			<- me .weapon_state.val@ 0 > if 
+				<- me .weapon_state.val@ 129 > if then;
+
+				<- me charge-punch-go
+
+				60 <- me .action_cooldown!
+
+				1 <- me .weapon_state.info!
+				6 <- me .weapon_state.off.x!
+				4 <- me .weapon_state.off.y!
+				0 <- me .weapon_state.val!
+			else 
+				6 <- me .weapon_state.off.x!
+				4 <- me .weapon_state.off.y!
+			then
+		then
+	;
+	
+	wielder_handler: last
+	
+ root{
+ : chargepunch 5 chargepunch .item.charges! ;
+ }
+	
+	custom: Slam Punch
+	weapon: slampunch
+	spriteid: 16 SHEET_ROW 3 +
+	knockback: 1
+	power: 1
+	melee_extra_hits: 0
+	cooldown: 0
+
+//	swoosh_particle1: 0x 6c
+//	swoosh_particle2: 0x 4b
+
+//	swoosh_abs_particle1: 0
+//	swoosh_abs_particle2: 0
+
+	melee_break_scale: 0
+//	melee_shift.x: -2
+//	melee_shift.y: -3
+//	melee_start_angle: 45
+	melee_end_angle: -120
+//	melee_weapon_angle: -120
+//	melee_reach: 10
+
+	leaning: 2
+	stack_as_charges: 1
+	stack_max: 5
+	ai_mule
+	// stack_no_show: 1
+
+: blastring ( pos3 )
+	// blast ring
+	particle{ new pos3!
+		5 ticks!
+		5 fade_out!
+		0.75 scaley!
+		0.5 scale!
+		1.3 grow!
+		0 vel.y!
+		particles32_base_id 4 + spriteid!
+		1 clr.r! 1 clr.g! 1 clr.b!
+	}
+;
+
+
+: quake args( me eventid )
+	
+	<- eventid THING_EVENT_SWING = if
+		
+		<- me .ammocount 0= if then;
+		0 <- me .fatigue!
+		0 <- me .rad.z! // why am I being hit in the sky???
+		-4 <- me .vel.z! // weeee
+		55 <- me .stun!
+		1 <- me .timer!
+		0 <- me .anim.counter! // STOP EATING ME
+		1 <- me .unseen!
+		
+		1 %chance if
+			"# HE HUURRLED HIS THUNDERSLAM #" <- me .report
+		then
+
+		4 <- me .anim.weapon_counter!
+		0 <- me .weapon_state.val!
+		60 <- me .cooldown!
+		<- me .useanammo
+		sfx{ bzinkt 1.5 pitch! 0.125 scale! 2000 freq2! <- me .adjust-vol }
+	then
+		
+	<- eventid THING_EVENT_TIMER = if
+		1 <- me .timer!
+		<- me .weapon_state.val@ 1 + <- me .weapon_state.val!
+		
+		<- me .weapon_state.val@ 27 = if 
+			6 <- me .vel.z!
+			sfx{ noise 100 a! 0.5 pitch! freq@ 1.5 * freq2! 0.1 s! 50 r! <- me .adjust-vol }
+		then
+		
+		<- me .pos.z@ 0 >= if
+			<- me .pos xyblast
+			-1 lt .hitcheck.blast! 30 lt .hitcheck.rad!
+			3 lt .hitcheck.power!
+			30 lt .hitcheck.hits_allowed!
+			0 <- me .timer!
+			0 <- me .weapon_state.val!
+			sfx{ thump 0.75 1 frnd pitch! 10 k! 3 scale! 0.1 s! 250 r! <- me .adjust-vol }
+			0 <- me .unseen!
+			<- me .pos3 swap 4 + swap blastring
+			-15 <- me .shudder!
+			-2 <- me .vel.z!
+			10 0.85 rumble-camera
+			<- me .dust
+			<- me .dust
+			<- me .dust
+		then;
+		
+	<- eventid THING_EVENT_WIELD = if
+		0 <- me .cooldown!
+	then
+		
+		
+	then
+
+;
+
+wielder_handler: last
+
+root{
+ : slampunch 3 slampunch .item.charges! ;
+ }
+ 
+ WEAPON_UPPERCUT clone-to: Robo Upper
+	weapon: botpunch
+	spriteid: 16 SHEET_ROW 2 +
+	knockback: 3
+	power: 1.5
+	cooldown: 1.2
+
+// Speedbot
+
+custom: Auto-Nailgun
+	weapon: multnail
+	spriteid: 15 SHEET_ROW 10 +
+	stack_as_charges: 1
+	// stack_no_show: 1
+	stack_max: 300
+	power: 0.5
+	cooldown: 1
+	projectiles: 0
+	func: WEAPON_FUNC_CUSTOM_AIMING
+	skill_angle_range: 0
+	melee_aiming: 0
+	lock_drift: 0
+	targeting: 1
+	reload: 0
+
+	melee_shift.y: 5
+
+//			5 <- me .weapon_state.off.y!
+//			3 <- me .weapon_state.off.x!
+
+	
+	0 value bonus
+	
+	
+	: fire-arrow args( me )
+		
+		bullet
+		-1 lt .anim.info!
+		weapons_base_id 249 + lt .spriteid!
+		13 lt .anim.counter!
+		0 lt .no_lighting!
+		0 lt .glow!
+
+		<- me thing# lt .throwerid!
+		<- me .aim_angle@ lt .angle!
+		<- me .pos lt .angle@ anglexy 12 xymul xyadd lt .pos!
+		lt .angle@ gameticks 14 * cos 7 * + lt .angle!
+
+		0.1 lt .hitcheck.power! // Power (exponential)
+		
+		<- me .weapon_state.val@ 20 > if 
+			0.5 5 <- me .weapon_state.val@ / - to bonus
+		lt .hitcheck.power@ bonus + lt .hitcheck.power!
+		then // damage ramp up
+
+		lt .angle@ anglexy 8 xymul lt .vel! // Speed
+
+		-7 <- me .breath - lt .pos.z!
+		lt .pos lt .pos.z@ +
+
+		<- me .weapon_state.val@ 1 + <- me .weapon_state.val!
+		
+		20 <- me .weapon_state.val@ / 5 + <- me .cooldown!
+		<- me .useanammo
+		
+	;
+
+	:noname args( me eventid )
+		<- me .carryid@ if then;
+		<- me .anim.state@ if then;
+
+
+		<- eventid THING_EVENT_SHOOT = if
+
+			sfx{ noise 2.5 3.5 frnd pitch! 5 a! 100 d! 0.2 s! 100 r!
+				freq@ 0.1 * freq2! 25 i!
+				500 filt_high! 0.5 q!
+				0.5 scale!
+				<- me .adjust-vol
+			}
+
+			<- me fire-arrow
+
+			<- me .weapon_state.frame@ 1+ 1 & <- me .weapon_state.frame!
+	
+		then
+		
+		
+		<- eventid THING_EVENT_WIELD = if
+			0.5 <- me .gravity!
+//			5 <- me .weapon_state.off.y!
+//			3 <- me .weapon_state.off.x!
+			1 <- me .subtypeid!
+		
+			then
+			
+		<- eventid THING_EVENT_SWING <> if 
+			0.5 <- me .gravity!
+//			5 <- me .weapon_state.off.y!
+//			3 <- me .weapon_state.off.x!
+			1 <- me .subtypeid!
+			
+			<- me .isattack? not if
+				0 <- me .weapon_state.val!
+			then
+			
+		then
+		
+	;
+
+	wielder_handler: last
+	
+root{
+: multnail 300 multnail .item.charges! ;
+}
+
+custom: Speed Mode
+	weapon: multmode
+	spriteid: 15 SHEET_ROW 8 +
+	power: 0
+	cooldown: 0
+	melee_start_angle: -90
+	melee_end_angle: -90
+	melee_windup_angle: -90
+	func: WEAPON_FUNC_CUSTOM_AIMING
+	stack_as_charges: 1
+	targeting: 0
+	stack_max: 7
+	ai_mule
+
+	melee_shift.y: 5
+
+	// stack_no_show: 1
+
+
+: transporting-events args( me eventid )
+	<- eventid THING_EVENT_TIMER = if 
+	
+		<- me .weapon_state.val@ 150 = if 
+			0 <- me .events!
+			0 <- me .weapon_state.val!
+			80 <- me .cooldown!
+			80 <- me .action_cooldown!
+			3 <- me .mass!
+			0 <- me .rad.y!
+			5 <- me .rad.x!
+			0 <- me .character@ .headoff.y!
+			<- me .useanammo
+		then;
+	
+		1 <- me .timer!
+					
+			1 <- me .action_cooldown!
+		<- me .vel xynorm 2.5 xymul <- me .vel!
+		1000 <- me .mass!
+		7 <- me .rad.x!
+		7 <- me .rad.y!
+		-2 <- me .character@ .headoff.y!
+		
+		<- me .weapon_state.val@ 1 + <- me .weapon_state.val!
+		
+		
+	then
+;
+
+	
+: transport args( me eventid )
+
+	<- eventid THING_EVENT_SHOOT = if
+	
+		<- me .action_cooldown@ 0 > if then;
+			
+			1 <- me .timer!	
+		' transporting-events <- me .events!
+		150 <- me .cooldown!
+				
+		0 <- me .weapon_state.val!
+			
+	then
+	
+	<- eventid THING_EVENT_WIELD = if
+			0.5 <- me .gravity!
+//			5 <- me .weapon_state.off.y!
+//			-3 <- me .weapon_state.off.x!
+			1 <- me .subtypeid!
+			<- me .ammocount 0= if 
+				"#SO SLOW!#" rbold
+			else
+				"[Speed Mode]"
+			then <- me .report
+		
+			then
+			
+		<- eventid THING_EVENT_SWING <> if 
+			0.5 <- me .gravity!
+//			5 <- me .weapon_state.off.y!
+//			-3 <- me .weapon_state.off.x!
+			1 <- me .subtypeid!
+		then
+	
+;
+
+wielder_handler: last
+
+ root{
+ : multmode 3 multmode .item.charges! ;
+ }

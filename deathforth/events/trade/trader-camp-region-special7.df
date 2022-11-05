@@ -1,0 +1,445 @@
+uses paul/region-layout.df
+"events/inner/clinicloc.df" $load
+
+// "../deathforth/rooms/TEMPROOM.txt" $load-rooms
+	
+" 
+:map 1 
+:tags tradehospital  
+:scriptA hospbag 
+:scriptB hosptrader 
+:scriptC regiondef{ trader-weapon-buyer-inside } 
+:scriptD regiondef{ tnomey-spawn-inside } 
+:scriptE hospitaldecomain 
+:scriptF hospitaldecoside 
+:scriptG hosptoilets 
+:scriptH hospitalwall 
+:size 45 22 
+:off 0 0 
+:tiles 
+000000000000000000000000000000000000000222222
+000002222222222222222222000000000000000233332
+000002333332333332333332222222220000000211112
+0000021E1EH2HEHE121EHE12333333320000000211112
+00000211B11211B11211B1121111G1120000000211112
+2222221111121111F2F11112111111120000000222222
+233332F111F2F111121111F2111111120000000333333
+2EHE12221222221222221222122222220000000000000
+21B113331333331333331333133323330000000000000
+211111H111H111111H111111111F20000000000000000
+211111111111111111111111111120000000000000000
+21F1F2222222221122222222222120000000000000000
+222222333333321133333333333120000000000000000
+333333000000021111111C11111120000000000000000
+0000000000000211A1111111111120000000000000000
+0000000000000211111111111D1120000000000000000
+000000000000021111111111111120000000000000000
+000000000000021122222222222220000000000000000
+000000000000021123333333333330000000000000000
+000000000000021120000000000000000000000000000
+000000000000022220000000000000000000000000000
+000000000000033330000000000000000000000000000
+
+"
+value TRADEHOSPITAL
+TRADEHOSPITAL $parse-rooms
+
+cyoa{
+
+cyoa-choice: hosptrader1-go
+	"BURNED FOREVER" cyoa-title!
+	($ "The doctor (?) hands " .. cname .. " a little slip of paper. It reads:
+	" .. "ur a dingus
+	u smell like egg" pbold $) cyoa-text!
+	cchar statmod{ .fireproof? } not if
+		"OH!
+		OH! BURNED! OH!!!!!" fbold +crtext
+		($ cname .. " feels emotionally devastated by the fire damage of this sick burn! " 
+		.. cname .. "'s skin feels strangely cool." bbold $) +crtext
+		cchar statmod{ .fireproof } morale4- badfx
+		choice( "ARGH!" )choice
+	else
+		($ cname .. ", being fireproof, is not affected by this burn at all. " .. cname .. " feels extremely smug about this." bbold $) +crtext
+		goodfx morale4+
+		"NO! NO!
+		NO! NO!!!!" fbold +crtext
+		($ "The doctor flees in intense shame, and " .. cname .. " reacts by looting the room immediately." $) +crtext
+		deleteme +cr 6 8 rnd trunk-medical+
+	then
+	clear-cyoa
+;
+
+cyoa-bridge: hosptrader1-pick4
+	ricon
+	($ "Who is going to get sent to the " .. "BURN UNIT" .. fbold .. "?" $) cyoa-text!
+	' hosptrader1-go cyoa-team-choice
+;
+
+cyoa: hosptrader1
+	"Burn Unit" cyoa-title!
+	($ "WELCOME TO THE BURN UNIT
+	WHO IS GOING TO GET BURNED?" fbold $) cyoa-text!
+	basic-tone
+	choice( "Leave, make no eye contact" )choice back-esc
+	team-count 3 > if
+		' hosptrader1-go 2 #cyoa-team-choice
+		choice( "Pick someone else" )choice: hosptrader1-pick4
+	else
+		' hosptrader1-go cyoa-team-choice
+	then
+;
+
+0 value ht2-1
+0 value ht2-2
+0 value ht2-3
+
+cyoa-choice: trade-h2-3
+	($ Thegroup .. " buys the " .. "MEDICAL MEGAPACK!" fbold .. " That's a lot of potential healing!
+	" .. "The Healing Spray XL even works on stubbed toes." pbold $) cyoa-text! goodfx
+	10 WEAPON_HEALSPRAY trunk.weapon+ 10 trunk-medical+ -15 trunk-food+ someicon ' ht2-3 ++
+;
+	
+cyoa-choice: trade-h2-2
+	($ Thegroup .. " buys the " .. "GOLDEN SCALPEL" rbold .. ". It never breaks, and hits one zombie at a time extremely hard for a weapon that swings at maximum speed!" $) cyoa-text! goodfx ' ht2-2 ++
+	1 WEAPON_GOLDSCALP trunk.weapon+ -15 trunk-food+ picon
+;
+
+cyoa-choice: trade-h2-1
+	($ Thegroup .. " buys a " .. "BONESAW" rbold .. ". It can hit two zombies with one slice, and hits hard for its speed." $) cyoa-text! goodfx ' ht2-1 ++
+	1 WEAPON_BONESAW trunk.weapon+ -6 trunk-food+ picon
+;
+
+cyoa: hosptrader2
+	"Medical Supplies" cyoa-title!
+	($ "Welcome to " pbold .. "The Final Hospital!" rainbold .. " I'm selling some crucial medical supplies, to help you on your journey!" pbold $) cyoa-text!
+	ht2-3 1 < if
+		"Special deal today, one per group of visitors: My Medical Megapack contains 10 medical supplies, on top of a Healing Spray XL with 10 sprays!" pbold +crtext
+	then
+	basic-tone foodamt
+	trunk-food 6 < if
+		($ Thegroup .. " lacks enough food to buy anything!" $) +crtext
+		($ "The trader gives " .. thegroup .. " a complimentary " .. "Bonesaw" rbold .. " just for visiting!" $) +crtext goodfx 1 WEAPON_BONESAW trunk.weapon+ clear-cyoa
+	else
+		choice( "Leave for now" )choice back-esc
+		trunk-food 14 > ht2-3 1 < and if
+			choice( "Medical Megapack - 15 food" )choice: trade-h2-3
+		then
+		trunk-food 14 > ht2-2 1 < and if
+			choice( "Golden Scalpel - 15 food" )choice: trade-h2-2
+		then
+		trunk-food 5 > ht2-1 3 < and if
+			choice( "Bonesaw - 6 food" )choice: trade-h2-1
+		then
+	then
+;
+
+: issick? statmod{ .sick? } ; // The only time I ever use a sickness check, ever
+: hospital-superserum
+	' .strength++ foreach-team-char
+	' .fitness++ foreach-team-char 
+	' .vitality++ foreach-team-char 
+	' .dexterity++ foreach-team-char
+;
+
+cyoa-choice: hosptrader3-go
+
+	team-damage 0 = if
+		($ Thegroup .. " gets a check-up, but there's nothing wrong with them. The doctor is visibly angry and insulted that you wasted their time, and scribbles something in a chart." $) cyoa-text!
+		morale++all
+	else
+		12 groupheal
+		($ Thegroup .. " gets treatment for " $) cyoa-text!
+		team-damage 1 < if 
+			"all" +text 
+		else
+			"most" +text
+		then
+			" of their wounds." +text
+			"The doctor is incredibly disappointed and bored by your commonplace injuries." +crtext
+	then
+	
+	team-stack ' issick? stack-filter 0 > if 
+		"BUT WAIT! " rbold +crtext
+		($ "The Troubled Genius Doctor detects an illness!
+		After about 44 minutes, the doctor comes to a an exciting conclusion: The illness was " .. "COFFEE POISONING! " fbold $) +text
+		($ "The doctor administers an experimental miracle superserum to " .. thegroup .. "! It doesn't cure the illness, but a single day of rest will do that, anyway." $) +text +cr hospital-superserum
+	then
+	
+	goodfx -5 trunk-food+ picon clear-cyoa
+;
+
+cyoa: hosptrader3
+	"Probably a Troubled Genius Doctor" cyoa-title!
+	($ "I've been treating nothing but zombie bites, some light burns, propane tank injuries, and stubbed toes for what feels like 6 years now.
+	Tell me you have any sort of disease. Ideally a dramatic mystery disease, but even something like food poisoning would be great at this point. Anything but another zombie bite!" pbold $) cyoa-text!
+	basic-tone +cr foodamt
+	trunk-food 5 < if
+		($ Thegroup .. " lacks enough food for medical treatment!" $) +crtext
+		($ " The doctor takes pity on " .. thegroup .. " and hands out some medical supplies." rbold $) +text goodfx 3 4 rnd trunk-medical+ clear-cyoa
+	else
+		choice( "Leave for now" )choice back-esc
+			solo if
+				choice( "Get injuries treated - 5 food" )choice: hosptrader3-go
+			else
+				choice( "Get the group's injuries treated - 5 food" )choice: hosptrader3-go
+			then
+	then
+;
+
+0 value cleaninglady-meals
+
+: cleaninglady-amt cleaninglady-meals 20 * 10 + ;
+: cleaninglady-pay? trunk-food cleaninglady-amt 1 - > ;
+: cleaninglady-pay cleaninglady-amt -1 * trunk-food+ ;
+
+cyoa-choice: cleaninglady-meal-eat
+	cicon
+	($ cname .. " is flooded with nostalgic flavors. At first, the entire meal seems to have a strange, stale aftertaste, but you'd have to be a fool to think that this wasn't intentional. It's all part of the subtle appeal of it, the masterful crafting of it not as a mere meal, but as a Total Food Experience!
+	There's even an extra jello! One Red flavor, one Yellow flavor! Incredible!" $) cyoa-text!
+	vitality++ morale4+ cchar .fullheal ' cleaninglady-meals ++
+	goodfx
+;
+
+cyoa-bridge: cleaninglady-meal
+	solo if
+		soloer choosechar cleaninglady-meal-eat 
+	else
+		($ "Who should get to eat the Hospital Cafeteria Food?" $) cyoa-text!
+		"THIS FOOD OF THE GODS WILL CONFER A BONUS TO MAXIMUM HEALTH, AND A MASSIVE MORALE RESTORE!" rbold +crtext
+			' cleaninglady-meal-eat cyoa-team-choice
+	then
+;
+
+cyoa-bridge: cleaninglady-meal-pay
+	cleaninglady-meal
+	cleaninglady-pay
+;
+
+cyoa-bridge: cleaninglady-recruit
+	ricon 4 recruitee .morale! clear-cyoa 0.25 recruitee .ai.wander_chance! 0 nearest .unseen!
+	"Cleaning Up" cyoa-title!
+	($ rname .. " spins her mop rapidly around her wrist.
+	" .. "Time to clean up this mess!
+	" pbold .. "Mop water soaks " .. thegroup .. " pretty bad." $) cyoa-text!
+	goodfx
+	
+	team-full? if
+		($ "The group is full.
+		Who would you like to replace to make room for " .. rname .. "?" $) +crtext
+		recruit-replace?
+	else
+		recruited
+		($ "That seemed really easy." $) +text
+		most-charming if
+			choosechar ($ cname .. " convinces " .. rhim .. " a to sneak out some Hospital Food!" $) +crtext
+			choice( "GIVE ME THAT HOSPITAL FOOD" )choice: cleaninglady-meal
+		then
+	then
+	
+	// WEAPON_SHOTGUN recruitee .weaponb! 	20 LOOT_SHOTGUN_SHELL recruitee .lootamt!
+;
+		
+cyoa: cleaninglady
+	"The Cafeteria Food Black Market" cyoa-title!
+	nearest .character@ choosechar cchar to recruitee ricon
+	($ "There is a cleaning lady in here. She doesn't seem to actually be working. She sizes " .. thegroup .. " up." $) cyoa-text! basic-tone
+	cleaninglady-meals 0 > if
+		"Uh huh. Wow, you have a serious problem.
+		I can get you another one, but it will cost you."
+	else
+		"I know what you're REALLY here for. You've come all the way here for the hospital food.
+		I can sneak you the cafeteria meal you crave, for a price." 
+	then pbold +crtext +cr foodamt
+	cleaninglady-pay? if
+		choice( "Leave for now" )choice back-esc
+		choice( "Buy the Cafeteria Food - " .. cleaninglady-amt .. " non-cafeteria food" )choice: cleaninglady-meal-pay
+		choice( "Refuse to do this on principle" )choice
+	else
+		choice( "Can't spare the food" )choice
+	then
+	choice( "Try to Recruit her" )choice: cleaninglady-recruit
+;
+
+0 value hospital-medical+
+
+: hospital-train-amt numhums 2 * hospital-medical+ 1 + * 1 + ; 
+: hospital-train-pay? trunk-food hospital-train-amt 1 - > notsolo notsolohuman and and ;
+: hospital-train-pay hospital-train-amt -1 * trunk-food+ ;
+
+: hospital-solo-amt hospital-medical+ 2 * 3 + ;
+: hospital-solo-pay? trunk-food hospital-solo-amt 1 - > ;
+: hospital-solo-pay hospital-solo-amt -1 * trunk-food+ ;
+
+cyoa-choice: hospital-medical-train
+	cchar .medical@ 6 < if
+		($ cname .. " mostly gets a crash course in golf trivia. Somehow, this feels applicable to medical skill." $) goodfx
+	else
+		($ cname .. " has already got their full medical degree from SHBU!
+		However, the Our Saint of the Hospital Bathroom University does not issue refunds." $) badfx
+	then cyoa-text! 
+	hospital-solo-pay medicalREV medical++ ' hospital-medical+ ++
+;
+
+cyoa-choice: hospital-medical-group
+	($ "The entire group gets medical training! It's almost entirely a group pantomime of proper golfing technique." $) cyoa-text! goodfx
+	hospital-train-pay someicon
+	regiondef{ ' trade-medical-group! foreach-human-char } numhums ' hospital-medical+ +!
+;
+
+cyoa: hospital-medical-give
+	solohuman if
+		choosehuman hospital-medical-train
+	then;
+	"Who should get this vast medical knowledge?" cyoa-text!
+	' hospital-medical-train cyoa-human-choice
+;
+
+cyoa: hosptrainer
+	($ "Saint Hospital Bathroom University" $) cyoa-title!
+	"Feh! Doctors! Big deal! I can teach you everything you need to know about medicine, here in this bathroom, way better than in any quote-unquote 'UNIVERSITY'." pbold text!
+	"Spittle shoots out of their mouth when they say 'University'. You dimly wonder how long they've been in this bathroom, and if they've washed their hands." +crtext foodamt
+		hospital-solo-pay? not if
+			"You can't afford any more training." +crtext 
+		then;
+		choice( "Leave for now" )choice back-esc
+		hospital-solo-pay? if
+			choice( "Give " .. hospital-solo-amt .. " food for single training" )choice: hospital-medical-give
+		then
+		hospital-train-pay? if
+			choice( "Give " .. hospital-train-amt .. " food for group training" )choice: hospital-medical-group
+		then
+		
+;
+	
+}
+
+root{
+
+: hosp-magchance
+	20 %chance if
+		magazine 0 4 rnd cyoa{ to bookmagtype ' bookmag-get cyoa! } 50 health! -2 movex drift
+	then
+;
+
+}
+
+roomgen{
+
+
+: .ht1 args( ch ) 
+	21 <- ch .specialhead! 24 <- ch .specialbody! // Jerk head, Madsci body, Burn Unit
+;
+: .ht2 args( ch ) 
+	5 <- ch .hattype! 25 <- ch .glassestype! // Bandanna, Medical Supplies and Weapons
+;
+: .ht3 args( ch ) 
+	6 <- ch .hattype! 10 <- ch .torsotype! // Beanie, Black Jacket, Group Heal
+;
+
+: hosptradercommon
+	still-npc regiondef{ ' trader-event lt .events! 1 lt .timer! }
+	
+;
+
+: hospitaldecomain 1 5 rnd case
+	1 of hospitalshelfempty endof
+	2 of hospitalbed endof
+	3 of hospitalexam endof
+	4 of hospitalbedside endof
+	5 of wheelchair endof
+endcase -10 movey ;
+
+: hospitaldecoside 1 5 rnd case
+	1 of ivpole endof
+	2 of hospitalstool endof
+	3 of hospitalstepper endof
+	4 of hospitalcurtain endof
+	5 of stretcher endof
+endcase ;
+
+: hosptoilets
+	bathtoilet -1 movey 0.3 movex
+	stall -1 movey 1 movex
+	stall -1 movey -0.5 movex
+	bathtoilet -1 movey 2 movex
+	bathtoilet -1 movey -1.2 movex
+	stall -1 movey -2 movex
+	sink -1 movey -3 movex
+	sink -1 movey -4 movex
+	hosptradercommon 2 movey cyoa{ ' hosptrainer cyoa! }
+	hosp-magchance
+;
+
+: hosptrader1
+	hosptradercommon .ht1 cyoa{ ' hosptrader1 cyoa! }
+;
+
+: hosptrader2
+	hosptradercommon .ht2 cyoa{ ' hosptrader2 cyoa! }
+;
+
+: hosptrader3
+	hosptradercommon .ht3 cyoa{ ' hosptrader3 cyoa! }
+;
+
+: hosptrader4
+	hosptradercommon .cleanerify cyoa{ ' cleaninglady cyoa! }
+;
+
+		0 stack
+			' hosptrader1 shove
+			' hosptrader2 shove
+			' hosptrader3 shove
+			' hosptrader4 shove
+		value hosptrader-base
+		hosptrader-base shuffles var hosptrader-picker
+
+: hosptrader
+	hosptrader-picker depths 0= if hosptrader-base shuffles to hosptrader-picker then pops nip execute ;
+
+: hospbag
+	bag-me ;
+
+}
+
+locdef{
+
+location: tradehospital
+		max-rooms: 1
+		entry-tags: tradehospital
+		script: set-theme-hospital
+		pre-script: set-theme-hospital
+		post-script: nad 0 %zombs
+				
+		room-choice: tradehospital
+			room-weight: 10
+			room-count: 1
+			filter-only
+
+}
+				
+map{ regiondef{
+
+trade-camp-reset
+
+: site-setup
+
+	1 no_time!
+	12 14 rnd o'clock
+	
+	mission{ no-edge-spawns }
+	
+;
+
+	 region: specialcamp-7
+		
+		trade-mode
+
+		inside
+					
+		loc-choice: tradehospital
+			loc-weight: 99
+			loc-count: 1
+
+		post-script: site-setup
+} }

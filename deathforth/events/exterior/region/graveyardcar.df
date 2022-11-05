@@ -1,0 +1,396 @@
+// uses hack/region-downtown-test.df
+uses paul/region-layout.df
+
+"../deathforth/rooms/city.txt" $load-rooms
+
+// "../deathforth/rooms/TEMPROOM.txt" $load-rooms
+
+"
+:map 1
+:tags gyshack 
+:scriptA indshelf -1 movey 
+:scriptB shackloot 
+:size 7 10
+:off 11 1 
+:tiles 
+2222222
+2333332
+21A1A12
+2111112
+2111112
+211B112
+2111112
+2111112
+2222222
+3333333
+"
+value GYBUILD
+GYBUILD $parse-rooms
+
+cyoa{
+
+cyoa-choice: gothrescue-go
+	($ cname .. " starts following " .. pname .. "!
+	" .. cHe .. " could be useful, if you can get " .. chim .. " out of here alive. Or a handy distraction, if you can't." $) cyoa-text!
+	rescueget mission{ ' rescuedme to post-mission-cyoa }
+;
+
+cyoa: gothrescue
+	rescue choosechar cicon
+	dead? if npc-died then;
+	"Undead Undead" cyoa-title!
+	($ cname .. " says that " .. che .. " is tired of being a gravekeeper. Everyone just keeps crawling out of the ground right after they're buried.
+	" .. cHe .. " asks if " .. che .. " can follow you around." $) cyoa-text!
+		choice( "Let " .. chim .. " follow you"  )choice: rescueme-2
+		choice( "Leave " .. chim .. " for now" )choice
+;
+
+}
+
+: .gothmake args( ch )
+	WEAPON_SHOVEL <- ch .weapona! 
+	"Gothkeeper" <- ch .name!
+	"Goth" <- ch .trait!
+	"Gravetender" <- ch .perk!
+	"keeps blasting dark music about vampires and such." <- ch .job!
+	1 <- ch .female!
+	6 <- ch .hattype!
+	17 <- ch .torsotype!
+	16 <- ch .legstype!
+;
+
+: goth-rescue-npc new-npc@ .gothmake
+	1 lt .unseen! 0 lt .leaveok! 
+	npc@rescue cyoa{ ' gothrescue cyoa! }
+;
+
+: gyprize 
+	50 %chance if 
+		goth-rescue-npc
+	else
+		skelscat
+		looseloot
+		niceranged
+		20diff %zombs
+	then
+	
+;
+
+: shackloot
+	shovel .drift
+	rake .drift
+	broom .drift
+	mop .drift
+	50 %chance if
+		20 25 rnd dgas
+		50 %chance if
+			whacker
+		else
+			blower
+		then .drift
+	else
+		50 %chance if
+			ewhacker
+		else
+			eblower
+		then drift
+	then
+;
+
+locdef{
+
+location: house
+		max-rooms: 4
+		entry-tags: living
+		script: set-theme-house
+		pre-script: set-theme-house
+		post-script: 0 %zombs
+				
+		room-choice: kitchen
+			room-weight: 10
+			room-count: 1
+			room-script: nad
+			room-post-script: beddoor 10diff %zombs
+			
+		room-choice: bedroom
+			room-weight: 50
+			room-count: 1
+			room-script: nad
+			room-post-script: beddoor gyprize
+			
+		room-choice: bathroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath 
+			room-post-script:
+	
+		room-choice: living
+			room-weight: 20
+			room-count: 1
+			room-script: ndx
+			room-post-script: carkeys 10diff %zombs
+			
+location: shack
+		max-rooms: 1
+		entry-tags: gyshack
+		script: set-theme-cabin
+		pre-script: set-theme-cabin
+		post-script: nad 0 %zombs
+				
+		room-choice: gyshack
+			room-weight: 10
+			room-count: 1
+			room-post-script:
+			filter-only
+}
+
+map{ regiondef{
+
+0 value bfx
+0 value bfy
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+: house tanchor! map{ 
+	"house" $picklocid addloc prefab{ farmhouse } 
+} ;
+
+: shack tanchor! map{ 
+	"shack" $picklocid addloc prefab{ barn } 
+} ;
+
+: grassbunch
+	xyp.x 1 - xyp.y 1 - xyp.x 1 + xyp.y 1 + map{ grasslot }
+;
+
+: .baseify
+	4 over .rad.y!
+	dup .sprh 0.5 * 4 - over .anim.off.y!
+	drop
+;
+
+
+: tombstone spawn special_objects32_base_id 0x 78 + 0 0x 16 rnd + lt .spriteid!
+	bbox immovable lt .baseify
+;
+
+
+: cemstatue spawn special_objects48_base_id 0x 24 + 0 3 rnd + lt .spriteid!
+	postify lt .rad.x@ 2 * lt .rad.x! tlbbolt
+;
+
+: spookytree spawn rndflip
+	special_objects48_base_id 0x 1e + 0 3 rnd + lt .spriteid!
+	1 1.25 frnd lt .scale.y!
+	treeify lt .rad.x@ 2 * lt .rad.x!
+;
+
+: maybetree
+	5 onein not if
+		spookytree xyp.xy tile>pos lt .pos!
+		0 0.5 frnd rndsign * lt .jumpx
+	then
+;
+
+: dotombstone xyp.xy tombstone tile>pos -2 2 rnd + swap -4 4 rnd + swap lt .pos!
+	lt .rad.y@ -8 / lt .jumpy
+	grassbunch
+;
+
+: .no_tile_collide TILEFLAG_NO_COLLIDE swap .tileflags! ;
+
+: walktile
+	xyp.xy tile@ LAYER_WALLSIDE street_tiles_base_id 0x 5a + .lspriteid!
+	xyp.xy tile@ LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	xyp.xy tile@ LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: junkit
+	2dup tile@ 0= if 2drop then;
+	2dup tile@ LAYER_WALLSIDE street_tiles_base_id 0x 1c + .lspriteid!
+	blocked
+;
+
+0 value digstart
+0 value digend
+
+50 value maxzombs
+
+: dig-diff
+	12 1 difficulty / >int 3 8 clamp * // Multiplied directly to timer
+	// 1 difficulty / - when it was 120 to 360 rnd, lower diff increased the timer
+;
+
+: dodig
+
+	zomb-count maxzombs < if
+		2 map{ w 3 - } rnd digstart digend rnd tile>pos xyzombdig
+	then
+
+	40 dig-diff 100 dig-diff rnd timer_dur! timer_retrigger
+;
+
+: dostatue xyp.xy cemstatue tile>pos lt .pos!
+;
+
+: cemfence args( spr )
+	xyp.xy tile@ LAYER_WALLSIDE street_tiles_base_id 0x 145 + <- spr + .lspriteid!
+	xyp.xy blocked
+	xyp.xy 1- tile@ LAYER_WALLSIDE street_tiles_base_id 0x 135 + <- spr + .lspriteid!
+	xyp.xy 1- blocked
+;
+
+: doextras
+	// skeleton with tool
+	skel map{ w 0.5 * w 0.5 * 4 - rndsign * + } 2 map{ h 3 / } rnd tile>pos lt .pos! drift drift drift rndflip
+
+	lt .pos shovel .pos! drift
+
+	60 5 * ' dodig timer_add
+;
+
+: fencea 0 cemfence ;
+: fenceA 1 cemfence ;
+
+: fenceb 3 cemfence ;
+: fenceB 2 cemfence ;
+
+0 stack
+	' house shove
+	' shack shove
+constant GYBUILD-OPTIONS
+0 var gybuild-options
+
+' plotdirt value groundtype
+
+' plotgrass >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char @ = if xyp.xy gybuild-options pops nip execute then;
+
+	xyp.i char g = if grassbunch then;
+	xyp.i char # = if walktile then;
+	xyp.i char x = if dotombstone then;
+	xyp.i char t = if maybetree then;
+	xyp.i char T = if spookytree xyp.xy tile>pos lt .pos! then;
+	xyp.i char a = if fencea then;
+	xyp.i char A = if fenceA then;
+	xyp.i char b = if fenceb then;
+	xyp.i char B = if fenceB then;
+	xyp.i char 1 = if xyp.y to digstart then;
+	xyp.i char 2 = if xyp.y to digend then;
+	xyp.i char s = if dostatue then;
+	xyp.i char E = if doextras then;
+	
+	xyp.i char C = if spawn-locked-car-noloot xyp.xy tile>pos lt .pos! then;
+
+;
+
+"
+.....................................
+.....................................
+.....................................
+.t.t.t.t..........T..........t.t.t.t.
+....t...@#####........@#####t........
+.t.....t.....#.........#.....t.....t.
+..t.t.t......###########......t.t.t..
+.t.....t..t......###......t..t.....t.
+.................###.................
+..1x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+....t.....t.....#####........t.......
+.t............t.##s##.t............t.
+.......t........#####.....t.....t....
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.t...............###..............2t.
+.................###.................
+aaaaaaaaaaaaaaaaA###Bbbbbbbbbbbbbbbbb
+.t...t...t...t.......................
+.......................C.............
+.....................................
+.....................................
+.....................................
+.....................................
+.....................................
+..................................E.."
+constant maplayout
+
+: plotmap
+	0 -1 maplayout xyplot: pt
+;
+
+
+: cloudparticle wind_force@ abs 0.5 * 0.5 max wind_force@ sign * 3 5 frnd args( relpos wind scale )
+	curmapview if then;
+	particle{
+		new
+		special_objects64_base_id 0x 10 + spriteid!
+		glowy 0.02 0.025 0.05 rgb!
+		<- scale 0.5 * scalex! <- scale scaley!
+		rndsign 90 * angle!
+		rnd5050 flipx!
+		90 fade_in!
+		90 fade_out!
+
+		<- wind 0.9 1 frnd * 0.5 * vel.x!
+		-1 1 frnd 0.1 * <- wind * -0.05 0.05 clamp vel.y!
+
+		map{ pixelw 64 <- scale * + vel.x@ abs / } ticks!
+
+		-1 1 frnd view_h * camera.pos.y@ + pos.y!
+
+		map{ pixelw 0.5 * 32 <- scale * + vel.x@ sign neg * <- relpos * pixelw 0.5 * + } pos.x!
+	}
+;
+
+
+: clouds 5 for -0.5 0.5 frnd cloudparticle next ;
+
+: cloudfloat 1 cloudparticle
+	60 3 * 0.5 1 frnd * timer_dur!
+	timer_retrigger
+;
+
+: cloudauto 1 ' cloudfloat timer_add cloudfloat ;
+
+: site-setup
+
+	GYBUILD-OPTIONS shuffles to gybuild-options
+//	' plotgrass to ft plotmap
+	' plotgravel to ft plotmap
+
+	50 difficulty to maxzombs
+	resetcarkeys
+
+	rndsign wind_force!
+	cloudauto clouds
+	timeofday o'clock
+
+	5diff %zombs
+	mission{ no-leaving 1 mission-bottom-leave! }
+;
+
+region: cemetery
+	w: maplayout layoutw
+	h: maplayout layouth 
+	
+	spooky-music
+
+	loc-choice: cemetery
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

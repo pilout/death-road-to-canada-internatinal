@@ -1,0 +1,94 @@
+
+: shodukin-glow-event args( me eventid )
+	<- eventid THING_EVENT_TIMER <> if then;
+
+	1 <- me .timer! 
+
+	particle{ new <- me .pos pos! }
+		particles32_base_id 6 + particle{ spriteid! }
+		<- me .angle@ particle{ angle! }
+		<- me .flip@ particle{ not flipx! }
+
+	particle{
+		1 ticks!
+		0 clr.r!
+		madticks 30 * sin 0.4 * 0.4 + clr.g!
+
+		pcopy glowy 5 ticks! ticks@ fade_out!
+		clr.r@ 0.5 * clr.r!
+		clr.g@ 0.5 * clr.g!
+		clr.b@ 0.5 * clr.b!
+		0.9 grow!
+		}
+
+;
+
+
+: shodukin 0 args( me b ) 
+
+	60 2 * <- me .action_cooldown!
+
+	blast -> b
+	8 <- b .hitcheck.rad!
+	45 <- b .anim.counter!
+	<- me .pos3 <- b .pos.z! <- b .pos.y! <- b .pos.x! 
+
+	0 <- b .spriteid!
+
+	3 <- b .hitcheck.knockback!
+	1 <- b .hitcheck.power!
+	<- me .flip@ <- b .flip!
+
+	1 <- b .anim.extra!
+
+	' shodukin-glow-event <- b .events!
+	
+	1 <- b .timer!
+
+	<- me .aim_angle@ anglexy 3 xymul <- b .vel.y! <- b .vel.x!
+	<- me .aim_angle@ <- b .angle!
+
+	sfx{ noise 1 fx .pitch!
+		1000 fx .freq!
+		50 fx .freq2!
+		50 fx .a! 
+		50 fx .d! 
+		0.25 fx .s!
+		550 fx .r! 
+		0.5 fx .q!
+		1000 fx .filt!
+		0.75 1 frnd fx .pitch!
+		0.5 fx .scale!
+		<- me .adjust-vol
+	}
+;
+
+
+:noname args( me eventid )
+
+	<- eventid THING_EVENT_SWING = if
+			<- me .action_cooldown@ if then;
+		<- me shodukin
+	then;
+;
+
+
+custom: Punchquest Gauntlet
+	spriteid: MELEE3 0x c +
+	knockback: 2
+	power: 1
+	cooldown: 0.6
+	melee_break_scale: 0	
+	melee_windup_angle: -200
+	melee_start_angle: -160
+	melee_end_angle: 0
+	melee_weapon_angle: 90
+	melee_shift.x: -2
+	melee_reach: 15
+	melee_range_hint: 100
+	melee_range_min_hint: 0
+	melee_range_uses_action_cooldown: 1
+	Stier
+
+	wielder_handler: last
+

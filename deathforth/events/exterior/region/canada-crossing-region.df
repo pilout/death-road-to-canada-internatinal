@@ -161,7 +161,8 @@ roadw 2 / value roadrad
 } ;
 
 : snowpoof args( thing )
-	<- thing .pos snowy
+//	<- thing .pos snowy
+	camera.pos snowy
 	0 360 frnd 6 for
 		particle{
 			new particles32_base_id 3 + spriteid!
@@ -294,9 +295,10 @@ canada-sayings-base shuffles var canada-sayings
 	1 <- me .anim.substate!
 ;
 
+
 : spawn-mecha-mountie
 	new-npc lt .character@ .mechamountify
-	player .pos.x@ rndsign 24 * + player .pos.y@ 16 + lt .pos!
+	look.pos.x@ rndsign 24 * + look.pos.y@ 16 + lt .pos!
 	-200 lt .pos.z!
 
 	1 lt .unseen!
@@ -320,7 +322,7 @@ canada-sayings-base shuffles var canada-sayings
 : trigger-end-state
 
 	// Point up arrow
-	player .pos.y@ 40 > if
+	look.pos.y@ 40 > if
 		view_w 0.5 * 40 particle{ new pos!
 			-0.5 vel.y!
 			icons16_id 0x 18 + spriteid!
@@ -348,8 +350,8 @@ canada-sayings-base shuffles var canada-sayings
 	0 to siege-counter
 ;
 
-: zomb-near? player .nearest_enemy_dist2@ 100 dup * < ;
-: zombs-near player .threat_count@ ;
+: zomb-near? player if player .nearest_enemy_dist2@ 100 dup * < then; 1 ;
+: zombs-near player if player .threat_count@ then; zomb-count ;
 : zombs-dead-enough zombs-near 10 <= ;
 
 : zomb-wave-calc
@@ -416,7 +418,7 @@ zomb-wave-calc constant ZOMB_WAVES // formerly 5
 // Generates an inconvenient angle for zombie wave spawning that can't be exploited by moving to the edge/corner
 : siege-angle
 	player 0= if 180 then;
-	map{ pixelw } 0.5 * siege-top-posy 300 + player .pos xysub xyangle
+	map{ pixelw } 0.5 * siege-top-posy 300 + look.pos xysub xyangle
 
 (*
 	spawn lttm particles_base_id 0x 33 + lt .spriteid!
@@ -573,7 +575,7 @@ mission{
 				pops dup -> thing .character@ -> chara
 				LOCATION_MISSION <- chara .party!
 				0.01 <- chara .ai.wander_chance!
-				player .mass@ <- thing .mass!
+				player if player .mass@ else 3 then <- thing .mass!
 				<- chara .pet@ 0= if
 					<- chara .beaver? 0= if <- thing .mountie-start else
 					<- thing .beaver-start then
@@ -625,7 +627,7 @@ mission{
 
 		mountie-state if then;
 
-		player .pos.y@ me .pos.y@ - 64 < if
+		look.pos.y@ me .pos.y@ - 64 < if
 			me .pos.y@ to siege-top-posy
 			1 to mountie-state
 			mountie-stack shuffles
@@ -633,7 +635,9 @@ mission{
 	;
 }
 
-: mountlast mission{ ' siegelogic } lt .events! 1 sec>tick lt .repeating_timer ;
+: mountlast mission{ ' siegelogic } spawn invisible xyp.xy tile>pos lt .pos!
+	lt .events! 1 sec>tick lt .repeating_timer
+;
 
 : stackmountie mountie-stack lt shove ;
 
@@ -954,7 +958,7 @@ mission{
 	thing-event: snowcheck
 		eventid THING_EVENT_TIMER <> if then;
 		me .retrigger_timer
-		me .pos.y@ player .pos.y@ 32 - < if then;
+		me .pos.y@ look.pos.y@ 32 - < if then;
 		snowy
 	;
 }

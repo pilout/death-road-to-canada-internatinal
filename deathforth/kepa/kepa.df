@@ -45,7 +45,45 @@
 // Deprecated alt words for weapons
 
 : huntcowboy 90 %chance if rifle else hunting then ;
-: mopbroom 50 %chance if mop else broom then ;
+
+0 value broom-found
+
+cyoa{
+
+cyoa-bridge: broomy-recruit
+	cchar to recruitee goodfx clear-cyoa
+	($ cname .. " evades any attempt to be picked up." $) text!
+	($ "Stop that! I'll follow you, fine, just stop trying to pick me up!" pbold $) +crtext
+	($ pname .. " sees this as an opportunity to get a free broom, without even taking up an inventory slot!" $) +crtext
+	// recruitee .strengthREV recruitee .fitnessREV
+	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
+	recruit-yesno
+;
+
+cyoa: broomy-cyoa
+	"Zombie Sweeper" cyoa-title!
+	nearest .character@ choosechar cicon
+	1 to broom-found
+	($ pname .. " tries to grab this broom " .. phe .. " found, but it suddenly starts talking!" $) text!
+		($ "HEY! Stop grabbing me, you DINGUS! I'm not a broom!" pbold $) +crtext
+	"This seems like an odd thing for a broom to say." +crtext
+		choice( "Pretend like you never saw this broom" )choice
+		choice( "Grab this broom" )choice: broomy-recruit
+;
+
+}
+
+: .broomy args( chara )
+	<- chara .broomify
+	<- chara cyoa{ ' broomy-cyoa cyoa! } drop
+;
+
+: spawn-broomy still-npc dup .broomy .liedown ;
+
+: mopbroom 
+	broom-found 1 < 1 %chance and if spawn-broomy lt ( so it can be .drift-ed ) then;
+	50 %chance if mop else broom then 
+;
 
 : baseball 90 %chance if baseball else spikedbat then ;
 : aluminum 90 %chance if aluminum else megaspikedbat then ;

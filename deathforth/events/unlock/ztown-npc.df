@@ -14,45 +14,49 @@ uses events/unlock/gnome.df
 uses events/unlock/twitter.df
 
 : challenge-gamemodecheck
-	gstats{
-	wins-normal 0 > if 1 else 0 then
-	wins-long  0 > if 1 else 0 then
-	wins-special  0 > if 1 else 0 then
-	wins-family  0 > if 1 else 0 then
-	wins-specialEX 0 > if 1 else 0 then
-	wins-familyEX 0 > if 1 else 0 then
-	wins-kepa 0 > if 1 else 0 then
-	wins-short 0 > if 1 else 0 then
-	wins-marathon 0 > if 1 else 0 then
-	wins-deadlier 0 > if 1 else 0 then
-	wins-endless 0 > if 1 else 0 then
-	wins-opp 0 > if 1 else 0 then
-	wins-quickdeath 0 > if 1 else 0 then
-	wins-4jerks 0 > if 1 else 0 then
-	wins-4jerksEX 0 > if 1 else 0 then
-	} + + + + + + + + + + + + + +
+
+	// Increment this 0 by 1 for each game mode with wins
+	0 gstats{
+		wins-normal		if 1+ then
+		wins-long		if 1+ then
+		wins-special	if 1+ then
+		wins-family		if 1+ then
+		wins-specialEX	if 1+ then
+		wins-familyEX	if 1+ then
+		wins-kepa		if 1+ then
+		wins-short		if 1+ then
+		wins-marathon	if 1+ then
+		wins-deadlier	if 1+ then
+		wins-endless	if 1+ then
+		wins-opp		if 1+ then
+		wins-quickdeath	if 1+ then
+		wins-4jerks		if 1+ then
+		wins-4jerksEX	if 1+ then
+	}
 ;
 
 cyoa: challenge-statue1
 	gstats{ challenge-statue1 } 1 < if
 		"CHALLENGE OF MODES I" cyoa-title!
-		challenge-gamemodecheck 8 < if
-			($ "Beat 8 different game modes to " .. "unlock" rainbold .. " an assortment of " .. "9 NEW HATS" rainbold .. " for the Custom Character Maker!" $) text!
+		challenge-gamemodecheck 6 < if
+			($ "Beat 6 different game modes to " .. "unlock" rainbold .. " an assortment of " .. "9 NEW HATS" rainbold .. " for the Custom Character Maker!" $) text!
 			($ "Game Modes Beaten: " bbold .. challenge-gamemodecheck $) +crtext
 		else
-			($ "You've beaten 8 different game modes!
+			($ "You've beaten 6 different game modes!
 			" .. "CHALLENGE COMPLETE!" rainbold $) text!
 			goodfx gstats{ 1 to challenge-statue1 } filesave{ save-global-stats }
 			"New hats are permanently unlocked. Check them out in the Custom Character Maker!" +crtext
+			extrahatcheck
 		then
 	else
 		"CHALLENGE OF MODES I - COMPLETE!" cyoa-title!
-		($ "After beating 8 different game modes, you have earned a batch of 9 new hats for the Custom Character Maker! This includes much sought after hats such as:
+		($ "After beating 6 different game modes, you have earned a batch of 9 new hats for the Custom Character Maker! This includes much sought after hats such as:
 		" .. "TOILET TANK WITH LID
 		HORSE HEAD HOOD
 		GOLDEN CROWN" rbold .. "
 		AND MORE!
 		" fbold $) text!
+		extrahatcheck
 	then
 	choice( "BACK" )choice
 ;
@@ -60,23 +64,82 @@ cyoa: challenge-statue1
 cyoa: challenge-statue2
 	gstats{ challenge-statue1 } 2 < if
 		"CHALLENGE OF MODES II" cyoa-title!
-		challenge-gamemodecheck 12 < if
-			($ "Beat 12 different game modes to " .. "unlock" rainbold .. " an assortment of " .. "6 NEW HATS" rainbold .. " for the Custom Character Maker!" $) text!
+		challenge-gamemodecheck 10 < if
+			($ "Beat 10 different game modes to " .. "unlock" rainbold .. " an assortment of " .. "6 NEW HATS" rainbold .. " and " .. "8 NEW SHADES" rainbold .. " for the Custom Character Maker!" $) text!
 			($ "Game Modes Beaten: " bbold .. challenge-gamemodecheck $) +crtext
 		else
-			($ "You've beaten 12 different game modes!
+			($ "You've beaten 10 different game modes!
 			" .. "CHALLENGE COMPLETE!" rainbold $) text!
 			goodfx gstats{ 2 to challenge-statue1 } filesave{ save-global-stats }
-			"New hats are permanently unlocked. Check them out in the Custom Character Maker!" +crtext
+			"New hats and shades are permanently unlocked. Check them out in the Custom Character Maker!" +crtext
+			extrahatcheck extraglassescheck
 		then
 	else
 		"CHALLENGE OF MODES II - COMPLETE!" cyoa-title!
-		($ "After beating 12 different game modes, you have earned a batch of 6 new hats for the Custom Character Maker! This includes much sought after hats such as:
+		($ "After beating 10 different game modes, you have earned a batch of 6 new hats and 8 new shades for the Custom Character Maker! This includes much sought after accessories such as:
 		" .. "PRINCESS HAT (unisex)
 		DUNCE CAP
-		DISGUSTING BIRD" rbold .. "
+		DISGUSTING BIRD
+		INCREDIBLE FACE DISGUISE
+		HI-TECH SHADES" rbold .. "
 		AND MORE!
 		" fbold $) text!
+		extrahatcheck extraglassescheck
+	then
+	choice( "BACK" )choice
+;
+
+cyoa: challenge-statue3
+	gstats{ challenge-statue1 } 3 < if
+		"CHALLENGE OF MODES III" cyoa-title!
+		challenge-gamemodecheck 14 < if
+			($ "Beat 14 different game modes to " .. "unlock" rainbold .. " an assortment of " .. "12 NEW HATS" rainbold .. " for the Custom Character Maker!" $) text!
+			($ "Game Modes Beaten: " bbold .. challenge-gamemodecheck $) +crtext
+		else
+			($ "You've beaten 14 different game modes!
+			" .. "CHALLENGE COMPLETE!" rainbold $) text!
+			goodfx gstats{ 3 to challenge-statue1 } filesave{ save-global-stats }
+			"New hats are permanently unlocked. Check them out in the Custom Character Maker!" +crtext
+			extrahatcheck
+		then
+	else
+		"CHALLENGE OF MODES III - COMPLETE!" cyoa-title!
+		($ "After beating 14 different game modes, you have earned a batch of 12 new hats for the Custom Character Maker! This includes much sought after hats such as:
+		" .. "BIG FISH
+		TAM O' SHANTER
+		HEAD BOOT
+		CHEF HAT" rbold .. "
+		AND MORE!
+		" fbold $) text!
+		extrahatcheck
+	then
+	choice( "BACK" )choice
+;
+
+cyoa: challenge-statue4
+	gstats{ challenge-statue1 } 4 < if
+		"CHALLENGE OF MODES IV" cyoa-title!
+		gstats{ best-gamemode-streak 4 } > challenge-gamemodecheck 13 > and if
+			($ "You've streaked 5 different game modes!
+			" .. "CHALLENGE COMPLETE!" rainbold $) text!
+			goodfx gstats{ 4 to challenge-statue1 } filesave{ save-global-stats }
+			"New hats are permanently unlocked. Check them out in the Custom Character Maker!" +crtext
+			extrahatcheck
+		else
+			($ "After beating the previous challenges, get a win streak of 5 different game modes to " .. "unlock" rainbold .. " an assortment of " .. "18 NEW HATS" rainbold .. " for the Custom Character Maker!" $) text!
+			($ "Game Modes Beaten: " bbold .. challenge-gamemodecheck $) +crtext
+			($ "Best Streak of Different Game Modes: " bbold .. gstats{ best-gamemode-streak } $) +crtext
+		then
+	else
+		"CHALLENGE OF MODES IV - COMPLETE!" cyoa-title!
+		($ "After streaking 5 different game modes, you have earned a batch of 18 new hats for the Custom Character Maker! This includes much sought after hats such as:
+		" .. "GNOMEY CAP
+		TIN FOIL HAT
+		CARDBOARD MASK
+		WARLOCK HAT" rbold .. "
+		AND MORE!
+		" fbold $) text!
+		extrahatcheck
 	then
 	choice( "BACK" )choice
 ;
@@ -298,13 +361,23 @@ gstat: twitter-twitsleft pe: twitter-twitsleft-event
 ;
 
 : challenge-statue1 
-	spawn special_objects48_base_id 0x 24 + 0 1 rnd + lt .spriteid! bbox immovable
+	spawn special_objects48_base_id 0x 24 + 2 + lt .spriteid! bbox immovable
 	' challenge-statue1 lt .cyoa!
 ;
 
 : challenge-statue2
-	spawn special_objects48_base_id 0x 24 + 2 3 rnd + lt .spriteid! bbox immovable
+	spawn special_objects48_base_id 0x 24 + 1 + lt .spriteid! bbox immovable
 	' challenge-statue2 lt .cyoa!
+;
+
+: challenge-statue3
+	spawn special_objects48_base_id 0x 24 + 3 + lt .spriteid! bbox immovable
+	' challenge-statue3 lt .cyoa!
+;
+
+: challenge-statue4
+	spawn special_objects48_base_id 0x 24 + 0 + lt .spriteid! bbox immovable
+	' challenge-statue4 lt .cyoa!
 ;
 
 : generalinfo-duder
@@ -365,5 +438,52 @@ gstat: twitter-twitsleft pe: twitter-twitsleft-event
 	1 lt .timer!
 	' twitterbird lt .cyoa!
 ;
+
+} }
+
+// MANDIBLE
+
+cyoa{ regiondef{
+
+cyoa: sycamore-dingus
+	"Professor Sycamore" cyoa-title!
+	"Don't say timber, it gives me bad memories." pbold text!
+	"--- Professor Sycamore
+	Creator of: Death Road to Sycamore" +crtext
+	"Contributions for MANDIBLE Update: " rbold +crtext
+	"Punch Bot and Speed Bot in the Special Mechanical Trading Camp" bbold +crtext
+	choice( "Very nice robots" )choice
+;
+
+cyoa: modguard-dingus
+	"Hut Within a Hut" cyoa-title!
+	"I am the guardian of the Contributor Hut!
+	Past me are creators that have contributed new content to the Death Road! They are creators of Death Road to Canada mods, from our Discord! " text! "#mod-showcase" pbold +text " and " +text "#deathroad-modding" pbold +text 
+	
+	"Come inside to read their words of inspiration, and learn what they have added in each update!
+	It is a hut within the larger Info Hut!" +crtext
+	choice( "Let's check out this hut" )choice
+;
+
+} }
+
+map{ regiondef{
+
+: sycamore-dingus
+	// new-camper
+	nomove-npc
+	121 lt .character@ .specialtype!
+
+	' sycamore-dingus lt .cyoa!
+;
+
+: modder-dingus
+	// new-camper
+	nomove-npc
+	120 lt .character@ .specialtype!
+
+	' modguard-dingus lt .cyoa!
+;
+
 
 } }

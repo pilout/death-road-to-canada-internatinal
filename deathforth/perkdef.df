@@ -135,7 +135,7 @@ perkdef{
 : civiltrait args( chara )
 	"CIVILIZED! APPLIED ON CHAR " type <- chara .name@ print
 	6 <- chara .wits! 6 <- chara .attitude! 6 <- chara .composure! 6 <- chara .loyalty!
-	2 STAT_MEDICAL <- chara .stat+ 2 STAT_MECHANICAL <- chara .stat+
+	1 STAT_MEDICAL <- chara .stat+ 1 STAT_MECHANICAL <- chara .stat+
 	-3 STAT_MORALE <- chara .bonus+ 4 <- chara .morale!
 	<- chara .witsREV <- chara .attitudeREV <- chara .temperREV <- chara .loyaltyREV 
 	<- chara .mechanicREV <- chara .medicalREV
@@ -145,9 +145,13 @@ perkdef{
 : mysterytrait args( chara )
 	"MYSTERIOUS APPLIED ON CHAR " type <- chara .name@ print
 	hilow <- chara .wits! hilow <- chara .attitude! hilow <- chara .composure!
-	50 %chance if 1 STAT_STRENGTH <- chara .stat+ else 1 STAT_SHOOTING <- chara .stat+ then
-	50 %chance if 1 STAT_STRENGTH <- chara .stat+ else 1 STAT_FITNESS <- chara .stat+ then  
-	50 %chance if 1 STAT_FITNESS <- chara .stat+ else 1 STAT_SHOOTING <- chara .stat+ then
+	<- chara .perk@ "Martial Artist" $= if
+		3 for 50 %chance if 1 STAT_STRENGTH <- chara .stat+ else 1 STAT_FITNESS <- chara .stat+ then next
+	else
+		50 %chance if 1 STAT_STRENGTH <- chara .stat+ else 1 STAT_SHOOTING <- chara .stat+ then
+		50 %chance if 1 STAT_STRENGTH <- chara .stat+ else 1 STAT_FITNESS <- chara .stat+ then  
+		50 %chance if 1 STAT_FITNESS <- chara .stat+ else 1 STAT_SHOOTING <- chara .stat+ then
+	then
 ;
 
 : practicaltrait args( chara )
@@ -191,6 +195,12 @@ perkdef{
 		gstats{ perk-guncrazy } 3 < if 1 WEAPON_PISTOL trunk.weapon+ then
 		0 <- chara .weaponb!
 		0 <- chara .weaponc!
+	then
+	<- chara .perk@ "Pyromaniac" $= if
+		WEAPON_NAPALM <- chara .weapona!
+		1 <- chara .weapon_nodropa!
+		0 <- chara .weaponb!
+		25 <- chara .stackeda!
 	then
 	WEAPON_KNIGHT <- chara .trademarkwep
 ;
@@ -254,7 +264,7 @@ perkdef{
 	4 <- chara .morale!
 	WEAPON_TRUEKATANA <- chara .weapona!
 	1 <- chara .weapon_nodropa!
-	WEAPON_NINJA <- chara .trademarkwep
+	WEAPON_NKATANA <- chara .trademarkwep
 ;
 
 : phoenixtrait args( chara )
@@ -270,6 +280,10 @@ perkdef{
 	1 STAT_SHOOTING <- chara .bonus+
 	1 STAT_MECHANICAL <- chara .bonus+
 	1 STAT_MEDICAL <- chara .bonus+
+;
+
+: fastlearntrait args( chara )
+	"FAST LEARNER APPLIED ON CHAR " type <- chara .name@ print
 ;
 	
 // Perks
@@ -623,6 +637,42 @@ perkdef{
 	' archer-main-events <- chara .main_events!
 ;
 
+: pyro-weapon args( chara )
+	<- chara .trait@ "Specialist" $= if WEAPON_NAPALM else WEAPON_BLOWTORCH then
+;
+
+: pyro-formula args( chara )
+	gstats{ perk-pyro } 2 * 2 + <- chara .trait@ "Specialist" $= if 2 + then +
+;
+
+: pyro-max args( chara )
+	<- chara .trait@ "Specialist" $= if 25 else 30 then
+;
+
+: pyro-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		<- chara pyro-weapon <- chara .weapona@ = if 
+			<- chara .stackeda@ <- chara pyro-formula <- chara .stackeda!
+			<- chara .stackeda@ <- chara pyro-max > if <- chara pyro-max <- chara .stackeda! then
+		then;
+		<- chara pyro-weapon <- chara .weaponb@ = if 
+			<- chara .stackedb@ <- chara pyro-formula <- chara .stackedb!
+			<- chara .stackedb@ <- chara pyro-max > if <- chara pyro-max <- chara .stackedb! then
+		then;
+	then;
+;
+
+: pyroperk args( chara )
+	"PYROMANIAC CHAR " type <- chara .name@ print
+	<- chara statmod{ .fireproof }
+	crap-weapon <- chara .weapona!
+	WEAPON_BLOWTORCH <- chara .weaponb!
+	1 <- chara .weapon_nodropb!
+	30 <- chara .stackedb!
+	' pyro-main-events <- chara .main_events!
+;
+
 : NEXT_LEVEL cr$ .. cr$ .. RED .. "NEXT LEVEL: " ;
 : LOCKED cr$ .. cr$ .. RED .. 
 	game.location 0 > if "LOCKED! " else "LOCKED: Unlock at Perks & Traits Hut in Zombo Town" then
@@ -942,6 +992,22 @@ perkdef{
 		then $)
 ;
 
+: pyrolevel
+		($ "+ Recharge your blowtorch between missions, " $) ..
+	gstats{ perk-pyro } 3 >= if
+		($ "up to 8 charges!" $) 2 lvl
+	then;
+	gstats{ perk-pyro } 2 >= if
+		($ "up to 6 charges" .. NEXT_LEVEL .. "Find 8 charges!" $) 1 lvl
+	then;
+		($ "up to 4 charges" ..
+		gstats{ perk-pyro } 1 < if 
+			LOCKED 1 lock
+		else
+			NEXT_LEVEL .. "Find 6 charges"
+		then $)
+;
+
 : specialist-lock
 	gstats{ trait-specialist } 1 < if ($ LOCKED $) 1 lock else "" then ;
 : travellight-lock
@@ -964,13 +1030,15 @@ perkdef{
 	gstats{ trait-phoenix } 1 < if ($ LOCKED $) 1 lock else "" then ;
 : savant-lock // Rewrote this from fireproof, so uses trait-fireproof
 	gstats{ trait-fireproof } 1 < if ($ LOCKED $) 1 lock else "" then ;
+: fastlearn-lock
+	gstats{ trait-fastlearn } 1 < if ($ LOCKED $) 1 lock else "" then ;
 
 // Definitions
 
 : defperks init
 
 	// Perks
-	"Mechanique" $perk
+	"Mechanic" $perk
 		($ "The car is life! Note: Not necessarily a COMPETENT mechanic.
 		+ Start with a wrench
 		" .. mechaniclevel $) $desc
@@ -982,19 +1050,19 @@ perkdef{
 		" .. athletelevel $) $desc
 		' athleteperk applyword
 		
-	"Combattant" $perk
+	"Fighter" $perk
 		($ "This person has always been a real fighter.
 		+ Start with a hatchet
 		" .. fighterlevel $) $desc
 		' fighterperk applyword
 		
-	"Chirurgien" $perk
+	"Surgeon" $perk
 		($ "Has a good intuition of anatomy and a real steady hand.
 		+ Start with a scalpel
 		" .. surgeonlevel $) $desc
 		' surgeonperk applyword
 		
-	"Armgenieur" $perk
+	"Gungineer" $perk
 		($ "Good with anything mechanical, and guns are mechanical.
 		+ Start with a crowbar
 		" .. gungineerlevel $) $desc
@@ -1006,43 +1074,43 @@ perkdef{
 		" .. pistollevel $) $desc
 		' pistolperk applyword
 		
-	"Tirreur de fusil" $perk
+	"Rifle Shooter" $perk
 		($ "A rifle shot can pierce a line of zombies, in the right hands!
 		+ Start with a rifle and 24 ammo
 		" .. riflelevel $) $desc
 		' rifleperk applyword
 		
-	"Tirreur de Shotgun" $perk
+	"Shotgunner" $perk
 		($ "Everyone knows that shotguns are the true anti-zombie weapon!
 		+ Start with a shotgun and 15 shells
 		" .. shotgunlevel $) $desc
 		' shotgunperk applyword *)
 
-	"Artiste martial" $perk
+	"Martial Artist" $perk
 		($ "No weapons? No problem!
 		+ Start with a powerful two-hit unarmed attack!!
 		- Refuses to use firearms, chainsaws, and some others!!
 		" .. martialartistlevel $) $desc
 		' martialartistperk applyword		
 		
-	"Gros cogneur" $perk
+	"Big Bruiser" $perk
 		($ "Moves slow, hits real hard, takes a beating!
 		+ Start with a better unarmed attack! Take one more hit than normal!
 		- Slower walking speed!
 		" .. bruiserlevel $) $desc
 		' bruiserperk applyword
 	
-	"Collectionneur d'armes" $perk
+	"Gun Collector" $perk
 		($ "You knew hoarding all those guns would be useful! Eventually. You just knew it!
 		" .. guncrazylevel $) $desc
 		' guncrazyperk applyword
 	
-	"Domaine medicale" $perk
+	"Health Care" $perk
 		($ "Jerks get bit by zombies all the time. Better be prepared! 
 		" .. healthcarelevel $) $desc
 		' healthcareperk applyword	
 		
-	"Fan de voiture" $perk
+	"Car Nut" $perk
 		($ "Being a car enthusiast is practically a superpower now!
 		+ Start with a nicer car
 		" .. carnutlevel $) $desc
@@ -1060,13 +1128,13 @@ perkdef{
 		" .. ultrafitlevel $) $desc 
 		' ultrafitperk applyword
 				
-	"Ami du chien" $perk
+	"Friend of Dog" $perk
 		($ "This person loves dogs, and tends to run into them!
 		+ Angry dogs may become friendly
 		" .. doglevel $) $desc
 		' dogfriendperk applyword
 
-	"Explorateur" $perk
+	"Explorer" $perk
 		($ "Some people just have a really good sense of direction when driving!
 		+ Get one extra location choice during Always Be Looting events!
 		" .. explorerlevel $) $desc
@@ -1079,7 +1147,7 @@ perkdef{
 		" .. exwrestlerlevel $) $desc
 		' exwrestlerperk applyword
 		
-	"Potentiel cache" $perk
+	"Hidden Potential" $perk
 		($ "Looks unassuming, but can exceed others with training!
 		+ Gain a point in either strength or fitness at random. It can then go 1 over the maximum!
 		" .. hiddenpotentiallevel $) $desc
@@ -1092,7 +1160,7 @@ perkdef{
 		" .. hagglerlevel $) $desc
 		' hagglerperk applyword
 	
-	"Eclaireur" $perk
+	"Pathfinder" $perk
 		($ "Hiking experience helps avoid forest terrors!
 		+ Removes a penalty event from the 1st walking day, every time you lose the car!
 		" .. pathfinderlevel $) $desc
@@ -1117,10 +1185,10 @@ perkdef{
 		" .. tstclevel $) $desc
 		' tstcperk applyword
 		
-	"Bouclier d'espoir" $perk
+	"Shield of Hope" $perk
 		($ "Keeps going through sheer willpower!
 		+ Protects against fatal hits if morale is over :(
-		- Will still die to some instant-kill events
+		- Will still die to some instant-kill events.
 		" .. shieldofhopelevel $) $desc
 		' shieldofhopeperk applyword
 		
@@ -1130,6 +1198,13 @@ perkdef{
 		- Can not drop this bow, even in death.
 		" .. archerlevel $) $desc
 		' archerperk applyword
+		
+	"Pyromaniac" $perk
+		($ "Zombies are extremely flammable!
+		+ Start with a blowtorch, and protection against fire!
+		- Can't drop this blowtorch, even in death.
+		" .. pyrolevel $) $desc
+		' pyroperk applyword
 
 // TEST MAX PERKS
 (*
@@ -1150,23 +1225,23 @@ perkdef{
 	// "Fierce"
 			
 	// Traits
-	"Paranoiaque" $trait
+	"Paranoid" $trait
 		"A combination of high perception and extreme pessimism lets someone brace for the worst!
 		+ May identify traits in new recruits
 		+ Always on the lookout for danger
 		- Can be a real grumpus" $desc
 		' paranoidtrait applyword
-	"Inconscient" $trait
+	"Oblivious" $trait
 		"A great outlook on life combined with not being very perceptive allows for some magical feats of denial!
 		+ May ignore despair
 		- Bad rolls for perception and wits" $desc
 		' oblivtrait applyword
-	"Charmant" $trait
+	"Charming" $trait
 		"From perception of others, a good attitude, and pure charisma, there's something about this person that opens doors!
 		+ Charms way into free stuff or out of bad situations
 		- Can't charm way out of everything" $desc
 		' charmtrait applyword
-	"Irritant" $trait
+	"Irritating" $trait
 		"This person thinks they're soooooo cool. But they're not! They're just annoying!
 		+ Tell people to 'Cool it'
 		- Anger pretty much everybody" $desc
@@ -1177,71 +1252,71 @@ perkdef{
 		- Rip the group off
 		- Ticking time bomb" $desc
 		' bandittrait applyword
-	"Passe mysterieux" $trait
-		"Cette personne... a un passe mystérieux......
+	"Mysterious Past" $trait
+		"This person... has a mysterious past......
 		+ 3 points given to fight skills at random
 		- Randomized and extreme personality!" $desc
 		' mysterytrait applyword
-	"Pratique" $trait
+	"Practical" $trait
 		"Has a variety of useful skills, but is kind of boring.
 		+ 3 points given to fight skills at random
 		+ 3 points given to support skills at random
 		- Boring personality" $desc
 		' practicaltrait applyword
-	"Guerrier" $trait
+	"Warrior" $trait
 		"Good start on zombie thwacking skills, with a nondescript personality.
 		+ 2 points more strength!
 		+ 2 points more fitness!
 		- Boring personality" $desc
 		' warriortrait applyword
-	"Grincheux" $trait
-		"Quelqu'un a mauvais caractere mais son agressivite peut etre utile.
+	"Fierce Tempered" $trait
+		"Someone's got a bad temper! The aggression can come in handy.
 		+ 1 extra point in strength
 		- Bad temper due to low composure
 		+ Temper can sometimes be good" $desc
 		' fiercetrait applyword
-	"Calme sous le feu" $trait
+	"Calm Under Fire" $trait
 		"Calm and collected. Useful when shooting into a horde!
 		+ Very calm due to high composure
 		+ 1 extra point in shooting" $desc
 		' calmtrait applyword
-	"Altruiste" $trait
+	"Nurturing" $trait
 		"Always thinking of others! Somehow not zombie food yet.
 		+ 2 points more medical! Great Attitude
 		+ Can go one over maximum for medical skill!!
 		- May be an act" $desc
 		' nurturetrait applyword
-	"Inventif" $trait
+	"Inventive" $trait
 		"Comfortable with machinery, such as cars.
 		+ 2 points more mechanical!  Great wits checks!
 		+ Can go one over maximum for mechanical skill!!
 		- May need more practice to repair car" $desc
 		' inventtrait applyword
 	"Frantic Whiner" $trait
-		"Un genre fragile. Mais vraiment bon pour fuir!
+		"Kind of a fragile sort. But really good at fleeing!
 		+ Run speed bonus!
 		- Takes one less hit than normal
 		- Bad attitude" $desc
 		' frantictrait applyword
-	"Type resilient" $trait
-		"Vraiment difficile! Les muscles! Pas un planificateur a long terme.
+	"Resilient Type" $trait
+		"Really tough! The muscle! Not a long term planner.
 		+ Takes one more hit than normal
 		- Bad wits rolls" $desc
 		' toughtrait applyword
-	"FOU FURIEUX!" $trait
-		"Detruisez tous les zombies! Ne reculez jamais! Oh non, j'ai ete mordu!
+	"BERSERK!" $trait
+		"Destroy all zombies! Never retreat! Oh no, I got bit!
 		+ 4 points to strength, fitness, and shooting!!
 		+ Can go one over the maximum for the above stats!!!
 		- Super low personality stats! Dies in one bite!!" $desc
 		' berserktrait applyword
-	"Civilise" $trait
+	"Civilized" $trait
 		"Retains old values before world went crazy. This is good and bad.
 		+ Super high loyalty and personality stats!
-		+ 2 points to medical and mechanical skills!!
+		+ 1 point to medical and mechanical skills!!
 		- Permanent and significant morale penalty!!" $desc
 		' civiltrait applyword
-	"Dormeur" $trait
-		($ "Dort n'importe quand, n'importe ou. #1 des meilleurs pour dormir !
+	"Sound Sleeper" $trait
+		($ "Sleeps anytime, anywhere. #1 best at sleeping!
 		+ Superhuman sleeping! Needs very little sleep.
 		+ Never gets the TIRED status, ever." .. soundsleep-lock $) $desc
 		' soundsleeptrait applyword
@@ -1250,58 +1325,63 @@ perkdef{
 		+ Eating a full meal restores 1 point of this character's morale, up to full! Gets an extra point of max health!
 		- Eats a bit more, 3 food instead of 2. Running low on food decreases morale faster!" .. gourmand-lock $) $desc
 		' gourmandtrait applyword
-	"Chercheur de Ville" $trait
+	"City Seeker" $trait
 		($ "Blessed with an interesting life!
 		+ Much greater chance of finding a weird building or character in city looting events! Normal chance: 10%  With trait: 50%
 		+ Doubles the chance to find Rare Trader Camps!" .. cityseek-lock $) $desc
 		' cityseektrait applyword
-	"Voyagez Leger" $trait
+	"Travel Light" $trait
 		($ "Carry less so you can run a little faster!
 		+ Run speed bonus!
 		+ 1 point more in fitness!
 		- Can only carry two weapons at a time!" .. travellight-lock $) $desc
 		' travellighttrait applyword
-	"Type Heros" $trait
+	"Hero Type" $trait
 		($ "I'll always be your bodyguard. Well, once.
 		+ Saves a teammate from death in a text event!
 		- Only does this one time per game!
 		+ Starts with maximum loyalty!" .. herotype-lock $) $desc
 		' herotypetrait applyword
-	"Petit mangeur" $trait
+	"Tiny Eater" $trait
 		($ "Eats much less than normal! Takes tiny bites!
 		+ A full meal only requires 1 food!!
 		- Gets a 2 point penalty to maximum strength!
 		- Gets a 1 point penalty to maximum fitness." .. tinyeat-lock $) $desc
 		' tinyeattrait applyword	
-	"Fan d'Anime" $trait
+	"Anime Fan" $trait
 		($ "This is just like my zombie animes!
 		+ Weapon is replaced with an overpowered Strong Katana.
 		- Katana can't be dropped, even on death.
 		- WARNING: Avoid getting full morale! BEWARE ANIME!" .. animefan-lock $) $desc
 		' animefantrait applyword	
-	"Specialiste" $trait
+	"Specialist" $trait
 		($ "A little too fixated on one method of zombie splatting.
 		+ 2 points to strength, fitness, and shooting
 		+ Can go one over the maximum for the above stats!!
 		- Can only carry ONE WEAPON at a time!!" .. specialist-lock $) $desc
 		' spectrait applyword
 	"Grappler" $trait
-		($ "Si un zombie tombe, vous pouvez le ramasser !
+		($ "If a zombie falls down, you can pick it up!
 		+ Throw or slam carried zombies!
 		- Boring personality" .. grappler-lock $) $desc
 		' grapplertrait applyword
 	"Phoenix" $trait
-		($ "Le Phénix renait de ses cendres ! *bat des bras comme si c'était des ailes*
+		($ "The Phoenix arises from the ashes! *flaps arms like they are wings*
 		+ Resurrects self on death, to full health!!
 		+ Inflammable! Stand in the flames!
 		- Loses the entire trait after first death!" .. phoenix-lock $) $desc
 		' phoenixtrait applyword
-	"Savant fou" $trait
+	"Dingus Savant" $trait
 		($ "Always destined for great things! Never bothered to work for it.
 		+ Gets a 1 point bonus to the maximum for all skills!
 		- Takes 1 less hit than normal!
 		- 2 point penalty to max morale!" .. savant-lock $) $desc
 		' savanttrait applyword
+	"Fast Learner" $trait
+		($ "Starts low, but learns new skills fast!
+		+ Gets double the amount of shooting, mechanical, and medical skill!
+		- Each growth bonus stops after its skill gets to 4 points" .. fastlearn-lock $) $desc
+		' fastlearntrait applyword
 	
 		
 	// "Sound Sleeper"

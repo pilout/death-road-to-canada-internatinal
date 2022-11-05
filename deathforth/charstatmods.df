@@ -6,6 +6,7 @@ uses weapondef.df
 : .notake dup .use_filter@ USE_FLAG_TAKE | swap .use_filter! ;
 : .yestake dup .use_filter@ USE_FLAG_TAKE ~ & swap .use_filter! ;
 : .noswap dup .use_filter@ USE_FLAG_SWAP | swap .use_filter! ;
+: .yesswap dup .use_filter@ USE_FLAG_SWAP ~ & swap .use_filter! ;
 : .noweapon dup .use_info@ USE_INFO_NO_USE_WEAPON | swap .use_info! ;
 : .nopickups dup .use_info@ USE_INFO_NO_PICKUP | swap .use_info! ;
 : .yespickups dup .use_info@ USE_INFO_NO_PICKUP ~ & | swap .use_info! ;
@@ -81,7 +82,7 @@ statmod{
 	enum MOD_HORSE
 	enum MOD_DSYP
 	enum MOD_ANIME
-	enum MOD_SHODUKIN
+	enum MOD_SHODUKIN		// No longer used
 	enum MOD_EHZERBEAM
 	enum MOD_CARL
 	enum MOD_CAT
@@ -191,7 +192,9 @@ dup constant MOD_COUNT modcount?!
 
 : .fireproof MOD_FIREPROOF swap .setmod ;
 : .fireproof? MOD_FIREPROOF swap .ismod? ;
+
 : .unfireproof MOD_FIREPROOF swap .clrmod ;
+' .unfireproof to unfireproofer
 
 : .tired args( chara )
 	<- chara .soundsleep? not if
@@ -427,10 +430,6 @@ dup constant MOD_COUNT modcount?!
 			10 of "FLORIDA CRUSHER!" endof
 			11 of "DR CRUSHER'S SPINE RIPPER!" endof
 		endcase ;
-
-		: .zombie? .typeid@ THING_ZOMBIE = ;
-		: .item? .typeid@ THING_ITEM = ;
-		: .carried .carryid@ #thing ;
 
 		: slammin
 			me .carried if
@@ -1368,34 +1367,6 @@ char-event: valk-main-events
 	drop
 ;
 
-: .gnomify
-	33 over .specialtype!
-	3 over .composure!
-	6 over .attitude!
-	0 over .wits!
-	0 over .strength!
-	6 over .medical!
-	1 over .health!
-	1 over .vitality!
-	0.2 over .speed_bonus!
-	WEAPON_POKIN over .weapon_default!
-	"is a magical forest creature, riding a large rodent." over .job!
-	drop
-;
-
-: .gnomify2
-	75 over .specialtype!
-	3 over .composure!
-	6 over .attitude!
-	0 over .wits!
-	0 over .strength!
-	6 over .medical!
-	1 over .health!
-	1 over .vitality!
-	WEAPON_POKIN over .weapon_default!
-	"is a magical forest creature, not riding a large rodent." over .job!
-	drop
-;
 
 : .horsify
 	34 over .specialtype!
@@ -1436,7 +1407,9 @@ char-event: valk-main-events
 : .cleanerify
 	45 over .specialtype!
 	1 over .female!
-	"isn't necessarily a cleaning woman. She might just like the outfit." over .job!
+	4 over .fitness!
+	// "isn't necessarily a cleaning woman. She might just like the outfit." 
+	"joined you in order to avoid doing her cleaning job." over .job!
 	WEAPON_ULTRAMOP over .weapona!
 	1 over .weapon_nodropa!
 	drop
@@ -1472,21 +1445,6 @@ char-event: valk-main-events
 	WEAPON_LOVELY <- chara .weapona!
 	1 <- chara .weapon_nodropa!
 	statmod{ MOD_ANIME <- chara .setmod }
-;
-
-: .pqify
-	32 over .specialtype!
-	0 over .female!
-	0 over .shooting!
-	5 over .fitness!
-	5 over .strength!
-	6 over .attitude!
-	"is a main character from Punch Quest." over .job!
-	dup .nodeathdrop
-	WEAPON_PUNCHQUEST over .weapona!
-	1 over .weapon_nodropa!
-//	statmod{ MOD_SHODUKIN over .setmod } dup .swapspecial
-	statmod{ MOD_SHODUKIN swap .setmod } 
 ;
 
 
@@ -1642,3 +1600,22 @@ statmod{
 	Full name: " .. "Lil' Sam Byool" pbold $) <- chara .job!
 	' kspet-checker ++
 ;
+
+: .nugsify dup .cur_thingid@ #thing args( chara thing ) statmod{ 
+	"NUGS CHUNGUS" <- chara .name!
+	"is the most overpowered Stamp." <- chara .job!
+	0 <- chara .pet!
+	3 <- chara .specialtype!
+	1 <- chara .specialmode!
+	10 <- chara .vitality!
+	10 <- chara .health!
+	6 <- chara .fitness!
+	6 <- chara .strength!
+	16 STAT_STRENGTH <- chara .bonus!
+	0 <- chara .headoff.x!
+	38 <- chara .headoff.y!
+	<- chara .nocarry 
+	<- chara .notake 
+	<- chara .noswap 
+	WEAPON_NUGSPUNCH <- chara .weapon_default!
+} ;

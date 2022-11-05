@@ -170,6 +170,29 @@ cyoa-choice: walk-bandit2-paranoid
 	($ "The plan was really simple and far from perfect, but things could have gone a lot worse." $) +crtext goodfx witsattREV bandit-supplies2
 ;
 
+cyoa-choice: walk-bandit2-gourmand
+	"Fine! Whatever! I don't care!" text! goodfx
+	($ cname .. " waddles over to each bandit, then eats the weapon that the bandit is holding. " .. cHe .. " does this for every single bandit. Everyone is too confused by this to move, or even react to the proceedings." $) +crtext
+	($ cname .. " later explains that " .. che .. " was " .. "'really hungry'" pbold .. "." $) +crtext 
+	morale3+
+	cchar .vitality@ 6 < if 
+		1.5 cchar .scale.body.x!
+		cchar .vitality++ -1 STAT_DEXTERITY cchar .bonus+
+	then
+;
+
+cyoa-bridge: walk-bandit2-eatpick
+	' gourmandcheck pick-team-char 0= if false then; pickchar true if choosechar then
+	cicon
+	"What?
+	What do you mean, " text! "Eat the Bandit's Weapons" pbold +text "?" +text
+	"That doesn't even make any sense!" +crtext
+	cchar charchoice( " eats the bandit's weapons! " .. "DO IT!" rbold )choice: walk-bandit2-gourmand
+	choice( "You heard me! Eat all those weapons!" )choice: walk-bandit2-gourmand
+	choice( "Eat the weapons! It's the perfect counter!" )choice: walk-bandit2-gourmand
+	choice( "Eat weapons, but use stealth tactics" )choice: walk-bandit2-gourmand
+;
+
 cyoa: walk-bandit2
 	"Merciless Bandits" cyoa-title!
 	($ "Without a car, " .. thegroup .. " is easy prey for bandits. A group ambushes you and demands your supplies." $) text!
@@ -181,6 +204,9 @@ cyoa: walk-bandit2
 	then +crtext 1 500 tone
 	choice( "Give their demands" )choice: walk-bandit2-pay
 	bandit-fight
+		numgourmands 0 > if
+			choice( "Eat the Bandits' Weapons" )choice: walk-bandit2-eatpick
+		then
 		most-paranoid if 
 			charchoice( ": Drop" .. bandit2-ezbandit .. "of loot and run" )choice: walk-bandit2-paranoid
 		then

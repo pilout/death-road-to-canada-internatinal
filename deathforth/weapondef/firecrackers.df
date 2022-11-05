@@ -1,0 +1,155 @@
+
+custom: Firecrackers
+	weapon: firecrackers
+	spriteid16x32: 15
+	melee_thrown: 1
+	melee_thrown_lob: 2
+	melee_thrown_speed: 2
+	stack_max: 9
+	melee_range_hint: 60
+
+
+900 constant CRACKERTIME
+
+: crackerscale .anim.counter@ CRACKERTIME / ;
+
+: crackerfuse args( me )
+	<- me .pos3 particle{ new pos3! 4 ticks! spriteid@ 0x 1 + spriteid! }
+	<- me .angle@ 90 <- me .flip@ flipx * - anglexy 0 10 <- me crackerscale * + xymul
+
+	particle{ pos@ xyadd pos! } mission{ flameflicker }
+
+	rnd5050 if sfx{ -5 nextpri noise 50 a! 5 d! 0.75 1 frnd 20 * pitch! 0.1 scale! 1500 filt_high! }
+		<- me .pos xy-vol 
+	then
+;
+
+
+: popxyz
+	particle{ new pos3!
+		particles_base_id 0x 15 + spriteid! 0 360 frnd angle!
+		1.5 2 frnd scale!
+		0.7 grow!
+		30 ticks!
+		1 clr.r!
+		0.5 clr.g!
+		0.01 clr.b!
+		glowy
+	}
+;
+
+
+: fcracker-fx args( me )
+	3 <- me .smashybits
+	<- me .gas-smoke
+	<- me .pos3 popxyz
+
+	0 1 <- me .pos alertlcxy
+;
+
+
+: fcracker-pop 0 args( me b )
+
+	sfx{ thump
+		100 freq!
+		2 a! 100 d! 0.1 s! 500 r!
+		0.9 q!
+		500 filt! filt@ filt_high!
+		200 i!
+		1 4 frnd pitch!
+		3 scale!
+		<- me .adjust-vol
+	}
+
+	// Get more sprite hits for smashybits
+	weapons16_base_id 15 + <- me .spriteid!
+
+	<- me fcracker-fx
+
+	// Final low-damage blast
+	blast -> b
+	16 <- b .hitcheck.rad!
+	-1 <- b .hitcheck.blast!		// Don't hit humans
+	3 <- b .hitcheck.knockback!
+	1 <- b .hitcheck.power!
+	<- me .pos3 <- b .pos3!
+
+	// Delete contained NPC
+	<- me .targetid@ #thing dup if silentkillit else drop then
+
+	// ...and self
+	<- me silentkillit
+;
+
+
+: fcracker-crack args( me )
+	<- me .anim.counter@ 0= if <- me fcracker-pop then;
+
+	// Wait 3 seconds before final pop
+	<- me .anim.counter@ 180 < if then;
+
+	// Random crackin' time variation
+	<- me .anim.counter@ dup 25 > if 0 25 rnd - <- me .anim.counter! else drop then
+
+	// Random jumpin'
+	-1 1 frnd -1 1 frnd <- me .vel!
+	<- me .pos.z@ -16 > if 0 -2 frnd <- me .vel.z! then
+
+	-1 1 frnd 15 * <- me .rot!
+
+	<- me fcracker-fx
+
+	// Adjust the firecracker sprite based on time elapsed
+	weapons16_base_id 15 + 1 <- me crackerscale - 8 * + <- me .spriteid!
+
+	sfx{ thump
+		250 freq!
+		2 a! 100 d! 0.1 s! 500 r!
+		0.8 q!
+		1500 filt! filt@ filt_high!
+		200 i!
+		1 4 frnd pitch!
+		2 scale!
+		<- me .adjust-vol
+	}
+;
+
+
+: fcracker-throw args( fc )
+
+	<- fc .targetid@ if then;
+
+	CRACKERTIME <- fc .anim.counter!
+	1 <- fc .no_hit!
+	1 <- fc .nocollide!
+	1 <- fc .item.locked!
+	1 <- fc .nopick!
+
+	<- fc install-dummy-npc
+;
+
+
+: fcracker-animate args( me )
+
+	<- me crackerfuse
+
+	<- me .anim.counter@ CRACKERTIME 100 - > if then;
+
+	<- me .angle@ <- me .rot@ + <- me .angle!
+
+	<- me .anim.counter@ 30 % 0= if <- me fcracker-crack then 
+;
+
+
+: fcracker-events args( me eventid )
+
+	<- eventid 
+
+		THING_EVENT_ANIMATE ?( <- me fcracker-animate );
+
+		THING_EVENT_THROW ?( <- me fcracker-throw );
+
+	drop
+;
+
+melee_thrown_handler: last

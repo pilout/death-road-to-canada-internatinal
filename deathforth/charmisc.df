@@ -20,15 +20,13 @@
 
 : resetsafe 0 to safecombo ;
 
-: .liedown .thing@ args( self )
+: .thing_liedown  args( self )
 	ANIM_ANGLE <- self .anim.state! 
 	-90 <- self .flipx * <- self .angle!
 ;
 
-: .thing_liedown args( self )
-	ANIM_ANGLE <- self .anim.state! 
-	-90 <- self .flipx * <- self .angle!
-;
+
+: .liedown ( chara ) .thing@ .thing_liedown ;
 
 : .getup .thing@ args( self )
 	0 <- self .anim.state! 
@@ -53,19 +51,6 @@
 	next
 ;
 
-: #new-npc #character args( chara )
-	<- chara character# spawn lt .charid!
-	lt .as-human
-	lt .id@ <- chara .cur_thingid!
-	0 360 frnd lt .aim_angle!
-;
-
-: new-npc
-	char-gen character# #new-npc
-	0 lt .character@ .ai.flock_dist!
-;
-
-: new-npc@ new-npc lt .character@ ;
 
 : savechar-raw-list
 	0 stack CUSTOM_CHARS_MAX
@@ -1135,17 +1120,33 @@ random-coldsteel-base shuffles var random-coldsteel
 	3 4 rnd <- chara .fitness!
 ;
 
+: fireman-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		<- chara WEAPON_NAPALM <- chara .weapona@ = if 
+			<- chara .stackeda@ 6 + <- chara .stackeda!
+			<- chara .stackeda@ 20 > if 20 <- chara .stackeda! then
+		then;
+		<- chara WEAPON_NAPALM <- chara .weaponb@ = if 
+			<- chara .stackedb@ 6 + <- chara .stackedb!
+			<- chara .stackedb@ 20 > if 20 <- chara .stackedb! then
+		then;
+	then;
+;
+
 : .firemanify args( chara )
 	90 <- chara .specialtype!
 	"wears a fireproof suit at all times, including the helmet at meals." <- chara .job!
 	0 <- chara .thing@ .flammability!
-	"Fireproof" <- chara .trait!
+	"Extra Fiery" <- chara .trait!
 	<- chara statmod{ .fireproof }
 	"Pyromaniac" <- chara .perk!
-	WEAPON_FIRE <- chara .weapona!
-	WEAPON_MOLOTOV <- chara .weaponc!
+	WEAPON_MOLOTOV <- chara .weapona!
 	WEAPON_NAPALM <- chara .weaponb!
-	20 <- chara .stackedb!	
+	20 <- chara .stackedb!
+	1 <- chara .weapon_nodropb!
+	2 <- chara .carrying.slot_count!
+	' fireman-main-events <- chara .main_events!
 ;
 
 : .turtleify args( chara )
@@ -1275,8 +1276,6 @@ moodguy-picker-base shuffles var moodguy-picker
 	"is carrying her treasured heirloom shotgun. It's been in the family for generations." <- chara .job!
 ;
 
-// .romeroify 111 .specialtype!
-
 : cupid-main-events ( teid ) args( chara eventid )
 	<- chara .party@ 0= if then;
 	<- eventid MAIN_EVENT_DRIVING_START = if
@@ -1363,12 +1362,20 @@ barbar-picker-base shuffles var barbar-picker
 	' barbar-main-events <- chara .main_events!
 ;
 
+116 is-specialchar: .propanestamp?
 
 // Temp Char Stuff
 
 : tempchar-thing-events args( me teid )
 	<- teid THING_EVENT_TIMER = if
-		<- me mission{ .smokepoof }
+		<- me .drop-weapons
+		<- me .character@ .propanestamp? if
+			<- me .pos 5 + xyfart
+			-1 lt .hitcheck.blast!
+			-30 <- me .shudder!
+		else
+			<- me mission{ .smokepoof }
+		then
 		<- me silentkillit
 	then;
 
@@ -1396,7 +1403,7 @@ barbar-picker-base shuffles var barbar-picker
 	90 rndsign * <- me .move_angle!
 
 	1 <- me .ai.threat_mode!
-	0 <- chara .ai.attack_level!
+//	0 <- chara .ai.attack_level!
 //	8 <- me .weapon_state.off.y!
 
 	0 <- me .flammability!
@@ -1450,6 +1457,8 @@ barbar-picker-base shuffles var barbar-picker
 	<- chara .default-ai-setup
 	<- chara .party-familiar
 	6 <- chara .loyalty!
+	-1 <- chara .ai.attack_level!
+	1 <- chara .ai.rush_chance!
 	<- timer <- chara .thing@ .timer!
 	' tempchar-main-events <- chara .main_events!
 ;
@@ -1497,6 +1506,7 @@ pukey-picker-base shuffles var pukey-picker
 	<- chara tempchar-common-2min
 ;
 
+(*
 weapondef{
 
 custom: Egg
@@ -1524,6 +1534,8 @@ custom: Egg
 	root{ : egg } egg 0 lt .flip! ;
 
 }
+
+*)
 
 // Set up whatever character for PUKEYBALL
 // - set party/recruit if required 
@@ -1555,6 +1567,7 @@ custom: Egg
 	<- thing <- me .carry
 ;
 
+
 // A combat AI HACK of sorts in here
 : roadpuncher-combat-ai args( chara thing )
 
@@ -1571,11 +1584,13 @@ custom: Egg
 		<- thing .nearest_enemy_dist2@ 24 24 * > if
 			WEAPON_PUNCHBALL <- chara .weapona!
 			0 <- chara .weaponb!
+			1 <- chara .weapon_nodropb!
 		then;
 	then
 
 	// Use KARATAY
 	0 <- chara .weapona!
+	1 <- chara .weapon_nodropa!
 	WEAPON_PUNCHBALL <- chara .weaponb!
 ;
 
@@ -1647,9 +1662,12 @@ custom: Egg
 72 is-specialchar: .saguts?
 
 : .broomify args( chara )
- 	112 <- chara .specialtype!
+ 	"Broomy" <- chara .name!
+	112 <- chara .specialtype!
  	"is not a broom so STOP with the SWEEPING" <- chara .job!
  	-1 <- chara .breathescale!
+	2 <- chara .vitality!
+	2 <- chara .health!
 ;
 
 112 is-specialchar: .broom?
@@ -1758,3 +1776,589 @@ custom: Egg
 ;
 
 last to main-event-mission-character
+
+// LIVER
+
+
+// PUNCH QUEST guy
+: .pqify
+	32 over .specialtype!
+	0 over .female!
+	0 over .shooting!
+	5 over .fitness!
+	5 over .strength!
+	6 over .attitude!
+	"is a main character from Punch Quest." over .job!
+	dup .nodeathdrop
+	WEAPON_PUNCHQUEST over .weapona!
+	1 over .weapon_nodropa!
+	drop
+;
+
+32 is-specialchar: .pq?
+
+
+: .tinkle args( pow me )
+
+	sfx{ fm 2 j! 5 ramp_start! 0 ramp_end! 0.5 duty! 1500 freq2! 250 d!  0.1 s! 500 r! 0.25 scale!
+		0.25 1.25 frnd pitch!
+		<- me .adjust-vol }
+
+	3 for
+
+	<- me .pos3
+	particle{ new pos3!
+		particles_base_id 0x 59 + spriteid! 0 3 rnd 90 * angle!
+		1.075 0 0.025 frnd + <- pow * grow!
+		15 ticks!
+		5 fade_out!
+		glowy
+		0 360 frnd angle!
+		0 360 frnd angle-colour rgb!
+		-3 3 frnd rotate!
+		-3 3 rnd pos.x@ + pos.x!
+		-3 3 rnd pos.y@ + pos.y!
+		0.9 1 frnd scale!
+	}
+
+	next
+;
+
+// All of this just so we can get twinkles
+: tempgerbil-thing-events args( me teid )
+	<- teid THING_EVENT_TIMER = if
+		<- me .drop-weapons
+		1 <- me .tinkle
+		<- me silentkillit
+	then;
+
+	<- teid THING_EVENT_DIED = if 1 <- me .unseen! then;
+;
+
+: tempgerbil-main-events ( teid ) args( chara eventid )
+	<- eventid MAIN_EVENT_DRIVING_START = if 0 <- chara .party! then;
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+	<- chara .thing@ swap ( teid ) tempgerbil-thing-events
+;
+
+: .gnomify2
+	75 over .specialtype!
+	3 over .composure!
+	6 over .attitude!
+	0 over .wits!
+	0 over .strength!
+	1 over .health!
+	1 over .vitality!
+	WEAPON_POKIN over .weapon_default!
+	"is a magical forest creature, not riding a large rodent." over .job!
+	drop
+;
+
+: .tempgerbilfy args( ticks chara )
+	<- chara 90 %chance if .gerbilfy else .gnomify2 then
+	<- chara <- ticks tempchar-common
+	' tempgerbil-main-events <- chara .main_events!
+;
+
+
+: gnomey-gerbil args( gnomey )
+	// Slight time variation for cooler disappearance poofiness
+	new-npc 9 0 1 frnd + 60 * lt .character@ .tempgerbilfy
+	<- gnomey lt-to-thing drift
+	1 lt .tinkle
+	rndtint lt .character@ .tint.body!
+;
+
+
+: gnomey-pq-guy args( gnomey )
+	new-npc lt .character@ .pqify
+	lt .character@ 0 tempchar-common
+	0 lt .character@ .main_events!
+	<- gnomey lt-to-thing drift
+	lt mission{ .smokepoof }
+;
+
+
+: gnomey-chance-summons args( chance me )
+
+	<- chance %chance 0= if then;
+
+	// PQ guy already spawned, using unused zombietype as state
+	<- me .zombietype@ if
+		1 %chance if 
+			3 for <- me gnomey-gerbil next
+			begin 75 %chance while <- me gnomey-gerbil repeat
+		then
+		50 %chance if <- me gnomey-gerbil then;
+	then;
+
+	// Either gerbils or PQ guy
+	90 %chance if
+		<- me gnomey-gerbil 
+	else
+		<- me gnomey-pq-guy
+		1 <- me .zombietype!
+	then
+;
+
+
+: gnomey-death-gerbil-storm args( me )
+
+	// Minumum of FIVE gerbils
+	5 for <- me gnomey-gerbil next
+
+	// And potentially lots more
+	begin 75 %chance while <- me gnomey-gerbil repeat
+;
+
+
+: gnomey-thing-events args( me teid )
+
+	<- teid
+
+		THING_EVENT_DID_HIT ?(
+			<- me .hitcheck.lasthit_id@ dup 0= if drop then;
+			#thing .zombie? 0= if then;
+
+			50 <- me gnomey-chance-summons
+		);
+
+		THING_EVENT_DIED ?(
+			RED "OOooOOOoooOOooo!" .. <- me .yellmsglong
+			<- me gnomey-death-gerbil-storm
+			1.15 <- me .tinkle
+		);
+
+	drop
+;
+
+
+: gnomey-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) gnomey-thing-events
+;
+
+
+: .gnomify args( me )
+	<- me
+		33 over .specialtype!
+		3 over .composure!
+		6 over .attitude!
+		0 over .wits!
+		0 over .strength!
+		1 over .health!
+		1 over .vitality!
+		0.2 over .speed_bonus!
+		WEAPON_POKIN over .weapon_default!
+		"is a magical forest creature, riding a large rodent." over .job!
+		' gnomey-main-events over .main_events!
+	drop
+;
+
+road{ 0 value stampuser-countdown }
+
+50 constant STAND_COOLDOWN
+
+: .stampuserify args( chara )
+
+	2 <- chara .carrying.slot_count!
+	6 <- chara .strength!
+	5 <- chara .fitness!
+	0 <- chara .female!
+
+ 	113 <- chara .specialtype! 
+	WEAPON_BOXING <- chara .weapon_default!
+	2 <- chara .headoff.y!
+
+;
+
+: .stampcommon args( chara )
+	<- chara .stampuserify
+	6 <- chara .fitness!
+	<- chara .notake 
+	<- chara .nocarry
+	<- chara .nopickups
+	2 <- chara .vitality!
+	2 <- chara .health!
+	1 <- chara .ai.rush_chance!
+	0.2 <- chara .speed_bonus!
+;
+
+: .sdogify args( chara )
+
+	<- chara .stampcommon
+
+ 	114 <- chara .specialtype! 
+
+	"S Doggy Dog" <- chara .name!
+	"CharBro's iconic Stamp" <- chara .job!
+;
+
+114 is-specialchar: .sdogstamp?
+
+// Base initialization for all tempchar STAMP summons
+: tempstamp-init args( chara min max )
+	// Call this first to set up the temp timer etc.
+	<- chara 60 <- min <- max rnd * tempchar-common
+
+	// Hack that turns off fatigue and bleeding, we will also use this to indicate that this is a tempchar
+	1 <- chara .thing@ .subtypeid!
+;
+
+: .tempsdog args( chara )
+	<- chara 25 35 tempstamp-init
+	<- chara .sdogify
+;
+
+: sdogsummon args( charbro )
+	new-npc lt .character@ .tempsdog
+	<- charbro lt-to-thing drift
+;
+
+: charbropoof sdogsummon lt mission{ .smokepoof } ;
+
+0 stack
+	"Yare yare daze...." shove
+	"Good Grief!" shove
+	"S DOGGY DOG!" shove
+	"I SUMMON MY STAMP: S DOGGY DOG!" shove
+value CHARBRO-STAMPSAY
+CHARBRO-STAMPSAY shuffles var charbro-stampsay
+
+: charbro-stampsay-go
+	charbro-stampsay depths 0= if CHARBRO-STAMPSAY shuffles to charbro-stampsay then pops nip
+;
+
+: charbro-thing-events args( me teid )
+
+	<- me .character@ .dead? if then;
+	<- teid THING_EVENT_SWING = if
+		<- me .action_cooldown@ if exit then
+		60 STAND_COOLDOWN * <- me .action_cooldown!
+		RED charbro-stampsay-go .. <- me .yellmsglong
+		<- me charbropoof
+	then;
+;
+
+: charbro-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		road{ ' stampuser-countdown ++ }
+	then;
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) charbro-thing-events
+;
+
+: .charbroify args( chara )
+
+	<- chara .stampuserify
+
+	"CharBro" <- chara .name!
+	"is a Stamp User. His catch phrase, roughly translated from Japanese, means 'Good Grief'." <- chara .job!
+	
+	' charbro-main-events <- chara .main_events!
+;
+
+113 is-specialchar: .charbro?
+
+: propain-thing-events args( me teid )
+
+	// Call this for the tempchar timer handling and item drop
+	<- me <- teid tempchar-thing-events
+
+	<- teid THING_EVENT_WAS_HIT = <- teid THING_EVENT_DIED = or if
+		// <- me .action_cooldown@ if exit then
+		// 60 1 * <- me .action_cooldown!
+		<- me .pos 5 + xyfart
+		-1 lt .hitcheck.blast!
+		-30 <- me .shudder!
+
+		// Only delete this THING if it's known to be a tempchar in this case
+		<- me .subtypeid@ if
+			// Avoid the creepy death sound
+			0 <- me .character@ .party!
+			<- me silentkillit
+		then
+	then;
+;
+
+: propain-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if then;
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) propain-thing-events
+;
+
+: .propainify args( chara )
+
+	<- chara .stampcommon
+	0 <- chara .headoff.y!
+	-0.2 <- chara .speed_bonus!
+
+ 	116 <- chara .specialtype! 
+	WEAPON_KUNG <- chara .weapon_default!
+	
+	1 <- chara .vitality!
+	1 <- chara .health!
+
+	"ProPAIN" <- chara .name!
+	"is an embodiment of propane" <- chara .job!
+	
+	' propain-main-events <- chara .main_events!
+;
+
+
+: .tempspropain args( chara )
+
+	<- chara 30 38 tempstamp-init
+
+	// Call this last to replace the main_events handler with our custom one
+	<- chara .propainify 
+;
+
+
+: propainsummon args( hheck )
+	new-npc lt .character@ .tempspropain
+	<- hheck lt-to-thing drift
+;
+
+
+: hheckpoof propainsummon lt mission{ .smokepoof } ;
+
+
+0 stack
+	"THAT BOY... IS NOT RIGHT..." shove
+	"BWAAAAAAAAAH!" shove
+	"PRO-PAIN!" shove
+	"I TELL YOU WHAT" shove
+	"PRO-PAIN AND PRO-PAIN ACCESSORIES" shove
+	"YOU DON'T GET THAT WITH A CLEAN BURNING FUEL!" shove
+	"I SUMMON MY STAMP: PRO-PAIN!" shove
+	"TASTE THE MEAT *AND* THE HEAT" shove
+value HHECK-STAMPSAY
+HHECK-STAMPSAY shuffles var hheck-stampsay
+
+: hheck-stampsay-go
+	hheck-stampsay depths 0= if HHECK-STAMPSAY shuffles to hheck-stampsay then pops nip
+;
+
+: hheck-thing-events args( me teid )
+
+	<- me .character@ .dead? if then;
+	<- teid THING_EVENT_SWING = if
+		<- me .action_cooldown@ if exit then
+		60 STAND_COOLDOWN * <- me .action_cooldown!
+		RED hheck-stampsay-go .. <- me .yellmsglong
+		<- me hheckpoof
+	then;
+;
+
+
+: hheck-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		road{ ' stampuser-countdown ++ }
+	then;
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) hheck-thing-events
+;
+
+: .hheckify args( chara )
+
+	<- chara .stampuserify
+	6 <- chara .fitness!
+
+ 	115 <- chara .specialtype! 
+
+	"H. Heck" <- chara .name!
+	"is a Stamp User. He claims to sell pro-pain and pro-pain accessories." <- chara .job!
+	
+	' hheck-main-events <- chara .main_events!
+;
+
+115 is-specialchar: .hhell?
+
+: .bdogify args( chara )
+
+	<- chara .stampcommon
+	0 <- chara .headoff.y!
+	<- chara .yestake 
+
+ 	117 <- chara .specialtype!
+	WEAPON_POKIN <- chara .weapon_default!
+	3 <- chara .vitality!
+	3 <- chara .health!
+
+	"GIANT-DAWG" <- chara .name!
+	"is a very large dawg" <- chara .job!
+;
+
+117 is-specialchar: .bdogstamp?
+
+: .tempbdog args( chara )
+	<- chara 30 35 tempstamp-init
+	<- chara .bdogify
+;
+
+: bdogsummon args( ziggy )
+	new-npc lt .character@ .tempbdog
+	<- ziggy lt-to-thing drift
+;
+
+: ziggypoof bdogsummon lt mission{ .smokepoof } ;
+
+: ziggy-thing-events args( me teid )
+
+	<- me .character@ .dead? if then;
+	<- teid THING_EVENT_SWING = if
+		<- me .action_cooldown@ if exit then
+		60 STAND_COOLDOWN * <- me .action_cooldown!
+		PURPLE 90 %chance if "SFX: [MENACING BARK]" else "SFX: [GIANT-DAWG SUMMON THEME]" then .. <- me .yellmsglong
+		<- me ziggypoof
+	then;
+;
+
+: ziggy-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		road{ ' stampuser-countdown ++ }
+	then;
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) ziggy-thing-events
+;
+
+: .ziggify args( chara )
+	
+	<- chara .doggify
+	<- chara statmod{ .superdog }
+	6 <- chara .wits!
+	
+	"Ziggy" <- chara .name!
+	"is a Stamp User and a dog. Stamps are manifestations of intense psychic power, but they pretty much just punch things." <- chara .job!	
+	' ziggy-main-events <- chara .main_events!
+;
+
+: .tempnugs args( chara )
+	<- chara 40 45 tempstamp-init
+	<- chara .nugsify
+;
+
+: nugssummon args( efudd )
+	new-npc lt .character@ .tempnugs
+	<- efudd lt-to-thing drift
+;
+
+: efuddpoof nugssummon lt mission{ .smokepoof } ;
+
+0 stack
+	"ZE WABBITO" shove
+	"WABBIT SEASON!" shove
+	"I SUMMON MY STAMP: NUGGS CHUNGUS!" shove
+	"NUGGS CHUNGUS!" shove
+value EFUDD-STAMPSAY
+EFUDD-STAMPSAY shuffles var efudd-stampsay
+
+: efudd-stampsay-go
+	efudd-stampsay depths 0= if EFUDD-STAMPSAY shuffles to efudd-stampsay then pops nip
+;
+
+: efudd-thing-events args( me teid )
+
+	<- me .character@ .dead? if then;
+	<- teid THING_EVENT_SWING = if
+		<- me .action_cooldown@ if exit then
+		60 STAND_COOLDOWN 2 * * <- me .action_cooldown!
+		GREEN efudd-stampsay-go .. <- me .yellmsglong
+		<- me efuddpoof
+	then;
+;
+
+: efudd-main-events ( teid ) args( chara eventid )
+
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if then;
+	<- eventid MAIN_EVENT_MISSION_CHARACTER_THING_EVENT <> if then;
+
+	<- chara .thing@ swap ( teid ) efudd-thing-events
+;
+
+: .efuddify args( chara )
+
+	<- chara .stampuserify
+	6 <- chara .fitness!
+
+ 	118 <- chara .specialtype!
+	WEAPON_SUMO <- chara .weapon_default!
+
+	11 <- chara .headoff.y!
+
+	"E*FUDD" <- chara .name!
+	"is maybe the ultimate Stamp User, and has something very strange going on with his head/hair situation." <- chara .job!
+	
+	' efudd-main-events <- chara .main_events!
+	
+;
+
+118 is-specialchar: .efudd?
+
+: jackham-main-events ( teid ) args( chara eventid )
+	<- chara .party@ 0= if then;
+	<- eventid MAIN_EVENT_DRIVING_START = if
+		<- chara WEAPON_EJHAMMER <- chara .weapona@ = if 
+			<- chara .stackeda@ 15 + <- chara .stackeda!
+			<- chara .stackeda@ 60 > if 60 <- chara .stackeda! then
+		then;
+		<- chara WEAPON_EJHAMMER <- chara .weaponb@ = if 
+			<- chara .stackedb@ 15 + <- chara .stackedb!
+			<- chara .stackedb@ 60 > if 60 <- chara .stackedb! then
+		then;
+		<- chara WEAPON_EJHAMMER <- chara .weaponc@ = if 
+			<- chara .stackedb@ 15 + <- chara .stackedc!
+			<- chara .stackedb@ 60 > if 60 <- chara .stackedc! then
+		then;
+	then;
+;
+
+0 stack
+	' WEAPON_BLOWTORCH shove
+	' WEAPON_WRENCH shove
+	' WEAPON_SLEDGE shove
+	' WEAPON_SHOVEL shove
+	' WEAPON_PARKING shove
+	' WEAPON_REBAR shove
+	' WEAPON_CLAWHAMMER shove
+	' WEAPON_BALLPEEN shove
+	' WEAPON_MALLET shove
+	' WEAPON_SCREWDRIVER shove
+value jackham-picker-base
+jackham-picker-base shuffles var jackham-picker
+
+: jackham-pick jackham-picker depths 0= if jackham-picker-base shuffles to jackham-picker then pops nip execute ;
+
+: .jackhamify args( chara )
+	89 <- chara .specialtype!
+	"worked in construction. Not related to the famous Harry Ham." <- chara .job!
+	WEAPON_EJHAMMER <- chara .weapona!
+	jackham-pick <- chara .weaponb! jackham-pick <- chara .weaponc!
+	60 <- chara .stackeda!
+	1 <- chara .weapon_nodropa!	
+	5 <- chara .strength!
+	4 <- chara .fitness!
+	0 <- chara .attitude!
+	"Jack Hamm" <- chara .name!
+	' jackham-main-events <- chara .main_events!
+;
+
+89 is-specialchar: .jackham?

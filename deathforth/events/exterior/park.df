@@ -1,0 +1,564 @@
+// uses hack/region-downtown-test.df
+uses paul/region-layout.df
+
+"../deathforth/rooms/restroom.txt" $load-rooms
+
+// "../deathforth/rooms/TEMPROOM.txt" $load-rooms
+
+"
+:map 1
+:tags parkshack 
+:scriptA indshelf -1 movey 
+:scriptB shackloot 
+:size 7 10
+:off 11 1 
+:tiles 
+2222222
+2333332
+21A1A12
+2111112
+2111112
+211B112
+2111112
+2111112
+2222222
+3333333
+
+:map 2
+:tags indshack 
+:scriptA indfurnace -1 movey 
+:scriptB 10 20 rnd dgas
+:size 7 9
+:off 11 1 
+:tiles 
+2222222
+2333332
+211A112
+2111112
+21B1B12
+2111112
+2111112
+2222222
+3333333
+"
+value PARKBUILD
+PARKBUILD $parse-rooms
+
+0 value park-car-spawned
+
+cyoa{
+
+cyoa: parkrescue
+	rescue choosechar cicon
+	dead? if npc-died then;
+	"Bathroom Break" cyoa-title!
+	($ cname .. " survived " .. chis .. " mission of finding a bathroom. Then " .. che .. " got surrounded by the nearby hordes.
+	" .. cHe .. " asks if " .. che .. " can follow you around." $) cyoa-text!
+	park-car-spawned 0 > if
+		($ "There were too many zombies in the other bathroom! I think I dropped my car keys in there." pbold $) +crtext
+	then
+		choice( "Let " .. chim .. " follow you"  )choice: rescueme-2
+		choice( "Leave " .. chim .. " for now" )choice
+;
+
+}
+
+: .parkmake args( ch )
+	rescue-weapon <- ch .weapona! 
+;
+
+: park-rescue-npc new-npc@ .parkmake
+	1 lt .unseen! 0 lt .leaveok! 
+	npc@rescue cyoa{ ' parkrescue cyoa! }
+;
+
+: shackloot
+	branchtrim .drift
+	rake .drift
+	broom .drift
+	mop .drift
+	50 %chance if
+		20 25 rnd dgas
+		10 %chance if 
+			chainsaw
+		else
+			50 %chance if
+				whacker
+			else
+				blower
+			then 
+		then .drift
+	else
+		10 %chance if 
+			echainsaw
+		else
+			50 %chance if
+				ewhacker
+			else
+				eblower
+			then 
+		then drift
+	then
+;
+
+locdef{
+
+location: keybath
+		max-rooms: 1
+		entry-tags: restroom
+		script: set-theme-house
+		pre-script: set-theme-house
+			
+		room-choice: restroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: carkeys 10diff %zombs
+			
+location: magbath
+		max-rooms: 1
+		entry-tags: restroom
+		script: set-theme-house
+		pre-script: set-theme-house
+			
+		room-choice: restroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: randommag 10diff %zombs
+
+location: rescbath
+		max-rooms: 1
+		entry-tags: restroom
+		script: set-theme-house
+		pre-script: set-theme-house
+			
+		room-choice: restroom
+			room-weight: 1
+			room-count: 1
+			room-script: nad floor-bath
+			room-post-script: park-rescue-npc 5diff %zombs
+	
+			
+location: parkshack
+		max-rooms: 1
+		entry-tags: parkshack
+		script: set-theme-cabin
+		pre-script: set-theme-cabin
+		post-script: nad 0 %zombs
+				
+		room-choice: parkshack
+			room-weight: 10
+			room-count: 1
+			room-post-script:
+			filter-only
+			
+location: indshack
+		max-rooms: 1
+		entry-tags: indshack
+		script: factory-theme
+		pre-script: factory-theme
+		post-script: nad 0 %zombs
+				
+		room-choice: indshack
+			room-weight: 10
+			room-count: 1
+			room-post-script:
+			filter-only
+}
+
+map{ regiondef{
+
+0 value bfx
+0 value bfy
+0 value gbx
+0 value gby
+0 value gbx2
+0 value gby2
+
+: keybath tanchor! map{ 
+	"keybath" $picklocid addloc prefab{ 4 5 2 shop } 
+} ;
+
+: magbath tanchor! map{ 
+	"magbath" $picklocid addloc prefab{ 3 5 2 shop } 
+} ;
+
+: rescbath tanchor! map{ 
+	"rescbath" $picklocid addloc prefab{ 1 5 2 shop } 
+} ;
+
+: parkshack tanchor! map{ 
+	"parkshack" $picklocid addloc prefab{ 2 5 1 shop }  
+} ;
+
+: indshack tanchor! map{ 
+	"indshack" $picklocid addloc prefab{ 2 5 1 shop } 
+} ;
+
+: randshack 50 %chance if parkshack else indshack then ;
+: randbath 
+	park-car-spawned 0 > if
+		keybath
+	else 
+		50 %chance if rescbath else magbath then 
+	then ;
+
+: grassbunch
+	xyp.x 1 - xyp.y 1 - xyp.x 1 + xyp.y 1 + map{ gravellot }
+;
+
+: .baseify
+	4 over .rad.y!
+	dup .sprh 0.5 * 4 - over .anim.off.y!
+	drop
+;
+
+
+: cemstatue spawn special_objects48_base_id 0x 24 + 0 3 rnd + lt .spriteid!
+	postify lt .rad.x@ 2 * lt .rad.x! tlbbolt
+;
+
+: spookytree spawn rndflip
+	special_objects48_base_id 0x 1e + 0 3 rnd + lt .spriteid!
+	1 1.25 frnd lt .scale.y!
+	treeify lt .rad.x@ 2 * lt .rad.x!
+;
+
+: maybetree
+	5 onein not if
+		spookytree xyp.xy tile>pos lt .pos!
+		0 0.5 frnd rndsign * lt .jumpx
+	then
+;
+
+: .no_tile_collide TILEFLAG_NO_COLLIDE swap .tileflags! ;
+
+: walktile
+	xyp.xy tile@ LAYER_WALLSIDE street_tiles_base_id 0x 5a + .lspriteid!
+	xyp.xy tile@ LAYER_WALLSIDE rnd5050 .tile_layer.flipx!
+	xyp.xy tile@ LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
+;
+
+: junkit
+	2dup tile@ 0= if 2drop then;
+	2dup tile@ LAYER_WALLSIDE street_tiles_base_id 0x 1c + .lspriteid!
+	blocked
+;
+
+: dostatue xyp.xy cemstatue tile>pos lt .pos!
+;
+
+: cemfence args( spr )
+	xyp.xy tile@ LAYER_WALLSIDE street_tiles_base_id 0x 145 + <- spr + .lspriteid!
+	xyp.xy blocked
+	xyp.xy 1- tile@ LAYER_WALLSIDE street_tiles_base_id 0x 135 + <- spr + .lspriteid!
+	xyp.xy 1- blocked
+;
+
+: doextras
+
+	skel map{ w 0.5 * w 0.5 * 4 - rndsign * + } 2 map{ h 3 / } rnd tile>pos lt .pos! drift drift drift rndflip
+
+;
+
+// Decorations
+
+: parkconclot
+	map{ xyp.x 0 - xyp.y 5 - xyp.x 4 + xyp.y -1 + LAYER_FLOORTOP min-layer! conclot }
+;
+
+: parkdirtlot
+	map{ xyp.x -1 - xyp.y 5 - xyp.x 5 + xyp.y -1 + LAYER_FLOORTOP min-layer! dirtbox }
+;
+
+: parkbench
+	spawnflip special_objects32_base_id 0x B5 + 0 2 rnd + lt .spriteid! 
+	bbox 4bolt 10 health!
+;
+
+: parkflowers
+	spawnflip special_objects32_base_id 0x B8 + 0 7 rnd + lt .spriteid! 50 health! low-profile on-floor immovable
+	xyp.xy tile>pos lt .pos!
+;
+
+: parkbushes
+	spawnflip special_objects32_base_id 0x B0 + 0 4 rnd + lt .spriteid! 25 health! bbox immovable
+	xyp.xy tile>pos lt .pos!
+;
+
+: parkcanme parkcan xyp.xy tile>pos lt .pos! ;
+
+// Deco Options
+
+: bushfield
+	parkbushes -3.5 movey 3 movex
+	parkbushes -2 movey 3 movex
+	parkbushes -3.5 movey 1 movex
+	parkbushes -2 movey 1 movex
+	parkdirtlot
+;
+
+: flowerfield
+	parkflowers -4 movey 3 movex
+	parkflowers -2 movey 3 movex
+	parkflowers -4 movey 1 movex
+	parkflowers -2 movey 1 movex
+	parkdirtlot
+;
+
+: parkstatue
+	cemstatue xyp.xy tile>pos lt .pos! -3 movey 2 movex
+	parkconclot
+;
+
+: parkstatuebench
+	cemstatue xyp.xy tile>pos lt .pos! -4 movey 2 movex
+	parkconclot
+	parkbench xyp.xy tile>pos lt .pos! -2 movey 2 movex
+	parkcanme -2 movey 50 %chance if 3 else 1 then movex
+;
+
+: snacklot
+	gasvend xyp.xy tile>pos lt .pos! -5 movey 1 movex
+	gasvend xyp.xy tile>pos lt .pos! -5 movey 2 movex
+	gasvend xyp.xy tile>pos lt .pos! -5 movey 3 movex
+	parkbench xyp.xy tile>pos lt .pos! -2 movey 2 movex
+	parkconclot
+	parkcanme -2 movey 50 %chance if 3 else 1 then movex
+;
+
+0 stack
+	' parkstatue shove
+	' parkstatuebench shove
+	' flowerfield shove
+	' snacklot shove
+	' snacklot shove
+	' bushfield shove
+constant PARKDECO-OPTIONS
+0 var parkdeco-options
+
+
+
+: parkdeco 
+	// snacklot
+	parkdeco-options pops nip execute 
+;
+
+: park-car-spawner
+	park-car-spawned 0 > if
+		spawn-locked-car-noloot xyp.xy tile>pos lt .pos!
+	then
+;
+
+: fencea 0 cemfence ;
+: fenceA 1 cemfence ;
+
+: fenceb 3 cemfence ;
+: fenceB 2 cemfence ;
+
+
+0 stack
+	' randshack shove
+	' randbath shove
+	' parkdeco shove
+	' parkdeco shove
+	' parkdeco shove
+	' parkdeco shove
+constant PARKBUILD-OPTIONS
+0 stack
+	' keybath shove
+	' parkshack shove
+	' rescbath shove
+	' indshack shove
+	' parkdeco shove
+	' parkdeco shove
+constant PARKBUILD2-OPTIONS
+0 var parkbuild-options
+
+
+' plotdirt value groundtype
+
+' plotgrass >defer ft
+
+: pt
+	xyp.xy ft // Plot the current floor by default
+
+	xyp.i char @ = if xyp.xy parkbuild-options pops nip execute then;
+
+	xyp.i char g = if ' plotgrass to ft then;
+	xyp.i char # = if walktile then;
+	
+	xyp.i char t = if tree xyp.xy tile>pos lt .pos! then;
+	xyp.i char T = if parkcanme then;
+
+	xyp.i char a = if fencea then;
+	xyp.i char A = if fenceA then;
+	xyp.i char b = if fenceb then;
+	xyp.i char B = if fenceB then;
+
+	xyp.i char s = if dostatue then;
+	xyp.i char E = if doextras then;
+	
+	xyp.i char C = if park-car-spawner then;
+	
+	xyp.i char p = if ' plotpave to ft then;
+	xyp.i char P = if ' plotpave to ft xyp.xy ft then;
+	xyp.i char $ = if xyp.xy grassedge then;
+	xyp.i char ( = if grassstart then;
+	xyp.i char ) = if grassend then;
+
+;
+
+: domap1
+"
+.....................................
+.....................................
+..................C..................
+(....................................
+................T###.................
+aaaaaaaaaaaaaaaaA###Bbbbbbbbbbbbbbbbb
+..t.t.t.....s###########s.....t.t.t..
+.t.....t.........###.........t.....t.
+.................###.................
+..1x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+....t.@....@....#####@....@..........
+.t.....#######################.....t.
+.......t........#####.....t.....t....
+.................###.................
+...x..x..x..x..x.###.x..x..x..x..x...
+.................###.................
+.................###.................
+...x..x..x.......###..........x..x...
+.t........s.@#######@####..s......2t.
+.................###.................
+aaaaaaaaaaaaaaaaA###Bbbbbbbbbbbbbbbbb
+.t...t...t...t...###T...t...t...t....
+.................###.................
+....................................)
+.....................................
+.....................................
+.....................................
+.....................................
+..................................E.."
+;
+
+domap1 constant maplayout
+
+: domap2
+"
+.....................................
+.....................................
+..................C..................
+(....................................
+................T###.................
+aaaaaaaaaaaaaaaaA###Bbbbbbbbbbbbbbbbb
+..t.t.t.........#####.........t.t.t..
+.t.....t.........###.........t.....t.
+.................###.................
+..1x.tx..x..x..x.###.x..x..x.tx.t.x..
+........t........###.......t.........
+.t...t...........###.........t.....t.
+...x..x..x..x..x.###.x..x..x..x..x...
+............@....###@................
+....t.....#################..........
+........#####################......t.
+........###.....##.##.....###........
+........###.....##.##.....###........
+........###.....##.##.....###........
+........###.....##.##.....###........
+........###.....##.##.....###........
+...@....###@....##.##@....###@.......
+...###############################.2.
+....... ###...............###........
+aaaaaaaA###BbbbbbbbaaaaaaA###Bbbbbbbb
+..t...T.###...t...s...t...###.T...t..
+........###...............###........
+....................................)
+.....................................
+.....................................
+.....................................
+.....................................
+..................................E.."
+;
+
+: domap3
+"
+...................................
+...................................
+.................C.................
+(..................................
+..............T#####T..............
+aaaaaaaaaaaaaaA#####Bbbbbbbbbbbbbbb
+..t............#####............t..
+.t...#########################....
+....##.....###.......###.....##..t.
+....#.....#####.....#####.....#....
+..1x#.....#####.....#####.....#....
+....#.....##s##.....##s##.....#....
+.t..#.....#####.....#####.....#..t.
+...x#...x.#####.....#####..x..#....
+....#@.....###.@.....###.@....#....
+....###########################....
+....##.....###.......###.....##....
+....##.....###.......###.....##....
+....##.....###.......###.....##....
+....##.....###.......###.....##....
+....##.....###.......###.....##....
+....##.....###.......###.....##....
+....##@....###.@.....###@....##....
+....###########################.2..
+...............#####...............
+aaaaaaaaaaaaaaA#####Bbbbbbbbbbbbbbb
+..t.........s.T#####T.s.........t..
+...............#####..............
+..................................)
+...................................
+...................................
+...................................
+...................................
+................................E.."
+;
+
+: plotmap
+	35 %chance if domap1 else rnd5050 if domap2 else domap3 then then to maplayout
+	// domap2 to maplayout
+	0 -1 maplayout xyplot: pt
+;
+
+: site-setup
+
+	// 1 to parktype
+	parktype 0 = if 
+		33 %chance if 1 to park-car-spawned then
+		PARKBUILD-OPTIONS
+	else 1 to park-car-spawned PARKBUILD2-OPTIONS 
+	then shuffles to parkbuild-options
+	
+	PARKDECO-OPTIONS shuffles to parkdeco-options
+	
+	' plotpave to ft plotmap
+
+	resetcarkeys
+
+	rndsign wind_force!
+	timeofday o'clock
+
+	5diff %zombs
+;
+
+region: park
+	w: maplayout layoutw
+	h: maplayout layouth 
+	
+	loc-choice: park
+		loc-weight: 1
+		loc-count: 1
+
+	post-script: site-setup
+
+} }

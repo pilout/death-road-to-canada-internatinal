@@ -12,12 +12,13 @@ uses paul/region-layout.df
 :scriptE traderarcade-rp -1 movey 
 :scriptF clawmachine -1 movey
 :scriptG traderarcade-fire -1 movey
+:scriptH traderarcade-axe -1 movey
 :size 14 9 
 :off 8 0 
 :tiles 
 22222222222000
 23333333332222
-2AAEFDFGAA3332
+2AEADFGAHA3332
 21111111111112
 2111111111BC12
 21111111111112
@@ -163,13 +164,13 @@ cyoa-choice: traderarcade-fire-go
 		($ cname .. " gets burnt up in a big fireball! However, " .. che .. " is alive and only mildly irritated.
 		" .. cname .. "'s skin feels strangely cool." bbold $) +crtext
 		cchar statmod{ .fireproof } sting-- bitefx
+		choice( "OW! DANG IT!" )choice
 	else
 		($ cname .. " gets engulfed in a fireball! Of course, this doesn't do anything.
 		" .. cname .. " feels pretty smug about this." bbold $) +crtext
 		goodfx morale2+
 	then
 	-10 trunk-food+ clear-cyoa deleteme
-		choice( "OW! DANG IT!" )choice
 ;
 
 cyoa: traderarcade-fire
@@ -185,13 +186,40 @@ cyoa: traderarcade-fire
 		pchar charchoice( " plays for 10 food" )choice: traderarcade-fire-go
 ;
 
+cyoa-choice: traderarcade-axe-go
+	($ "An flying axe spins closer and closer, and then " .. "FLIES THROUGH THE SCREEN!" fbold .. " They don't make games like this anymore!" $) cyoa-text!
+	cfitness+ cstrength+ or if
+		($ cname .. " is physically fit enough to deflect the axe. " .. cHe .. " feels very happy that the axe was handle first, not blade first." $) +crtext morale++ goodfx fitnessREV strengthREV
+	else
+		($ cname .. " gets smashed right in the face by the axe, handle first! The arcade worker is pretty happy about this, as it's less cleanup than the other end would have required." $) +crtext ouch-- bitefx
+		alive? if morale-- then fitnessREV strengthREV
+	then
+	"The screen glitches out as the axe clatters to the floor." +crtext
+	clear-cyoa
+;
+
+: traderarcade-axe-hard goldenaxe2 drop southofcyoa drop traderarcade-axe-go ;
+: traderarcade-axe-normal goldenaxe1 drop southofcyoa drop traderarcade-axe-go ;
+
+cyoa: traderarcade-axe
+	"DIFFICULTY SELECT" cyoa-title!
+	picon!
+	($ "This machine gives an 80's vibe. There are golden letters onscreen that spell out: " .. "SHINY*AXE" rainbold .. "
+	The arcade machine seems to run on tokens from a different arcade chain. " .. pname .. " notices this and turns to look at the arcade worker, who just gives a listless shrug and looks away." $) cyoa-text!
+	($ "Someone must have put a token in before you got here, the screen says " .. "ONE CREDIT REMAINING!" fbold .. " and " .. "SELECT A DIFFICULTY:" rbold $) +crtext
+	choice( "Leave it for now" )choice
+	pchar charchoice( " plays on NORMAL mode" )choice: traderarcade-axe-normal
+	pchar charchoice( " plays on HARD mode" )choice: traderarcade-axe-hard
+;
+
 
 // NPC
 
 cyoa: traderarcade
 	"Arcade Worker" cyoa-title!
 	"I'm bringing arcades back! They're going to get really popular now that the internet has been destroyed.
-	More arcade machines are coming. I just need to convert them to run on food instead of coins before I bring them in." bbold text!
+	
+	No refunds." bbold text!
 ;
 
 }
@@ -214,6 +242,10 @@ roomgen{
 
 : traderarcade-fire
 	tradercade-box cyoa{ ' traderarcade-fire cyoa! }
+;
+
+: traderarcade-axe
+	tradercade-box cyoa{ ' traderarcade-axe cyoa! }
 ;
 
 : .arcadify args( chara )

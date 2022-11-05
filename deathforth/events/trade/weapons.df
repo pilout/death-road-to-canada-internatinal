@@ -113,8 +113,8 @@ cyoa-choice: trade-shotgun-coolit
 ;
 
 cyoa-choice: trade-shotgun-4
-	($ Thegroup .. " buys the " .. "BIG DAWG" rbold .. ". It's a one of a kind custom shotgun! Every shot is a massive blast of zombie splattering." $) cyoa-text! goodfx ' shotgun-4 ++
-	1 WEAPON_DAWG trunk.weapon+ -35 trunk-food+ picon charm-shotgun-shell
+	($ Thegroup .. " buys the " .. "DOUBLE BARREL SHOTGUN!" rbold .. " A true connoisseur's shotgun. This busts out giant sprays of buckshot, but is a little tough to handle." $) cyoa-text! goodfx ' shotgun-4 ++
+	1 WEAPON_DSHOTGUN trunk.weapon+ -12 trunk-food+ picon charm-shotgun-shell
 ;
 
 cyoa-choice: trade-shotgun-3
@@ -144,14 +144,14 @@ cyoa: trade-shotgun
 	trunk-food 5 < if
 		($ "This isn't enough food! Out of pity, he gives " .. thegroup .. " some free shotgun shells." $) +crtext goodfx 5 trunk-shotgun-shell+ clear-cyoa
 	else
-		trunk-food 34 > shotgun-4 1 < and if
-			choice( "BIG DAWG for 35 food" )choice: trade-shotgun-4
-		then
 		trunk-food 24 > shotgun-3 1 < and if
 			choice( "Slug Shotgun for 25 food" )choice: trade-shotgun-3
 		then
 		trunk-food 29 > shotgun-2 1 < and if
 			choice( "Autoshotty for 30 food" )choice: trade-shotgun-2
+		then
+		trunk-food 11 > shotgun-4 2 < and if
+			choice( "Double Barrel Shotgun for 12 food" )choice: trade-shotgun-4
 		then
 		(* trunk-food 14 > if
 			choice( "75 shells for 15 food" )choice: trade-shotgun-shell-15
@@ -1076,7 +1076,7 @@ cyoa: trade-handy
 		($ "You're out of food! The trader gives " .. thegroup .. " a free flashlight." $) +crtext goodfx 1 WEAPON_FLASHLIGHT trunk.weapon+ clear-cyoa
 	else
 		choice( "Leave for now" )choice back-esc
-		trunk-food 5 > handy-spray 1 < and if
+		trunk-food 5 > handy-spray 3 < and if
 			choice( "Healing Spray for 6 food" )choice: trade-handy-2
 		then
 		trunk-food 4 > handy-tacticop 1 < and if
@@ -1110,7 +1110,7 @@ cyoa-choice: trade-heavy-1
 cyoa-choice: trade-heavy-2
 	($ Thegroup .. " buys a bazooka and three rockets!
 	" .. "This is THE tool for blowing up a crowd of zombies, fast." pbold $) cyoa-text! goodfx
-	3 WEAPON_BAZOOKA trunk.weapon+ -15 trunk-food+ someicon ' heavy-bazooka ++
+	3 WEAPON_BAZOOKA trunk.weapon+ -12 trunk-food+ someicon ' heavy-bazooka ++
 ;
 
 cyoa-choice: trade-heavy-mine1
@@ -1130,14 +1130,76 @@ cyoa: trade-heavy
 		trunk-food 19 > heavy-mine2 1 < and if
 			choice( "8 Land Mines for 20 food" )choice: trade-heavy-mine2
 		then
-		trunk-food 14 > heavy-bazooka 1 < and if
-			choice( "Bazooka - 3 shots - 15 food" )choice: trade-heavy-2
+		trunk-food 11 > heavy-bazooka 1 < and if
+			choice( "Bazooka - 3 shots - 12 food" )choice: trade-heavy-2
 		then
 		trunk-food 11 > heavy-glaunch 1 < and if
 			choice( "Grenade Launcher - 6 shots - 12 food" )choice: trade-heavy-1
 		then
 		heavy-mine1 1 < if
 			choice( "2 Land Mines for 6 food" )choice: trade-heavy-mine1
+		then
+	then
+;
+
+// Fireworks Trader
+
+0 value fireworks-4
+0 value fireworks-3
+0 value fireworks-2
+0 value fireworks-1
+
+cyoa-choice: trade-fireworks-4
+	($ Thegroup .. " buys a KO Boomer! Formerly illegal in nearly all countries!" $) cyoa-text! goodfx
+		($ "I hear this is still really illegal in Canada!
+		25% chance to blow yourself up! Try your luck!
+		If it's feeling hot in your hand, try dropping it and running away REAL fast!" pbold $) +crtext 
+	20 WEAPON_KOBOOMER trunk.weapon+ -5 trunk-food+ someicon ' fireworks-4 ++
+;
+
+cyoa-choice: trade-fireworks-3
+	($ Thegroup .. " buys a Roman Candle!
+	" .. "It's so pretty! Zombies love it!" pbold $) cyoa-text! goodfx
+	10 WEAPON_ROMANCANDLE trunk.weapon+ -3 trunk-food+ someicon ' fireworks-3 ++
+;
+
+cyoa-choice: trade-fireworks-2
+	($ Thegroup .. " buys a two-pack of Mount Dingus" .. "[TM]" pbold .. "!
+	THE most disappointing firework on the market.
+	" .. "It doesn't even explode! It just sprays little sparks!
+	I hate it!" pbold $) cyoa-text! goodfx
+	2 WEAPON_MOUNTDINGUS trunk.weapon+ -3 trunk-food+ someicon ' fireworks-2 ++
+;
+
+cyoa-choice: trade-fireworks-1
+	($ Thegroup .. " buys 3 bundles of firecrackers." $) cyoa-text! goodfx
+		($ "Light a bundle, then watch the zombies chase it around!" pbold $) +crtext 
+	3 WEAPON_FIRECRACKERS trunk.weapon+ -2 trunk-food+ someicon ' fireworks-1 ++
+;
+
+cyoa: trade-firework
+	"Fireworks Enthusiast" cyoa-title!
+	($ Thegroup .. " meets a woman holding a roman candle. It's unlit. She seems like she's ready to light it at " .. "ANY MOMENT.
+	" rbold
+	.. "So strong! So pretty! So practical!" pbold $) cyoa-text! basic-tone foodamt
+	trunk-food 4 > fireworks-4 3 < and if
+		"I won't be liable if you blow yourself up with the KO Boomer!" pbold +crtext
+	then
+	trunk-food 2 < if
+		($ "You're out of food! The trader gives " .. thegroup .. " a complimentary bundle of firecrackers." $) +crtext goodfx 1 WEAPON_FIRECRACKERS trunk.weapon+ clear-cyoa
+	else
+		choice( "Leave for now" )choice back-esc
+		trunk-food 4 > fireworks-4 3 < and if
+			choice( "KO Boomer - 5 food" )choice: trade-fireworks-4
+		then
+		trunk-food 2 > fireworks-3 3 < and if
+			choice( "Roman Candle - 3 food" )choice: trade-fireworks-3
+		then
+		trunk-food 2 > fireworks-2 2 < and if
+			choice( "2 Mount Dingus" .. "[TM]" pbold .. " - 3 food" )choice: trade-fireworks-2
+		then
+		fireworks-1 3 < if
+			choice( "3 Firecrackers - 2 food" )choice: trade-fireworks-1
 		then
 	then
 ;

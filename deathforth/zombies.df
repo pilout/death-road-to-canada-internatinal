@@ -1,6 +1,4 @@
 
-// Limit the normally-spawned heads to those below this value
-
 : .zombiehead! args( me )
 	0x ff &
 	<- me .zombietype@ 0x ff ~ & |
@@ -20,9 +18,12 @@
 	<- me .zombietype!
 ;
 
+// Limit the normally-spawned heads to those below this value
+17 3 * 2 + constant ZOMBIE_MAX_HEADS_DEFAULT
+
 : zombiedefaults
 	0 zombie_min_heads!
-	13 3 * 2 + zombie_max_heads!
+	ZOMBIE_MAX_HEADS_DEFAULT zombie_max_heads!
 	0 zombie_min_bodies!
 	11 zombie_max_bodies!
 ;
@@ -39,10 +40,12 @@
 	12 zombie_max_bodies!
 ;
 
+: zombie_last_head zombie_head_count@ 1- ;
+
 : zombieclowns
 	zombiedefaults
-	45 zombie_min_heads!
-	56 zombie_max_heads!
+	zombie_head_count@ 12 - zombie_min_heads!
+	zombie_last_head zombie_max_heads!
 	14 zombie_min_bodies!
 	19 zombie_max_bodies!
 ;

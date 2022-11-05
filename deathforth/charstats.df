@@ -131,10 +131,20 @@
 
 defer stat-cheevs
 
+: fastlearn-stat args( stat chara )
+	<- stat <- chara
+	<- chara .trait@ "Fast Learner" $= <- stat <- chara .stat@ 4 < and if
+		// Could make this more precise, with two .stat++ with the second having a stat < 4 check if it needs nerfing
+		.stat2+
+	else
+		.stat++
+	then
+;
+
 : .strength++ STAT_STRENGTH swap .stat++ gstats{ ' total-str+ ++ } stat-cheevs ;
-: .medical++ STAT_MEDICAL swap .stat++ gstats{ ' total-med+ ++ } stat-cheevs ;
-: .mechanic++ STAT_MECHANICAL swap .stat++ gstats{ ' total-mech+ ++ } stat-cheevs ;
-: .shooting++ STAT_SHOOTING swap .stat++ gstats{ ' total-shoot+ ++ } stat-cheevs ;
+: .medical++ STAT_MEDICAL swap fastlearn-stat gstats{ ' total-med+ ++ } stat-cheevs ;
+: .mechanic++ STAT_MECHANICAL swap fastlearn-stat gstats{ ' total-mech+ ++ } stat-cheevs ;
+: .shooting++ STAT_SHOOTING swap fastlearn-stat gstats{ ' total-shoot+ ++ } stat-cheevs ;
 : .fitness++ STAT_FITNESS swap .stat++ gstats{ ' total-fit+ ++ } stat-cheevs ;
 
 : .attitudeREV STAT_ATTITUDE swap .reveal ;
@@ -403,6 +413,8 @@ defer stat-heal
 	
  ;
  
+ defer unfireproofer
+ 
  : .phoenixify args( chara )
 	"Phoenix Arisen!" <- chara .trait!
 	<- chara .fullheal
@@ -413,8 +425,13 @@ defer stat-heal
 		78 <- chara .specialhead!
 		($ "is now a HALF-SKELETON, HALF-PHOENIX, after a series of major blunders." $) <- chara .job!
 	then
+	<- chara .perk@ "Pyromaniac" $= if then;
+	<- chara unfireproofer
 ;
- 
+
+
+// mission?
+
 : .death-shared args( chara )
 	<- chara herotype-except? if 
 		someherotype			
@@ -434,10 +451,12 @@ defer stat-heal
 
 			blurbevent blurbskullicon
 
-			sfx{ creepy 30 fx .delay! }
+			road? if
+				sfx{ creepy 30 fx .delay! }
+				TEAM_STATUS_DIED <- chara .decruit // Needs a REASON when decruiting
+				<- chara .weapons-to-trunk
+			then
 
-			<- chara .weapons-to-trunk
-			TEAM_STATUS_DIED <- chara .decruit // Needs a REASON when decruiting
 			deadtally
 		then
 	then

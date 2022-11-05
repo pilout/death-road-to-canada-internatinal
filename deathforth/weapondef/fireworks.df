@@ -1,0 +1,674 @@
+(*
+Madgarden — 01/23/2022
+What effect should the roman candle shots have anyway?
+(in bazooka mode)
+Kepa — 01/23/2022
+Do distracting shots that still do damage but burn out fast?
+Madgarden — 01/23/2022
+So shooting a bunch of temp NPCs inside of firework bullets heh.
+I suppose when they explode it could spawn an invisible NPC for a second or two?
+Kepa — 01/23/2022
+Yeah, maybe a mini explosion but it leaves a sparkler for a couple seconds where it exploded
+Maybe another mini explosion after that? Like it's a rocket launcher that leaves behind one firecracker
+*)
+
+
+(* TODO:
+	+ NPC in spark/firework to attract zombies
+	+ Final spark pop damage
+	+ Handle used-up fireworks, wielded and dropped
+	+ Do something if dropped firework is burned
+*)
+
+custom: Roman candle
+	spriteid: 15 SHEET_ROW 12 +
+	weapon: romancandle
+
+	flammability: 100
+
+	reload: 0
+
+	power: 0.25
+	knockback: 0
+	cooldown: 0.25
+	0.8 custom_retract!
+
+	melee_break_scale: 0.75
+
+	melee_reach: 0
+	melee_aiming: 0
+
+	lock_drift: 0.00
+	targeting: 0
+
+	80 range_guess!
+
+	stack_as_charges: 1
+	stack_max: 20
+	stack_no_show: 1
+
+	func: WEAPON_FUNC_CUSTOM_AIMING
+
+// Mostly pointless!
+: macro[ char ] parse constant immediate does> @ evaluate ;
+
+: eventargs(me,eventid) "args( me eventid )" evaluate ; immediate // Just trying macro stuff
+
+: clr-sqr dup * rot dup * rot dup * rot ;
+
+: dotxyz
+	particle{ new pos3!
+		particles_base_id 0x f + spriteid!
+		10 ticks!
+		0.9 grow!
+		1 clr.r!
+		0.5 clr.g!
+		0.01 clr.b!
+		glowy
+	}
+;
+
+
+: rcandle-spark-pop 0 args( me b )
+	sfx{ thump
+		100 freq!
+		2 a! 100 d! 0.1 s! 500 r!
+		0.9 q!
+		500 filt! filt@ filt_high!
+		200 i!
+		1 6 frnd pitch!
+		3 scale!
+		<- me .adjust-vol
+	}
+
+	16 for
+		particle{ <- me .pos3 dotxyz
+			<- me .anim.hint@
+			0.1 angle-sat-colour clr-sqr clr-sqr rgb! 
+			0 360 frnd angle!
+			<- me .pos -2 2 frnd + swap -2 2 frnd + swap pos!
+			10 20 rnd ticks!
+			0.975 grow!
+
+			0 360 frnd anglexy 2 5 frnd xymul vel!
+		}
+	next
+
+	<- me .pos3 
+	particle{ popxyz <- me .anim.hint@ 0.5 angle-sat-colour clr-sqr clr-sqr rgb! 3 5 frnd scale! }
+
+	// Final low-damage blast
+	blast -> b
+	16 <- b .hitcheck.rad!
+	-1 <- b .hitcheck.blast!		// Don't hit humans
+	3 <- b .hitcheck.knockback!
+	1 <- b .hitcheck.power!
+	<- me .pos3 <- b .pos3!
+
+	5 <- me .pos3 + ticklight <- me .anim.hint@ 0.25 angle-sat-colour clr-sqr clr-sqr lt .clr!
+
+	// Delete contained NPC
+	<- me remove-dummy-npc
+
+	// ...and self
+
+	<- me silentkillit
+;
+
+: rcandle-spark-fly args( me )
+	<- me .anim.counter@ 0= if <- me rcandle-spark-pop then;
+
+	particle{ <- me .pos3 dotxyz
+		<- me .anim.hint@
+		0.25 angle-sat-colour clr-sqr clr-sqr rgb!
+		0 360 frnd angle!
+		<- me .pos -2 2 frnd + swap -2 2 frnd + swap pos!
+		20 30 rnd ticks!
+		0.95 grow!
+		-1 1 frnd 0.3 * vel.x!
+		-1 1 frnd 0.3 * vel.y!
+	}
+
+	<- me .anim.hint@ 0.5 angle-sat-colour clr-sqr clr-sqr 20 50 rnd <- me .pos3 + d-light
+
+	<- me .anim.counter@ 3 & if then;
+
+	3 onein if
+		particle{ new-gas-smoke <- me .pos3 pos3! }
+	then
+
+	// Add y and z together to get fake y-based z
+	<- me .pos3 + 0
+
+	particle{ ( <- me .pos3 ) popxyz <- me .anim.hint@ 0.5 angle-sat-colour clr-sqr clr-sqr rgb! }
+;
+
+
+// JOUNCE AROUND
+: rcandle-spark-bounce args( me )
+	<- me .vel.z@ 1.5 * <- me .vel.z!
+	<- me .vel.x@ -1 1 frnd 0.5 * + <- me .vel.x!
+	<- me .vel.y@ -1 1 frnd 0.5 * + <- me .vel.y!
+;
+
+
+: rcandle-spark-overlap 0 args( me zombo )
+	<- me .overlapper .typeid@ THING_ZOMBIE <> if then;
+	<- me .overlapper -> zombo
+
+	<- zombo .stun@ if then;
+
+	// Not moving enough
+	<- me .vel.x@ abs <- me .vel.y@ abs + 0.25 < if then;
+
+	// Hit the zombie just a little bit
+	1 <- me .pos xyblast .hitcheck.power! 1 lt .hitcheck.mode!
+	-1 lt .hitcheck.blast! 4 lt .hitcheck.rad!
+	<- me .msmack
+	15 <- zombo .shudder!
+	30 <- zombo .stun!
+	sfx{ -5 nextpri noise freq@ 3 * freq2! 0.5 1 frnd pitch!
+		1000 filt_high!
+		<- me .adjust-vol
+	}
+
+	// Deflect a little
+	<- me .vel xyangle -45 45 rnd + anglexy <- me .vel xymag xymul <- me .vel!
+;
+
+
+: rcandle-spark-events eventargs(me,eventid)
+	<- eventid
+		THING_EVENT_BOUNCE ?( <- me rcandle-spark-bounce );
+		THING_EVENT_ANIMATE ?( <- me rcandle-spark-fly );
+		THING_EVENT_OVERLAP ?( <- me rcandle-spark-overlap );
+	drop
+;
+
+
+// Spawn the core roman candle spark
+: rcandle-spawn-spark spawn lt args( me spark ) 
+	1 lt .no_hit! 1 lt .nocollide! 1 lt .nopick! 1 lt .nodust! 1 lt .noshadow!
+
+	' rcandle-spark-events lt .events!
+	55 65 rnd lt .anim.counter!
+	particles_base_id 0x f + lt .spriteid!
+	1 lt .invisible!
+	0 360 frnd lt .anim.hint! // For colour
+	lt .gravity@ 0.5 * lt .gravity!
+
+	<- me lt-to-thing
+
+	// Pfwish
+	sfx{ noise
+		15 a! 100 d! 0.25 s! 250 r!
+		50 freq! 500 freq2! 1500 filt! 2000 filt_high! 0.8 q!
+		0.5 1 frnd pitch!
+		lt .adjust-vol
+	}
+
+	<- spark install-dummy-npc
+	<- spark
+;
+
+
+: rcandle-spark-vert 0 args( me spark )
+
+	<- me rcandle-spawn-spark -> spark
+
+	// Vertical
+	-5 5 frnd anglexy 3.25 3.6 frnd xymul 0 swap <- spark .vel3!
+
+	<- me .burning@ if -2 2 frnd -2 2 frnd <- spark .vel! then
+
+	0 1 <- me .pos alertlcxy
+;
+
+
+: rcandle-wield-endpos args( me )
+
+	<- me .pos <- me .weapon_state.off.y@ - <- me .shudderxy@ xyadd <- me .pos.z@ + -2 + <- me .breath -
+	<- me .swing_angle@ anglexy 15 <- me .weapon_state.reach@ + xymul xyadd
+;
+
+
+: rcandle-spark-shoot 0 args( me spark )
+
+	<- me rcandle-spawn-spark -> spark
+	150 <- spark .anim.counter!
+
+	<- me rcandle-wield-endpos <- spark .pos! // Move to end of candle
+
+	<- me .swing_angle@ -10 10 frnd + anglexy 2 3 frnd xymul <- spark .vel! -1 <- spark .vel.z!
+	<- spark .gas-smoke
+
+	-2 <- me .breath - <- spark .pos.z!
+	<- spark .pos3 popxyz
+
+	5 <- me .shudder!
+	-5 <- me .weapon_state.reach!
+
+	// No more shots after this so don't restart animation
+	<- me .charges 1 < if
+		0 <- me .anim.hint!
+	then;
+;
+
+
+: rcandleshot player rcandle-spark-shoot ;
+
+
+: rcandle-fuse-sfx ( me )
+	rnd5050 if sfx{ -5 nextpri noise 50 a! 5 d! 0.75 1 frnd 20 * pitch! 0.1 scale! 1500 filt_high! }
+		( me ) .pos xy-vol 
+	then
+;
+
+
+: rcandle-fuse-wielded args( me )
+	<- me .charges 0= if 75 %chance if then; then
+
+	<- me rcandle-wield-endpos 0 particle{ new pos3! 4 ticks! spriteid@ 0x 1 + spriteid! }
+
+	mission{ flameflicker } <- me .swing_angle@ anglexy
+		0.25 1 frnd * swap 0.25 1 frnd * swap
+		-1 1 frnd -1 1 frnd xyadd particle{ vel! }
+
+	gameticks 7 & 0= 3 onein and if
+		particle{ pos3@ new-gas-smoke pos3! }
+	then
+
+	<- me rcandle-fuse-sfx
+;
+
+
+: rcandle-fuse-dropped args( me )
+	<- me .charges 0= if 75 %chance if then; then
+
+	<- me .pos <- me .burning@ if 0 else -8 then
+
+	particle{ new pos3! 4 ticks! spriteid@ 0x 1 + spriteid! }
+
+	mission{ flameflicker } 0 anglexy
+		0.25 1 frnd * swap 0.25 1 frnd * swap
+		-1 1 frnd -1 1 frnd xyadd particle{ vel! }
+
+	gameticks 7 & 0= 3 onein and if
+		particle{ pos3@ new-gas-smoke pos3! }
+	then
+
+	rnd5050 if sfx{ -5 nextpri noise 50 a! 5 d! 0.75 1 frnd 20 * pitch! 0.1 scale! 1500 filt_high! }
+		<- me .pos xy-vol 
+	then
+;
+
+
+(*
+	weapon_state.hint
+	weapon_state.info
+	weapon_state.user
+*)
+
+
+: boomermode? .weapon_state.user@ ? ;
+
+
+// TODO: Use charges
+: rcandle-shoot-check? args( me )
+	<- me .charges 0= if 0 then;
+	<- me .anim.counter@ if 0 then;
+
+	<- me .useacharge
+
+	// Reset shot time
+	<- me .anim.hint@ <- me .charges <- me .weapon_state.user@ < if 3 / then <- me .anim.counter!
+
+	<- me .charges 0= if 60 3 5 frnd * <- me .anim.counter! then
+
+	1
+;
+
+
+: boomersplode 0 0 0 args( me r g b )
+	<- me .pos 1 0 xypowboomx
+	<- me .pos3 0 360 rnd 0.5 angle-sat-colour clr-sqr clr-sqr 3dup -> b -> g -> r particle{ shroomsplosion-pos3-rgb
+		15 pos.x@ pos.y@ ticklight <- r <- g <- b lt .clr! 
+	}
+
+	16 <- me .pos xyloudness * 0.5 * rumble
+	sfx{ thump 0.125 fx .pitch! 500 fx .d! 0.25 fx .s! 500 fx .r! 0.75 fx .q! 100 300 rnd fx .i!
+		fx .scale@ 3 * fx .scale! <- me .adjust-vol
+	}
+
+	3 <- me .smashychunks
+	5 <- me .smashybits
+;
+
+
+: try-boomersplode-dropped args( me )
+	<- me boomermode? 0= 25 %chance or if then; // chance to NOT explode when depleted
+	<- me boomersplode
+	<- me .shatter
+	<- me silentkillit
+;
+
+
+: try-boomersplode-wielded args( me )
+	<- me boomermode? 0= 25 %chance or if then; // chance to NOT explode when depleted
+	<- me .forcedrop
+
+	// Get the burned version sprite
+	lt .spriteid@ 1+ lt .spriteid!
+
+	lt .shatter
+	lt silentkillit
+
+	<- me boomersplode
+;
+
+
+: rcandle-update args( me )
+
+	<- me .anim.counter@ if <- me rcandle-fuse-wielded then
+
+	<- me .charges 0= <- me .anim.counter@ 1 = and if <- me try-boomersplode-wielded then;
+
+	<- me .anim.hint@ 0= if then;
+
+	<- me rcandle-shoot-check? if
+		<- me rcandle-spark-shoot
+		<- me .charges 0= if
+			1 <- me .weapon_state.frame!
+		then
+	then;
+;
+
+
+: rcandle-dropped-update args( me )
+
+	<- me rcandle-fuse-dropped
+
+	<- me .charges 0= if
+		<- me .anim.counter@ 0= if
+			0 <- me .no_hit!
+			0 <- me .nopick!
+			<- me try-boomersplode-dropped
+			0 <- me .hitpoints!
+			
+		then
+	then;
+
+	<- me rcandle-shoot-check? if
+		<- me rcandle-spark-vert
+		<- me .charges 0= if
+			<- me .spriteid@ 1+ <- me .spriteid!
+		then
+	then;
+;
+
+
+: rcandle-dropped-burn args( me )
+	10 45 rnd <- me .anim.hint!
+	<- me .anim.hint@ <- me .anim.counter!
+
+	<- me .charges 0= if then;
+
+	10 <- me .hitpoints!
+
+	<- me rcandle-spark-vert
+	<- me .charges 0= if <- me .spriteid@ 1+ <- me .spriteid! then
+;
+
+
+: rcandle-dropped-break args( me )
+
+	<- me .burning@ 0= if then;
+
+	<- me boomermode? if <- me boomersplode then
+
+	<- me .charges for <- me rcandle-spark-vert next
+;
+
+
+: rcandle-dropped-events args( me eventid )
+	<- eventid
+		THING_EVENT_ANIMATE ?( <- me rcandle-dropped-update );
+		THING_EVENT_DID_BURN ?( <- me rcandle-dropped-burn );
+		THING_EVENT_BREAK ?( <- me rcandle-dropped-break );
+	drop
+;
+
+
+(* TODO:
+	- anim.counter/hint for shot time, use item.charge for # of shots. anim.state for mode
+*)
+
+: rcandle-thing-defaults args( me )
+	100 <- me .flammability!
+	10 <- me .hitpoints!
+	' rcandle-dropped-events <- me .events!
+;
+
+
+: rcandle-lit? args( me )
+	<- me .charges 0= if 0 then;
+	<- me .anim.hint@ <- me .anim.counter@ or
+;
+
+
+: rcandle-do-dropmode args( me owner )
+
+	<- me rcandle-thing-defaults
+
+	// Toss it onto the ground
+	<- owner .aim_angle@ anglexy <- me .vel!
+
+	' rcandle-dropped-events <- me .events!
+
+	<- owner .anim.counter@ <- me .anim.counter!
+	<- owner .anim.hint@ <- me .anim.hint!
+	<- owner .weapon_state.user@ <- me .weapon_state.user!
+	<- owner .weapon_state.info@ <- me .weapon_state.info!
+
+	// Update with burned sprite
+	<- owner .weapon_state.frame@ <- me .weapon_state.frame!
+	<- me .charges 0= if <- me .spriteid@ 1+ <- me .spriteid! then
+
+	// Drop lit candle
+	<- me rcandle-lit? if
+		// Stand up
+		THING_ITEM <- me .typeid!
+		ITEM_NONE <- me .subtypeid!
+		1 <- me .nocollide!
+		1 <- me .nopick!
+		0 <- me .walkover!
+		0 <- me .layer!
+	then
+
+	// This isn't cleared on the C side when items are dropped/swapped
+	0 <- owner .anim.counter!
+	0 <- owner .anim.hint!
+;
+
+
+: rcandle-drop-lit 0 args( me owner )
+	<- me .interact_id@ #thing dup -> owner 0?;
+
+	<- me <- owner rcandle-do-dropmode
+;
+
+
+: rcandle-light args( me )
+
+	10 <- me .shudder! -6 <- me .pos.z!
+	80 <- me .anim.counter!	// Initial shot time
+	60 <- me .anim.hint!		// Time between shots
+
+	sfx{ noise
+		125 a! 5 d! // 0.25 s! 250 r!
+		20 freq! 1500 freq2! 2000 filt_high!
+		0.5 1 frnd pitch!
+		<- me .adjust-vol
+	}
+
+;
+
+
+: rcandle-wielded-swap args( me )
+	// Is it burning?
+	<- me .anim.counter@ <- me .anim.hint@ or 0= if then;
+
+	// Drop the weapon we just swapped away from
+	<- me .drop- 
+;
+
+
+: rcandle-reset args( me )
+	0 <- me .anim.hint!
+	<- me .charges 0= if
+		1 <- me .weapon_state.frame!
+		
+	then
+
+	// BOOMER MODE
+	<- me .charges 10 > if <- me .charges 2 / <- me .weapon_state.user! then
+;
+
+
+: rcandle-weapon-events args( me eventid )
+	<- me .carryid@ if then;		// Carrying something?
+
+	<- eventid
+
+		// Use .drop- to drop the weapon that was just swapped out
+		THING_EVENT_PACK ?( <- me .isswap? if <- me rcandle-wielded-swap then; <- me rcandle-reset );
+
+		// Can sometimes auto-light if we don't reset
+		THING_EVENT_WIELD ?( <- me rcandle-reset ( <- me rcandle-dbg ) ); 
+
+		THING_EVENT_ANIMATE ?( <- me rcandle-update );
+
+		<- me .anim.counter@ if drop then;
+
+		THING_EVENT_SHOOT ?( <- me rcandle-light );
+
+	drop
+;
+
+wielder_handler: last
+
+
+// Weapon is dropped
+: rcandle-thrown-events args( me eventid )
+
+	<- eventid
+		THING_EVENT_DROP ?( <- me rcandle-drop-lit );
+	drop
+;
+
+melee_thrown_handler: last
+
+
+root{
+
+: rcandle 10 romancandle .item.charges! lt rcandle-thing-defaults ;
+}
+
+
+WEAPON_ROMANCANDLE clone-to: KO Boomer
+	spriteid: 16 SHEET_ROW
+	weapon: koboomer
+
+root{
+
+: koboomer
+	20 koboomer .item.charges! lt rcandle-thing-defaults
+
+	lt rcandle-reset
+;
+}
+
+
+custom: Mount Dingus
+	weapon: mountdingus
+	spriteid: 15 SHEET_ROW 14 +
+	melee_thrown: 1
+	melee_thrown_lob: 2
+	melee_thrown_speed: 1
+	stack_max: 4
+	melee_range_hint: 60
+
+
+: mdingus-animate args( me )
+
+	<- me .anim.counter@ 240 = if <- me .spriteid@ 1+ <- me .spriteid! then
+
+	<- me .anim.counter@ 0= if
+
+		// Delete contained NPC
+		<- me remove-dummy-npc
+
+		// ...and self
+		0 <- me .hitpoints!
+	then;
+
+	<- me .anim.counter@ 180 <= 75 %chance and if then;
+
+	<- me .pos3 5 - particle{ new pos3! 4 ticks! spriteid@ 0x 1 + spriteid! }
+
+	mission{ flameflicker } 0 anglexy
+		0.25 1 frnd * swap 0.25 1 frnd * swap
+		-1 1 frnd -1 1 frnd xyadd particle{ vel! }
+
+	gameticks 7 & 0= 3 onein and if
+		particle{ pos3@ new-gas-smoke pos3! }
+	then
+
+	rnd5050 if sfx{ -5 nextpri noise 50 a! 5 d! 0.75 1 frnd 20 * pitch! 0.1 scale! 1500 filt_high! }
+		<- me .pos xy-vol 
+	then
+
+	// Sparks
+	particle{ <- me .pos3 5 - dotxyz
+		<- me .anim.hint@
+		0.25 angle-sat-colour clr-sqr clr-sqr rgb!
+
+		0 360 frnd angle!
+		<- me .pos -2 2 frnd + swap -2 2 frnd + swap pos!
+		20 30 rnd ticks!
+		0.975 grow!
+		-1 1 frnd 0.3 * vel.x!
+		-1 1 frnd 0.3 * vel.y!
+		-0.5 -1 frnd vel.z!
+	}
+;
+
+
+: mdingus-throw args( me )
+
+	<- me .targetid@ if then;
+
+	60 20 30 rnd * <- me .anim.counter!
+	1 <- me .no_hit!
+	1 <- me .nocollide!
+	1 <- me .item.locked!
+	1 <- me .nopick!
+	0 360 rnd <- me .anim.hint!
+	ITEM_NONE <- me .subtypeid!
+
+	<- me install-dummy-npc
+;
+
+: mdingus-events args( me eventid )
+
+	<- eventid 
+
+		THING_EVENT_ANIMATE ?( <- me mdingus-animate );
+
+		THING_EVENT_THROW ?( <- me mdingus-throw );
+
+	drop
+;
+
+melee_thrown_handler: last
+

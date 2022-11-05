@@ -134,9 +134,9 @@ cyoa: crashtest
 ;
 
 cyoa: special-testing
-	($ "Get ready... for a superior road punching experience." rbold $) text!
+	($ "Get ready... for a superior JoJo experience." rbold $) text!
 		char-gen to recruitee
-		recruitee 50 %chance if .bryuify else .sagutsify then
+		recruitee .charbroify
 		(* WEAPON_MOODYSAW recruitee .weaponb!
 		WEAPON_MOODYROCKET recruitee .weaponc!
 		50 recruitee .stackedb!
@@ -145,28 +145,39 @@ cyoa: special-testing
 		recruit-yesno
 ;
 
-cyoa: rarearcade-testing
-	($ "Get ready... for a magical and rare Arcade Trading Camp." rbold $) text!
-	40 trunk-food+ "events/trade/trader-camp-region-special5.df" $load-region to-mission
+cyoa: location-testing
+	($ "Get ready... for a Mechnical shopping experience." rbold $) text!
+	80 trunk-food+ "events/trade/trader-camp-region-special8.df" $load-region to-mission
 ;
+
+cyoa: location-testing2
+	($ "Get ready... for a relaxing park experience." rbold $) text!
+	"events/exterior/park.df" $load-region to-mission
+;
+
+(* cyoa: location-testing
+	($ "Get ready... for a spooky graveyard experience." rbold $) text!
+	"events/exterior/region/graveyardcar.df" $load-region to-mission
+; *)
 
 : weapon-testing
 	goblin-laugh
 	
-	1 WEAPON_HAUNTSPOON trunk.weapon+
-	1 WEAPON_HAUNTKNIFE trunk.weapon+
-	1 WEAPON_HAUNTFORK trunk.weapon+
-	1 WEAPON_WOODSAW trunk.weapon+
-	1 WEAPON_HOE trunk.weapon+
-	1 WEAPON_RAKE trunk.weapon+
-	200 WEAPON_NAPALM trunk.weapon+
+	200 trunk-gas+
+	
+	// 200 WEAPON_NAPALM trunk.weapon+
 
-	100 WEAPON_ECHAINSAW trunk.weapon+
-	100 WEAPON_EBLOWER trunk.weapon+
-	250 WEAPON_EWHACKER trunk.weapon+
-	15 WEAPON_LANDMINE trunk.weapon+
-	24 WEAPON_GLAUNCH trunk.weapon+
-	12 WEAPON_BAZOOKA trunk.weapon+
+	160 WEAPON_EJHAMMER trunk.weapon+
+	1 WEAPON_JACKHAMMER trunk.weapon+
+	1 WEAPON_CHAINSAW trunk.weapon+
+	
+	20 WEAPON_FIRECRACKERS trunk.weapon+
+	
+	// WEAPON_EBLOWER trunk.weapon+
+	// WEAPON_EWHACKER trunk.weapon+
+	// WEAPON_LANDMINE trunk.weapon+
+	// 24 WEAPON_GLAUNCH trunk.weapon+
+	// 12 WEAPON_BAZOOKA trunk.weapon+
 	
 	// 1 WEAPON_CAVALRY trunk.weapon+
 	1 WEAPON_BLACKHAMMER trunk.weapon+
@@ -185,13 +196,29 @@ defer hintrepeat
 	choice( "HIT THE ROAD" )choice
 //	choice( "WARP TO CANADA [crashdebug]" )choice: crashtest
 	DEBUG_BUILD TEST_BRANCH or if 
-		choice( "START IN RARE ARCADE TRADING CAMP" fbold )choice: rarearcade-testing
-		// choice( "START WITH TEST WEAPONS" )choice: weapon-testing
+		// choice( "START WITH JOJO REFERENCE" fbold )choice: special-testing
+		choice( "START IN MECHANICAL FORTRESS" fbold )choice: location-testing
+		choice( "START IN PARK" fbold )choice: location-testing2
+		// choice( "START WITH NEW WEAPONS" fbold )choice: weapon-testing
 	then
 //	choice( "Try New City" fbold )choice: test-newcity
 	puppymode kittenmode
 	wyk? if choice( "RESET WYK CODES" rbold )choice: wykreset then;
 	hint-list depths 0= not if choice( "Read another Hint" )choice: hintrepeat then
+;
+
+: 4morale-team args( char )
+	4 <- char .morale!
+;
+
+: startcheck
+	8 trunk-food+
+	2 WEAPON_FLASHLIGHT trunk.weapon+
+	
+	// 4 pchar .morale!
+	// notsolo if 4 1 #teamchar .morale! then
+	
+	' 4morale-team foreach-team-char
 ;
 
 cyoa: starthintme
@@ -209,13 +236,7 @@ cyoa: knoobstartP
 	then
 	// choice( "HIT THE ROAD" )choice
 		soloer choosechar cicon
-
-	8 trunk-food+
-	2 WEAPON_FLASHLIGHT trunk.weapon+
-	
-	4 pchar .morale!
-	notsolo if 4 1 #teamchar .morale! then
-	
+		
 		time.month 6 = time.month.day 1 = and if 
 			' beaver-scget stack-road-action
 		then
@@ -237,6 +258,10 @@ cyoa: knoobstartP
 				' turkey-test stack-road-action
 			then
 		then
+
+		halloween? if 
+			' halloween-event stack-road-action
+		then
 		
 		time.month 1 = time.month.day 14 = and if 
 			' feb14-scget stack-road-action
@@ -247,8 +272,9 @@ cyoa: knoobstartP
 		//	' lnk-test stack-road-action
 		// then
 
-		cheevo{ post-all }
+	cheevo{ post-all }
 
+	' startcheck stack-road-action
 	
 	gamedef{ ' OPPmode gamemode? } if 
 		"events/OPPmode.df" $load-region to-mission

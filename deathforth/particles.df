@@ -16,7 +16,7 @@ voc{ particle
 : .pcopy particle{ new p copy } ;
 : pcopy particle{ p .pcopy } ;
 
-: shroomsplosion locals( posx posy posz )
+: shroomsplosion-pos3-rgb ( posx posy posz ) args( r g b )
 
 	// mushroom cloud
 	new
@@ -27,7 +27,7 @@ voc{ particle
 		1.025 grow!
 		0.75 scaley!
 		0.75 scale!
-		1 clr.r! 0.5 clr.g! 0.0 clr.b!
+		<- r clr.r! <- g clr.g! <- b clr.b!
 		-2 vel.y!
 		glowy
 		particles32_base_id 3 + spriteid!
@@ -42,7 +42,7 @@ voc{ particle
 		1.1 grow!
 		0 vel.y!
 		particles32_base_id 4 + spriteid!
-		1 clr.r! 0.5 clr.g! 0.0 clr.b!
+		<- r clr.r! <- g clr.g! <- b clr.b!
 
 	// mushroom stem
 	pcopy
@@ -54,7 +54,7 @@ voc{ particle
 		1.05 growy!
 		-1 vel.y!
 		particles32_base_id 5 + spriteid!
-		1 clr.r! 0.5 clr.g! 0.0 clr.b!
+		<- r clr.r! <- g clr.g! <- b clr.b!
 
 	// Stem ring
 	pcopy
@@ -114,4 +114,20 @@ voc{ particle
 		0.7 scale@ * scale!
 ;
 
+: shroomsplosion 1 0.5 0.0 shroomsplosion-pos3-rgb ;
+
 }
+
+
+: popxyz
+	particle{ new pos3!
+		particles_base_id 0x 9d + spriteid! 0 360 frnd angle!
+		1.5 2 frnd scale!
+		0.7 grow!
+		30 ticks!
+		1 clr.r!
+		0.5 clr.g!
+		0.01 clr.b!
+		glowy
+	}
+;
