@@ -5,8 +5,8 @@ toujours en cours de traduction, n'hésitez pas à participer.
 ![logo fr](https://user-images.githubusercontent.com/56938765/200113672-6e05a726-db3c-4f8d-b30f-8cac1f75341d.png)
 
 # Pré-requis
-- Le jeu avec la version du 28.10.2022 "NERVE" (Appliquer ce patch à une version différente pourrait causer des instablilités etc..)
-- Évitez d'avoir d'autres mods ou modifications au jeu, cela pourrait causer des incompatibilités
+- Le jeu avec la version du 28.10.2022 "NERVE", appliquer ce patch à une version différente pourrait causer des incompatibilités.
+- Évitez d'avoir d'autres mods ou modifications au jeu, cela pourrait causer des incompatibilités.
 
 # Installation
 - Fermez votre jeu si il est ouvert
