@@ -11,3 +11,10 @@ Appliquer ce patch à une version différente pourrait causer des instablilités
 
 # Installation
 - Pour l'installer, remplacer votre dossier "deathforth" avec [celui-ci](https://github.com/Limeen/death-road-to-canada-fr/releases/download/Incomplet/deathforth.zip) dans votre dossier de jeu.
+
+- Téléchargez la [dernière version du patch](https://github.com/Limeen/death-road-to-canada-fr/releases/download/Incomplet/deathforth.zip).
+- Décompressez l'archive .zip (Clique droit > Extraire ici // avec WinRar)
+- Un dossier "deathforth" s'est normalement crée la ou vous avez effectué l'extraction
+- Allez dans les dossiers du jeu de Death Road To Canada (si vous y êtes les dossiers **data**, **gfx** et **deathforth** seront visible)
+- Glissez le dossier "deathforth" que vous avez extrait dans le dossier du jeu, puis appuyez sur "Remplacer les fichiers" quand ça vous le proposera.
+- Lancez votre jeu et vérifiez que les textes sont en Français, si oui, vous avez installé le patch avec succès.
