@@ -15,5 +15,5 @@ Appliquer ce patch à une version différente pourrait causer des instablilités
 - Décompressez l'archive .zip (Clique droit > Extraire ici // avec WinRar)
 - Un dossier "deathforth" s'est normalement crée la ou vous avez effectué l'extraction
 - Allez dans les dossiers du jeu de Death Road To Canada (si vous y êtes les dossiers **data**, **gfx** et **deathforth** seront visible)
-- Glissez le dossier "deathforth" que vous avez extrait dans le dossier du jeu, puis appuyez sur "Remplacer les fichiers" quand ça vous le proposera.
-- Lancez votre jeu et vérifiez que les textes sont en Français, si oui, vous avez installé le patch avec succès.
+- Glissez le dossier "deathforth" que vous avez extrait dans le dossier du jeu, puis appuyez sur "Remplacer les fichiers" quand ça vous le proposera
+- Lancez votre jeu et vérifiez que les textes sont en Français, si oui, vous avez installé le patch avec succès
