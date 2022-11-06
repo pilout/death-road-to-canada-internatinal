@@ -10,7 +10,7 @@ toujours en cours de traduction, n'hésitez pas à participer.
 Appliquer ce patch à une version différente pourrait causer des instablilités etc..
 
 # Installation
-- Fermez votre jeu s'il est ouvert
+- Fermez votre jeu si il est ouvert
 - Téléchargez la [dernière version du patch](https://github.com/Limeen/death-road-to-canada-fr/releases/download/Incomplet/deathforth.zip).
 - Décompressez l'archive .zip (Clique droit > Extraire ici // avec WinRar)
 - Un dossier "deathforth" s'est normalement crée la ou vous avez effectué l'extraction
