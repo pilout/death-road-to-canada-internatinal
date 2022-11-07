@@ -2,7 +2,8 @@
 Patch français pour le jeu Death Road To Canada, 
 toujours en cours de traduction, n'hésitez pas à participer.
 
-![logo fr](https://user-images.githubusercontent.com/56938765/200113672-6e05a726-db3c-4f8d-b30f-8cac1f75341d.png)
+![200113672-6e05a726-db3c-4f8d-b30f-8cac1f75341d](https://user-images.githubusercontent.com/56938765/200358392-2511ac2a-b6c8-4601-9870-331ef7f11807.png)
+
 
 # Pré-requis
 - Le jeu avec la version du 28.10.2022 "NERVE", appliquer ce patch à une version différente pourrait causer des incompatibilités.
