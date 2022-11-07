@@ -8,6 +8,7 @@ toujours en cours de traduction, n'hésitez pas à participer.
 # Pré-requis
 - Le jeu avec la version du 28.10.2022 "NERVE", appliquer ce patch à une version différente pourrait causer des incompatibilités.
 - Évitez d'avoir d'autres mods ou modifications au jeu, cela pourrait causer des incompatibilités.
+- Le patch N'EST PAS FINI.
 
 # Installation
 - Fermez votre jeu si il est ouvert
