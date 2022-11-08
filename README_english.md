@@ -1,4 +1,4 @@
-# Death Road To Canada: Patch Français
+# Death Road To Canada: French Patch
 French patch for the game Death Road To Canada,
 still being translated, don't hesitate to participate.
 
