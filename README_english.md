@@ -1,3 +1,4 @@
+Language: [ [Français](https://github.com/Limeen/death-road-to-canada-fr) | English ]
 # Death Road To Canada: French Patch
 French patch for the game Death Road To Canada,
 still being translated, don't hesitate to participate.
