@@ -6,87 +6,85 @@ uses road.df
 cyoa{ road{
 
 cyoa: loss-lost
-	"Lost to Despair" cyoa-title!
+	"Jusqu'a 8 charges !" cyoa-title!
 	despair-start!
-	($ cname .. " has lost all hope, and refuses to keep going. " .. cHe .. " wanders off to an unknown fate." $) cyoa-text! badfx
-	($ "What a nerd! Who needs " .. chim .. ", anyway?" $) +crtext
+	($ cname .. " perdu tout espoir, et refuse de continuer. " .. cHe .. " s'eloigne vers un sort inconnu." $) cyoa-text! badfx
+	($ "Quel nerd ! quel personne a besoin de ca ? " .. chim .. "aucun resultat remarquable ?" $) +crtext
 		decruit-bad-silent-takeweapons morale++all
 ;
 	
 cyoa: loss-hustle
 	despair-start!
-	"Everyone Needs to Hustle" cyoa-title!
-	($ cname .. " says that " .. "SOMEONE" rbold .. " in the group isn't pulling their weight, and demands that they be kicked out.
-	Who should leave the group?" $) cyoa-text! basic-tone
+	"Mode de personnages familiers :" cyoa-title!
+	($ cname .. " dit que " .. "QUELQU'UN" rbold .. " le membre qui ne porte pas son poids dans le groupe devrait quitter le groupe." $) cyoa-text! basic-tone
 		' victim-kick bully cyoa-team-choice-except
 		bully charchoice( "" )choice: bully-all-kick 
 ;
 
 cyoa-choice: loss-obliv
-	($ cname .. " ignores " .. bname .. ". It turns out that " .. che .. " didn't hear " .. bhim .. ".
-	" .. bname .. " fumes at this!" $) cyoa-text!
+	($ cname .. " ignore " .. bname .. "c'est decouvert que " .. che .. " n'ai pas entendu. " .. bhim .. ".
+	" .. bname .. " artiste martial" $) cyoa-text!
 		bully .morale-- badfx
 ;
 
 cyoa: loss-ultimatum
 	despair-start-victim!
-	"Ultimatum" cyoa-title!
+	"Ultime avertissement, ultimatum." cyoa-title!
 	team-count 2 > if
-		($ cname .. " demands that either " .. vname .. " leaves, or " .. cname .. " does." $)
+		($ cname .. " exige que soit fourni l'un des deux : " .. vname .. " feuilles, ou " .. cname .. " allons-we prendre de l" $)
 	else
-		($ cname .. " demands that " .. vname .. " leaves. " .. cname .. " says that " .. che .. " will take the car and supplies and continue on to Canada." $)
+		($ cname .. " exige que " .. vname .. " feuilles. " .. cname .. " dit que " .. che .. " aller prendre la voiture et les approvisionnements et continuer vers le canada." $)
 	then cyoa-text! basic-tone
-		victim charchoice( " gets kicked out" )choice: victim-kick
-		bully charchoice( " gets kicked out" )choice: bully-kick
+		victim charchoice( " est expulse" )choice: victim-kick
+		bully charchoice( " est expulse" )choice: bully-kick
 		bully-charm?
 		bully-sprayit?
 		victim oblivious? if
-			victim charchoice( " doesn't hear " .. bname )choice: loss-obliv
+			victim charchoice( " ne peut pas entendre " .. bname )choice: loss-obliv
 		then			
 ;
 
-: sneak-everyone team-count 2 < if notcname else "everyone" then ;
+: sneak-everyone team-count 2 < if notcname else "chaque personne" then ;
 
 cyoa: loss-quietly
 	despair-start-victim!
-	"Quietly Disappearing" cyoa-title!
-	($ cname .. " sneaks off when " .. everyone .. " is busy.
-	" $) cyoa-text! badfx
+	"Disparait tranquillement." cyoa-title!
+	($ cname .. " s'echappe lorsque " .. everyone .. " rapide service alimentaire" $) cyoa-text! badfx
 	cloyalty- if 
-		($ bHe .. " is a true weasel who steals the keys for the car, intending to take everything for " .. bhim .. "self." $) +text
+		($ bHe .. " un vrai blaireau volant derobe les cles de la voiture avec l'intention de prendre tout. " .. bhim .. "soi-meme." $) +text
 	else
 		cloyalty+ if
-			($ bHe .. " leaves, taking nothing, not even " .. chis .. " personal supplies." $) +text 
-			// Formerly: ($ bHe .. " leaves taking only what " .. che .. " was carrying." $) +text 
+			($ bHe .. " feuilles, prenant rien, ni la moindre chose. " .. chis .. " approvisionnements personnels." $) +text 
+			// Formerly: ($ bHe .. " feuilles prennent que ce qui " .. che .. " portait." $) +text 
 			loyaltyREV decruit-bad-silent-takeweapons
-			($ "There is a note left behind, wishing " .. sneak-everyone .. " luck!" $) +crtext +cr morale++all
+			($ "Un message laisse derriere souhaitant " .. sneak-everyone .. " quand" $) +crtext +cr morale++all
 			exit
 		else
-			($ bHe .. " steals as much food as possible before leaving. " $) +text
+			($ bHe .. " vol tout le aliment qu'il est possible avant de quitter. " $) +text
 		then
 	then loyaltyREV decruit-bad-silent
 	
 		most-paranoid if choosechar
 		//	cloyalty+ if exit then
-			($ "However, " .. cname .. " sensed something was off and followed " .. bname .. ". " $) +crtext 
+			($ "He ho, he ho ! " .. cname .. " sentit que quelque chose n'etait pas correct et l'a suivi. " .. bname .. ". " $) +crtext 
 			
 			bully .loyalty low if
-				($ "The traitor was prevented from stealing the car and everything in it. " .. bHe .. " flees." $)
+				($ "Le traitre a ete empeche de voler la voiture et tout ce qu'elle contenait. " .. bHe .. " s'enfuit." $)
 			else
-				"The thief was surprised, and ended up dropping the food while running away." 
+				"Le voleur a ete surpris et a jete la nourriture en s'enfuyant." 
 			then +text +cr witsattREV goodfx morale++all
 		then;
 		
 	cloyalty- if
-		($ bHe .. " drives off with most of the supplies." rbold $) +crtext car-stolen trunk.killer bandit-gas bandit-food bandit-med bandit-ammo2 morale3-all
+		($ bHe .. " s'en va avec la majorite des approvisionnements." rbold $) +crtext car-stolen trunk.killer bandit-gas bandit-food bandit-med bandit-ammo2 morale3-all
 	else
 		trunk-food 0 = if
-			($ "Too bad for " .. bname .. " that there wasn't any food, anyway." $) +crtext victim .morale++ badfx
+			($ "Desole pour : " .. bname .. " il n'y avait pas de nourriture, du tout." $) +crtext victim .morale++ badfx
 		then;
 		trunk-food 20 < if
-			($ "What little the group had was stolen." $) +crtext eat-all badfx
+			($ "Tout ce que la petite bande avait ete vole." $) +crtext eat-all badfx
 		then;
-		($ "The thief took all " .. bhe .. " could carry." $) +crtext -20 LOOT_FOOD trunk.loot+
+		($ "Le voleur a pris tout. " .. bhe .. " pour pouvoir porter." $) +crtext -20 LOOT_FOOD trunk.loot+
 	then badfx
 ;
 

@@ -16,61 +16,56 @@ cyoa{ road{
 
 cyoa-choice: dogman-recruit
 	ricon
-	($ "The hobbling person sniffs the air for a bit while staring at " .. thegroup .. "." $) text!
+	($ "Le personne handicapee siffle l'air un peu en regardant. " .. thegroup .. "." $) text!
 	team-count 3 > if
-	"The team makes room for this strange figure by replacing:" +crtext recruit-replace?
+	"L'equipe fait place a cette etrange figure en la remplacant :" +crtext recruit-replace?
 	then;
-	"It takes a bit of struggling with the door, but eventually it gets in the car." +crtext goodfx
+	"C'est un combat pour l'ouvrage de la porte, mais enfin il entre dans la voiture." +crtext goodfx
 		recruited
 ;
 
 cyoa: dogman-test
-	"Hobbling Traveller" cyoa-title!
+	"Voyageur handicape" cyoa-title!
 	char-gen to recruitee ricon
 	4 recruitee .morale! recruitee .dogmanify
-	($ Thegroup .. " is driving down a quiet back road and sees a strange figure.
-	It is hobbling around with no coordination. 
-	The figure is maybe intoxicated, or maybe wounded?" $) cyoa-text! basic-tone
-		choice( "Offer it a ride" )choice: dogman-recruit
-		choice( "Keep driving" )choice
+	($ Thegroup .. " il marche sur une petite route tranquille et voit une etrange figure... . . 	elle se tord et marche sans coordination. . . 	cette figure pourrait etre ivre ou blessee ?" $) cyoa-text! basic-tone
+		choice( "Offrez-lui un coup de main" )choice: dogman-recruit
+		choice( "Continue a conduire." )choice
 ;
 
 
 // Jerk stuff below
 
-: jerk-get recruitee .witsREV recruitee .attitudeREV recruitee .temperREV team-count 3 > if "Boot someone to make room:" +crtext recruit-replace? else recruited then ;
+: jerk-get recruitee .witsREV recruitee .attitudeREV recruitee .temperREV team-count 3 > if "Quelqu'un devrait ouvrir la boite." +crtext recruit-replace? else recruited then ;
 
 cyoa-choice: jerk-leave-yes
 	ricon
-	($ rname .. " makes an expression that's a mix of relief and a smirk.
-	" .. "Great! You won't regret this! Here's that food." pbold $) cyoa-text!
+	($ rname .. " une expression melangeant soulagement et un sourire ironique..." .. "Voila votre repas ! vous ne regretterez pas cela !" pbold $) cyoa-text!
 	2 trunk-food+ jerk-get goodfx
 ;
 
 cyoa-choice: jerk-leave4
 	ricon
-	($ "I DIDN'T NEED YOU ANYWAY!
-	" rbold .. rname .. " continues to yell as " .. thegroup .. " leaves." $) cyoa-text!
+	($ "Je n'avais besoin de toi quelle que soit la maniere !" rbold .. rname .. " continuer de hurler jusqu'a " .. thegroup .. " feuilles." $) cyoa-text!
 ;
 
 cyoa-choice: jerk-leave3
 	ricon
-	($ "I am begging you! I know I'll die here without help! I'm useless, just take pity on me and let me join your group! I'll do extra work! You can't just leave me here! PLEASE!" pbold $) cyoa-text!
-		choice( "Ok! Whatever!" )choice: jerk-leave-yes
-		choice( "Leave silently" )choice: jerk-leave4
+	($ "Je suis desole, mais nous ne pouvons pas vous laisser ici. nous devons rester ensemble pour survivre. si vous pouvez nous aider ou apporter quelque chose a notre groupe, nous serions heureux de vous accueillir. sinon, je crains que nous ne puissions rien faire pour vous. je suis desole." pbold $) cyoa-text!
+		choice( "Ma pied me fait mal !" )choice: jerk-leave-yes
+		choice( "Laissez-le silencieusement" )choice: jerk-leave4
 ;
 
 cyoa-choice: jerk-leave2
 	ricon
-	($ "Oh, come on! Please? Pretty please?" pbold $) cyoa-text!
-		choice( "Ok, fine" )choice: jerk-leave-yes
-		choice( "No!" )choice: jerk-leave3
+	($ "S'il vous plait, reellement ? assurez-vous que c'est ce que je peux faire. je prefererais eviter toute promesse inutile." pbold $) cyoa-text!
+		choice( "Belle, ne donne pas plus d'informations que la trad" )choice: jerk-leave-yes
+		choice( "Pas de" )choice: jerk-leave3
 ;
 
 cyoa-choice: jerk-ransom
 	ricon
-	($ "HEH HEH" rbold .. "
-	Thanks a lot, Obama." pbold $) cyoa-text!
+	($ "HE HE HE" rbold .. "merci beaucoup, obamacare." pbold $) cyoa-text!
 	trunk-food 20 < if eat-all else -20 trunk-food+ then
 	jerk-get
 ;
@@ -78,116 +73,101 @@ cyoa-choice: jerk-ransom
 cyoa-choice: jerk-leave 
 	ricon
 	team-count 3 > if
-		($  rname .. " snorts.
-		" .. "Yeah, you better run.
-		" pbold .. rname .. " chortles." $) cyoa-text! badfx morale--all
+		($  rname .. " eternuement... ." .. "Fuyez, il vous faudra une bonne raison pour rester ici." pbold .. rname .. " grognes, ricane." $) cyoa-text! badfx morale--all
 	then;
-	($ rname .. "'s voice gets panicked all of a sudden. " .. "WAIT!" rbold .. "
-	You can't just leave me here! Come on, take me with you. I'll give you a bunch of food, make it worth your time. Do we have a deal?" pbold $) cyoa-text!
-		choice( "Yes" )choice: jerk-leave-yes
-		choice( "No" )choice: jerk-leave2
+	($ rname .. "voice panicque soudainement. " .. "ATTENDEZ!" rbold .. "tu ne peux pas m'abandonner ici ! viens avec moi. je t'offrirai une quantite importante de nourriture, cela sera rentable pour toi. a-t-on un accord ?" pbold $) cyoa-text!
+		choice( "Oui" )choice: jerk-leave-yes
+		choice( "Non" )choice: jerk-leave2
 ;
 
 cyoa-choice: jerk-recruit 
 	ricon
 	team-count 3 > if
 		($  rname .. " makes an exaggerated PFFFFT sound.
-		" .. "You must have known the group is full. Are you some kind of dingus or something?
-		" pbold ..
-		rname .. " throws in an eye roll, for free." $) cyoa-text! badfx morale--all
+		" .. "Vous devez savoir que le groupe etait plein. etes-vous un gros bancal ou quelque chose de ce genre?" pbold ..
+		rname .. " jette un coup d'oeil dedaigneux." $) cyoa-text! badfx morale--all
 	then;
-	($ rname .. " chortles. " .. "HEH HEH" rbold .. "
-	Yeah I bet you want me to join you. How about you pay me up front?" pbold $) cyoa-text!
+	($ rname .. " gaffe, se fait rire bruyamment. " .. "HE HE HE" rbold .. "je suppose que tu veux que je m'y joins. comment allez-vous pour m'en payer d'avance ?" pbold $) cyoa-text!
 	trunk-food 19 > if
-		choice( "Give him 20 food" )choice: jerk-ransom
+		choice( "Donnez-lui dix neuf aliments supplementaires." )choice: jerk-ransom
 	then
 	trunk-food 20 < trunk-food 0 > and if
-		choice( "Give him " .. trunk-food .. " food" )choice: jerk-ransom
+		choice( "Donnez-lui. " .. trunk-food .. " nourriture" )choice: jerk-ransom
 	then
-	choice( "Refuse and leave" )choice: jerk-leave
+	choice( "Refuser et quitter" )choice: jerk-leave
 ;
 
 cyoa: jerk-test
-	"Whatta Jerk" cyoa-title!
+	"Film comique" cyoa-title!
 	char-gen to recruitee
 	ricon
 	21 screcruit 5 recruitee .morale! 
 	0 recruitee .attitude! 0 recruitee .wits! 0 recruitee .loyalty! 0 recruitee .composure!
-	($ Thegroup .. " finds a mansion that has a bunch of random crap in it. There are a lot of expensive and also now useless TVs strewn about, some still in their boxes. Bottles are everywhere. Outside, there's a muscle car crashed into the stagnant pool.
-	" .. "Hey, get the heck out of my house!
-	" rbold .. "A man appears, introducing himself as the mayor of the town. He corrects himself and says he's the Governor-Emperor." $) cyoa-text! basic-tone
-		choice( "Recruit him" )choice: jerk-recruit
-		choice( "Leave him be" )choice: jerk-leave
+	($ Thegroup .. " decouvrez une demeure qui abrite un tas de choses aleatoires. il y a beaucoup de televisions couteuses et desuetes eparpillees, certaines encore dans leurs boites. des bouteilles sont partout. a l'exterieur, il y a une voiture musclee qui a heurte la piscine stagnante... ." .. "Quittez ma maison, s'il vous plait !" rbold .. "Le gouverneur-empereur apparait et se presente. il corrige ensuite en disant qu'il est le maire du village. puis, il rectifie a nouveau et dit etre le gouverneur-empereur." $) cyoa-text! basic-tone
+		choice( "Engager-le" )choice: jerk-recruit
+		choice( "Laissez-le etre" )choice: jerk-leave
 ;
 
 cyoa-bridge: roller-recruit
 	ricon
 	team-count 3 > if
 		recruitee .strengthREV recruitee .fitnessREV recruitee .temperREV
-		($  rname .. " suggests that you let her tie a rope to the bumper of the car, and she can just hold onto it as you drive. That way, car space won't be an issue.
-		That is a terrible idea. Kick someone out to make room:" $) cyoa-text! recruit-replace?
+		($  rname .. " cela est une idee epouvantable. laisser quelqu'un tomber de bord :" $) cyoa-text! recruit-replace?
 	then;
-	($ rname .. " agrees to join, as long as she's able to smash things to her heart's content." $) cyoa-text! goodfx
+	($ rname .. " s'engager a rejoindreautant qu'elle pourra casser des choses jusqu'a son coeur contenu." $) cyoa-text! goodfx
 		recruitee .strengthREV recruitee .fitnessREV recruitee .temperREV
 		recruited
 ;
 
 cyoa: roller-test
-	"The Big Rollerderby" cyoa-title!
+	"Le grand roller derby" cyoa-title!
 	char-gen to recruitee
 	ricon
 	3 recruitee .morale! recruitee .rollerify
-	($ Thegroup .. " stumbles onto an abandoned rollerskating rink. Inside is a woman zipping around on skates as a zombie lurches towards her. The zombie isn't gaining any ground.
-	She does a little twirl and then splatters the zombie with a wrench, never stumbling as she resumes her skating." $) cyoa-text! basic-tone
-		choice( "Recruit her" )choice: roller-recruit
-		choice( "Leave her be" )choice
+	($ Thegroup .. " dans une ancienne piste a roulettes abandonnee, elle rencontre une femme qui glisse sur des patins a roulettes alors qu'un zome se jette vers elle. le zome ne progresse pas... ." $) cyoa-text! basic-tone
+		choice( "La recrutez" )choice: roller-recruit
+		choice( "Laissez-la tranquille" )choice
 ;
 
 : clown-floorit 
-($ cname .. " jams " .. chis .. " foot into the gas pedal and " .. "FLOORS IT! " rbold $)
+($ cname .. " quitter " .. chis .. " appuyez sur le pedalier a gaz. " .. "FAITES-LE TOMBER A TERRE ! " rbold $)
 ;
 cyoa-choice: clown-flee
 	ricon
 	clown-floorit cyoa-text!
 	solo if
-		($ cHe .. " turns " .. chis .. " head to the right and the clown is right there in the car with " .. chim .. ". 
-		With a blink, the clown is gone. Maybe a hallucination?" $) +text sfx{ creepy }
+		($ cHe .. " son. " .. chis .. " aller a droite, le clown est a cote, dans la voiture. " .. chim .. "une cligne-dents, le clown a disparu. peut-etre une hallucination ?" $) +text sfx{ creepy }
 	then;
-	($ "But there's no escape. It's already in the car. 
-	Maybe it was always in the car." $) +text badfx
+	($ "Il n'y a pas d'evasion possible. c'etait deja dans la voiture... 	peut-etre qu'il etait deja dans la voiture depuis longtemps." $) +text badfx
 	recruited
 ;
 
 cyoa-choice: clown-recruit
 	ricon
-	($ "Why did you do that? Why?" $) cyoa-text! badfx
+	($ "Pourquoi vous avez fait cela ? pourquoi ?" $) cyoa-text! badfx
 		recruited
 ;
 
 cyoa: clown-test
-	"Some kind of nightmare?" cyoa-title!
+	"Une sorte de cauchemar ?" cyoa-title!
 	char-gen to recruitee
-	"Clown" recruitee .name!
-	"is a funny clown!" recruitee .job!
+	"Plasms : plasmas" recruitee .name!
+	"c'est un clown drole !" recruitee .job!
 	someone choosechar
 	ricon 29 screcruit 
 	6 recruitee .morale! 0 recruitee .attitude!
 	-1 STAT_MORALE recruitee .bonus!
-	($ "The car is driving down the highway and it approaches a figure in the rain.
-	" .. cname .. " slows down to see who it is.
-	It's a clown. It holds out a little clown horn and honks. The sound is so distorted." $) cyoa-text! basic-tone
+	($ "La voiture roule sur l'autoroute et approche une figure dans la pluie ..." .. cname .. " se ralentit pour voir qui c'est... c'etait un clown. il brandissait une petite cornemuse de clown et sonna. le bruit etait si deforme." $) cyoa-text! basic-tone
 	team-count 3 > if
 	clown-floorit +cr +text +cr
-	($ gHe .. " is deeply disturbed and vows to forget this ever happened." $) +text
+	($ gHe .. " est profondement trouble et jure oubliier cela jamais s'etre produit." $) +text
 	then;	
-		choice( "Let the clown in the car" )choice: clown-recruit
-		choice( "FLOOR IT" )choice: clown-flee
+		choice( "Laisser passer le clown dans la voiture." )choice: clown-recruit
+		choice( "ACCELERER AU MAXIMUM !" )choice: clown-flee
 ;
 
 : turkey-meal
-	($ Thegroup .. " eats a huge Thanksgiving meal.
-	Delicious!
-	There's even some leftovers!" $) cyoa-text! goodfx
+	($ Thegroup .. " mange une grosse repas de thanksgiving... . 	delicieux!. . 	il y en a meme des restes!" $) cyoa-text! goodfx
 	' .morale++ foreach-team-char
 	8 trunk-food+
 ;
@@ -199,37 +179,32 @@ cyoa-choice: turkey-eat
 
 cyoa-choice: turkey-recruit
 	ricon
-	($ "Big mistake! Now the turkey thinks " .. cname .. " is its mother!
-		It starts following " .. chim .. " around." $) cyoa-text! badfx
+	($ "Il pense gravement a l'erreur qu'il vient de faire. " .. cname .. " monument de l'echouement de would you kindly " .. chim .. " commence" $) cyoa-text! badfx
 		recruited
 ;
 
 cyoa: turkey-test
-	"HAPPY THANKSGIVING" cyoa-title!
+	"JOUR D'ACTION DE CAMARADES" cyoa-title!
 	char-gen to recruitee
-	"Turkey" recruitee .name!
+	"La turquie" recruitee .name!
 	someone choosechar
 	ricon 27 screcruit
 	3 recruitee .morale!
-	($ "It's that time of the year! A turkey appears!
-	It's pretty big so it might actually be a guy in a turkey suit.
-	No one can say for sure." $) cyoa-text! basic-tone
-		choice( "Eat Turkey" )choice: turkey-eat
-		choice( "Spare Turkey" )choice: turkey-recruit
+	($ "C'est l'heure de l'annee ! une dinde apparait ! 	elle est assez grosse, donc il pourrait s'agir d'un homme dans un costume de dinde... . 	personne ne peut en dire pour certain." $) cyoa-text! basic-tone
+		choice( "Manger de la dinde." )choice: turkey-eat
+		choice( "Epargner la turquie" )choice: turkey-recruit
 ;
 
 cyoa-choice: ninja-flee
 	ricon
-	($ rname  .. " hops down and slams a smoke bomb into the ground.
-	She's gone!" $) cyoa-text! badfx
+	($ rname  .. " elle saute et jette une bombe a fumigene sur le sol ... elle est partie !" $) cyoa-text! badfx
 ;
 
 cyoa-bridge: ninja-recruit
 	ricon
-	($ rname  .. " takes the food and then slams a smoke bomb into the ground. She's gone!
-	No wait, she's in the car now." $) cyoa-text! goodfx
+	($ rname  .. " elle prend la nourriture et ensuite jette une bombe fumigene au sol. disparue !. .  mais attend, maintenant elle est dans la voiture." $) cyoa-text! goodfx
 		team-count 3 > if
-			"Boot someone from the team to make room:" +crtext -10 trunk-food+ recruit-replace?
+			"Expulser quelqu'un de l'equipe pour creer de l'espace:" +crtext -10 trunk-food+ recruit-replace?
 		then;
 		recruitee .strengthREV recruitee .fitnessREV recruitee .temperREV
 		-10 trunk-food+
@@ -238,35 +213,32 @@ cyoa-bridge: ninja-recruit
 ;
 
 cyoa: ninja-test
-	"Ninja Strike 3: Third Strike" cyoa-title!
+	"Tirs de ninja 3 : troisieme frappe" cyoa-title!
 	char-gen to recruitee
-	"Ninja" recruitee .name!
+	"Ninja : un" recruitee .name!
 	ricon
 	5 recruitee .morale! recruitee .ninjaify
-	($ Thegroup .. " finds a trail of zombies, all cleanly cut in half.
-	Following the trail leads to someone dressed in a ninja costume, standing on a dumpster with a dramatic crossing-arms pose. Her impractical-length headband waves in the wind." $) cyoa-text! basic-tone
+	($ Thegroup .. " suivant la piste de zombies, tous tranches en deux nettement... arrive a la fin de cette piste, on decouvre quelqu'un habille en ninja, debout sur une benne a ordures avec un pose dramatique d'arme croisee. sa bandana impraticable flotte dans le vent." $) cyoa-text! basic-tone
 	trunk-food 9 > if
-		choice( "Bribe her to join for 10 food" )choice: ninja-recruit
+		choice( "Corrompez-la pour qu'elle rejoigne a contre-prix de dix aliments." )choice: ninja-recruit
 	then
-		choice( "Approach her" )choice: ninja-flee
-		choice( "Leave her be" )choice
+		choice( "Approcher-la." )choice: ninja-flee
+		choice( "Laissez-la tranquille" )choice
 ;
 
 cyoa-choice: catlady-crumb
 	ricon
-	($ rname  .. " seems disappointed by the amount of food you gave her, but only for the briefest moment.
-	" .. "Thanks for the cat food! Please pet the kitties! " pbold $) cyoa-text! goodfx
+	($ rname  .. " elle semble decevee par la quantite de nourriture que vous lui avez donnee, mais seulement pour un instant." .. "Merci beaucoup pour le rien de nourriture pour les chatons ! s'il vous plait, touchez-les chats ! " pbold $) cyoa-text! goodfx
 		eat-all ' .morale++ foreach-team-char
 ;
 
 cyoa-choice: catlady-recruit
 	ricon
 	team-count 3 > if
-		($  rname .. " is delighted by the makeshift cat food!
-		She shows the group her special reserve of cats dressed in little clothes and the ones that are less likely to bite hard enough to draw blood." $) cyoa-text!
+		($  rname .. " elle est ravis par la nourriture de chat fait maison !. . 	elle presente au groupe sa reserve speciale de chats habilles en petits vetements et ceux qui sont moins agressifs, ne mordant pas assez fort pour faire saigner." $) cyoa-text!
 		' .morale2+ foreach-team-char
 	else
-		($ "Much like the cats she loves, " .. rname .. " now sees you as a source of food that she can then give directly with her cats. She starts following you around." $) cyoa-text! goodfx
+		($ "Beaucoup comme les chats qu'elle aime, " .. rname .. " elle vous voit maintenant comme une source de nourriture qu'elle peut alors transmettre directement a ses chatons. elle vous suit desormais partout." $) cyoa-text! goodfx
 		recruitee .witsREV recruitee .attitudeREV
 		recruited
 	then
@@ -274,21 +246,19 @@ cyoa-choice: catlady-recruit
 ;
 
 cyoa: catlady-test
-	"House of Meows" cyoa-title!
+	"Maison des miaous" cyoa-title!
 	char-gen to recruitee
-	"Cat Lady" recruitee .name!
+	"Felicia, dame et collection" recruitee .name!
 	ricon
 	4 recruitee .morale! recruitee .catladyify
-	($ Thegroup .. " detects an overpowering stench, different from the usual smell of death.
-	They follow it to a house full of cats. No one has seen a cat for ages!
-	A woman is among the cats, and she asks right away if " .. thegroup .. " has any spare cat food." $) cyoa-text! basic-tone
+	($ Thegroup .. " elle detecte une odeur surpuissante, differente de l'odeur habituelle de la mort... ils la suivent jusqu'a une maison pleine de chats. personne n'a vu un chat il y a longtemps !. . 	une femme est parmi les chats, et elle demande immediatement si " .. thegroup .. " a a des aliments secs pour chats a repartir ?" $) cyoa-text! basic-tone
 	trunk-food 7 > if
-		choice( "Give her 8 food" )choice: catlady-recruit
+		choice( "Donne-lui huit aliments :" )choice: catlady-recruit
 	then
 	trunk-food 8 < trunk-food 0 > and if
-		choice( "Give her " .. trunk-food .. " food" )choice: catlady-crumb
+		choice( "Objet : " .. trunk-food .. " nourriture" )choice: catlady-crumb
 	then
-		choice( "Can't spare the food" )choice
+		choice( "Desole, je ne peux pas m'en passer de la nourriture." )choice
 ;
 
 

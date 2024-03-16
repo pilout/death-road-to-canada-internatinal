@@ -4,205 +4,203 @@ cyoa{ road{
 // Twinkie Truck
 
 : common1-twinkie-get
-	($ Thegroup .. " collects the twinkies that weren't all smashed up and raided by ants after the truck flipped. " $) +cr +text 8 trunk-food+ goodfx
+	($ Thegroup .. " recupere les twinkies qui n'etaient pas tous ecrases et saccages par des fourmis apres que le camion a renverse. " $) +cr +text 8 trunk-food+ goodfx
 ;
 
 cyoa-choice: common1-twinkie-mech
-	($ cname .. " starts messing with the lock. " $) cyoa-text!
+	($ cname .. " il commence a travailler sur le verrou. " $) cyoa-text!
 		cmechanic+ if
-			($ "It's no problem for " .. chim .. " to get open." $) +text common1-twinkie-get
+			($ "C'est tout a fait possible pour moi. " .. chim .. " ouvrez-le pour le faire fonctionner." $) +text common1-twinkie-get
 		then;
 		mechanicroll if
-			"It takes a little bit, but eventually the lock snaps open." +text common1-twinkie-get mechanic++
+			"Cela prend un peu de temps, mais le verrou finit par s'ouvrir." +text common1-twinkie-get mechanic++
 		else
-			($ cHe .. " gets nowhere, and gives up in frustration." $) +text
+			($ cHe .. " il ne parvient pas a avancer et se rend compte qu'il est incapable de continuer." $) +text
 			badfx morale--
 		then mechanicREV
 ;
 
 cyoa-choice: common1-twinkie-smash
 	cpet? if
-		($ cname .. " starts chomping on the lock. " $) 
+		($ cname .. " mord a la serrure. " $) 
 	else
-		($ cname .. " finds a big rock and then swings hard at the lock. " $) 
+		($ cname .. " trouve une grande pierre et frappe durement sur le verrou. " $) 
 	then cyoa-text!
 		cstrength+ if
-			($ "WHAAAAAAM!" rbold .. " The lock shatters. " $) +text common1-twinkie-get
+			($ "WHAAAAAAM!" rbold .. " La serrure se brise. " $) +text common1-twinkie-get
 		then;
 		strengthroll if
-			"The lock breaks!" +text common1-twinkie-get strength++
+			"La serrure cede !" +text common1-twinkie-get strength++
 		else
 			cpet? if
-				($ cHe .. " messes up " .. chis .. " teeth against the solid metal!" $)
+				($ cHe .. " gache les choses " .. chis .. " les dents contre l'acier dur!" $)
 			else
-				($ cHe .. " ends up smashing " .. chis .. " hand up pretty bad instead of getting the truck open!" $) 
+				($ cHe .. " finit par ecraser " .. chis .. " leve les mains mal avec peine au lieu d'ouvrir le camion !" $) 
 			then +text bitefx sting-- strength--
 		then strengthREV
 ;
 
 cyoa-choice: common1-twinkie-shoot
-	($ cname .. " takes aim at the lock on the back of the truck. " $) cyoa-text!
+	($ cname .. " visadelle verrou en arriere du camion. " $) cyoa-text!
 		cshooting+ if
-			"Perfect shot! The latch pops open. " +text common1-twinkie-get
+			"Une photo parfaite ! le relache s'ouvre. " +text common1-twinkie-get
 		then;
 		shootingroll if
-			($ cHe .. " manages to make the shot, destroying the lock!" $) +text common1-twinkie-get shooting++
+			($ cHe .. " parvient a faire le tir, detruisant le verrou !" $) +text common1-twinkie-get shooting++
 		else
 			($ "The shot misses and goes through the back.
-			Sparks from the bullet ignite the " .. "EXTREMELY FLAMMABLE" rbold .. " goo inside. The truck is consumed by a huge explosion!" $) +text
+			Sparks from the bullet ignite the " .. "TRES INFLAMMABLE" rbold .. " aller interieurement. le camion est devore par une immense explosion !" $) +text
 			bitefx sting--
 		then shootingREV
 ;
 
 cyoa: common1-twinkie
 	image-twinkie
-	"Twinkie Truckin" cyoa-title!
-	($ "There's a Twinkie truck on the road. It's upside down, and the door to the back is locked tight. " .. Thegroup .. " salivates about the bounty of processed corn syrup that must be inside." $) cyoa-text!
-		choice( "Ignore it for health reasons" )choice
-		mechanicest charchoice( " tries to jimmy it open" )choice: common1-twinkie-mech
-		strongest charchoice( " smashes it with something heavy" )choice: common1-twinkie-smash
-		shootest charchoice( " shoots the lock" )choice: common1-twinkie-shoot
+	"Camion de twinkies en route" cyoa-title!
+	($ "Il y a une camionnette twinkie sur la route. elle est renversee et la porte arriere est verrouillee etanchement. " .. Thegroup .. " salue abondamment le gateau de sirop de mais traite qui doit se trouver dedans." $) cyoa-text!
+		choice( "Ignorer pour des raisons de sante" )choice
+		mechanicest charchoice( " inserer l'effet de teleportation ici" )choice: common1-twinkie-mech
+		strongest charchoice( " il le brise avec quelque chose lourd" )choice: common1-twinkie-smash
+		shootest charchoice( " fonce sur le verrou" )choice: common1-twinkie-shoot
 ;
 
 // Deer Hunter
 
 : common1-deer-eat
-	($ Thegroup .. " doesn't know much about preserving game, but " .. gthey .. " clumsily cook" .. g1s .. " some meat to pack into the car." $) +cr +text 8 12 rnd trunk-food+ goodfx
+	($ Thegroup .. " n'en sait pas beaucoup concernant la conservation de jeu. " .. gthey .. " preparer maladroitivement" .. g1s .. " des viandes a emballer dans la voiture." $) +cr +text 8 12 rnd trunk-food+ goodfx
 ;
 
 cyoa-choice: common1-deer-leave
-	($ "The deer quickly runs off. The quiet encounter lifts " .. thegroup .. "'s spirits!" $) cyoa-text! morale++all
+	($ "Le cerf s'enfuit rapidement. la rencontre silencieuse le fait fuir. " .. thegroup .. "mon dieu !" $) cyoa-text! morale++all
 ;
 
 cyoa-choice: common1-deer-runover
 	choosehuman
-	($ cname .. " slams onto the gas and crashes the car through the deer." $) cyoa-text! 
+	($ cname .. " accelere brutalement et percute le cerf avec la voiture." $) cyoa-text! 
 	common1-deer-eat car-plowthrough
 ;
 
 cyoa-choice: common1-deer-shoot
-	($ cname .. " takes a shot at the deer" $) cyoa-text!
-	vehicle.which@ 0 > if " from one of the car windows. " else ". " then +text
+	($ cname .. " prend une potache au cerf" $) cyoa-text!
+	vehicle.which@ 0 > if " depuis une des fenetres d'une voiture. " else ". " then +text
 		shooting+roll if
-			($ cHe .. " makes the shot" $) +crtext 
+			($ cHe .. " fait le tir" $) +crtext 
 			vehicle.which@ 0 > if 
-				", bagging the deer while also going against any sense of hunter ethics."
+				"capturer une faon en depit de toute ethique de chasseur."
 			else
 				"!"
 			then +text
 			shooting++ common1-deer-eat
 		else
-			($ cHe .. " completely whiffs it." $) +crtext badfx
+			($ cHe .. " rate totalement rate." $) +crtext badfx
 		then shootingREV
 ;
 
 cyoa: common1-deer
 	image-deer-in-road
-	"Deer Crossing" cyoa-title!
-	($ "A deer has stopped in the middle of the road. " $) cyoa-text!
-	vehicle.which@ 0 > if "It stares at the car." else ($ "It stares at " .. thegroup .. "." $) then +text
-		choice( "Leave it alone" )choice: common1-deer-leave
+	"Passage de mouflons" cyoa-title!
+	($ "Un cerf s'est arrete au milieu de la route. " $) cyoa-text!
+	vehicle.which@ 0 > if "Il regarde la voiture." else ($ "C'elabore sur toi. " .. thegroup .. "." $) then +text
+		choice( "Laissez-le tranquille" )choice: common1-deer-leave
 		vehicle.which@ 0 > if
-			choice( "Run the deer over" )choice: common1-deer-runover
+			choice( "Courir sur une faon" )choice: common1-deer-runover
 		then
 		roadtrip-has-firearm? if
-			shootest charchoice( " tries to shoot it" )choice: common1-deer-shoot
+			shootest charchoice( " essaye de le tirer." )choice: common1-deer-shoot
 		then
 ;
 
 // Cauterize or stitch wound
 
 cyoa-choice: common1-stitches-no
-	($ cname .. " decides " .. che .. " doesn't need any stiches, and that it's best to just ignore the problem. " .. cHe .. " ends up bleeding everywhere, and the arm never heals fully." $) cyoa-text! badfx strength-- sting-- 
+	($ cname .. " decide " .. che .. " il n'a pas besoin de points de couture et il est preferable de ne rien faire face au probleme. " .. cHe .. " sa blessure saigne partout et son bras ne guerit jamais completement." $) cyoa-text! badfx strength-- sting-- 
 ;
 
 cyoa-choice: common1-stitches-med
-	($ cname .. " tries to suture up " .. vname .. "'s arm." $) cyoa-text!
+	($ cname .. " essaie de le suturer " .. vname .. "musee" $) cyoa-text!
 		medical+roll if
 			trunk-medical 1 < if
-				($ "With no medical supplies, " .. cname .. " does the best " .. che .. " can. There are some issues later with infection." $) +crtext victim .morale--
+				($ "Sans approvisionnement en matiere de fournitures medicales, " .. cname .. " faites le meilleur. " .. che .. " il y a des problemes plus tard avec l'infection." $) +crtext victim .morale--
 			else
-				($ cHe .. " stiches up the arm with minimal pain." $) +crtext -1 trunk-medical+ medical++
+				($ cHe .. " fait des pointes sur le bras avec un minimum de douleur." $) +crtext -1 trunk-medical+ medical++
 			then medicalREV
 		then;
-		($ cHe .. " ends up botching the stitches and making the wound worse. The bleeding stops, but " .. vname .. "'s arm heals poorly." $) +crtext badfx victim .strength-- victim .morale-- medicalREV
+		($ cHe .. " la blessure se termine par envenimer les points de couture et aggraver la plaie. l'hemorragie s'arrete, mais " .. vname .. "son bras guerit mal." $) +crtext badfx victim .strength-- victim .morale-- medicalREV
 ;
 
 cyoa-choice: common1-stitches-cauter
-	($ cname .. " imitates something " .. che .. " saw while watching the movie 'Rambeux'. " .. cHe .. " gets a knife really hot and then puts it right on the cut to try to cauterize the wound.
-	It was a pretty bad idea! The pain is extreme, though the bleeding stops and there's no loss of strength in the arm." $) cyoa-text! badfx morale3-
+	($ cname .. " imite quelque chose " .. che .. " j'ai vu la scene dans le film 'rambeaux'. " .. cHe .. " idee maladroite : chauffer un couteau jusqu'a ce qu'il soit reellement chaud et l'appliquer sur la blessure pour essayer de la coaguler... cela etait tres mal! bien que le bourrissage soit efficace et arrete la saignee, la douleur est extreme." $) cyoa-text! badfx morale3-
 ;
 
 cyoa: common1-stitches
 	image-arm-gash
-	"Deep Cut" cyoa-title!
+	"Coupe profonde" cyoa-title!
 	choosehuman cicon
 	cchar to victim
-	($ cname .. " cuts " .. chim .. "self pretty bad while goofing off in the post-apocalypse. " .. cHe .. " will probably need stitches for " .. chis .. " arm." $) cyoa-text!
+	($ cname .. " coupe " .. chim .. "sois tres mauvais quand on se detend dans l'apres-apocalypses. " .. cHe .. " aura probablement besoin de sutures " .. chis .. " armez-vous." $) cyoa-text!
 		choice( "Ignore it / Walk it off" )choice: common1-stitches-no
-		medicalest charchoice( " attempts to stitch it up" )choice: common1-stitches-med
-		cchar charchoice( " cauterizes it" )choice: common1-stitches-cauter
+		medicalest charchoice( " essaie de la reparer en la collant ensemble." )choice: common1-stitches-med
+		cchar charchoice( " guerit ce lui par une cauterisation." )choice: common1-stitches-cauter
 ;
 
 // Lonely Gas Station
 
 : common1-gas-get 
-	($ Thegroup .. " collects up that precious gas. " $) +crtext 70 110 rnd trunk-gas+ goodfx
+	($ Thegroup .. " recueillez cette precieuse gaz avec soin. " $) +crtext 70 110 rnd trunk-gas+ goodfx
 ;
 
 cyoa-choice: common1-gas-mech
-	($ cname .. " attempts to fix the pumps. " $) cyoa-text!
+	($ cname .. " essaie de reparer les pompes. " $) cyoa-text!
 		cmechanic+ if
-			($ cHe .. " gets them pumping in no time." $) +text common1-gas-get
+			($ cHe .. " mettront le rythme en few minutes." $) +text common1-gas-get
 		then;
 		mechanicroll if
-			($ "It takes some fumbling, but " .. che .. " gets the pumps running." $) +text common1-gas-get mechanic++
+			($ "C'est un peu genant, mais " .. che .. " active les pompes." $) +text common1-gas-get mechanic++
 		else
-			($ cHe .. " tries, but gets nowhere with them." $) +text
+			($ cHe .. " essaie, mais ne parvient pas avec eux." $) +text
 			badfx morale--
 		then mechanicREV
 ;
 
 cyoa-choice: common1-gas-climb
-	($ cname .. " volunteers to climb into the tanks. " $) cyoa-text!
+	($ cname .. " instructions : monter dans les reservoirs. " $) cyoa-text!
 		cpet? if
-			($ cHe .. " gets stuck in there and it takes a long time to get out. " .. cname .. " emerges completely soaked in gas." $) +text
+			($ cHe .. " s'y retrouve bloque et cela prend du temps pour en sortir. " .. cname .. " emerge totalement imbibe de gaz." $) +text
 			morale2- sting-- 
 			notsolo if
-				($ notcname .. " wrings " .. chim .. " out and collects the gas!" $)
+				($ notcname .. " s'enroule " .. chim .. " sortez et ramassez le gaz !" $)
 				+crtext 70 110 rnd trunk-gas+ goodfx
 			then
 		then;
 		fitnessroll if
-			($ "There's a lot of struggling and blind luck involved, but " .. che .. " squirms into the tank." $) +text common1-gas-get fitness++
+			($ "Il y a beaucoup de peine et de malchance involvees. " .. che .. " se fait echouer dans le bassin." $) +text common1-gas-get fitness++
 		else
-			($ cHe .. " discovers that climbing into the tank is completely exhausting. " .. cname .. " gets into the tank, but is injured on the way. Getting out is another matter." $) +text
+			($ cHe .. " montre que la montee dans le reservoir est totalement epuisante. " .. cname .. " montrant son corps blesse, il entre dans le reservoir, mais se blesse en y entrant. sortir en est une autre affaire." $) +text
 			badfx morale-- ouch--
 		then fitnessREV
 ;
 
 cyoa: common1-gas
 	image-lonely-gas
-	"Lonely Gas Station" cyoa-title!
-	($ Thegroup .. " finds a gas station far off the main road. Someone has looted the store, and there's no zombies in sight. 
-	The gas pumps are old, and don't seem to be functioning." $) cyoa-text!
-		choice( "Leave pumps alone" )choice
-		mechanicest charchoice( " attempts to fix pumps" )choice: common1-gas-mech
-		dumbest charchoice( " crawls into the tank" )choice: common1-gas-climb
+	"Gare service isolee" cyoa-title!
+	($ Thegroup .. " une station-service eloignee de la route principale. quelqu'un a vole le magasin, pas de zombis en vue. ... les pompes a essence sont anciennes et ne semblent pas fonctionner." $) cyoa-text!
+		choice( "Laissez les pompes tranquilles" )choice
+		mechanicest charchoice( " essaie de reparer les pompes." )choice: common1-gas-mech
+		dumbest charchoice( " se fait introduire dans le reservoir." )choice: common1-gas-climb
 ;
 
 // Jon's tooth pain event and revamped version of his radio event
 
 : cardJ4-mcheck 
 	medicalroll if
-		($ cname .. " really did know what they were doing. Using the tools and medical supplies available, " .. che .. " is able to pull the tooth out cleanly and with relatively little pain. " $) cyoa-text! goodfx
+		($ cname .. " ils avaient reellement la maitrise de leurs taches. en utilisant les outils et les fournitures medicales a leur disposition, ils ont pu faire preuve d'une grande efficacite. " .. che .. " puisable de sortir nettement et avec un peu de douleur relatif la dents. " $) cyoa-text! goodfx
 		medical++
 	then;
 	
-		($ cname .. " ended up having a lot of trouble. The tooth extraction was messy, clumsy, and painful. To make it worse, " .. che .. " pulled the wrong tooth and had to do it again.  " $) cyoa-text! bitefx ouch-- morale3-
+		($ cname .. " eut des ennuis a grande echelle. l'extraction dentaire s'est averee geneuse, maladroite et douloureuse. pour aggraver les choses, " .. che .. " a eu mauvais raison de tirer la mauvaise dent et j'en ai du refaire une nouvelle. " $) cyoa-text! bitefx ouch-- morale3-
 		
 	dead? if
-		+cr ($ "After pulling the second tooth " .. cname .. " was heard to exclaim " .. "YEAH SCREW THIS NOISE" pbold .. " and then " .. che .. " spontaneously died." $) +text
+		+cr ($ "Apres avoir tire la deuxieme dent. " .. cname .. " a dit : a ete entendu hurler " .. "C'EST LA MERDE, JE VAIS PRENDRE CELA A LA GUEULE." pbold .. " et puis... " .. che .. " est decede de maniere spontanee." $) +text
 	then
 	
 ;
@@ -211,37 +209,37 @@ cyoa-choice: cardJ4-dentist cardJ4-mcheck medicalREV ;
 
 : cardJ4-mecheck 
 	mechanicroll if
-		 ($ "Using the added leverage, " .. che .. " slams the car door, cleanly pulling the tooth out." $) +text goodfx
+		 ($ "En utilisant l'avantage supplementaire : " .. che .. " ferme violemment la porte de la voiture, extrayant nettement la dents." $) +text goodfx
 		mechanic++ 
 	then;
 	
-		($ "Unprepared for the sudden force of slamming the door, " .. che .. " is pulled towards the car and hits " .. chis .. " head on the door. " $) +text bitefx ouch-- morale--
+		($ "Sans preparation pour la brusque poussee de la porte qui s'est fermee brutalement, " .. che .. " est tire vers la voiture et heurte " .. chis .. " tete contre la porte. " $) +text bitefx ouch-- morale--
 		
 	dead? if
-		+cr ($ "This exact scenario was actually a pretty common way to die before the zombie apocalypse. These accidents got kept out of the news due to " .. "BIG AUTO CORPORATIONS" rbold .. "." $) +text
+		+cr ($ "Ceci etait effectivement une situation courante avant l'apocalypse zombie pour deceder. ces accidents n'ont jamais fait la une a cause de : " .. "LES GRANDES ENTREPRISES AUTOMOBILES" rbold .. "." $) +text
 	then
 ;
 
 cyoa-choice: cardJ4-mechanical
-	($ cname .. ", using old cartoon shows as inspiration, decides to tie " .. chis .. " tooth to the car door." $) cyoa-text! 
+	($ cname .. "un knot de television en se inspirant de dessins animes anciens pour lier. " .. chis .. " la dent sur la porte de voiture." $) cyoa-text! 
 		+cr cardJ4-mecheck mechanicREV
 ;
 
 : cardJ4-scheck 
 	cpet? if
-		($ cname .. " tries to get rid of the busted tooth by chomping down on a rock. A few teeth fall out, and the pain is excrutiating. But at least the bad tooth fell out, too." $) cyoa-text! badfx
+		($ cname .. " essaye de se debarrasser de la dent cassee en machonnant sur une pierre. quelques dents tombent a leur tour, et la douleur est extremement forte. mais au moins la dent mauvaise est egalement sortie." $) cyoa-text! badfx
 		nonfatal if
 			ouch--
 		then morale3- attitude--
 	then;
 	strengthroll if
-		($ cname .. " grabs a pair of pliers and goes to town, pulling the tooth as hard as possible. Using nothing but will to fight through the pain, " .. che .. " gets the tooth out quickly and with surprisingly little trouble." $) cyoa-text! goodfx
+		($ cname .. " s'empare d'une paire de pince et va de l'avant, tirant sur la dent avec toute sa force. en utilisant seulement son volonte pour se battre contre la douleur. " .. che .. " retire la dent rapidement et avec une facilite etonnante." $) cyoa-text! goodfx
 		strength++ 
 	then;
-		($ cname .. " grabs a pair of pliers and goes to town. The extraction doesn't go well. After a lot of pain and blood the tooth eventually comes out." $) cyoa-text! bitefx ouch-- morale2-
+		($ cname .. " extraction d'un dents avec des pincettes, mais le processus est difficile. il y a beaucoup de douleur et de saignement avant que le dent ne sorte finalement." $) cyoa-text! bitefx ouch-- morale2-
 		
 		dead? if
-			+cr ($ "Somehow " .. cname .. " dies from this." $) +text
+			+cr ($ "Quelque facon " .. cname .. " meurt de cela." $) +text
 		then
 		
 ;
@@ -251,80 +249,77 @@ cyoa-choice: cardJ4-force cardJ4-scheck strengthREV ;
 cyoa: cardJ4-test
 	"Ma Hooth" cyoa-title!
 	choosehuman cicon
-	($ cname .. " is having near crippling tooth pain. Without access to the precision tools needed the only option is to pull the tooth out. " .. cHe .. " weighs the current options." $) cyoa-text! basic-tone
+	($ cname .. " la personne souffre d'une douleur dentaire presque paralysante. l'option la plus viable sans l'acces aux outils de precision necessaires est de tirer la molaire. " .. cHe .. " pese en equilibre les options actuelles." $) cyoa-text! basic-tone
 	
-		choice( "Force it out!" )choice: cardJ4-force
+		choice( "Forcer cela hors!" )choice: cardJ4-force
 		cnotpet? if
-			choice( "I used to be a dentist!" )choice: cardJ4-dentist
-			vehicle.which@ 0 > if choice( "I saw this once in a cartoon!" )choice: cardJ4-mechanical then
+			choice( "Soins de sante appliques sur char" )choice: cardJ4-dentist
+			vehicle.which@ 0 > if choice( "Je l'ai vu une fois dans un dessin anime !" )choice: cardJ4-mechanical then
 		then
 ;
 
-: cardJ2-broke "The CD player remains broken and annoying." +crtext badfx morale--all ;
+: cardJ2-broke "Le lecteur de cd reste casse et genant." +crtext badfx morale--all ;
 
 cyoa-choice: cardJ2-fix
-	"Fixing the CD Player" cyoa-title!
+	"Reparation du lecteur de cd" cyoa-title!
 	chumany? not if
 		cpetderp cyoa-text! cardJ2-broke
 	then;
 	cwits- cattitude- notsolo and and if
 		cpet? if
-			($ cname .. " performs a really long fart, which doesn't distract at all from the jammed CD's music. It also doesn't fix the CD player." $) cyoa-text! badfx morale2-all
+			($ cname .. " une personne emet un long et puissant pet, qui ne detourne pas du tout de la musique enregistree sur le cd bloque. cependant, cela ne repare pas non plus le lecteur cd." $) cyoa-text! badfx morale2-all
 		else
-				($ cname .. " tells " .. everyone .. " to" .. " COOL IT!" pbold $) cyoa-text!
+				($ cname .. " instructe : c'est une " .. everyone .. " vers" .. " ENTREPRISE INITECH" pbold $) cyoa-text!
 			cool-it-7 if
-				($ cname .. "'s nasal voice happens at just the right time during the looping song. A new " .. "HIT HIP-HOP SONG" rbold .. " is accidentally invented, increasing the group's morale considerably!" $) +crtext goodfx
+				($ cname .. "voix nasale de 'l a l'heure juste lors de la boucle de la chanson. " .. "FAITES FRAPPER UNE CHANSON HIP-HOP" rbold .. " une invention heureuse et inattendue s'est produite, augmentant considerablement le moral du groupe !" $) +crtext goodfx
 				morale3+all
 			else cool-it++
-				"This, of course, doesn't help the situation at all." +crtext cardJ2-broke
+				"Cela ne contribue nullement a ameliorer la situation." +crtext cardJ2-broke
 			then
 		then
 	then;	
 	cmechanic+ if
-		($ cname .. " fixes the CD player with minimal difficultly!" $) cyoa-text! goodfx morale++all
+		($ cname .. " regle le lecteur de cd a peine avec difficulte !" $) cyoa-text! goodfx morale++all
 	then;
 	ctemper- cstrength+ and if
-		($ cname .. " rips the CD player out of the dashboard and then chucks it out the window.
-		Problem solved!" $) cyoa-text! goodfx morale++all strengthREV
+		($ cname .. " arretez de demonter le lecteur audio de tableau de bord et l'expulsez par la fenetre... . 		cette solution fonctionne !" $) cyoa-text! goodfx morale++all strengthREV
 	then;
-	($ cname .. " removes the CD player and puzzles over how to fix it. " $) cyoa-text! 
+	($ cname .. " retire le lecteur de cd et se penche sur la reparation. " $) cyoa-text! 
 	mechanicroll if
-		($ cHe .. " figures out what was wrong, and repairs it!" $) +crtext goodfx mechanic++ morale++all 
+		($ cHe .. " repare ce qui est mal fonctionnant !" $) +crtext goodfx mechanic++ morale++all 
 	else
-		($ cHe .. " doesn't manage to repair it." $) +text cardJ2-broke
+		($ cHe .. " ne reussit pas a le reparer." $) +text cardJ2-broke
 	then mechanicREV
 ;
 
 cyoa-choice: cardJ2-quit
-	($ Thegroup .. " just decides to turn the CD player off.
-	That was easy!" $) cyoa-text!
+	($ Thegroup .. " il a decide de mettre fin a la lecture du lecteur cd. 	" $) cyoa-text!
 ;
 
 cyoa-bridge: cardJ2-fix4
 	someicon
-	"Who should try to repair the CD player?" cyoa-text!
+	"Quelqu'un devrait essayer de reparer le lecteur cd." cyoa-text!
 	' cardJ2-fix cyoa-team-choice
 ;
 
 cyoa: cardJ2-test 
 	vehicle.which@ 0 = if 
 		image-road-end
-		"Grueling March" cyoa-title! someicon
-		($ Thegroup .. " walks at a relentless pace. There are no safe places to hide, so stopping for a break would be too dangerous." $) text! 
-		(*	solo if ($ cname .. " becomes very tired! " $) else "Everyone becomes very tired! " then +crtext
-		($ gThey .. " will be exhausted during the next fight." $) +text
+		"Marche eremitique" cyoa-title! someicon
+		($ Thegroup .. " marche avec une impetuosite inebranlable. il n'y a aucun endroit sur pour se refugier, donc prendre une pause serait trop risque." $) text! 
+		(*	solo if ($ cname .. " se fatigue beaucoup ! " $) else "Tous deviennent extremement fatigues ! " then +crtext
+		($ gThey .. " durant le prochain combat, les reserves seront epuisees." $) +text
 		nosleep *) morale--all badfx
 	then;
-	"Audio Repair" cyoa-title!
-	($ Thegroup .. " gets frustrated because the CD player in the car is jammed, playing the same song over and over again.
-	Who should try to repair it?" $) cyoa-text! 4 500 tone 
+	"Reparation d'enregistrement audio" cyoa-title!
+	($ Thegroup .. " il devrait essayer de le reparer quelqu'un ayant des connaissances en matiere d'electronique ou etant un technicien automobile." $) cyoa-text! 4 500 tone 
 		team-count 3 > if
 			' cardJ2-fix 2 #cyoa-team-choice
-			choice( "Pick someone else" )choice: cardJ2-fix4
+			choice( "Choisissez quelqu'un d'autre." )choice: cardJ2-fix4
 		else
 			' cardJ2-fix 3 #cyoa-team-choice
 		then
-		choice( "Just turn it off" )choice: cardJ2-quit
+		choice( "Deconnectez-le simplement." )choice: cardJ2-quit
 ;
 
 // END jon events
@@ -332,42 +327,42 @@ cyoa: cardJ2-test
 // Reading related events
 
 cyoa-choice: magazine1-butts
-	"Disappointment" cyoa-title!
+	"Desappointement." cyoa-title!
 	"" cyoa-text!
-	solo not if ($ "This weird choice of reading offends " .. theothers .. ". Undeterred, " $) +text then
+	solo not if ($ "Ceci choisie de lire derange : " .. theothers .. "sans detourner, " $) +text then
 	cchar dsyp? if
-		"Farting Safety" cyoa-title!
-		($ cname .. " kicks back and reads Giant Farts Monthly. It teaches him a lot about farting safely, and it will now be harder for him to poop his pants." $) +text goodfx
+		"Securite aux flatulences" cyoa-title!
+		($ cname .. " litige de grandeurs : il jette en arriere et lit le geant des flatulations mensuelles. cela lui enseigne beaucoup sur la fartaison en securite, et c'est maintenant plus difficile pour lui de cracher ses pantalons." $) +text goodfx
 		statmod{ -5 to dsyp-farted }
 	else
-		($ cname .. " kicks back and reads Giant Farts Monthly. It turns out to be a dry medical journal with a misleading name." $) +text 2 400 tone medical++
+		($ cname .. " lise et retourne une passe en arriere avec le giant farts monthly. il s'avere finalement etre un journal medical seche avec un nom trompeur." $) +text 2 400 tone medical++
 	then
 		attitude-- cchar morale--all-except
 ;
 
 cyoa-choice: magazine1-guns
-	"American G*U*N*S" cyoa-title!
-	($ "The magazine is full of gun pictures, gun info, gun tips, and bizarre hyper-patriotic rants. " .. cname .. " absorbs all of these things." $) cyoa-text! 1 400 tone
+	"Armes americaines" cyoa-title!
+	($ "La revue est pleine de photographies d'armes, d'informations sur les armes, de conseils d'armes et de discours hyper-patriotiques bizarres. " .. cname .. " absorption des choses entieres." $) cyoa-text! 1 400 tone
 		temper-- shooting++
 ;
 
 cyoa-choice: magazine1-mech
-	"Turnkey & Good2Go" cyoa-title!
-	($ "This was THE car magazine before society exploded. The insightful articles have a calming effect on " .. cname .. "." $) cyoa-text! 2 300 tone
+	"Tour-cle et pret-a-aller" cyoa-title!
+	($ "Ceci etait le magazine d'automobile avant que la societe explose. les articles instruits ont un effet apaisant. " .. cname .. "." $) cyoa-text! 2 300 tone
 		temper++ mechanic++
 ;
 
 cyoa-choice: magazine1-cats
-	"-cat videos pictures-" cyoa-title!
-	"It's what the title says, just pictures of cat videos. It was pointless in better times, but got really popular after the internet went down." cyoa-text! goodfx
+	"videos et images de chat." cyoa-title!
+	"Ceci n'est pas plus qu'une collection d'images de videos chat. cela n'avait jamais beaucoup de sens dans des temps meilleurs, mais est devenu tres populaire apres que l'internet ait ete mis hors service." cyoa-text! goodfx
 		cdog? if
-			($ cname .. " is " .. "COMPLETELY DEMORALIZED" fbold .. " by reading this!
-			It fills " .. chim .. " with rage!" $) +crtext
+			($ cname .. " est " .. "DEMORALISE AU POINT DE L'ETRE INTERIEURMENT EBRANLE" fbold .. " by reading this!
+			It fills " .. chim .. " a la folie avec la colere !" $) +crtext
 			morale2- attitude-- temper-- WEAPON_FIERCE cchar .weapon_default!
 		else
 			ccat? if
-				($ cname .. " is " .. "COMPLETELY INTRIGUED" fbold .. " by this magazine!
-				" .. cHe .. " considers how tiny the cats of old were!" $) +crtext
+				($ cname .. " est " .. "MEFIANTEMENT INTERESSE" fbold .. " by this magazine!
+				" .. cHe .. " regardez comment insignifiante etaient les chats anciens !" $) +crtext
 				morale4+
 			else
 				morale2+ attitude++
@@ -376,14 +371,13 @@ cyoa-choice: magazine1-cats
 ;
 
 cyoa: magazine1-cyoa
-	"Magazines: Popular after the Apocalypse" cyoa-title!
+	"Magasins populaires apres l'apocalypse" cyoa-title!
 	choosehuman cicon
-	($ Thegroup .. " tries to loot a grocery store, but it has been picked absolutely clean. " .. cname-He .. " finds a magazine rack, and decides to grab one to read." .. "
-	Pick a magazine:" $) cyoa-text! basic-tone
-		choice( "American G*U*N*S" )choice: magazine1-guns
-		choice( "Turnkey & Good2Go" )choice: magazine1-mech
-		choice( "-cat videos pictures-" )choice: magazine1-cats
-		choice( "GIANT FARTS MONTHLY" )choice: magazine1-butts
+	($ Thegroup .. " essaye de voler un magasin d'alimentation, mais il a ete completement depouille. " .. cname-He .. " prend un magazine depuis le tiroir a magazines et decide de s'en servir pour lire." .. "choisissez un magazine :" $) cyoa-text! basic-tone
+		choice( "Armes americaines" )choice: magazine1-guns
+		choice( "Tour-cle et pret-a-aller" )choice: magazine1-mech
+		choice( "videos et images de chat." )choice: magazine1-cats
+		choice( "MOIS HEBDOMADAIRE GEANTS FLATULENCES" )choice: magazine1-butts
 ;
 
 // END Magazines: Popular after the Apocalpyse
@@ -393,25 +387,24 @@ cyoa: magazine1-cyoa
 : magazine2-loot morale++ 2 LOOT_FOOD trunk.loot+ 2 3 rnd LOOT_MEDICAL trunk.loot+ ;
 
 cyoa-choice: magazine2-glu
-	"Uplifting Anecdotes" cyoa-title!
-	($ cname .. " realizes that this magazine has always been corny, but still enjoys the optimistic stories. One story is about a cat that saves its owner from choking at a buffet. Inspirational." $) cyoa-text! 2 300 tone attitudeREV attitude++ magazine2-loot
+	"Histoires dechirantes a l'esprit" cyoa-title!
+	($ cname .. " cela realise que ce magazine a toujours ete mordant, mais apprecie encore les histoires optimistes. l'une d'elles est sur un chat sauvant son proprietaire en chocant au buffet. inspiratrice." $) cyoa-text! 2 300 tone attitudeREV attitude++ magazine2-loot
 ;	
 cyoa-choice: magazine2-sci
-	"Questionable Science" cyoa-title!
-	($ cname .. " feels pessimistic about the magazine's prediction of flying hovercars in a few years, now that civilization is more or less destroyed. It was still a pretty entertaining magazine." $) cyoa-text! 1 300 tone attitudeREV attitude-- magazine2-loot
+	"Sciences contestees" cyoa-title!
+	($ cname .. " se sent pessimiste quant a la prediction du magazine d'automobiles volantes en suspension a quelques annees, maintenant que la civilisation est quelque peu detruite. cependant, elle restait encore une bonne lecture." $) cyoa-text! 1 300 tone attitudeREV attitude-- magazine2-loot
 ;
 cyoa-choice: magazine2-celeb
-	"Celebrity News" cyoa-title!
-	($ "This magazine was always incredibly mean, possibly moreso now that most of the people in this are now eaten. " .. cname .. " is a slightly worse person for even reading it." $) cyoa-text! 2 300 tone loyaltyREV loyalty-- witsREV wits-- morale2+ magazine2-loot
+	"Nouvelles sur les celebrites" cyoa-title!
+	($ "Ce magazine etait toujours particulierement mechant, peut-etre plus encore maintenant que la majorite des personnes figurant dans ses pages ont ete consommees. " .. cname .. " c'est une personne un peu moins agreable a simplement la lire." $) cyoa-text! 2 300 tone loyaltyREV loyalty-- witsREV wits-- morale2+ magazine2-loot
 ;	
 cyoa: magazine2-cyoa
-	"Dentist Office" cyoa-title!
+	"Bureau dentiste" cyoa-title!
 	choosehuman cicon
-	($ Thegroup .. " loots a dentist office, finding some left over medical supplies and many technically edible tubes of toothpaste. " .. cname-He .. " goes to the waiting room and grabs a magazine from their sparse selection." .. "
-	Pick a magazine:" $) cyoa-text! basic-tone
-		choice( "Glurge for the Sensitive Soul" )choice: magazine2-glu
-		choice( "Questionable Science" )choice: magazine2-sci
-		choice( "CELEBZ news" )choice: magazine2-celeb
+	($ Thegroup .. " raide un cabinet dentaire, decouvrant des fournitures medicales restantes et beaucoup de tubes de toothpaste techniquement comestibles. " .. cname-He .. " aller dans le salon d'attente et prendre un magazine parmi celles-ci." .. "choisissez un magazine :" $) cyoa-text! basic-tone
+		choice( "Pour l'ame sensible :" )choice: magazine2-glu
+		choice( "Sciences contestees" )choice: magazine2-sci
+		choice( "Les dernieres nouvelles de celebz." )choice: magazine2-celeb
 ;
 
 // END Dentist Office
@@ -419,36 +412,36 @@ cyoa: magazine2-cyoa
 // Prepper Magazine - Person Pick CYOA if you have people, Instant Result if you don't.
 
 : mag3roll 30 %chance if .medical++ else 50 %chance if .shooting++ else .mechanic++ then then ;
-: mag3share cyoa-good-dialog "Everyone passes around the magazine, reading what articles appeal to them. Like always, eventually someone gets peanut butter stains all over the mag, to the point where it becomes unreadable." cyoa-text! 
+: mag3share cyoa-good-dialog "Chaque personne passe le magazine autour, lisant quels articles leur plaisent. comme d'habitude, quelqu'un finit par y avoir des taches de beurre de cacahouete qui rendent la revue illisible." cyoa-text! 
 	' mag3roll foreach-team-char someone 50 70 rnd LOOT_GAS trunk.loot+ ; 
 
 : mag3solo shooting++ medical++ mechanic++ 50 70 rnd LOOT_GAS trunk.loot+ ;
 : mag3result cyoa-good-dialog
-	($ "This was a hypothetical, at the time, zombie apocalypse special issue. " .. cname .. " closely studies the firearm tips, emergency medicine article, and unusual but effective common repair tricks." $) cyoa-text! cicon mag3solo
+	($ "Cet edition speciale etait une hypothese, a l'epoque, consacree a une apocalypse de zombies. " .. cname .. " etudie soigneusement les conseils sur le tir a l'arme a feu, l'article de premiere aidemedicale d'urgence et les astuces rares mais efficaces de reparation courante." $) cyoa-text! cicon mag3solo
 ;
 
 cyoa-bridge: mag3share-pick 
 	someicon
-	"Who should read Preppared Preppers Magazine?" cyoa-text!
+	"Tous ceux qui s'interessent a la preparation aux evenements d'urgence ou catastrophiques et veulent etre prepares." cyoa-text!
 	' mag3result cyoa-team-choice
 ;
 
 : magazine3-cyoa
-	cyoa-start "Prepared Preppers Magazine" cyoa-title! 
+	cyoa-start "Prepares, le magazine des preparateurs prets" cyoa-title! 
 	0 to cyoaicon cyoaicon
-	($ Thegroup .. " siphons gas from some abandoned vehicles, and then spots a magazine in one of the cars. It's an issue of Prepared Preppers, the special edition, in mint condition! " $) cyoa-text!
+	($ Thegroup .. " desame gaz depuis quelques vehicules abandonnes, puis je decouvre un numero de prepared preppers, edition speciale, en etat neuf dans l'un des voitures ! " $) cyoa-text!
 	solo if 
-		soloer choosechar ($ cHe .. " studies its now justified wisdom." $) +text 
+		soloer choosechar ($ cHe .. " etudie maintenant sa sagesse justifiee." $) +text 
 		mag3solo goodfx
 	then;
-	+cr "Who gets to read it?" +text basic-tone
+	+cr "Qui en lit ?" +text basic-tone
 	team-count 3 > if
 		' mag3result 2 #cyoa-team-choice
-		choice( "Pick someone else" )choice: mag3share-pick 
+		choice( "Choisissez quelqu'un d'autre." )choice: mag3share-pick 
 	else
 		' mag3result 3 #cyoa-team-choice
 	then
-	choice( "Share with everyone" )choice: mag3share 
+	choice( "Partagez-le avec tout le monde" )choice: mag3share 
 ; 
 
 // END Prepper Magazine
@@ -456,46 +449,44 @@ cyoa-bridge: mag3share-pick
 // Burnt Library
 
 cyoa-choice: books-are-for-nerds 
-	"BOOKS ARE FOR NERDS" cyoa-title!
+	"FITNESS : SANTE PHYSIQUE." cyoa-title!
 	cpet? if
-		($ cname .. " leaps up, snatches the book in " .. chis .. " jaws, and " .. "SHREDS IT TO PIECES" rbold .. " as " .. che .. " shakes the book side to side. Take THAT, nerd." $) 
+		($ cname .. " saute en avant, attrape le livre. " .. chis .. " machoires et dentures. " .. "FAITES-LE EN MORCEAUX." rbold .. " comme " .. che .. " fais glisser le livre de cote a cote. que ca te touche, nerde." $) 
 	else
-		($ cname .. " grabs the book and " .. "tears it in half" rbold .. " while grunting a lot. " .. "
-		YEAH THAT'S WHAT I THINK ABOUT BOOKS." pbold $) 
+		($ cname .. " prends le livre. " .. "coupe-le en deux parties." rbold .. " en roulant des groans intenses. " .. "ce n'est pas ce que je pense reellement a propos des livres." pbold $) 
 	then cyoa-text! goodfx
 	morale2+ temperREV strengthREV temper-- strength++ cchar morale--all-except
 ;
 : book1-helproll 50 %chance if .attitude++ else .temper++ then ;
 : book1-mechroll 50 %chance if .mechanic++ then ;
 cyoa-choice: book1-improve
-	"Change Your Life Via Positivity" cyoa-title!
-	($ Thegroup .. " learns a lot about the power of staying positive!" $) cyoa-text! 1 300 tone
+	"Changer ta vie a travers de la positivite" cyoa-title!
+	($ Thegroup .. " apprend beaucoup sur le pouvoir de rester positif !" $) cyoa-text! 1 300 tone
 		attitude++ temper++ morale++ cchar ' book1-helproll foreach-team-char-except
 ;
 cyoa-choice: book1-mechanic
-	"Encyclopedia of Tinkering" cyoa-title!
-	"This book is full of information about repairing or modifying lots of everyday things. It's also probably heavy enough to kill someone with. Bonus!" cyoa-text! 2 300 tone
+	"Enciclopedie de l'ingenierie creative" cyoa-title!
+	"Ce livre est rempli d'informations sur la reparation ou la modification de beaucoup de choses courantes quotidiennes. il peut egalement etre assez lourd pour tuer quelqu'un. c'est un agreable bonus !" cyoa-text! 2 300 tone
 		mechanic++ cchar ' book1-mechroll foreach-team-char-except
 ;
 cyoa-choice: book1-morale
-	"Dr. Dink's Rhyme Time" cyoa-title!
-	($ "This book is full of colorful pictures and is great for children of all ages and " .. thegroup .. " really enjoys having something, anything, new to read." $) cyoa-text! goodfx morale2+ cchar morale++all-except
+	"Temps de rimer de dr. dink" cyoa-title!
+	($ "Ce livre est plein de images couleurees et ideal pour les enfants de tous ages. " .. thegroup .. " vraiment aime avoir quelque chose neuf a lire." $) cyoa-text! goodfx morale2+ cchar morale++all-except
 ;
 : book1-swole 
 	// cchar angrystrong-revealed? not if then;	cchar angrystrong? if
 		most-angrystrong if
-			charchoice( ": BOOK RAGE" )choice: books-are-for-nerds
+			charchoice( "VOITURE VOLEE !" )choice: books-are-for-nerds
 	then
 ;
 cyoa: book1-cyoa
-	"Burnt Library" cyoa-title!
+	"Bibliotheque brulee" cyoa-title!
 	choosehuman cicon
-	($ Thegroup .. " encounters a library in a town that seems to have mostly burnt down. " .. cname-He .. " finds a single book that avoided being really damaged by the fire.
-	What was the book?" $) cyoa-text! basic-tone
+	($ Thegroup .. " rencontre une bibliotheque dans une ville qui parait avoir brule majoritairement. " .. cname-He .. " le livre qui a echappe reellement aux dommages de l'incendie... 	was it, in fact, the one?" $) cyoa-text! basic-tone
 		book1-swole
-		choice( "Gigantic repair manual" )choice: book1-mechanic
-		choice( "Self-help book on positivity" )choice: book1-improve
-		choice( "Rhyming children's book" )choice: book1-morale
+		choice( "Manuel de reparation gigantesque" )choice: book1-mechanic
+		choice( "Livre auto-formation sur la positivite" )choice: book1-improve
+		choice( "Livre pour enfants qui rime" )choice: book1-morale
 ;
 
 // END Burnt Library

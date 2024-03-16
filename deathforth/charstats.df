@@ -9,21 +9,21 @@
 // : .statup
 
 // 50% chance if skill = skillcheck... Ex: Character with 2 Strength, cchar .strength@ 2 skillcheck? ... Skill one lower means 33%, higher means 60%, 66%, etc.
-// Search for "statroll" below for a bunch of convenience words.
+// Search for "rouler a rallier" below for a bunch of convenience words.
 
 : skillcheck? ( amt checkamt -- true|false )
 
 	0 max swap 0 max swap
 
 	DEBUG if
-		2dup swap "SKILL " type type " vs CHECK " type type " (" type
+		2dup swap "COMPETENCE. " type type " verifier " type type " (" type
 	then
 
 	// Ratio
 	over + /
 
 	DEBUG if
-		dup type " vs roll of " type
+		dup type " jetez un de en roulette. " type
 	then
 
 	// Roll
@@ -40,7 +40,7 @@
 		dup type
 
 		dup if
-			" (rolled less or equal, SUCCESS)" else " (rolled over, FAIL)"
+			" succes : tu as jete un nombre inferieur ou egal a celui demande." else " echoue"
 		then print
 	then
 ;	
@@ -133,7 +133,7 @@ defer stat-cheevs
 
 : fastlearn-stat args( stat chara )
 	<- stat <- chara
-	<- chara .trait@ "Fast Learner" $= <- stat <- chara .stat@ 4 < and if
+	<- chara .trait@ "Apprenant rapide" $= <- stat <- chara .stat@ 4 < and if
 		// Could make this more precise, with two .stat++ with the second having a stat < 4 check if it needs nerfing
 		.stat2+
 	else
@@ -365,15 +365,15 @@ defer stat-heal
 
 : shieldofhopeblurb args( chara )
 	<- chara .morale 3 > if
-		" is too PUMPED UP to get killed!"
+		" il est trop excite"
 	else
 		<- chara .morale 1 < if
-			" lives, but enters into despair!"
+			" vivant, mais sombre dans le desespoir !"
 		else
 			<- chara .morale 2 < if
-				" resists death, but morale wavers!"
+				" resiste a la mort, mais le moral flanche !"
 			else
-				" refuses to die!"
+				" refuse de s'eteindre !"
 			then
 		then
 	then
@@ -397,7 +397,7 @@ defer stat-heal
 
 0 value hero-picked
 
-: isherotype? args( chara ) <- chara .trait@ "Hero Type" $= ;
+: isherotype? args( chara ) <- chara .trait@ "Type heros" $= ;
 : herotype-except? args( chara )
 	<- chara team-stack-except ' isherotype? stack-filter nip ;
 
@@ -408,7 +408,7 @@ defer stat-heal
 : someherotype ' herotypecheck pick-team-char to hero-picked ;
   
  : hero-usedup
-	"Loyal Pal" hero-picked .trait!
+	"Chien fidele" hero-picked .trait!
 	// -1 STAT_VITALITY hero-picked .stat--
 	
  ;
@@ -416,16 +416,16 @@ defer stat-heal
  defer unfireproofer
  
  : .phoenixify args( chara )
-	"Phoenix Arisen!" <- chara .trait!
+	"Resurrection de phoenix !" <- chara .trait!
 	<- chara .fullheal
 	<- chara .specialbody@ 78 = not if
 		78 <- chara .specialbody!
-		($ "is now a HALF-HUMAN, HALF-SKELETON, HALF-PHOENIX, back for vengeance!" $) <- chara .job!
+		($ "un etre humain a moitie, un squelette a moitie et un phenix a moitie est de retour pour se venger !" $) <- chara .job!
 	else
 		78 <- chara .specialhead!
-		($ "is now a HALF-SKELETON, HALF-PHOENIX, after a series of major blunders." $) <- chara .job!
+		($ "une moitie d'un squelette hybride, une moitie de phenix, a la suite de plusieurs grosses fautes." $) <- chara .job!
 	then
-	<- chara .perk@ "Pyromaniac" $= if then;
+	<- chara .perk@ "Pyromane" $= if then;
 	<- chara unfireproofer
 ;
 
@@ -435,7 +435,7 @@ defer stat-heal
 : .death-shared args( chara )
 	<- chara herotype-except? if 
 		someherotype			
-		($ ICON_UP textclr$ .. <- chara .name@ .. " is heroically saved by " .. hero-picked .name@ .. "!" ..
+		($ ICON_UP textclr$ .. <- chara .name@ .. " est sauve heroiquement par " .. hero-picked .name@ .. "!" ..
 		0 textclr$ $) blurbevent ICON_UP blurbicon
 		<- chara .fullheal
 		<- chara .health@ 2 > if
@@ -443,11 +443,11 @@ defer stat-heal
 		then
 		hero-usedup
 	else
-		<- chara .trait@ "Phoenix" $= if
-			($ ICON_SKULL textclr$ .. <- chara .name@ .. " rises from the grave!" .. 0 textclr$ $) blurbevent ICON_UP blurbicon
+		<- chara .trait@ "Phenix" $= if
+			($ ICON_SKULL textclr$ .. <- chara .name@ .. " s'eleve de sa tombe !" .. 0 textclr$ $) blurbevent ICON_UP blurbicon
 			<- chara .phoenixify
 		else
-			($ ICON_SKULL textclr$ .. <- chara .name@ .. " is KILLED!" .. 0 textclr$ $)
+			($ ICON_SKULL textclr$ .. <- chara .name@ .. " est tue !" .. 0 textclr$ $)
 
 			blurbevent blurbskullicon
 
@@ -469,7 +469,7 @@ defer stat-heal
 : team-attacked args( chara )
 	<- chara .health@ 0= if exit then;
 	<- chara hit'n'die? if
-		<- chara .perk@ "Shield of Hope" $= <- chara .morale SHIELDOFHOPE_MIN > and if
+		<- chara .perk@ "Bouclier de l'espoir" $= <- chara .morale SHIELDOFHOPE_MIN > and if
 			
 			<- chara morale--hopeshield
 			
@@ -482,7 +482,7 @@ defer stat-heal
 		then
 	else
 		<- chara .health@ 0 > if
-			($ ICON_DOWN textclr$ .. <- chara .name@ .. " is HURT!" ..
+			($ ICON_DOWN textclr$ .. <- chara .name@ .. " est blesse !" ..
 				0 textclr$ $) blurbevent ICON_DOWN blurbicon
 		then
 	then
@@ -577,14 +577,14 @@ defer stat-heal
 : food-required 0 0 args( chow chara )
 	team-stack depths for
 		pops -> chara 
-		<- chara .pet@ <- chara .trait@ "Tiny Eater" $= or if
-			<- chara .trait@ "Gourmand" $= if
+		<- chara .pet@ <- chara .trait@ "Mangeur de petite taille" $= or if
+			<- chara .trait@ "Gourmet" $= if
 				2 
 			else
 				1
 			then
 		else 
-			<- chara .trait@ "Gourmand" $= if
+			<- chara .trait@ "Gourmet" $= if
 				3
 			else
 				2
@@ -619,13 +619,13 @@ defer stat-heal
 			<- chara .morale++
 		then	
 	then
-	<- chara .trait@ "Gourmand" $= if
+	<- chara .trait@ "Gourmet" $= if
 		<- chara .morale++
 	then
 ;
 
 : .morale--gourmand args( chara )
-	<- chara .trait@ "Gourmand" $= if
+	<- chara .trait@ "Gourmet" $= if
 		<- chara .morale--
 	then
 ;

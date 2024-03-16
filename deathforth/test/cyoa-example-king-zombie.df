@@ -2,7 +2,7 @@
 // EXAMPLE 2 - KING ZOMBIE
 
 (*
-@ A CYOA that says "YOU SEE KING ZOMBIE". Provides these choices:
+@ A CYOA that says "VOUS VOYEZ LE ROI ZOMBIE.". Provides these choices:
 	+ BRIBE WITH 5 FOOD
 		- Only shows up as a choice if you have five food. Removes 5 food from your inventory.
 
@@ -57,8 +57,8 @@ road{
 : kz-flee
 	cyoa-good-dialog
 
-	($ "KING ZOMBIE is utterly shocked by " ..
-		choicecharname .. "'s insult, and flees."
+	($ "Le roi zombie est etonne a merveille par " ..
+		choicecharname .. "insulte et s'enfuit."
 	$) cyoa-text!
 
 	STAT_TEMPERAMENT choicechar .reveal
@@ -72,7 +72,7 @@ road{
 	// character on stack here
 
 	choice(
-		over .name@ .. " calls it a DINGUS"
+		over .name@ .. " un dingus, c'est a dire une petite chose ou un objet, n'ayant pas"
 	)choice: kz-flee
 
 	choosechar
@@ -83,7 +83,7 @@ road{
 
 : foodbribe
 	cyoa-good-dialog
-		"KING ZOMBIE begrudgingly accepts SNACKS, and with a vacant look, it shuffles off." cyoa-text!
+		"Le roi zombi s'y prend malgre lui a des carnes seches, et avec un regard vide, il se deplace lentement." cyoa-text!
 		-5 LOOT_FOOD trunk.loot+
 ;
 
@@ -91,7 +91,7 @@ road{
 
 : try-food-choice 
 	trunk-food 5 < if exit then
-	choice( "Bribe with SNACKS" )choice: foodbribe
+	choice( "Corbezzon avec des collations" )choice: foodbribe
 ;
 
 
@@ -119,8 +119,8 @@ road{
 : charm-it
 	choicechar bigcharm? if
 		cyoa-good-dialog
-		($ "KING ZOMBIE is very charmed to meet " .. choicechar .name@
-			.. ". Blushing, it shuffles away." $) cyoa-text!
+		($ "Le roi zombie est tres heureux de vous rencontrer. " .. choicechar .name@
+			.. ". rougeoyant, il s'eloigne en rougissant." $) cyoa-text!
 		STAT_MORALE choicechar .stat++
 		exit
 	then
@@ -129,12 +129,12 @@ road{
 
 	if
 		cyoa-good-dialog
-		($ choicechar .name@ .. " charms KING ZOMBIE, who then simply freezes like a statue. What a peculiar effect." $)
+		($ choicechar .name@ .. " charmez le roi zombi, qui devient alors simplement immobile comme une statue. c'est un effet etrange." $)
 		cyoa-text!
 	then;
 
 	cyoa-bad-dialog
-	($ choicechar .name@ .. " fails to charm KING ZOMBIE. Feeling awkward after the exchange, KING ZOMBIE quickly disappers around a corner." $)
+	($ choicechar .name@ .. " l'echange avec le roi zombie echoue a reussir un charme. sentant mal a l'aise apres cette entrevue, le roi zombie disparait rapidement autour d'un coin." $)
 	cyoa-text!
 	STAT_MORALE choicechar .stat-- 
 ;
@@ -146,7 +146,7 @@ road{
 	// Make sure picked char has revealed stats
 	charmwits-revealed? not if exit then
 
-	choice( pickchar .name@ .. " tries to CHARM it" )choice: charm-it
+	choice( pickchar .name@ .. " essaye de charmer-le" )choice: charm-it
 
 	pickchar choosechar
 ;
@@ -155,18 +155,18 @@ road{
 
 : cool-average 0 ' sum-temperaments foreach-team-char
 	dup team-count / swap
-	"TOTAL TEMPERAMENT " type type " average " type dup type cr ;
+	"LE TOTAL TEMPERAMENT EST UN SYSTEME COMPLEXE DE MODIFICATION DES INTERVALLES MUSICAUX DANS UNE E " type type " moyenne " type dup type cr ;
 
 : textclr$ 0x f0 + $chr ;
 
 (*
 : team-attacked
 	dup hit'n'die? if
-		($ ICON_SKULL textclr$ .. over .name@ .. " is KILLED!" ..
+		($ ICON_SKULL textclr$ .. over .name@ .. " est tue !" ..
 			0 textclr$ $) blurbevent blurbskullicon
 		sfx{ creepy 30 fx .delay! }
 	else
-		($ ICON_DOWN textclr$ .. over .name@ .. " is HURT!" ..
+		($ ICON_DOWN textclr$ .. over .name@ .. " est blesse !" ..
 			0 textclr$ $) blurbevent ICON_DOWN blurbicon
 	then
 	blurbchar blurb-last-to-cyoa
@@ -177,13 +177,13 @@ road{
 	cool-average 3 > // GOOD temperament is higher
 	if
 		cyoa-good-dialog
-		($ "KING ZOMBIE ponders your wisdom, and feels that you have a point."
-			.. " Enlightened, it shuffles away." $) cyoa-text!
+		($ "Le roi zombie considere votre sagesse et sent que vous avez raison."
+			.. " Il s'eloigne eclaire." $) cyoa-text!
 		' .morale++ foreach-team-char
 	then;
 
 	cyoa-bite-dialog
-	"KING ZOMBIE is enraged by your hypocrisy and FLIPS THE HELL OUT. You are attacked!"
+	"Le roi zombie est furieux a cause de votre hypocrisie et jette un coup de fou rageur. vous etes attaque"
 	cyoa-text!
 	' team-attacked foreach-team-char
 ;
@@ -191,7 +191,7 @@ road{
 
 // COOL IT
 : try-coolit-choice
-	choice( "COOL IT" )choice: kz-cool-it
+	choice( "REFRIGERER" )choice: kz-cool-it
 ;
 
 : kz-flip-out
@@ -202,12 +202,12 @@ road{
 	then;
 
 	cyoa-bad-dialog
-	"Nobody really wants to flip out about this. Everyone stays quiet."
+	"Personne vraiment n'a envie de s'enflammer a propos de cela. tout le monde reste silencieux."
 	cyoa-text!
 ;
 
 : try-flipout-choice
-	choice( "FLIP OUT about it" )choice: kz-flip-out
+	choice( "S'enerver a propos de ca" )choice: kz-flip-out
 ;
 
 : collect-choices
@@ -220,10 +220,10 @@ road{
 
 : kzombi
 	cyoa-new
-		"ENCOUNTER" cyoa-title!
+		"RENCONTRE" cyoa-title!
 		 1 to cyoaicon cyoaicon // The image in the CYOA dialog
 
-		"You see KING ZOMBIE." cyoa-text!
+		"Vous voyez le roi zombi." cyoa-text!
 
 		collect-choices
 ;

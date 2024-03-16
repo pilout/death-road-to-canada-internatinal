@@ -1,137 +1,134 @@
 cyoa{ 
 
 cyoa: gym-sweaty
-	"Ew gross" cyoa-title!
-	($ "This gym equipment is all covered in sweat now!
-	No way is " .. pname .. " touching it." $) text!
+	"Ceci est repugnant." cyoa-title!
+	($ "Cet equipement de gym est recouvert de sueur maintenant !. . 	pas la possibilite. " .. pname .. " toucher-le." $) text!
 	clear-cyoa badfx
 ;
 
 : gym-barbell-end 
-	pchar .dead? if ($ cname .. " dies from this weightlifting mishap." $) +crtext
+	pchar .dead? if ($ cname .. " est ecrase par cet accident de levage a force." $) +crtext
 	else
-		strengthREV "An hour passed during that impromptu workout session." +crtext
+		strengthREV "Une heure est passee pendant cette seance d'entrainement improvise." +crtext
 	then clear-cyoa ' gym-sweaty this-cyoa o'clock@ 1 + o'clock
 		team-nearby? not if	
-			($ "There was no one around to defend " .. pname .. " during the workout, so " .. phe .. " had to fend off zombies between reps. Watch out!" $) +crtext
+			($ "Personne n'etait la pour defendre. " .. pname .. " pendant l'entrainement. " .. phe .. " il fallait se defendre contre des zombies entre les repetitions. faites attention !" $) +crtext
 			6 11 rnd roomgen{ .zombspawn } 
 		then
 	;
 cyoa-choice: gym-barbell-1 
-	($ cname .. " takes off most of the weight from the barbell and then starts " .. "PUMPING IRON" pbold .. " with the mostly empty bar." $) cyoa-text!
+	($ cname .. " enleve la plupart du poids du barreau et puis demarre. " .. "FERRAGEMENT DE L'ACIERIE" pbold .. " avec la barre presque vide." $) cyoa-text!
 	cstrength- if
-		($ "It's still a great workout for " .. chim .. ". And nothing is broken or ruptured in the process!" $) +crtext
+		($ "C'est toujours un excellent entrainement. " .. chim .. "rien n'est casse ou rompu dans ce procede !" $) +crtext
 		strength++ goodfx
 	else
-		"It just wasn't enough weight to really do anything. The zombies weren't impressed, either." +crtext badfx
+		"C'etait simplement pas assez de poids pour faire quelque chose reellement. les zombies n'etaient pas impressionnes non plus." +crtext badfx
 	then
 	gym-barbell-end
 ;
 cyoa-choice: gym-barbell-2
-	($ cname .. " takes off some weight from the barbell, but not so much that " .. phe .. " can't " .. "GET SUPER PUMPED" rbold .. "." $) cyoa-text!
+	($ cname .. " retire une partie du poids du barreau, mais pas assez pour le decharger completement. " .. phe .. " ne peux pas " .. "PREPAREZ-VOUS A ETRE TRES ANIMES" rbold .. "." $) cyoa-text!
 	cstrength- if
-		($ "That was too much weight! " .. cHe .. " hears something in " .. chis .. " body make a funny snapping sound." $) +crtext
+		($ "C'etait trop lourd ! " .. cHe .. " entend quelque chose " .. chis .. " le corps fait un bruit roulant et amusant, comme une gifle." $) +crtext
 		ouch-- badfx gym-barbell-end
 	then;
 	cstrength+ if
-		($ cname .. " was disappointed with the workout. " .. cHe .. " will have to push " .. chim .. "self more in the future." $) +crtext badfx gym-barbell-end
+		($ cname .. " a ete decu du travail out. " .. cHe .. " il faudra appuyer sur " .. chim .. "se rendre plus en avance a soi-meme dans le futur." $) +crtext badfx gym-barbell-end
 	then;
-	($ cHe .. " makes a lot of strained grunting noises as that bar gets lifted. What a workout!" $) +crtext goodfx strength++ gym-barbell-end
+	($ cHe .. " cela fait beaucoup de bruits gonfles et etrangles lorsque cette barre monte. quel exercice intensif !" $) +crtext goodfx strength++ gym-barbell-end
 ;
 cyoa-choice: gym-barbell-3
-	($ cname .. " attempts to lift the ridiculously overloaded barbell. " .. "
-	IF THE BAR AIN'T BENDING YOU'RE JUST PRETENDING" fbold .. " 
-	-- Ancient Bodybuilder Wisdom" $) cyoa-text!
+	($ cname .. " essaie de lever une barrement ridiculement surchargee. " .. "si la barre ne s'incline pas, vous ne faites qu'un jeu." fbold .. " sagesse du bodybuilder ancien" $) cyoa-text!
 	cstrength+ if
-		($ cHe .. " lifts it, though " .. chis .. " eyes almost pop out of " .. chis .. " head." $) +crtext
+		($ cHe .. " le leve, bien qu'il " .. chis .. " les yeux sont sur le point de s'ecarter de leur orbite. " .. chis .. " echec !" $) +crtext
 		strength++ morale++ goodfx
 	else
-		($ "Trying to lift that was a catastrophically bad idea! " .. cname .. " feels something in " .. chis .. " body explode." $) +crtext
+		($ "Cela etait une idee absolument desastreuse pour essayer de soulever cela ! " .. cname .. " ressent quelque chose de/dans. " .. chis .. " le corps explose." $) +crtext
 		ouch2- badfx
 	then
 	gym-barbell-end
 ;
 
 cyoa: gym-barbell
-	"I.T.B.A.B.Y.J.P." cyoa-title!
+	"I. T. B. A. B. Y. J. P." cyoa-title!
 	picon!
-	"There's a fully loaded olympic weight set here. The amount of weight on it can be adjusted down to a less hernia-causing amount." cyoa-text!
+	"Il y a ici un ensemble complet d'attelage olympique pleinement charge. le poids de celui-ci peut etre regle pour une charge inferieure et moins heronteuse." cyoa-text!
 	cpet? if
-		($ "Unfortunately, olympic weightlifting really isn't designed to work with " .. pname .. "'s body." $)
+		($ "Desole, le weightlifting olympique n'est reellement pas concu pour fonctionner avec " .. pname .. "jour de negociation" $)
 	+crtext then;
 	team-nearby? not if
-		($ "With no one nearby to watch out for zombies, it might be dangerous to get a workout in." $) +crtext
+		($ "Travailler physiquement seul, sans personne a proximite pour garder un oeil sur les zombies, peut etre dangereux." $) +crtext
 	else
-		($ pname .. " considers taking a break to get some strength training in as " .. phe .. " is guarded." $) +crtext
+		($ pname .. " prendre une pause pour s'entrainer en matiere de force est envisage. " .. phe .. " est garde." $) +crtext
 	then
-		choice( "Lift Light Weight" )choice: gym-barbell-1
-		choice( "Lift Heavy Weight" )choice: gym-barbell-2
-		choice( "Lift Massive Weight" )choice: gym-barbell-3
-	choice( "Leave it for now" )choice
+		choice( "Relever une petite charge" )choice: gym-barbell-1
+		choice( "Leve une grosse charge." )choice: gym-barbell-2
+		choice( "Relever une masse importante" )choice: gym-barbell-3
+	choice( "Laissez-le pour le moment" )choice
 ;
 
 : gym-bike-end 
-	pchar .dead? if ($ cname .. " dies on the exercise bike from the sheer exertion." $) +crtext
+	pchar .dead? if ($ cname .. " morde la roue d'exercice a cause de l'effort excessif." $) +crtext
 	else
-		fitnessREV "An hour passed during that exercise session." +crtext
+		fitnessREV "Durant cette seance d'entrainement, une heure est passee." +crtext
 	then clear-cyoa ' gym-sweaty this-cyoa o'clock@ 1 + o'clock
 	team-nearby? not if	
-			($ "There was no one around to defend " .. pname .. " during the workout, so " .. phe .. " had to fend off zombies while cycling. Watch out!" $) +crtext
+			($ "Personne n'etait la pour defendre. " .. pname .. " pendant l'entrainement. " .. phe .. " devoir se defendre contre des zombies en velo. attention !" $) +crtext
 			6 11 rnd roomgen{ .zombspawn } 
 		then
 	; 
 cyoa-choice: gym-bike-1 
-	($ cname .. " sets the stationary cycle to " .. "PAVED ROAD ON THE MOON" pbold .. " and starts moving " .. chis .. " legs." $) cyoa-text!
+	($ cname .. " definit la roue fixe a " .. "ROUTE PAVEE SUR LA LUNE" pbold .. " et commence a bouger " .. chis .. " jambes." $) cyoa-text!
 	cfitness- if
-		($ "It's good exercise for " .. chim .. ", due to being very out of shape." $) +crtext
+		($ "Une bonne preparation pour : " .. chim .. "a cause de sa tres mauvaise condition physique." $) +crtext
 		fitness++ goodfx
 	else
-		"The exercise wasn't really much better than just sitting around in the car." +crtext badfx
+		"Cet exercice n'etait pas beaucoup plus interessant que de rester dans la voiture." +crtext badfx
 	then
 	gym-bike-end
 ;
 cyoa-choice: gym-bike-2
-	($ cname .. " sets the stationary cycle to " .. "UPHILL COUNTRY ROAD" rbold .. " and starts pumping " .. chis .. " legs." $) cyoa-text!
+	($ cname .. " definit la roue fixe a " .. "ROUTE MONTAGNEUSE A MONTER" rbold .. " et commence a pomper " .. chis .. " jambes." $) cyoa-text!
 	cfitness- if
-		($ cHe .. " manages to pull something in " .. chis .. " leg! The pain makes " .. chim .. " fall off the bike." $) +crtext
+		($ cHe .. " reussit a tirer quelque chose. " .. chis .. " la douleur fait souffrir la jambe. " .. chim .. " tomber de la moto." $) +crtext
 		sting-- badfx gym-bike-end
 	then;
 	cfitness+ if
-		($ cname .. " didn't even break a sweat! It does nothing for improving " .. chis .. " fitness." $) +crtext badfx gym-bike-end
+		($ cname .. " pas meme sue ! rien n'ameliore cela. " .. chis .. " autour de midi" $) +crtext badfx gym-bike-end
 	then;
-	($ cHe .. " produces a whole river of sweat. What a workout!" $) +crtext goodfx fitness++ gym-bike-end
+	($ cHe .. " travaille tres dur et en sue beaucoup." $) +crtext goodfx fitness++ gym-bike-end
 ;
 cyoa-choice: gym-bike-3
-	($ cname .. " sets the cycle to " .. "DEATH ROAD TO CANADA" fbold .. " and starts straining " .. chis .. " legs to their limit." $) cyoa-text!
+	($ cname .. " gare service isolee " .. "'LA ROUTE DU CANADA, MORTELLEMENT DANGEREUSE'" fbold .. " commencent a faire pressure " .. chis .. " allonger les jambes au maximum." $) cyoa-text!
 	cfitness+ if
-		($ cHe .. " truly " .. "FEELS THE BURN!" rbold $) +crtext
+		($ cHe .. " nouvelle sauvegarde " .. "SENTIMENTS LE BRULANT !" rbold $) +crtext
 		fitness++ morale++ goodfx
 	else
-		($ cname .. " doesn't last long before falling down from exhaustion. " .. cHe .. " gasps and horks up an organ." $) +crtext
+		($ cname .. " cela ne dure pas longtemps avant de s'ecrouler par fatigue. " .. cHe .. " se souvient et epuante un organe." $) +crtext
 		sting2- badfx
 	then
 	gym-bike-end
 ;
 
 cyoa: gym-bike
-	"Cardiovascular Training" cyoa-title!
+	"Laissez-le tranquille apres tout" cyoa-title!
 	picon!
-	"There's a deluxe UltraMegaFit brand stationary cycle here. Unlike treadmills, this works with the electricity cut off." cyoa-text!
+	"Cet appareil stationnaire a roues du marche ultramegafit de luxe est present ici. contrairement aux treadmills, ce fonctionne avec l'electricite coupee." cyoa-text!
 	cpet? if
-		($ "Unfortunately, this device just isn't designed to work with " .. pname .. "'s body." $)
+		($ "Desole, ce dispositif n'est simplement pas concu pour fonctionner avec " .. pname .. "jour de negociation" $)
 	+crtext then;
-	cchar .perk@ "T*S*T*C" $= if
-		($ "Unfortunately, " .. pname .. " does NOT do cardio!" $)
+	cchar .perk@ "LES JEUX SPORTIFS" $= if
+		($ "Desolement, " .. pname .. " ne realise pas de cardio !" $)
 	+crtext then;
 	team-nearby? not if
-		($ "With no one nearby to watch out for zombies, it might be dangerous to get a workout in." $) +crtext
+		($ "Travailler physiquement seul, sans personne a proximite pour garder un oeil sur les zombies, peut etre dangereux." $) +crtext
 	else
-		($ pname .. " considers taking a break to get some fitness training in as " .. phe .. " is guarded." $) +crtext
+		($ pname .. " prendre une pause pour s'entrainer dans le domaine du fitness " .. phe .. " est garde." $) +crtext
 	then
-		choice( "Light Exercise" )choice: gym-bike-1
-		choice( "Heavy Exercise" )choice: gym-bike-2
-		choice( "INTENSE EXERCISE" )choice: gym-bike-3
-	choice( "Leave it for now" )choice
+		choice( "Exercices leger de lumiere" )choice: gym-bike-1
+		choice( "Est frappe durement." )choice: gym-bike-2
+		choice( "EXERCICES A GRAND RENFORCEMENT" )choice: gym-bike-3
+	choice( "Laissez-le pour le moment" )choice
 ;
 
 }

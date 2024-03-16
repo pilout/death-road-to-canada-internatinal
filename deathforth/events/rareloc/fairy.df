@@ -2,20 +2,20 @@
 cyoa{
 
 : npc-fairy-go 
-	($ cname .. " grants " .. pname .. "'s wish!" $) text! goodfx clear-cyoa
+	($ cname .. " accorde des subventions " .. pname .. "doigts" $) text! goodfx clear-cyoa
 ;
 
 cyoa-choice: npc-fairy-food
 	npc-fairy-go
-	($ "This is what's considered wealth now, right?" pbold $) +crtext
-	($ "She conjures up a bunch of food for " .. pname .. "." $) +crtext
+	($ "C'est ainsi que l'on considere la richesse aujourd'hui ?" pbold $) +crtext
+	($ "Elle fait apparaitre une quantite de nourriture. " .. pname .. "." $) +crtext
 	20 add-food deleteme
 ;
 
 cyoa-bridge: npc-fairy-recruit
 	cchar to recruitee npc-fairy-go
-	($ "She cracks her knuckles then conjures up a baseball bat." $) +crtext
-	($ "Sure, I'll be your friend!" pbold $) +crtext
+	($ "Elle casse ses doigts puis invoque une batte de baseball." $) +crtext
+	($ "Je serai heureux de vous etre ami !" pbold $) +crtext
 	0.25 cchar .ai.wander_chance! 0 nearest .unseen! WEAPON_FAIRYBAT cchar .weapona!
 	recruitee .shootingREV recruitee .strengthREV recruitee .fitnessREV recruitee .medicalREV
 	recruit-yesno
@@ -23,18 +23,18 @@ cyoa-bridge: npc-fairy-recruit
 
 cyoa-choice: npc-fairy-vit
 	npc-fairy-go
-	($ "Live a long and happy life!" pbold $) +crtext
+	($ "Vive une longue et heureuse vie !" pbold $) +crtext
 	pchar .vitality++ pchar .health++ deleteme
 ;
 
 cyoa: npc-fairy
-	"Queen of the Fairies" cyoa-title!
+	"Parvient a maitriser" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "You found the Queen of the Fairies! She offers to grant " .. pname .. " a wish!" $) text!
-		choice( "Don't make a wish yet" )choice
-		choice( "Wealth" )choice: npc-fairy-food
-		choice( "Health" )choice: npc-fairy-vit
-		choice( "True Friendship" )choice: npc-fairy-recruit
+	($ "Vous avez trouve la reine des fees ! elle vous offre un souhait ! " .. pname .. " une envie !" $) text!
+		choice( "N'enonce pas encore une voeu" )choice
+		choice( "Faites chiller !" )choice: npc-fairy-food
+		choice( "Sante" )choice: npc-fairy-vit
+		choice( "Vrai amitie" )choice: npc-fairy-recruit
 		
 ;
 
@@ -42,14 +42,14 @@ cyoa: npc-fairy
 
 : .fairy args( char )
 	13 <- char .specialtype!
-	"Fairy Queen" <- char .name!
+	"Reine des fees" <- char .name!
 	5 <- char .shooting!
 	4 <- char .strength!
 	6 <- char .fitness!
 	1 <- char .female!
 	0 <- char .loyalty!
 	4 <- char .medical!
-	"is the Queen of all Fae Folk." <- char .job!
+	"la reine de tous les elements feeries est la fee morgane." <- char .job!
 	<- char cyoa{ ' npc-fairy cyoa! } drop
 	
 ;

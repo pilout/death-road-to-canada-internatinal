@@ -2,72 +2,59 @@ cyoa{ road{
 
 cyoa-bridge: recruit1-yes
 	ricon team-count 3 > if
-	($ "YOU GOT LIKE A BILLION PEOPLE.
-	GO AWAY.
-	" pbold .. "You'll have to clear a spot if you want this annoying person." $) cyoa-text!	badfx recruit-replace?
+	($ "Allons-y, il n'y a qu'a aller loin..." pbold .. "Pour le faire sortir, il faudra d'abord degager un espace." $) cyoa-text!	badfx recruit-replace?
 	then;
 	recruitee character# cyoa-char-icon!
-	($ "FINE, whatever! 
-	" pbold .. "The door opens and " .. rname .. " comes out." $) cyoa-text! 2 300 tone
+	($ "Bien sur, n'importe quoi !" pbold .. "La porte s'ouvre. " .. rname .. " sortie." $) cyoa-text! 2 300 tone
 		recruited recruitee .attitudeREV recruitee .witsREV judgerecruit
 ;
 cyoa-choice: recruit1-no 
-	($ "YOU ARE AN ESPECIALLY HUGE DINK. 
-	YOU DINK.
-	" pbold .. cname .. " is infuriated and smashes on the door for awhile. " .. Thegroup .. " ends up leaving shortly after." $) cyoa-text! badfx temperREV temper-- attitudeREV attitude--
+	($ "Vous etes une grosse tetine particulierement... vous etes une tetine..." pbold .. cname .. " se jette a battre sur la porte pendant un temps. " .. Thegroup .. " finit par quitter bientot apres." $) cyoa-text! badfx temperREV temper-- attitudeREV attitude--
 ;
 cyoa-bridge: recruit1-coolit
 	cpet? if
-		($ cname .. " farts on the locked door." $)
+		($ cname .. " fart sur porte fermee." $)
 	else
-		($ cname .. " tells the voice to " .. "COOL IT." pbold $)
+		($ cname .. " donnez l'instruction a la voix de : " .. "FAITES LE REFROIDIR." pbold $)
 	then cyoa-text!
 	cool-it-7 if
 		($ "HHHHHHEH! YOU'RE ALRIGHT! " rbold $) +crtext
 		team-count 3 > if
 			($ "YOU HAVE TOO MANY PEOPLE, THOUGH.
-			" rbold .. "The door stays shut unless you get rid of someone." $) +crtext badfx
+			" rbold .. "La porte reste fermee jusqu'a ce que quelqu'un soit ecarte." $) +crtext badfx
 			recruit-replace?
 		else
 			($ "OK, I'M IN!
-			" rbold .. "The door opens and " .. rname .. " comes out." $) +text goodfx
+			" rbold .. "La porte s'ouvre. " .. rname .. " sortie." $) +text goodfx
 			recruited recruitee .attitudeREV recruitee .witsREV
 		then
 	else cool-it++
-		($ "SAY IT, DON'T SPRAY IT! 
-		I HATE ANNOYING PEOPLE!
-		" rbold .. "The voice refuses to open the door, and " .. thegroup .. " ends up leaving." $) badfx +crtext
+		($ "Dit ca, ne le rejete pas! . . 		j'ai peur de les deranger!. .			" rbold .. "La porte ne veut pas s'ouvrir. " .. thegroup .. " c'est ca pour moi !" $) badfx +crtext
 	then attitudeREV witsREV
 ;
 
 cyoa: recruit1
-	"The Dinkdoor: Door of Dinks" cyoa-title!
+	"La porte dinkdoor : porte des dinks." cyoa-title!
 	char-gen to recruitee
 	0 1 rnd recruitee .attitude!
 	0 1 rnd recruitee .wits!
 	WEAPON_OTAKU recruitee .weapona!
 	ricon
-	($ Thegroup .. " comes across a house by the road. It's locked.
-	While trying to smash the door down, a voice calls out:
-	" .. "HEY LEAVE MY DOOR ALONE YOU DINKS" pbold $) cyoa-text! basic-tone
-		choice( "Try to Recruit" )choice: recruit1-yes
-		someone charchoice( ": I'M NOT A DINK" )choice: recruit1-no
+	($ Thegroup .. " vient en vue d'une maison le long de la route. elle est verrouillee.... .. en essayant de briser la porte en deux, une voix s'eleve :. ." .. "LAISSE MA PORTE EN PAIX, VOUS IMBECILES." pbold $) cyoa-text! basic-tone
+		choice( "Essayer de recruter" )choice: recruit1-yes
+		someone charchoice( "JE NE SUIS PAS UN COUPLE SANS ENFANT" )choice: recruit1-no
 		most-grating if 
-			charchoice( " tells voice to COOL IT" fcoolit )choice: recruit1-coolit
+			charchoice( " arrete de trop chauffer !" fcoolit )choice: recruit1-coolit
 		then
 ;
 
 cyoa-choice: recruit2-yes
 	ricon
 	team-count 3 > if
-		($ rname .. " says that there are too many people in your car already, and that " .. rhe .. "'ll be fine staying put for awhile longer.
-		Ditch someone to make room:" $) cyoa-text!
+		($ rname .. " il y a trop de personnes dans votre voiture deja. " .. rhe .. "restez la un peu plus longtemps, tout ira bien.		laisser quelqu'un pour faire place:" $) cyoa-text!
 		recruit-replace?
 	then;
-	($ "Sure, I'll join! I was running out of food, anyway.
-	" pbold .. rname .. " is now part of the team!
-	" .. rname .. " brings along some food supplies! Bonus!
-	Onward to Canada!" $) cyoa-text! 2 300 tone
+	($ "Je me joindrai bien sur ! je mangeais presque fini en effet." pbold .. rname .. " est maintenant membre de l'equipe !" .. rname .. " allez avec des approvisionnements alimentaires supplementaires ! bonus !. vers le canada !" $) cyoa-text! 2 300 tone
 	6 LOOT_FOOD trunk.loot+ recruitee .recruit recruitee .temperREV recruitee .witsREV
 	gstats{ ugnome-extraZP 2 > if 1 zombop+! then }
 	judgerecruit
@@ -75,10 +62,9 @@ cyoa-choice: recruit2-yes
 
 cyoa-choice: recruit2-rob
 	solo if
-	($ cname .. " robs " .. rname .. ".
-	This is probably why your group has just one person in it." $) cyoa-text!
+	($ cname .. " la vie. " .. rname .. "ceci est probablement la raison pour laquelle votre groupe ne compte qu'une seule personne." $) cyoa-text!
 	else
-	($ cname .. " convinces the group to rob " .. rname .. "." $) cyoa-text!
+	($ cname .. " convincez le groupe a voler. " .. rname .. "." $) cyoa-text!
 	cchar ' .morale-- foreach-team-char-except
 	cchar ' .loyalty-- foreach-team-char-except
 	then
@@ -86,29 +72,28 @@ cyoa-choice: recruit2-rob
 ;
 cyoa-choice: recruit2-coolit
 	cpet? if
-		($ cname .. " farts. It echoes in the grocery store." pbold $)
+		($ cname .. " il resonne des flatulences dans le magasin d'alimentation." pbold $)
 	else
-		($ cname .. " tells " .. rname .. " to " .. "COOL IT." pbold $)
+		($ cname .. " instructe : c'est une " .. rname .. " de : a " .. "FAITES LE REFROIDIR." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		($ rHe .. " is impressed by this devil-may-care attitude!" $) +crtext
+		($ rHe .. " cet homme se fait remarquer par son detachement impudique !" $) +crtext
 		team-count 3 > if
 			($ "Here, take a bunch of food I had stored up!
-			" pbold .. "The team goes on their way with the food." $) +crtext goodfx 15 trunk-food+
+			" pbold .. "La equipe continue sur leur chemin avec les aliments." $) +crtext goodfx 15 trunk-food+
 		else
-			($ "Let me come with you! I have a bunch of food!" pbold $) +crtext goodfx
+			($ "Viens-je avec toi ! je porte des aliments en abondance !" pbold $) +crtext goodfx
 			recruited recruitee .temperREV recruitee .witsREV 15 trunk-food+
 			most-paranoid if recruitee .attitudeREV then
 		then
 	else cool-it++
-		($ rname .. " is mostly just confused by this.
-		" .. "What? I wasn't doing anything...
-		" pbold .. " Wow! What a nerd! " .. Thegroup .. " leaves " .. rhim .. "." $) badfx +crtext
+		($ rname .. " c'est surtout confus par cela..." .. "What? I wasn't doing anything...
+		" pbold .. " C'est incroyablement nerde! " .. Thegroup .. " feuilles " .. rhim .. "." $) badfx +crtext
 	then attitudeREV witsREV
 ;
 
 cyoa: recruit2
-	"Grocery Squatter" cyoa-title!
+	"Sauteur d'approvisionnement alimentaire" cyoa-title!
 	char-gen to recruitee
 	5 6 rnd recruitee .composure!
 	5 6 rnd recruitee .wits!
@@ -116,20 +101,19 @@ cyoa: recruit2
 	50 %chance if 0 1 else 5 6 then rnd recruitee .attitude!
 	WEAPON_FRYING recruitee .weapona!
 	ricon
-	($ Thegroup .. " is about to break into a small, fortified grocery store, but then finds " .. rname .. " already living inside!
-	" .. rHe .. " seems like a calm, clever person." $) cyoa-text! basic-tone
-		choice( "Ask " .. rname .. " to join" )choice: recruit2-yes
-		choice( "Leave " .. rname .. " alone" )choice
+	($ Thegroup .. " une personne va entrer bientot dans un petit magasin d'aliments fortifie. mais alors elle decouvre : " .. rname .. " vivre deja dedans !" .. rHe .. " parait une personne calme et raffinee." $) cyoa-text! basic-tone
+		choice( "Henk " .. rname .. " se joindre" )choice: recruit2-yes
+		choice( "Quitter " .. rname .. " seul/seule" )choice
 		weaselest-pass if
-			weaselest charchoice( ": Let's rob this dingus!" )choice: recruit2-rob
+			weaselest charchoice( ": laissez-nous voler ce trousseau !" )choice: recruit2-rob
 		then
 		most-grating if 
-			charchoice( " tells " .. rname .. " to COOL IT" fcoolit )choice: recruit2-coolit
+			charchoice( " instructe : c'est une " .. rname .. " pour le refroidir :" fcoolit )choice: recruit2-coolit
 		then
 ;
 
 cyoa: recruit3
-	"Kinda Pushy" cyoa-title!
+	"Assez pressant" cyoa-title!
 	char-gen to recruitee
 	recruitee character# cyoa-char-icon!
 	0 1 rnd recruitee .composure!
@@ -137,20 +121,19 @@ cyoa: recruit3
 	4 5 rnd recruitee .morale!
 	4 recruitee 50 %chance if .strength! else .shooting! then
 	WEAPON_BASEBALL recruitee .weapona!
-	($ Thegroup .. " finds another traveller by the roadside, named " .. rname .. ".
-	" .. rHe .. " insists on joining the group, immediately. " $) cyoa-text! basic-tone
+	($ Thegroup .. " trouve une autre voyageur par la bordure de la route, nomme. " .. rname .. ".
+	" .. rHe .. " il insiste pour rejoindre le groupe des maintenant. " $) cyoa-text! basic-tone
 	solo if
-		($ thegroup .. " considers the benefits of " .. ghis .. " LONE WOLF strategy so far. Should " .. gthey .. " recruit " .. rname .. "?" $) +crtext
+		($ thegroup .. " considere les avantages de " .. ghis .. " Strategie solo loup jusqu'a present. devrais-je ? " .. gthey .. " recruter " .. rname .. "?" $) +crtext
 		recruit-yesno
 	then;
 	team-count 4 < if
-		($ Thegroup .. " isn't even given a choice.
-		" .. rname .. " joins the party! Onward to Canada?" $) +text
+		($ Thegroup .. " n'a pas meme l'option de choisir..." .. rname .. " allons-y vers le canada ! nous rejoignons la fete." $) +text
 		recruitee .recruit recruitee .attitudeREV recruitee .temperREV
 		gstats{ ugnome-extraZP 2 > if 1 zombop+! then }
 		judgerecruit
 	then;
-		"The car is already full! Someone will have to be kicked out of the group to make room:" +text
+		"La voiture est deja pleine ! alors quelqu'un devra etre expulse du groupe pour faire place :" +text
 		recruit-replace?
 ;
 
@@ -158,19 +141,19 @@ cyoa: recruit3
 
 : recruit-intro
 	char-gen to recruitee ricon
-	($ Thegroup .. " finds a new person, " .. rname .. ".
-	" .. rHe .. " is alone, and wants to join the team!" $) cyoa-text! basic-tone
+	($ Thegroup .. " trouve une nouvelle personne. " .. rname .. ".
+	" .. rHe .. " il est seul et veut rejoindre l'equipe !" $) cyoa-text! basic-tone
 ;
 
 : recruit-confirm
 	choosechar
 	($ cname .. 
 	1 5 rnd case
-		1 of " vouches for this claim." endof
-		2 of " trusts this based on " .. chis .. " experience." endof
-		3 of " thinks that " .. rhe .. " is telling the truth." endof
-		4 of " has a good feeling about this person." endof
-		5 of " has a gut feeling that this is the truth." endof
+		1 of " garantit cette affirmation." endof
+		2 of " j'en fonds confiance sur cela selon " .. chis .. " l'experience." endof
+		3 of " pense que " .. rhe .. " il dit la verite." endof
+		4 of " cette personne me donne une bonne sensation." endof
+		5 of " a une certaine egale, ceci est la verite." endof
 	endcase
 	$) +crtext recruitee
 ;
@@ -179,68 +162,68 @@ cyoa: recruit3
 	choosechar
 	($ cname .. 
 	1 6 rnd case
-		1 of " seriously doubts this." endof
-		2 of " rolls " .. chis .. " eyes at this obvious lie." endof
-		3 of " thinks that " .. rhe .. " is lying." endof
-		4 of " has a very bad feeling about this person." endof
-		5 of " has a gut feeling that this is a lie." endof
-		6 of " knows that something is off about " .. rname .. "." endof
+		1 of " : marcher sur des coeurs ardents" endof
+		2 of " rouleau " .. chis .. " interfere avec les reglages" endof
+		3 of " pense que " .. rhe .. " ment fait un faux." endof
+		4 of " cette personne me donne une mauvaise impression." endof
+		5 of " a une certaine egard, j'ai le sentiment qu'il s'agit d'une mensonge." endof
+		6 of " sait qu'il y a quelque chose d'anomal " .. rname .. "." endof
 	endcase
 	$) +crtext recruitee .loyaltyREV recruitee
 ;
 
 : recruit-strength-flavor
 	1 6 rnd case
-		1 of " flexes in a dramatic way to prove it." endof
-		2 of " talks about a past life as a lumberjack." endof
-		3 of " talks about a former life as a bodybuilder." endof
-		4 of " boasts about being a former 'caged pit deathmatch' fighter." endof
-		5 of " bends a spoon, very aggressively." endof
-		6 of " flexes and grunts HARD, beads of sweat forming on forehead." endof
+		1 of " seulement : je me plie dramatiquement pour le prouver." endof
+		2 of " avant de vivre actuellement, je vivais la vie d'un coupeur de bois." endof
+		3 of " anciennement, j'etais un bodybuilder." endof
+		4 of " anciennement combatant dans des matchs de mort par bataille au sein d'une cage." endof
+		5 of " fait bouger la cuillere d'une maniere tres agressive." endof
+		6 of " seulement : flexionner durament et grogner fortement, sueur formait des gouttes sur le front." endof
 	endcase
 ;
 
 : recruit-fitness-flavor
 	1 6 rnd case
-		1 of " reveals that " .. rhe .. " was a track star in college." endof
-		2 of " does a clumsy half-cartwheel. Maybe it's an off day for " .. rhim .. "?" endof
-		3 of " shows off an elaborate stretching routine to prove it." endof
+		1 of " revele que " .. rhe .. " a ete un sprinter universitaire." endof
+		2 of " effectue une demi-carthewheel maladroite. peut-etre qu'il y a un mauvais jour pour lui. " .. rhim .. "?" endof
+		3 of " montrant une elaboree succession d'etirements pour en demontrer la valeur, voici comment je le fais :" endof
 		4 of " jogs in place for a bit. It looks ok? There's little to no wheezing..." endof
-		5 of " does a quick little dance. Then " .. rname .. " stops, saying to recruit " .. rhim .. " for more." endof
-		6 of " boasts about how " .. rhe .. " used to be an olympic athlete." endof
+		5 of " fait un petit danse rapide ensuite. " .. rname .. " recrutez, disant d'arreter. " .. rhim .. " pour plus" endof
+		6 of " se vante de " .. rhe .. " j'etais un athlete olympique a l'anciennete." endof
 	endcase
 ;
 
 : recruit-shooting-flavor
 	1 6 rnd case
-		1 of " talks about " .. rhis .. " favorite guns, though it's worrying that " .. rhe .. " pronounces 'guns' wrong." endof
-		2 of " talks about a past life as a police officer. 'Not just any cop, a supercop'." endof
-		3 of " talks about all " .. rhis .. " shooting trophies and trophies for best guns." endof
-		4 of " refuses to prove " .. rhe .. "'s a good shot because " .. rhis .. " finger hurts right now. Suspicious." endof
-		5 of " twirls a pistol around, before accidentally dropping and breaking it." endof
-		6 of " shoots a rubber band off " .. rhis .. " finger to show off " .. rhis .. " aim, but misses." endof
+		1 of " parle de " .. rhis .. " vos armes preferees, malgre ce qui peut etre inquietant. " .. rhe .. " il prononce mal 'guns', il dit plutot 'juns'." endof
+		2 of " dans une vie anterieure, j'etais un policier. pas tout simplement un policier, mais un super-policier." endof
+		3 of " parle de tout. " .. rhis .. " tir aux tetes et trophees pour les meilleurs fusils." endof
+		4 of " ne donne aucune preuve. " .. rhe .. "c'est un bon tireur. " .. rhis .. " doigt me fait mal actuellement. suspect." endof
+		5 of " tourne un pistolet autour de lui avant de l'abimer par inadvertance en le laissant tomber." endof
+		6 of " lance une bande rubrique a l'air. " .. rhis .. " la main pour montrer sa valeur. " .. rhis .. " rate de but, mais rate a l'objectif." endof
 	endcase
 ;
 
 : recruit-medical-flavor
 	1 6 rnd case
-		1 of " spouts a bunch of medicalish jargon. Seems plausible?" endof
-		2 of " is evasive when asked what " .. rhis .. " practice was." endof
-		3 of " nearly admits that " .. rhe .. " wasn't a 'doctor-doctor', but catches " .. rhim .. "self." endof
-		4 of " talks about " .. rhis .. " long career in healthcare." endof
-		5 of " says that " .. rhe .. " never had a degree, but learned a lot 'on the streets'." endof
-		6 of " twirls a scalpel around like an expert, but then drops it into a storm drain." endof
+		1 of " appearait plutot convaincant, bien que certains termes puissent paraitre inconnus a ceux qui n'ont pas une formation medicale avancee. cependant, il n'est jamais sur de ne pas se tromper en utilisant des mots medicaux complexes sans connaissance precise de leur signification exacte. il est toujours important de verifier la credibilite d'une source qui utilise beaucoup de" endof
+		2 of " estevasif lorsqu'on lui demande ce qui . " .. rhis .. " la pratique a ete faite." endof
+		3 of " presque avoue que " .. rhe .. " n'etait pas un « medecin-medecin », mais attrape un chat. " .. rhim .. "soi-meme." endof
+		4 of " parle de " .. rhis .. " une longue carriere dans le domaine de la sante." endof
+		5 of " dit que " .. rhe .. " j'ai jamais eu un diplome, mais j'ai appris beaucoup dans la rue." endof
+		6 of " tourne autour d'un couteau chirurgical comme un maitre, puis le jette dans une egout." endof
 	endcase
 ;
 
 : recruit-mechanical-flavor
 	1 6 rnd case
-		1 of " discusses car repair, but its hard to tell if " .. rhe .. "'s bluffing or not." endof
-		2 of " talks about how " .. rhe .. " used to own a repair shop." endof
-		3 of " says " .. rhe .. " used to be an engineer, but is evasive about what kind." endof
-		4 of " drones on about " .. rhis .. " lifelong passion for cars." endof
-		5 of " promises that if something breaks, " .. rhe .. " can fix it!" endof
-		6 of " smells like car oil, but maybe that's just poor hygiene." endof
+		1 of " discutent de la reparation automobile, mais c'est difficile de savoir si. " .. rhe .. "il bluffe ou pas." endof
+		2 of " parle de comment. " .. rhe .. " j'avais autrefois une entreprise de reparation." endof
+		3 of " dit " .. rhe .. " j'ai ete ingenieur auparavant, mais je suis evasif quant au genre d'ingenieur que j'etais." endof
+		4 of " le drone parle incessamment. " .. rhis .. " une passion vivace toute sa vie pour les voitures." endof
+		5 of " promet qu'en cas de rupture quelque chose. " .. rhe .. " peut le reparer !" endof
+		6 of " eventuellement ca sent comme de l'huile moteur, mais peut-etre qu'il s'agit simplement d'une mauvaise hygiene." endof
 	endcase
 ;
 
@@ -249,10 +232,10 @@ cyoa: recruit3
 		
 
 cyoa: recruit-strength
-	"Strong Stranger" cyoa-title!
+	"Etranger fort" cyoa-title!
 	recruit-intro
 	WEAPON_SLEDGE recruitee .weapona!
-	($ rname .. " claims to be really strong. " .. rHe .. recruit-strength-flavor $) +crtext
+	($ rname .. " pretend reellement etre tres fort. " .. rHe .. recruit-strength-flavor $) +crtext
 	60 %chance if
 		recruit-highstat .strength!
 		strongest-pass if strongest recruit-confirm .strengthREV strengthREV
@@ -270,10 +253,10 @@ cyoa: recruit-strength
 ;
 
 cyoa: recruit-fitness
-	"Recruitment of the Fittest" cyoa-title!
+	"Selection des plus aptes" cyoa-title!
 	recruit-intro
 	WEAPON_HOCKEY recruitee .weapona!
-	($ rname .. " claims to be physically fit. " .. rHe .. recruit-fitness-flavor $) +crtext
+	($ rname .. " pretend etre physiquement apte. " .. rHe .. recruit-fitness-flavor $) +crtext
 	60 %chance if
 		recruit-highstat .fitness!
 		fittest-pass if fittest recruit-confirm .fitnessREV fitnessREV
@@ -290,10 +273,10 @@ cyoa: recruit-fitness
 	recruit-yesno
 ;
 cyoa: recruit-shooting
-	"A New Gun in Town" cyoa-title!
+	"Une nouvelle arme est arrivee en ville." cyoa-title!
 	recruit-intro
 	WEAPON_PISTOL recruitee .weapona!
-	($ rname .. " claims to be a great shot with a gun. " .. rHe .. recruit-shooting-flavor $) +crtext
+	($ rname .. " pretend etre un tireur d'elite a la arme. " .. rHe .. recruit-shooting-flavor $) +crtext
 	60 %chance if
 		recruit-highstat .shooting!
 		shootest-pass if shootest recruit-confirm .shootingREV shootingREV
@@ -311,10 +294,10 @@ cyoa: recruit-shooting
 	recruit-yesno
 ;
 cyoa: recruit-medical
-	"Medical Assistance" cyoa-title!
+	"Assistance medicale" cyoa-title!
 	recruit-intro
 	WEAPON_MACHETE1 recruitee .weapona!
-	($ rname .. " claims to be experienced in medical matters. " .. rHe .. recruit-medical-flavor $) +crtext
+	($ rname .. " pretend avoir des connaissances solides en matiere medicale. " .. rHe .. recruit-medical-flavor $) +crtext
 	60 %chance if
 		recruit-highstat .medical!
 		medicalest-pass if medicalest recruit-confirm .medicalREV medicalREV
@@ -332,10 +315,10 @@ cyoa: recruit-medical
 	recruit-yesno
 ;
 cyoa: recruit-mechanical
-	"Mechanic Service" cyoa-title!
+	"Service mecanique" cyoa-title!
 	recruit-intro
 	WEAPON_WRENCH recruitee .weapona!
-	($ rname .. " claims to be great at fixing cars and machinery. " .. rHe .. recruit-mechanical-flavor $) +crtext
+	($ rname .. " pretend etre excellente dans la reparation de voitures et de machines. " .. rHe .. recruit-mechanical-flavor $) +crtext
 	60 %chance if
 		recruit-highstat .mechanical!
 		mechanicest-pass if mechanicest recruit-confirm .mechanicREV mechanicREV
@@ -354,36 +337,33 @@ cyoa: recruit-mechanical
 
 cyoa: recruit-dog-feed
 	ricon trunk-food 2 < if
-		"There wasn't enough food to spare for the dog.
-		It runs away when approached."  cyoa-text! badfx
+		"Il n'y avait pas assez de nourriture pour le chien... . 		il s'enfuit quand on l'approche."  cyoa-text! badfx
 	then;
-	($ Thegroup .. " lures " .. rname .. " over with food. " .. rHe .. " knows a good source of meals when " .. rhe .. " sees it, and decides to stick around. " $) cyoa-text! 2 300 tone
+	($ Thegroup .. " des airs musicaux " .. rname .. " terminer avec la nourriture. " .. rHe .. " sait une bonne source de repas " .. rhe .. " regarde et decide de rester. " $) cyoa-text! 2 300 tone
 	-2 trunk-food+
 	team-count 3 > if
-		($ "The group is full. Who would you like to replace to make room for " .. rname .. "?" $) +crtext
+		($ "Le groupe est plein. qui voulez-vous remplacer pour faire place a quelqu'un ? " .. rname .. "?" $) +crtext
 			' recruit-replace cyoa-team-choice
-			choice( "Leave " .. rname .. " behind" )choice
+			choice( "Quitter " .. rname .. " derriere" )choice
 	then;
 		recruited
 ;
 
 cyoa: recruit-dog
-	"Dog Recruitment" cyoa-title!
+	"Recrutement canin" cyoa-title!
 	char-gen to recruitee ricon
 	recruitee .doggify
-	($ "There is a dog wandering nearby. It's keeping its distance, but watching " .. thegroup .. " with guarded interest.
-	It's become rare to see a dog that trusts people." $) cyoa-text! basic-tone foodamt
-		choice( "Recruit dog - 2 food" )choice: recruit-dog-feed
-		choice( "Leave the dog alone" )choice
+	($ "Chien errant a proximite. il se tient a l'ecart, mais regarde. " .. thegroup .. " de maniere circonstancielle, on voit de moins en moins un chien qui s'entend bien avec les humains." $) cyoa-text! basic-tone foodamt
+		choice( "Engager un chien - 2 aliments" )choice: recruit-dog-feed
+		choice( "Laisser le chien tranquille" )choice
 ;
 
 cyoa: recruit-dogpal
-	"Dog Magnet!" cyoa-title!
+	"Attrape-chien!" cyoa-title!
 	choosedogpal
 	char-gen to recruitee ricon
 	recruitee .doggify
-	($ cname .. " is a lightning rod, but for dogs!
-	A dog approaches " .. thegroup-him .. " out of nowhere. It seems eager to join up!" $) cyoa-text! basic-tone
+	($ cname .. " un chien s'approche d'un eclairdeur pour chiens. " .. thegroup-him .. " de nulle part. il parait impatiemment pret a s'engager !" $) cyoa-text! basic-tone
 		recruit-yesno
 ;
 
