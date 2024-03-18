@@ -7,8 +7,8 @@ cyoa{ road{
 
 : common6-fastfood-burged args( chara ) 
 	<- chara .morale2+
-	<- chara .trait@ "Gourmand" $= if
-		($ <- chara .name@ .. "'s fine tastes allow true appreciation of these burgers! VITALITY up, SPEED down!" $) rainbold +crtext
+	<- chara .trait@ "Gourmet" $= if
+		($ <- chara .name@ .. "gustos finos le permiten apreciar realmente estas hamburguesas! VITALIDAD sube, SPEED baja!', 25976803" $) rainbold +crtext
 		<- chara .vitality++ -1 STAT_DEXTERITY <- chara .bonus+
 		// 1 <- chara .scale.body.y!
 		1.6 <- chara .scale.body.x!
@@ -19,8 +19,8 @@ cyoa{ road{
 : common6-fastfood-megaburged args( chara ) 
 	<- chara .morale3+
 	2 <- chara .scale.body.x!
-	<- chara .trait@ "Gourmand" $= if
-		($ <- chara .name@ .. "'s fine tastes allow true appreciation of these burgers! VITALITY up, SPEED down!" $) rainbold +crtext
+	<- chara .trait@ "Gourmet" $= if
+		($ <- chara .name@ .. "gustos finos le permiten apreciar realmente estas hamburguesas! VITALIDAD sube, SPEED baja!', 25976803" $) rainbold +crtext
 		<- chara .vitality++ -1 STAT_DEXTERITY <- chara .bonus+
 	else
 		<- chara .sting2-
@@ -29,117 +29,112 @@ cyoa{ road{
 
 
 cyoa-choice: common6-fastfood-burgin
-	($ cname .. " finds a box of Big McDowell burgers. 100 years could pass, and not even bugs or mold would get anywhere near those things. " .. gHe .. " digs in!" $) text!
-	($ cname .. " goes overboard and eats WAY too much of this 'food'." $) +crtext
+	($ cname .. " 'encontra una caja de Big McDowell hamburguesas. 100 anos podrian pasar, y ninguna plaga ni hongos llegaria a esas cosas.', 62350759 " .. gHe .. " cava!" $) text!
+	($ cname .. " se excede y come DEMASIADO de esta 'comida'." $) +crtext
 		cchar common6-fastfood-megaburged
 		
 	notsolo if
-		($ Everyone .. " really enjoys those burgers, but they're not great for the old internal organs." $) +crtext
+		($ Everyone .. " realmente disfruta esas hamburguesas, pero no son buenas para los viejos organos internos." $) +crtext
 		cchar ' common6-fastfood-burged foreach-team-char-except
 	then goodfx
 ;
 
 cyoa-choice: common6-fastfood-toys
-	($ Thegroup .. " finds one remaining kid's meal toy. It's a good one!" $) text!
+	($ Thegroup .. " encuentra un juguete de comida para ninos restante. Es bueno!" $) text!
 	60 %chance if
 		1 WEAPON_PUKEYBALL trunk.weapon+
-		"PUKEYBALL found!"
+		"PUKEYBALL encontrado!"
 	else
 		50 %chance if
 			1 WEAPON_GRENADE trunk.weapon+
-			"CHILDREN'S GRENADE (safe for children) found!"
+			"ENCONTRADA GRANADA INFANTIL!"
 		else
 			1 WEAPON_BLUEROBOT trunk.weapon+
-			"BLUE ROBOT found!"
+			"ROBOT AZUL encontrado!"
 		then
 	then
 	pbold +crtext goodfx 
 ;
 
 cyoa: common6-fastfood
-	"The Big McDowell" cyoa-title! choosehuman cicon
-	($ Thegroup .. " loots a McDowell's, which was the most popular restaurant in the United States before civilization fell. Even after all this time, the food found here is still preserved due to all the chemicals." $) text! "WARNING: Burging is not great for your health but won't kill you." rbold +crtext
-		choice( "Find and eat burgers, pay the burg price" )choice: common6-fastfood-burgin
-		choice( "Search for kid's meal toys instead" )choice: common6-fastfood-toys
+	"La Gran McDowell" cyoa-title! choosehuman cicon
+	($ Thegroup .. " saquea un McDowell's, que fue el restaurante mas popular de los Estados Unidos antes de que cayera la civilizacion. A pesar de todo este tiempo, la comida que se encuentra aqui todavia esta preservada debido a todos los quimicos." $) text! "ADVERTENCIA: El burging no es muy saludable pero no te matara." rbold +crtext
+		choice( "Encuentra y come hamburguesas, paga el precio del burg" )choice: common6-fastfood-burgin
+		choice( "Buscar juguetes de comida para ninos en lugar de" )choice: common6-fastfood-toys
 ;
 
 
 // Cloud Watching
 
 : common6-cloud-go
-	($ " NICE!
-	" rainbold .. cname .. " is uplifted and inspired by this!" $) +text morale++ goodfx
+	($ " BIEN!" rainbold .. cname .. "  se siente elevado e inspirado por esto!" $) +text morale++ goodfx
 ;
 
 cyoa-choice: common6-cloud-bicep
-	"The clouds look like a gigantic amount of biceps attached to each other, flexing in pumpitude." text!
+	"Las nubes parecen un monton de biceps gigantes pegados entre si, flexionando en pumpitud." text!
 	common6-cloud-go strength++
 ;
 
 cyoa-choice: common6-cloud-canada
-	"The clouds look exactly like the country of Canada!" text!
-	($ "NICE! " rainbold .. Thegroup .. " is inspired by this unmistakable omen!" $) +crtext morale++ morale++all
+	"Las nubes se ven exactamente como el pais de Canada!" text!
+	($ "BIEN! " rainbold .. Thegroup .. "  se inspira en este inconfundible presagio!" $) +crtext morale++ morale++all
 ;
 
 cyoa-choice: common6-cloud-bazooka
-	"The cloud looks like an enormous bazooka, ready to blow up a Maximum Cheesed MegaHorde of zombies." text!
+	"La nube se asemeja a un enorme bazooka, listo para explotar un Maximum Cheesed MegaHorde de zombies." text!
 	common6-cloud-go shooting++ 
 ;
 
 cyoa-choice: common6-cloud-car
 	"The clouds look like a car that's exploding..." text!
 	common6-cloud-go mechanic++
-	"Thinking about it a little more, this is really kind of a downer." +crtext morale-- badfx
+	"Al pensarlo un poco mas, esto es realmente deprimente." +crtext morale-- badfx
 ;
 
 cyoa-choice: common6-cloud-fit
-	"The cloud looks like a big sweatband, like the sky is doing cardio, possibly jazzercising." text!
+	"La nube se asemeja a una gran banda de sudor, como si el cielo estuviera haciendo cardio, quizas hasta jazzercizing!" text!
 	common6-cloud-go fitness++
 ;
 
 cyoa-choice: common6-cloud-butt
-	($ "That cloud " .. "JUST SO HAPPENS" rbold .. " to look like a butt. Real mature." $) text!
+	($ "Esa nube " .. "ES EXACTAMENTE ASI!" rbold .. " ' justo se parece a un trasero. Muy maduro." $) text!
 	morale++ goodfx
-	"REAL mature." rbold +crtext
+	"MUY maduro!" rbold +crtext
 ;
 
 cyoa-choice: common6-cloud-doom
-	"The clouds look exactly like your impending failure on the Death Road. What a bummer." text!
+	"Las nubes se ven exactamente como tu fracaso inminente en la Carretera de la Muerte. Que lastima." text!
 	morale-- badfx
 ;
 
 cyoa-choice: common6-cloud-dad
-	($ "That cloud looks exactly like " .. cname .. "'s dad!" .. " NICE!" rainbold $) text!
+	($ "Esa nube se parece exactamente a " .. cname .. "'el papa de!" .. "BIEN! " rainbold $) text!
 	morale++ goodfx
-	($ "NICE!" rbold $) +crtext ($ "NICE!" bbold $) +crtext
+	($ "GENIAL!" rbold $) +crtext ($ "GENIAL!" bbold $) +crtext
 	morale++ goodfx
-	($ "NICE!" fbold $) +crtext morale++
-	"Looks like it's your lucky day!" +crtext
+	($ "GENIAL!" fbold $) +crtext morale++
+	"Parece que hoy es tu dia de suerte!" +crtext
 ;
 
 cyoa-choice: common6-cloud-cloud
-	"The cloud looks like a cloud.
-	I'm disappointed that you picked this, by the way." text!
+	"P" text!
 	morale-- badfx
 ;
 
 cyoa-choice: common6-cloud-bees
-	"The cloud looks an enormous swarm of bees. 
-	It is, in fact, an enormous swarm of bees." text!
+	"La nube parece una enorme colonia de abejas. 	Es en realidad una enorme colonia de abejas." text!
 	($ "AAAAAAAAAAAAAAAAH!" fbold $) +crtext sting--all morale--all bitefx
 ;
 
 cyoa-choice: common6-cloud-rain
-	"The cloud looks like it's going to rain.
-	And then it does." text!
+	"La nube parece que va a llover. Y entonces llueve." text!
 	morale-- badfx 0.4 1 frnd weather! -1 1 frnd wind_force!
 ;
 
 cyoa-choice: common6-cloud-zombie
-	"The clouds look like an enormous swarm of zombies!
-	What a bad omen!" text! morale-- badfx
-	($ "The thought of this makes " .. cname .. " brace " .. chim .. "self for the future." $) +crtext
-	cchar damage 0 > if ($ cname .. " recovers some health!" $) +crtext health++ then
+	"Las nubes parecen un enjambre de zombies enorme!	Que mal presagio!	//In spanish: The clouds look like an enormous swarm of zombies!	What a bad omen! = Las nubes parecen un enjambre de zombies enorme!	Que mal presagio!" text! morale-- badfx
+	($ "La idea de esto hace " .. cname .. "  llave " .. chim .. "self for the future." $) +crtext
+	cchar damage 0 > if ($ cname .. " 'recupera alguna salud!" $) +crtext health++ then
 	cmorale- if morale++ then
 ;
 
@@ -152,17 +147,17 @@ cyoa-choice: common6-cloud-zombie
 
 deck-new
 	"Canada" choice-card: common6-cloud-canada
-	"A Giant Bazooka" choice-card: common6-cloud-bazooka
-	"Several Big Flexing Biceps" choice-card: common6-cloud-bicep
-	"An Exploding Car" choice-card: common6-cloud-car
-	"A Sweatband" choice-card: common6-cloud-fit
-	"A Butt" choice-card: common6-cloud-butt
-	"Your Impending Doom" choice-card: common6-cloud-doom
-	"Your Dad" choice-card: common6-cloud-dad
-	"A Buzzing Swarm of Bees" choice-card: common6-cloud-bees
-	"A Cloud" choice-card: common6-cloud-cloud
-	"Rain" choice-card: common6-cloud-rain
-	"A Zombie Horde" choice-card: common6-cloud-zombie
+	"Un Canon Gigante" choice-card: common6-cloud-bazooka
+	"Musculos Flexionados Grandes" choice-card: common6-cloud-bicep
+	"Un Coche que Explota" choice-card: common6-cloud-car
+	"Una Cintura de Sudor" choice-card: common6-cloud-fit
+	"Un Zafarrancho" choice-card: common6-cloud-butt
+	"Tu Fin" choice-card: common6-cloud-doom
+	"Tu Papa" choice-card: common6-cloud-dad
+	"Un Enjambre Zumbante de Abejas" choice-card: common6-cloud-bees
+	"Una Nube" choice-card: common6-cloud-cloud
+	"Lluvia" choice-card: common6-cloud-rain
+	"Horda de Zombis" choice-card: common6-cloud-zombie
 		value clouds-pick-stack-base
 		clouds-pick-stack-base shuffles to clouds-pick-stack
 
@@ -180,9 +175,8 @@ deck-new
 
 cyoa: common6-cloud
 
-	"Cloud Watching" cyoa-title! someicon
-	($ "When traveling down a peaceful yet boring stretch of road, " .. cname .. " sees a weird cloud!
-	The cloud looks just like:" $) text!
+	"Observacion de nubes" cyoa-title! someicon
+	($ "When traveling down a peaceful yet boring stretch of road, the mind tends to wander.' " .. cname .. " 've una nube rara! La nube parece justo como:" $) text!
 		pick-4-clouds
 
 ;
@@ -190,51 +184,49 @@ cyoa: common6-cloud
 // Working Computer
 
 cyoa-choice: common6-computer-internet
-	($ "The computer makes strange, piercing noises and distorted chirps. What the heck is going on?" $) text!
+	($ "La computadora emite ruidos extranos y chirridos distorsionados. Que demonios esta pasando?" $) text!
 	mechanicest choosechar cicon
 	cmechanic+ if
-		($ cname .. " expertly gets the computer to work. It was the hardest thing " .. che .. " has ever done." $) +crtext mechanicREV mechanic++ mechanicREV morale++
+		($ cname .. "  expertamente hace que la computadora funcione. Fue lo mas dificil. " .. che .. " ha hecho alguna vez." $) +crtext mechanicREV mechanic++ mechanicREV morale++
 		"The internet seems to be down, though. How come???" +crtext cchar morale--all-except goodfx
 	else
-		($ cname .. " fiddles with the ancient computer. It is a complete and utter mystery. " .. cname .. " starts to make headway into understanding very old computers and, somehow, car repair." $) +crtext mechanic++
-		"Then the power shuts off." +crtext morale--all
+		($ cname .. "  fiddles with the ancient computer. It is a complete and utter mystery. " .. cname .. "  empieza a hacer avances en la comprension de las computadoras muy antiguas y, de alguna manera, la reparacion de automoviles." $) +crtext mechanic++
+		"Entonces la energia se apaga." +crtext morale--all
 	then badfx
 ;
 
 cyoa-choice: common6-computer-qbasic
-	($ Thegroup .. " plays a game about gorillas throwing bananas at each other. It is incredible. The power eventually runs out, but until then, the experience is magical." $) text! morale++all goodfx
+	($ Thegroup .. " juega un juego sobre gorilas lanzandose platanos. Es increible. La energia eventualmente se agota, pero hasta entonces, la experiencia es magica." $) text! morale++all goodfx
 ;
 
 cyoa-choice: common6-computer-gas
-	($ Thegroup .. " siphons the gas out of the house's generator. There's a good amount left.
-	The power shuts down, along with the chance to go on the internet." $) text! 25 40 rnd trunk-gas+ badfx morale--all
+	($ Thegroup .. "  siphons the gas out of the house's generator. There's a good amount left.	The power shuts down, along with the chance to go on the internet." $) text! 25 40 rnd trunk-gas+ badfx morale--all
 ;
 
 cyoa: common6-computer
-	"Last Computer, Last Chance for Internet" cyoa-title! someicon
-	($ "In a house with a generator attached, " .. thegroup .. " stumbles onto a working computer. It's one of the older style ones, when the monitors were built like an enormous brick with glass on the front.
-	" .. Thegroup .. " salivates. Finally, " .. "FINALLY" rbold .. ", a chance to watch Youtube videos!" $) text!
-		choice( "Try to get on the internet" )choice: common6-computer-internet
-		choice( "Play QBasic games instead" )choice: common6-computer-qbasic
-		choice( "Siphon the generator" )choice: common6-computer-gas
+	"Ultima Computadora, Ultima Oportunidad para Internet" cyoa-title! someicon
+	($ "1 " .. thegroup .. " 	Se tropieza con una computadora que funciona. Es de los modelos antiguos, cuando los monitores eran construidos como un ladrillo enorme con vidrio en el frente." .. Thegroup .. " 'escupe. Por fin, " .. "FINALMENTE" rbold .. ", una oportunidad de ver videos de Youtube!" $) text!
+		choice( "Intenta conectarse a internet" )choice: common6-computer-internet
+		choice( "Juega juegos de QBasic en su lugar" )choice: common6-computer-qbasic
+		choice( "Sifona el generador" )choice: common6-computer-gas
 ;
 
 // Other party's car
 
 0 stack
-	"Why the HECK are skeletons driving a car??" shove
-	"Looks like these nerds got trapped in the BONE ZONE!" shove
+	"Por que los esqueletos conducen un coche??" shove
+	"Parece que estos nerds quedaron atrapados en la ZONA OSEA!" shove
 	"Hoisted... by their own peatarts...." shove
-	"Looks like someone got OWNED." shove
-	"Whatever! Better them than me!" shove
-	"Looks like we're FINALLY getting an answer to the BIG QUESTIONS!" shove
+	"Parece que alguien fue derrotado." shove
+	"Que mas da! Mejor ellos que yo!" shove
+	"Parece que por fin vamos a obtener una respuesta a las GRANDES PREGUNTAS!" shove
 	"It's the circle of life and death... on the road of death....." shove
-	"If only these dinguses had a sweet belt buckle like me, they wouldn't have turned into skeletons!" shove
-	"They probably were jerks or something, I don't know." shove
-	"I wonder if things would be better or worse if it was a skeleton apocalypse instead." shove
-	"I wonder why we don't just try to eat the bones? It would help with food supplies." shove
+	"Si solo estos tontos tuvieran un hermoso broche para la camisa como yo, no se habrian convertido en esqueletos!" shove
+	"Seguramente eran unos imbeciles o algo asi, no lo se." shove
+	"Quiero saber si las cosas serian mejores o peores si fuera una apocalipsis de esqueletos." shove
+	"Me pregunto por que no intentamos comer los huesos? Ayudaria con suministros alimenticios." shove
 	"When you think about it, skeletons really are a 'social construct'..." shove
-	"NOW things are starting to get spicy!" shove
+	"Ahora esta comenzando a ponerse caluroso!" shove
 value common6-othercar-line-base
 common6-othercar-line-base shuffles var common6-othercar-line
 
@@ -245,9 +237,9 @@ common6-othercar-line-base shuffles var common6-othercar-line
 cyoa-choice: common6-othercar-lwit
 	($ common6-othercar-say bbold $) text!
 	solo if 
-		($ "Someone had to say this, and that someone was ME" bbold .. ", says " .. cname .. " to no one in particular, unless " .. che .. " was talking to the skeletons." $) +crtext
+		($ "Alguien tuvo que decir esto, y ese alguien fue YO" bbold .. ", dice " .. cname .. " 'a nadie en particular, a menos que " .. che .. " ' hubiese estado hablando a los esqueletos." $) +crtext
 	else 
-		($ "Everyone quietly contemplates " .. cname .. "'s philosophical insight." $) +crtext
+		($ "Todos reflexionan tranquilamente sobre " .. cname .. "s filosofia." $) +crtext
 	then morale++ goodfx
 ;
 
@@ -258,15 +250,15 @@ cyoa-choice: common6-othercar-lwit
 		<- @ .cmorale- if
 			<- @ .morale++
 		else
-			($ <- @ .colourname .. " has mixed feelings about the speech." $) +crtext 
+			($ <- @ .colourname .. " 'tiene sentimientos mixtos acerca del discurso." $) +crtext 
 		then
 	then
 ;
 
 cyoa-choice: common6-othercar-hwit
-	($ cname .. " gives an inspirational and contemplative speech about how we all have skeletons inside of us, and how ignoring these " .. "inner skeletons" bbold .. " is what makes life precious." $) text!
+	($ cname .. " 'da un discurso inspirador y contemplativo sobre como tenemos esqueletos dentro de nosotros, y como ignorarlos " .. "esqueletos internos" bbold .. " lo que hace la vida preciosa." $) text!
 	solo if
-		($ "Man, I really nailed this speech" bbold .. ", says " .. cname .. " to an audience of absolutely no one." $) +crtext morale++ goodfx
+		($ "Hombre, realmente clave este discurso." bbold .. ", dice " .. cname .. " a una audiencia de absolutamente nadie." $) +crtext morale++ goodfx
 	else
 		"This is uplifting and confusing/depressing at the same time." +crtext ' common6-othercar-witspeech foreach-team-char	
 	then
@@ -276,18 +268,18 @@ cyoa-choice: common6-othercar-hwit
 ;
 
 cyoa-choice: common6-othercar-repair
-	($ cname .. " retrieves parts and scrap to use on the car. " $) text!
+	($ cname .. "  recoge piezas y chatarra para usar en el coche. " $) text!
 	cchar .mechanical low if
-		($ cHe .. " is terrible at this, and manages to bust up " .. chis .. " hands!" $) +text morale-- strength-- bitefx
+		($ cHe .. " es terrible en esto, y logra romper " .. chis .. " manos!" $) +text morale-- strength-- bitefx
 	then 
 	mechanic-weldup +crtext
 	car-chassis car-max-chassis = if
-		"The car looks undamaged!" 
+		"El coche parece no tener danos!" 
 	else
 		car-chassis 3 < if
-			"The car still looks all busted up."
+			"El coche todavia se ve todo destrozado."
 		else
-			"The car looks all beat-up, but still sturdy."
+			"El coche parece todo golpeado, pero aun solido."
 		then
 	then
 	car-tuneup
@@ -295,19 +287,18 @@ cyoa-choice: common6-othercar-repair
 ;
 
 cyoa-choice: common6-othercar-loot
-	($ Thegroup .. " takes what supplies " .. gthey .. " can find from the car." $) text! ammosearch1 homesearch1
-	"The trunk is COMPLETELY stuffed with rolls of toilet paper! Unfortunately, it's all rotten and full of bugs. What a letdown." +crtext morale2-all badfx
+	($ Thegroup .. "  toma que suministros " .. gthey .. " puede encontrar del coche." $) text! ammosearch1 homesearch1
+	"El maletero esta COMPLETAMENTE lleno de rollos de papel higienico! Desafortunadamente, esta todo podrido y lleno de bichos. Que decepcion." +crtext morale2-all badfx
 ;
 
 cyoa: common6-othercar
-	"Death Car to Right Here" cyoa-title! someicon
-	($ Thegroup .. " runs into another car, much like " .. ghis .. " car. It's rotting, nearly totaled, and it is full of " .. "SKELETONS" rbold .. " and probably a bunch of bugs and other gross things.
-	Yet another sign that many attempt the Death Road to Canada, and not very many make it." $) text!
-		dumbest-pass if dumbest charchoice( ": Be philosophical" )choice: common6-othercar-lwit then
-		smartest-pass if smartest charchoice( ": Be philosophical" )choice: common6-othercar-hwit then
-		mechanicest charchoice( ": Dismantle car for parts" )choice: common6-othercar-repair
-		choice( "Search car for loot" )choice: common6-othercar-loot
-		choice( "Leave car alone" )choice
+	"Coche de la Muerte a la Derecha" cyoa-title! someicon
+	($ Thegroup .. "  choca con otro coche, muy parecido a " .. ghis .. "  'carro' " .. "ESQUELETOS" rbold .. "  y otra senal de que muchos intentan el Death Road to Canada, y no muchos lo logran." $) text!
+		dumbest-pass if dumbest charchoice( "ser filosofico" )choice: common6-othercar-lwit then
+		smartest-pass if smartest charchoice( "ser filosofico" )choice: common6-othercar-hwit then
+		mechanicest charchoice( "desarmar coche para piezas" )choice: common6-othercar-repair
+		choice( "Buscar coche para saquear" )choice: common6-othercar-loot
+		choice( "Dejar el coche solo" )choice
 ;
 
 // Special Burger (Rare)
@@ -316,22 +307,22 @@ cyoa: common6-othercar
 0 3 rnd to burgtype
 
 cyoa-choice: common6-burg-pick
-	($ cname .. " devours that burg! " .. "IT WAS A CRITICAL HIT!!!" fbold $) text! goodfx
-	"THE " bbold +crtext burgtype case
-		0 of "XTRA SPICY WONKOR" endof
+	($ cname .. "  devora esa hamburguesa! " .. "IT WAS A CRITICAL HIT!!!" fbold $) text! goodfx
+	"EL " bbold +crtext burgtype case
+		0 of "LA WONKOR EXTRA PICANTE" endof
 		1 of "WONKOR MAXIMUM" endof
-		2 of "GREASED WONKOR SLIDER" endof
-		3 of "MIRACLE WONKOR" endof
-	endcase bbold +text " CONFERS ITS BLESSING" bbold +text
+		2 of "WONKOR DESlIZAMIENTO GRASA" endof
+		3 of "WONKOR MILAGRO" endof
+	endcase bbold +text " ' CONCEDe SU BENDICION" bbold +text
 	burgtype case
 		0 of cchar isfireproof? if 
-			"HOT ENOUGH FOR YA? SPICE ENDORPHIN RUSH!" fbold +crtext
+			"ESTA LO SUFICIENTEMENTE PICANTE PARA TI? REMORDAOR DE ENDORFINAS PICANTES!" fbold +crtext
 			strength++ vitality++ fitness++		
 		else 
 			cchar statmod{ .fireproof }
 			sting2-
-			"NOW THINGS ARE STARTING TO GET SPICY!" fbold +crtext
-			"HEAT IMMUNITY GRANTED!" rbold +crtext
+			"AHORA LAS COSAS ESTAN COMENZANDO A PICAR!" fbold +crtext
+			"INMUNIDAD AL CALOR OTORGADA!" rbold +crtext
 			0.4 cchar .tint.skin.g!
 			0.4 cchar .tint.skin.b!
 		then endof
@@ -339,27 +330,26 @@ cyoa-choice: common6-burg-pick
 		2 of fitness++ dexterity++ 2 cchar .tint.skin.r! endof
 		3 of vitality++ vitality++ cchar .fullheal 2 cchar .tint.skin.b! endof
 	endcase morale4+
-	"Could this be a gift from the Gods of Burgs?" +crtext
+	"Podria ser este un regalo de los Dioses de los Burgers?" +crtext
 ;
 
 // XTRA SPICY WONKOR - fireproof sting-- morale2+
 
 cyoa: common6-burg-rare
-	"Extra Deluxe Ultima Wonkor Burger" cyoa-title! someicon
-	($ Thegroup .. " takes shelter in a Wonkor Burger, which was a chain of burg" .. "*" rbold .. " restaurants before the apocalypse. Unfortunately, they served real food, so it should all be spoiled by now.
-	To " .. ghis .. " great surprise, there's an untouched and still hot Wonkor Burger right on a table. " $) text!
+	"Hamburguesa Wonkor Extra Deluxe Ultima" cyoa-title! someicon
+	($ Thegroup .. " ' encuentra refugio en un Wonkor Burger, que era una cadena de restaurantes de burgers antes del apocalipsis. Desafortunadamente, sirvieron comida real, por lo que todo deberia estar estropeado en este momento. Para" .. "*" rbold .. " 'restaurantes antes del apocalipsis. Desafortunadamente, servian comida real, asi que deberia estar todo podrido en este momento. " .. ghis .. "  que sorpresa!  Hay una hamburguesa Wonkor intacta y aun caliente en una mesa. " $) text!
 	burgtype case
 		0 of "It is the XTRA SPICY WONKOR, world famous as a burg of pain, but also... hope?" endof
-		1 of "It is known as the WONKOR MAXIMUM, a gigantic limited edition burg of power." endof
-		2 of "It is the GREASED WONKOR SLIDER, a tricky burg that might slip out of your hands." endof
-		3 of "It is the MIRACLE WONKOR, designed as the perfect burg for both health and taste." endof
+		1 of "Se le conoce como el WONKOR MAXIMUM, una gigantesca edicion limitada de hamburguesa de poder." endof
+		2 of "Es el GREASED WONKOR SLIDER, una hamburguesa complicada que podria resbalarse de tus manos." endof
+		3 of "Es el WONKOR MILAGROSO, disenado como la hamburguesa perfecta para la salud y el sabor." endof
 	endcase bbold +text 
-	solo not if " Who will eat this burg?" +text then
+	solo not if " Quien se comera esta hamburguesa?" +text then
 	
-	($ "*Translator's note: 'Burg' means 'burger'." rbold $) +crtext
+	($ "burg' is a word that is used in the game to refer to a 'burger'." rbold $) +crtext
 		solo if
-			cchar charchoice( ": Eat that Burg" )choice: common6-burg-pick
-			choice( "Foolishly Abandon Burg" )choice: badfx
+			cchar charchoice( ": Come coma esa Burguer" )choice: common6-burg-pick
+			choice( "Abandona estupida la Burguer" )choice: badfx
 		else ' common6-burg-pick cyoa-team-choice then
 ;
 
@@ -367,34 +357,34 @@ cyoa: common6-burg-rare
 
 cyoa-choice: common6-coal-pick
 	cchar isfireproof? if
-		($ cname .. " feels nothing from the burning coals, except for a faint sense of superiority." $) text! goodfx morale2+
-		notsolo if ($ Everyone .. " feels vaguely disappointed by this, somehow." $) +crtext then
+		($ cname .. " 'se siente nada de las brasas ardientes, excepto por una sensacion debil de superioridad." $) text! goodfx morale2+
+		notsolo if ($ Everyone .. " 'se siente un poco decepcionado por eso." $) +crtext then
 	then;
-	($ cname .. " nearly instantly trips and hits the burning coals face-first." $) text! bitefx sting--
-	($ "This experience toughens up " .. chis .. " skin! And also humiliates " .. chim .. "!" $) +crtext vitality++ morale--
-	notsolo if ($ Everyone .. " has a good laugh." $) +crtext cchar morale++all-except 
+	($ cname .. " 'se cae casi inmediatamente y se queda cara a cara con las brasas." $) text! bitefx sting--
+	($ "Esta experiencia endurece la piel de " .. chis .. " 'piel! Y tambien acaba de burlarse de " .. chim .. "!" $) +crtext vitality++ morale--
+	notsolo if ($ Everyone .. " 'tiene una buena carcajada." $) +crtext cchar morale++all-except 
 	else
-		"Well, at least no one saw it." +crtext morale++
+		"Bueno, al menos nadie lo vio." +crtext morale++
 	then goodfx
 ;
 
 cyoa-choice: common6-coal-pick4
-	"Who gets to walk on the coals?" text!
+	"Quien camina sobre las brasas?" text!
 	' common6-coal-pick cyoa-team-choice
 ;
 
 cyoa: common6-coal-rare
-	"Trust Building Exercise" cyoa-title!
-	($ Thegroup .. " finds a picnic site with tables laid out. There's a lot of food lying around, a portion of which is still good." $) text! 7 10 rnd trunk-food+
-	"This was a company retreat, with coals set up for people to walk on to build morale and trust with each other or some such nonsense. They could still be lit up." +crtext
-		choice( "Just leave this place" )choice
+	"Ejercicio de confianza" cyoa-title!
+	($ Thegroup .. " ' encuentra un sitio de picnic con mesas desplegadas. Hay mucha comida que esta por alli, una parte de la cual aun es buena." $) text! 7 10 rnd trunk-food+
+	"Esta fue una reunion de empresa, con carbones preparados para que las personas caminaran encima para construir moral y confianza entre si o algo asi por alla. Pueden seguir quemandose." +crtext
+		choice( "Solo deja este lugar" )choice
 		solo if
-			soloer charchoice( ": Walk on burning coals" )choice: common6-coal-pick
+			soloer charchoice( "caminar sobre brasas ardientes" )choice: common6-coal-pick
 		then;
-		" Who should walk on burning coals?" +text
+		" Quien debe caminar sobre brasas ardientes?" +text
 	team-count 3 > if
 		' common6-coal-pick 2 #cyoa-team-choice
-		choice( "Pick someone else" )choice: common6-coal-pick4
+		choice( "Elige a alguien mas" )choice: common6-coal-pick4
 	else
 		' common6-coal-pick 3 #cyoa-team-choice
 	then		
