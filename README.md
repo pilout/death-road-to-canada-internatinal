@@ -10,6 +10,7 @@ toujours en cours de traduction, n'hésitez pas à participer.
 
 # Installation
 - Fermez votre jeu si il est ouvert
+- Selectionner la branche que vous voulez pour votre langage.
 - Téléchargez les sources, zip archive.
 - Décompressez l'archive .zip (Clique droit > Extraire ici // avec WinRar)
 - Un dossier "deathforth" s'est normalement crée la ou vous avez effectué l'extraction
