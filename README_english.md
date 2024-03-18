@@ -8,6 +8,7 @@ still being translated, don't hesitate to participate.
 
 # Installation
 - Close your game if it is open
+- Select the branch you want for your language.
 - Download sources as zip archive.
 - Unzip the .zip archive (Right click > Extract here // with WinRar)
 - A "deathforth" folder was normally created where you performed the extraction
