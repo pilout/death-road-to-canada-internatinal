@@ -13,4 +13,4 @@ Translation patch for the game Death Road To Canada,
 - A "deathforth" folder was normally created where you performed the extraction
 - Go to Death Road To Canada game's folders (if you are there the **data**, **gfx** and **deathforth** folders will be visible)
 - Drag the "deathforth" folder you extracted into the game folder, then press "Replace Files" when prompted
-- Launch your game and check that the texts are in French, if so, you have successfully installed the patch.
+- Launch your game and check that the texts are in your langage, if so, you have successfully installed the patch.
