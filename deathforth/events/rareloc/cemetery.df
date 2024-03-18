@@ -21,8 +21,8 @@ cyoa{
 	1 STAT_STRENGTH pchar .bonus+
 	1 STAT_FITNESS pchar .bonus+
 	1 STAT_SHOOTING pchar .bonus+
-	"AMELIORATION MAXIMALE DE LA FORCE, DE LA FITNESS ET DE LA PRECISION AU TIR!" rbold +crtext
-	($ "Le " .. cname .. " accorde un cadeau !" $) +crtext
+	"MAXIMUM STRENGTH, FITNESS, AND SHOOTING INCREASED!" rbold +crtext
+	($ "The " .. cname .. " grants a gift!" $) +crtext
 	reaper southofcyoa drop drop -3 lt .vel.z!
 	1 ' reaper-bonus timer_add
 ;
@@ -30,44 +30,46 @@ cyoa{
 cyoa-choice: tomb-grim-go2
 	nearest .character@ choosechar cicon 
 	clear-cyoa 0.25 cchar .ai.wander_chance! 0 nearest .unseen! sfx{ creepy }
-	($ "Le " .. cname .. " il fait la main avec facilite ! faire des amis c'est agreable... ." .. pname .. " est frappe de grandes quantites de " .. "L'ENERGIE DE LA MORT !" fbold $) text!
+	($ "The " .. cname .. " shakes hands with no hesitation! Making friends is fun.
+	" .. pname .. " gets blasted with tremendous amounts of " .. "DEATH ENERGY!" fbold $) text!
 	pchar .vitality@ 1 > if
-		($ pname .. " est tue !" fbold .. " Bien presque." $) +crtext
-		($ pname .. " - SEANCE DE DON : LA SANTE MAXIMALE EST FIXEE A 1 !" rbold $) +crtext
+		($ pname .. " is killed!" fbold .. " Well, almost." $) +crtext
+		($ pname .. " - MAXIMUM HEALTH SET TO 1!" rbold $) +crtext
 		1 pchar .vitality! 1 pchar .health!
 		tomb-grim-bonus
 	else
-		($ pname .. " se sent vraiment superbe pour une raison inexplicable." $) +crtext
-		($ pname .. " ressent " .. "PLUS ENCORE EN FOLIE DE BERSERK !" fbold $) +crtext
+		($ pname .. " feels really smug for some reason." $) +crtext
+		($ pname .. " feels " .. "EVEN MORE BERSERK!" fbold $) +crtext
 		tomb-grim-bonus
 	then
 	
 ;
 
 cyoa-bridge: tomb-grim-go
-	($ "ETES-VOUS ABSOLUMENT SUR DE VOULOIR FAIRE LA MAIN AVEC LA MORT ?" rbold $) text!
-	($ "Ceci peut bien etre une offre pas tres interessante pour, " .. pname .. "." $) +crtext
-	choice( "Ne le faites pas !" )choice
-	choice( "Laisse le faire a quelqu'un d'autre !" )choice
-	pchar charchoice( ": " .. "Faites la main, faites-la ! faites-le donc !" fbold )choice: tomb-grim-go2
+	($ "ARE YOU ABSOLUTELY SURE YOU WANT TO SHAKE HANDS WITH DEATH?" rbold $) text!
+	($ "This probably isn't the best deal for " .. pname .. "." $) +crtext
+	choice( "Don't do it!" )choice
+	choice( "Have someone else do it!" )choice
+	pchar charchoice( ": " .. "Shake hands! Do it!" fbold )choice: tomb-grim-go2
 ;
 
 cyoa: tomb-grimreaper
-	"L'esprit sombre de la route de la mort" cyoa-title!
+	"The Grim Specter of Death Road" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "Le " .. cname .. "l'avatar de la mort elle-meme emerge de la crypte..." .. cname .. " regarde autour de lui dans la foule et du carnage. il regarde sur. " .. pname .. "seulement un sourire." $) text!
-		choice( "Ignorer ca pour le moment" )choice
-		pchar charchoice( ": " ..  "Accorde la main a la mort !" fbold )choice: tomb-grim-go
+	($ "The " .. cname .. ", Avatar of Death Itself, emerges from the crypt.
+	" .. cname .. " looks around at the hordes and the carnage. It looks at " .. pname .. ". It shrugs." $) text!
+		choice( "Try to ignore it for now" )choice
+		pchar charchoice( ": " ..  "Shake hands with Death!" fbold )choice: tomb-grim-go
 ;
 
 cyoa: tomb-dracula
-	"Comme dans mes romans de tetralogie de la saga du crepuscule" cyoa-title!
+	"Just Like in My Twilight Novels" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "Salut, dracule ! bonjour, dracule." $) text! " APPROVISIONNEMENTS DE 'S." rbold +text
-	($ pname .. " jamais pense " .. phe .. "rencontrer un celebre ! il n'a pas de probleme pour repeter quelques-uns de ses slogans." $) +crtext
+	($ "Hey, it's Dracula! Hi, Dracula." $) text! " BLUHD! BLAUGH!" rbold +text
+	($ pname .. " never thought " .. phe .. "'d meet a celebrity! He doesn't mind doing some of his catchphrases." $) +crtext
 	pchar .morale4+
 	cchar to recruitee recruitee .fitnessREV goodfx clear-cyoa
-	($ "Hache-fenetre a feu " .. pname .. " recruter " .. cname .. "il semble tristement seul depuis si longtemps en etant enferme dans une crypte." $) +crtext
+	($ "Should " .. pname .. " recruit " .. cname .. "? He seems pretty lonely from being stuffed in a crypt for so long." $) +crtext
 	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
 	recruit-yesno
 
@@ -77,13 +79,13 @@ cyoa-choice: creepytomb-open
 
 	1 ' creepytombnum +!
 
-	($ Thegroup .. " ouvre la tombeau, ce semble etre une idee horriblement maladroite dans le contexte d'un apocalypse zombie." $) text!
+	($ Thegroup .. " opens up the mausoleum, which seems like a horrible idea in the zombopocalype." $) text!
 
 	
 	creepytombprize 1 < if
 	
 		33 %chance creepytombnum 2 > or if 
-			($ "Quelque chose emerge du tombeau. " .. pname .. " espere que c'est une boite a lettres. je l'ouvre ! " .. "gobelin" fbold .. "!" $) +crtext sfx{ creepy }	
+			($ "Something emerges from the tomb as " .. pname .. " opens it! I hope it's a " .. "goblin" fbold .. "!" $) +crtext sfx{ creepy }	
 			1 to creepytombprize
 			
 			still-npc 
@@ -99,14 +101,14 @@ cyoa-choice: creepytomb-open
 			lt mission{ .smokepoof }
 			lt .pos xyzombbust lt silentkillit
 		else 
-			($ "Rien special a signaler ici. c'est probablement une embrouille destinee auquel suit. " .. "gobelin" fbold .. " habite vraiment dans." $) +crtext
+			($ "Nothing special in this one. It's likely that this is a decoy for the one the " .. "goblin" fbold .. " is really living in." $) +crtext
 			badfx
 			0.5 5sdiff count-zomber interactee .pos 16 + lt .pos!
 			lt .pos xyzombbust
 		then
 		
 	else
-		($ "Plus de choses concernant des tombeaux ! votre passion desintaressante pour les tombeaux. " .. "gobelins" fbold .. " la situation s'enlise de plus en plus !" $) +crtext
+		($ "Just more tomb stuff! Your obsession with tombs and " .. "goblins" fbold .. " is veering out of control!" $) +crtext
 			badfx
 			0.5 5sdiff count-zomber interactee .pos 16 + lt .pos!
 			lt .pos xyzombbust
@@ -118,26 +120,26 @@ cyoa-choice: creepytomb-open
 
 cyoa: creepytomb
 
-"Sepulture etrange" cyoa-title! picon!
+"Spooky Mausoleum" cyoa-title! picon!
 
-($ "Une possible instruction est : " .. "gobelin" fbold .. " s'y cachant ici." $) text!
+($ "There may be a " .. "goblin" fbold .. " hiding in here." $) text!
 	team-has-breakin? if
 		WEAPON_CROWBAR team-has-weapon? if
-			"Il serait facile de forcer la porte avec une barre de fer a coups." +crtext
+			"It would be easy to pry the door open with the crowbar." +crtext
 		then
 		WEAPON_SHOVEL team-has-weapon? if
-			"La pelle pouvait forcer la porte ouverte, avec quelque peine." +crtext
+			"The shovel could pry the door open, with some effort." +crtext
 		then
 		WEAPON_SLEDGE team-has-weapon? if
-			"La porte ne serait pas a la hauteur d'un bon marteau-piqueur."
+			"The door would be no match for a good sledgehammer."
 		then
 		WEAPON_PICKAXE team-has-weapon? if
-			"Cet porte serait brise en morceaux par l'encaniveur."
+			"The pickaxe would break this door into pieces."
 		then +crtext 
-			choice( "Ouvrez la tombe." )choice: creepytomb-open
-			choice( "Laissez-le pour le moment" )choice
+			choice( "Open the Tomb" )choice: creepytomb-open
+			choice( "Leave it for now" )choice
 	else
-		"Une porte solide et fermee a l'etancheite. vous aurez besoin de quelque chose pour la deplier. un pelle serait efficace. il devrait en avoir un a proximite." +crtext
+		"The door is solid and shut tight. You'd need something to pry it open with. A shovel would work. There must be one nearby." +crtext
 	then
 ;
 

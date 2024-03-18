@@ -8,13 +8,14 @@ cyoa{
 cyoa-bridge: junkdog-bite
 	rescue choosechar cicon
 	pchar isdogpal? if
-		"Ami de tous les chiens" cyoa-title!
-		($ pname .. " utilisez tout. " .. phe .. " cet chien connait la psychologie canine de ce agressif chien de dechet !. c'est efficace ! le chien veut suivre !" $) cyoa-text! goodfx
-			choice( "Suivez votre chien." )choice: rescueme-d
-			choice( "Laissez-le ici pendant un moment" )choice
+		"Friend of All Dogs" cyoa-title!
+		($ pname .. " uses everything " .. phe .. " knows about dog psychology on this vicious junkyard dog!
+		It works! The dog wants to follow!" $) cyoa-text! goodfx
+			choice( "Have dog follow" )choice: rescueme-d
+			choice( "Leave it here for now" )choice
 	else
-		"Chien tres mechant" cyoa-title!
-		($ "Le chien n'en veut rien savoir. il jette une attaque. " .. pname .. "!" $) cyoa-text!
+		"Very Mean Dog" cyoa-title!
+		($ "The dog is having none of that. It lunges at " .. pname .. "!" $) cyoa-text!
 		pchar .ouch-- bitefx
 	then
 ;
@@ -22,34 +23,36 @@ cyoa-bridge: junkdog-bite
 cyoa: junkdogrescue
 	rescue choosechar cicon
 	dead? if npc-died then;
-	"Chien tres mechant" cyoa-title!
+	"Very Mean Dog" cyoa-title!
 	5 6 rnd cchar .strength!
 	0 cchar .attitude!
 	0 cchar .composure!
-	($ "Chien de decharge mechant et sauvage, qui ne veut rien a voir avec toi. sa personnalite n'etait peut-etre pas excellent avant l'apocalypse non plus.. . 	il est trop sauvage pour etre attire par la nourriture." $) cyoa-text!
-	pchar .nonfatal if "Avertissement : il vous mord probablement." rbold
-	else "Avertissement : vous tuera absolument." fbold then +crtext
+	($ "It's a vicious junkyard dog that wants nothing to do with you. This dog's personality probably wasn't great before the apocalypse, either.
+	It's too feral to even be swayed by food." $) cyoa-text!
+	pchar .nonfatal if "WARNING: Will probably bite you." rbold
+	else "WARNING: Will absolutely kill you." fbold then +crtext
 		pchar .weapona@ WEAPON_FEMUR = pchar .weaponb@ WEAPON_FEMUR = pchar .weaponc@ WEAPON_FEMUR = or or if
-			choice( "Corrompre chien avec un os." )choice: rescueme-d
+			choice( "Bribe dog with a bone" )choice: rescueme-d
 		else
 			pchar .nonfatal if
-					choice( "Suis-nous avec ton chien" )choice: junkdog-bite
+					choice( "Make dog follow you" )choice: junkdog-bite
 			else
-					choice( "Mourir a la morsure de chien." )choice: junkdog-bite
+					choice( "Get killed by dog" )choice: junkdog-bite
 			then
 		then
 		pchar isdogpal? if
-			choice( "Utiliser la psychologie canine." )choice: junkdog-bite
+			choice( "Use DOG PSYCHOLOGY" )choice: junkdog-bite
 		then
-		choice( "Laisser le chien seul pour le moment" )choice
+		choice( "Leave dog alone for now" )choice
 ;
 
 cyoa: junkpal2
 	nearestget nearest .character@ to junkpal2
 	junkpal2 choosechar cicon
 	dead? if npc-died then;
-	"Cimetiere de fer leonard, le jardinier" cyoa-title!
-	($ cname .. " il a besoin d'aide ! si vous le sortez de la en vie, il vous en enseignera. " .. thegroup .. " des conseils pour tirer... ." .. "Aidez-moi, je me sens reellement angoisse" pbold $) cyoa-text!
+	"Junkyard Pal Leonard" cyoa-title!
+	($ cname .. " needs help! If you get him out of here alive, he will teach " .. thegroup .. " some shooting tips.
+	" .. "H..help! I'm freaking out right now!" pbold $) cyoa-text!
 		road{ ' junkpalsrescue to post-mission-cyoa }
 ;
 
@@ -57,8 +60,9 @@ cyoa: junkpal1
 	nearestget nearest .character@ to junkpal1
 	junkpal1 choosechar cicon
 	dead? if npc-died then;
-	"Entrainement de fitness" cyoa-title!
-	($ cname .. " si tu peux le delivrer de la, il apprendra. " .. thegroup .. " tout ce qu'il sait a propos de la reparation d'automobiles." .. "Les choses se sont mal passees depuis que notre voiture a casse. il ne importe comment bien tu es, les voitures s'arretent vite sur ces routes !" pbold $) cyoa-text!
+	"Junkyard Pal Clem" cyoa-title!
+	($ cname .. " asks for help! If you can get him out of here, he'll teach " .. thegroup .. " everything he knows about car repair.
+	" .. "Things have been bad since our car broke down. It doesn't matter how good you are, cars break down fast on these roads!" pbold $) cyoa-text!
 		road{ ' junkpalsrescue to post-mission-cyoa }
 ;
 
@@ -85,7 +89,7 @@ cyoa: junkpal1
 	4 over .fitness!
 	4 over .vitality!
 	4 over .health!
-	"Clemence" over .name!
+	"Clem" over .name!
 	// dup to junkpal1
 	0 over .female!
 	WEAPON_PARKING over .weapona!
@@ -222,7 +226,7 @@ map{ regiondef{
 
 : dotirestack xyp.xy 1- tile>pos -4 4 rnd + swap -4 4 rnd + swap tirestack lt .pos! ;
 
-: bldg tanchor! map{ "magasin d'epaisseurs usage" $picklocid addloc prefab{ 1 9 1 shop } } ;
+: bldg tanchor! map{ "junkyardoffice" $picklocid addloc prefab{ 1 9 1 shop } } ;
 
 
 ' plotdirty >defer ft

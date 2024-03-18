@@ -23,28 +23,29 @@ cyoa{ road{
 
 cyoa-choice: trade-shoot-charm 
 	charmroll if
-		($ cname .. " obtient une formation gratuite avec des armes a feu ! " .. cHe .. " ressent deja une plus grande stabilite dans la tir." $) cyoa-text! 
+		($ cname .. " gets FREE training with firearms! " .. cHe .. " already feels like a steadier shot." $) cyoa-text! 
 		cchar .shooting@ 5 > if 
-			($ "Cela n'a vraiment pas aide " .. chis .. " tir, mais c'etait gratuit !" $) +crtext
+			($ "It didn't actually help " .. chis .. " shooting, but it was FREE!" $) +crtext
 		then 
 		shootingREV shooting++ goodfx
 	else
-		($ cname .. " il n'a rien laisse tomber par accident, ca sonne plutot sinistre. . ." .. gHe .. " il est demande a vous de quitter." $) cyoa-text! badfx
+		($ cname .. " accidentally just comes off as creepy. 
+		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
 	then
 ;
 
 cyoa-choice: trade-shoot-train
 	cchar .shooting@ 6 < if
-		($ cname .. " apprends quelques nouveaux tours avec les armes a feu ! les zombies, preparez-vous." $) goodfx
+		($ cname .. " learns some new tricks with firearms! Zombies beware." $) goodfx
 	else
-		($ cname .. " n'ai appris rien reellement nouveau. " .. cHe .. " avait deja appris ces astuces. " .. chis .. " propres a moi." $) badfx
+		($ cname .. " didn't really learn anything new. " .. cHe .. " had already picked up these tricks on " .. chis .. " own." $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	shootingREV shooting++
 ;
 
 cyoa-choice: trade-shoot-group
-	($ "L'ensemble du groupe recoit une formation a l'utilisation d'armes a feu !" $) cyoa-text! goodfx
+	($ "The entire group gets firearms training!" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-shoot-group! foreach-human-char
 ;
@@ -53,89 +54,98 @@ cyoa: trade-shoot-give
 	solohuman if
 		choosehuman trade-shoot-train
 	then;
-	"Quelqu'un devrait recevoir une formation a la manipulation d'armes a feu ?" cyoa-text!
+	"Who should get the training in firearms handling?" cyoa-text!
 	' trade-shoot-train cyoa-human-choice
 ;
 
 cyoa-choice: trade-shoot-coolit
 	cpet? if
-		($ cname .. " il fart tres fort devant l'entraineur d'armes a feu, puis roule autour." $)
+		($ cname .. " farts really loudly at the firearms coach, and then rolls around." $)
 	else
-		($ cname .. " tours de phrases, locutions colorees ou expressions idiom " .. "DIRE PAS LE FAIRE DE L'ARROSAGE" pbold .. " pour l'entraineur d'armes :" $) 
+		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the firearms coach." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "Une merveille se produit : elle decide de ne pas tirer !" .. "You seem like you need all the help you can get..." pbold .. "elle enseigne ses trucs d'armes secretes a " .. cname .. "!
-		" .. cname .. " -> L'EXPERTISE AU TIR A ATTEINT SON MAXIMUM !" rbold $) goodfx 6 cchar .shooting! cooled-it
+		($ "A miracle happens: she decides to not shoot!
+		" .. "You seem like you need all the help you can get..." pbold .. "
+		She teaches her secret gun tricks to " .. cname .. "!
+		" .. cname .. " -> SHOOTING SKILL MAXED OUT!" rbold $) goodfx 6 cchar .shooting! cooled-it
 	else cool-it++
-		($ "Il est trop excite" .. "cela semble ainsi." pbold .. "elle remet son fusil sur l'epaule et s'en va." $) badfx
+		($ "Her reaction is brief disgust." .. "
+		Oh. Yeah, ok. You're one of those types, huh?" pbold .. "
+		She slings her rifle back onto her shoulder and walks away." $) badfx
 	then +crtext shootingREV
 ;
 
 cyoa: trade-shoot
-	"Enseignant d'armes a feu" cyoa-title!
-	($ Thegroup .. " une femme armee d'un fusil affirme avoir entraine autrefois des gens au tir sportif de competition. ... elle dis posseder beaucoup de trucs pour garder ton ajustement en vue tout en bougeant, et meme quelques tirs sur plusieurs cibles simultanees. " .. "Les zombies sont des cibles lentes a abattre. c'est vraiment facile !" pbold $) cyoa-text! basic-tone
+	"Firearms Coach" cyoa-title!
+	($ Thegroup .. " finds a rifle wielding woman. She claims she used to train others in competitive shooting. 
+	She has a lot of tricks for keeping your aim steady while moving, and even some multiple target trick shots. " .. "Zombies are slow moving targets. It's real easy!" pbold $) cyoa-text! basic-tone
 	trunk-food 6 < if  
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
-		choice( ": conduite agressive en terrain difficile !" )choice: trade-shoot-give
+		choice( "Give 6 food for training" )choice: trade-shoot-give
 		trade-train-pay? if
-			choice( "Donner " .. trade-train-amt .. " vous devez vous entrainer et mettre du muscle !" )choice: trade-shoot-group
+			choice( "Give " .. trade-train-amt .. " food for group training" )choice: trade-shoot-group
 		then
 	then
 		most-charming if
-			charchoice( " utilise le charme." )choice: trade-shoot-charm
+			charchoice( " uses charm" )choice: trade-shoot-charm
 		then
 		most-grating if 
-			charchoice( ": DIRE PAS L'ARROSAGE" fcoolit )choice: trade-shoot-coolit
+			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-shoot-coolit
 		then
-		choice( "Sortir de la voie" )choice
+		choice( "Drive off" )choice
 ;
 
 // Strength - Made this one a little different for Jon's request
-// Can adjust it to cut out different things if you have all options available, currently you lose the option to just "Fuir a l'aller simplement" in that case.
+// Can adjust it to cut out different things if you have all options available, currently you lose the option to just "Drive Away" in that case.
 
 cyoa-choice: trade-strength-pose 
 	cchar .strength 6 > if
-		($ cname .. " se relache une seule fois, en employant seulement la moitie de ses efforts. mais le concours est deja decide...." .. "IMPOSSIBLE ! C'EST IMPOSSIBLE !" fbold .. " entraineur de force sifflote etrangement a une tonalite haute... ." .. "ES-TU 'LE GROS PROMISE' ?" fbold .. " et puis il se transforme en pierre et, quelques instants plus tard, se brise en un million de fragments." $) cyoa-text! goodfx
+		($ cname .. " flexes once, using only half effort. But the contest is already decided.
+		" .. "IMPOSSIBLE! THIS IS IMPOSSIBLE!" fbold .. " shrieks the Strength Trainer, in a strangely high-pitched voice.
+		" .. "ARE YOU 'THE SWOLE THAT WAS PROMISED'?" fbold .. " and then he turns into stone and, moments later, shatters into a million fragments." $) cyoa-text! goodfx
 		morale2+
 	then;
 	strengthroll if
-		($ cname .. " gagne le concours de pose !" $) cyoa-text! goodfx
+		($ cname .. " wins the pose-off!" $) cyoa-text! goodfx
 		cpet? if
-			"Gagner une competition de flexion en tant qu'animal etait tres difficile." +crtext
+			"It was pretty hard to win a flexing competition as an animal!" +crtext
 		then
 		strengthREV strength++ morale++
 	else
-		($ cname .. " perd la pose. . ." .. cHe .. " ressent " .. "IL EST GRAND DOMMAGE." rbold $) cyoa-text! badfx
+		($ cname .. " loses the pose-off. 
+		" .. cHe .. " feels " .. "GREAT SHAME." rbold $) cyoa-text! badfx
 		morale2-
 	then
 ;
 
 cyoa-choice: trade-strength-charm 
 	charmroll if
-		($ cname .. " obtien des entrainements gratuits de force ! " .. cHe .. " already ressent une forte sensation de 'pump', comme disaient les bodybuilders avant d'etre tous balayes." $) cyoa-text!
+		($ cname .. " gets FREE strength training! " .. cHe .. " already clearly feels a 'pump', as the bodybuilders used to say before they were all wiped out." $) cyoa-text!
 		cchar .strength@ 5 > if 
-		($ "Cela n'a reellement ameliore " .. chis .. " gratuitement, j'avais une force considerable !" $) +crtext
+		($ "It didn't actually improve " .. chis .. " strength, but it was FREE!" $) +crtext
 		then
 		strengthREV strength++ goodfx
 		
 	else
-		($ cname .. " il n'a rien laisse tomber par accident, ca sonne plutot sinistre. . ." .. gHe .. " il est demande a vous de quitter." $) cyoa-text! badfx
+		($ cname .. " accidentally just comes off as creepy. 
+		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
 	then
 ;
 
 cyoa-choice: trade-strength-train
 	cchar .strength@ 6 < if
-		($ cname .. " il se met tous en flamme grace a son regime d'entrainement de force !" $) goodfx
+		($ cname .. " gets all pumped up from the strength training regiment!" $) goodfx
 	else
-		($ cname .. " n'etais pas convaincu par ce petit travail d'exercice. " .. cHe .. " il faut trouver une meilleure routine !" $) badfx
+		($ cname .. " was not impressed with that dinky little workout. " .. cHe .. " needs to find a better routine!" $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	strengthREV strength++
 ;
 
 cyoa-choice: trade-strength-group
-	($ "Toute le groupe se renforce par l'entrainement de force !" $) cyoa-text! goodfx
+	($ "The entire group gets strength training!" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-strength-group! foreach-human-char
 ;
@@ -144,72 +154,79 @@ cyoa: trade-strength-give
 	solohuman if
 		choosehuman trade-strength-train
 	then;
-	"Celui qui veut developper sa force a un niveau eleve doit effectuer cette intense routine de travail." cyoa-text!
+	"Who should get this INTENSE strength workout?" cyoa-text!
 	' trade-strength-train cyoa-human-choice
 ;
 
 cyoa-choice: trade-strength-coolit
 	cpet? if
-		($ cname .. " il fart tres fort devant l'entraineur de force." $)
+		($ cname .. " farts really loudly at the strength trainer." $)
 	else
-		($ cname .. " tours de phrases, locutions colorees ou expressions idiom " .. "DIRE PAS LE FAIRE DE L'ARROSAGE" pbold .. " a l'entraineur de force :" $) 
+		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the strength trainer." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "OUI, C'EST L'ESPRIT QUI TE FERA ATTEINDRE LE SOMMET EN BODYBUILDING ! NOUS ALLONS REINVENTER LE SPORT ! OUI !" fbold .. "il prend " .. cname .. " nous avons votre meilleur eleve pour devenir gigantesque a une vitesse devastatrice pour l'esprit !" .. cname .. " VOTRE COMPETENCE EN FORCE A ATTEINT LE MAXIMUM." rbold $) goodfx 6 cchar .strength! cooled-it
+		($ "YEAH! THAT'S THE ATTITUDE YOU NEED TO MAKE IT AS A TOP BODYBUILDER! WE WILL REBUILD THE SPORT! YEAH!" fbold .. "
+		He takes " .. cname .. " on as his top student, to get HUGE at a mind destroying pace!
+		" .. cname .. " -> STRENGTH SKILL MAXED OUT!" rbold $) goodfx 6 cchar .strength! cooled-it
 	else cool-it++
-		($ "Cela ne lui va pas a l'aise." .. "quitte ici toi, grosse tete d'egout ! tu n'as pas le droit a etre si gros !" fbold .. "il continue a hurler. " .. thegroup .. " feuilles." $) badfx
+		($ "He doesn't take this well." .. "
+		GET OUT OF HERE YOU DWEEBUS! YOU DON'T DESERVE TO GET HUGE!" fbold .. "
+		He continues yelling as " .. thegroup .. " leaves." $) badfx
 	then +crtext strengthREV
 ;
 
 cyoa: trade-strength
-	"Entraineur de force" cyoa-title!
-	($ Thegroup .. " un vieil homme bien faisant vous appelle et hurle quelque chose a propos de : " .. "CONSTRUIRE DE LA MASSE ET DE LA GROSSEUR " fbold .. " avec une " .. "REGIME INTENSE DE FORCE!" fbold .. "il flotte vers quelques objets lourds qui se trouvent autour." $) cyoa-text! basic-tone
+	"Strength Trainer" cyoa-title!
+	($ Thegroup .. " meets an old but very fit man in matching gray sweatpants and sweatshirt.
+	He screams something about " .. "BUILDING MASS AND BULK " fbold .. " with an " .. "INTENSE STRENGTH ROUTINE!" fbold .. "
+	He flails towards some heavy objects lying around." $) cyoa-text! basic-tone
 	trunk-food 6 < if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
-		choice( ": conduite agressive en terrain difficile !" )choice: trade-strength-give
+		choice( "Give 6 food for training" )choice: trade-strength-give
 		trade-train-pay? if
-			choice( "Donner " .. trade-train-amt .. " vous devez vous entrainer et mettre du muscle !" )choice: trade-strength-group
+			choice( "Give " .. trade-train-amt .. " food for group training" )choice: trade-strength-group
 		then
 	then
 		most-charming if
-			charchoice( " utilise le charme." )choice: trade-strength-charm
+			charchoice( " uses charm" )choice: trade-strength-charm
 		then
 		strongest .strength 3 > if
-			strongest charchoice( " annonce une pose defaite !" )choice: trade-strength-pose
+			strongest charchoice( " declares a pose off!" )choice: trade-strength-pose
 		then
 		most-grating if 
-			charchoice( ": DIRE PAS L'ARROSAGE" fcoolit )choice: trade-strength-coolit
+			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-strength-coolit
 		then
-		choice( "Sortir de la voie" )choice
+		choice( "Drive off" )choice
 ;
 
 // Fitness
 
 cyoa-choice: trade-fitness-charm 
 	charmroll if
-		($ cname .. " obtien gratuitement une formation en sante physique ! " .. cHe .. " des sueurs a cause de l'effort intense !" $) cyoa-text! 
+		($ cname .. " gets FREE fitness training! " .. cHe .. " sweats from the intense exercise!" $) cyoa-text! 
 		cchar .fitness@ 5 > if 
-			($ "Cela n'a reellement ameliore " .. chis .. " gratuitement, j'ai fait de la fitness." $) +crtext
+			($ "It didn't actually improve " .. chis .. " fitness, but it was FREE!" $) +crtext
 		then
 		goodfx fitnessREV fitness++
 	else
-		($ cname .. " il n'a rien laisse tomber par accident, ca sonne plutot sinistre. . ." .. gHe .. " il est demande a vous de quitter." $) cyoa-text! badfx
+		($ cname .. " accidentally just comes off as creepy. 
+		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
 	then
 ;
 
 cyoa-choice: trade-fitness-train
 	cchar .fitness@ 6 < if
-		($ cname .. " travaille a une sueur ruisselle de son routine sportive !" $) goodfx
+		($ cname .. " works up a huge sweat from the fitness routine!" $) goodfx
 	else
-		($ cname .. " pas meme rougi de sueur ! l'instructrice sportive est confuse, elle s'est elle aussi un peu fatiguee." $) badfx
+		($ cname .. " didn't even break a sweat! The Fitness Instructor is confused, even she got a little tired." $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	fitnessREV fitness++
 ;
 
 cyoa-choice: trade-fitness-group
-	($ "Toute le groupe recoit une formation de fitness !" $) cyoa-text! goodfx
+	($ "The entire group gets fitness training!" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-fitness-group! foreach-human-char
 ;
@@ -218,69 +235,76 @@ cyoa: trade-fitness-give
 	solohuman if
 		choosehuman trade-fitness-train
 	then;
-	"Qui veut des exercices intenses a titre de fitness ?" cyoa-text!
+	"Who wants strenuous exercise for the sake of fitness?" cyoa-text!
 	' trade-fitness-train cyoa-human-choice
 ;
 
 cyoa-choice: trade-fitness-coolit
 	cpet? if
-		($ cname .. " fait des flatulences a un ton eleve envers l'entraineur sportif." $)
+		($ cname .. " farts in a high pitch at the fitness instructor." $)
 	else
-		($ cname .. " tours de phrases, locutions colorees ou expressions idiom " .. "DIRE PAS LE FAIRE DE L'ARROSAGE" pbold .. " pour l'instributeur de fitness." $) 
+		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the fitness instructor." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "C'est ce que j'aime entendre ! tu es pret" pbold .. "il est vraisemblable qu'elle a simplement entendu " .. cname .. " ceci est faux. suive une serie incroyable et a la pointe de la calisthenique..." .. cname .. " VOTRE COMPETENCE EN FITNESS ATTEINT SON MAXIMUM !" rbold $) goodfx 6 cchar .fitness! cooled-it
+		($ "That's what I like to hear! You're ready for the MIRACLE FITNESS ROUTINE!" pbold .. "
+		It's likely that she just heard " .. cname .. " wrong. An incredible, cutting edge series of calisthenics follows.
+		" .. cname .. " -> FITNESS SKILL MAXED OUT!" rbold $) goodfx 6 cchar .fitness! cooled-it
 	else cool-it++
-		($ "Sa reaction est principalement deception." .. "amusez-vous a etre devores par des zombies." pbold .. "elle court en arriere jusqu'a ce qu'elle soit a l'ecart de la vue. puis elle a disparu." $) badfx
+		($ "Her reaction is mostly disappointment." .. "
+		Yeah, well, have fun getting eaten by zombies." pbold .. "
+		She jogs backwards until she's out of sight. Then she's gone." $) badfx
 	then +crtext fitnessREV
 ;
 
 cyoa: trade-fitness
-	"Instructeur d'entrainement physique" cyoa-title!
-	($ Thegroup .. " une femme equipee de bandelettes de sueur, de gants chauds et de vetements sportifs. tout en neon eclatant..." .. "Dans ce monde rempli de zombis, seulement les aptes survivront ! je peux vous aider a devenir aptes rapidement !" pbold .. "elle a couru debout pendant toute cette periode." $) cyoa-text! basic-tone
+	"Fitness Instructor" cyoa-title!
+	($ Thegroup .. " finds a woman decked out in sweat bands, limb warmers, and exercise clothes. All bright neon.
+	" .. "Only the fittest will survive in this zombie filled world! I can help you get fit, fast!" pbold .. "
+	She's been continuously running in place this whole time." $) cyoa-text! basic-tone
 	trunk-food 6 < if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
-		choice( ": conduite agressive en terrain difficile !" )choice: trade-fitness-give
+		choice( "Give 6 food for training" )choice: trade-fitness-give
 		trade-train-pay? if
-			choice( "Donner " .. trade-train-amt .. " vous devez vous entrainer et mettre du muscle !" )choice:  trade-fitness-group
+			choice( "Give " .. trade-train-amt .. " food for group training" )choice:  trade-fitness-group
 		then
 	then
 		most-charming if
-			charchoice( " utilise le charme." )choice: trade-fitness-charm
+			charchoice( " uses charm" )choice: trade-fitness-charm
 		then
 		most-grating if 
-			charchoice( ": DIRE PAS L'ARROSAGE" fcoolit )choice: trade-fitness-coolit
+			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-fitness-coolit
 		then
-		choice( "Sortir de la voie" )choice
+		choice( "Drive off" )choice
 ;
 
 // Medical
 
 cyoa-choice: trade-medical-charm 
 	charmroll if
-		($ cname .. " obtienez une formation medicale gratuite !" $) cyoa-text! 
+		($ cname .. " gets FREE medical training!" $) cyoa-text! 
 		cchar .medical@ 5 > if 
-			($ "Cela n'a reellement ameliore " .. chis .. " gratuitement, des connaissances medicales !" $) +crtext
+			($ "It didn't actually improve " .. chis .. " medical knowledge, but it was FREE!" $) +crtext
 		then		
 		goodfx medicalREV medical++
 	else
-		($ cname .. " accidentellement parait sinistre, meme aux normes du campus de la maison de tueur facile medical: cabane de meurtres creuse. ..." .. gHe .. " il est demande a vous de quitter." $) cyoa-text! badfx
+		($ cname .. " accidentally just comes off as creepy, even by the standards of the EZ Medical College: Creepy Murder Shack Campus. 
+		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
 	then
 ;
 
 cyoa-choice: trade-medical-train
 	cchar .medical@ 6 < if
-		($ cname .. " apprend des nouvelles choses a propos de soins medicaux d'urgence aupres de l'homme souille instruite." $) goodfx
+		($ cname .. " learns new things about emergency medical care from the knowledgeable filth-man." $) goodfx
 	else
-		($ "Bien que le professeur sales fut un grand enseignant, " .. cname .. " je n'ai appris rien de nouveau." $) badfx
+		($ "Although the filthy professor was a great teacher, " .. cname .. " didn't learn anything new." $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	medicalREV medical++
 ;
 
 cyoa-choice: trade-medical-group
-	($ "Toute le groupe recoit une formation medicale !" $) cyoa-text! goodfx
+	($ "The entire group gets medical training!" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-medical-group! foreach-human-char
 ;
@@ -289,85 +313,89 @@ cyoa: trade-medical-give
 	solohuman if
 		choosehuman trade-medical-train
 	then;
-	"Quelqu'un devrait recevoir une formation medicale ?" cyoa-text!
+	"Who should get the medical training?" cyoa-text!
 	' trade-medical-train cyoa-human-choice
 ;
 
 cyoa-choice: trade-medical-coolit
 	cpet? if
-		($ cname .. " dis, ne l'arrose pas !" $)
+		($ cname .. " somehow manages to say something like SAY IT DON'T SPRAY IT in a weird animal voice." $)
 	else
-		($ cname .. " tours de phrases, locutions colorees ou expressions idiom " .. "DIRE PAS LE FAIRE DE L'ARROSAGE" pbold .. " a l'homme en overall :" $) 
+		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the overalls man." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "Il sourit avec sagesse. peut-etre a-t-il mal entendu. " .. chim .. "il enseigne des techniques medicales de survie aux zombies incroyables, dont on n'en a jamais vues avant." .. "
-		" .. cname .. " -> VOTRE COMPETENCE MEDICALE EST AU MAXIMUM !" rbold $) goodfx 6 cchar .medical! cooled-it
+		($ "He nods with sage wisdom. Maybe he misheard " .. chim .. "? He proceeds to teach incredible zombie survival medical techniques the likes of which have never been seen." .. "
+		" .. cname .. " -> MEDICAL SKILL MAXED OUT!" rbold $) goodfx 6 cchar .medical! cooled-it
 	else cool-it++
-		($ "*YOU* DON'T SAY IT OR SPRAY IT! AAAAAAAARGH!" rbold .. "il est en colere ! " .. thegroup .. " il est contraint de quitter." $) badfx
+		($ "*YOU* DON'T SAY IT OR SPRAY IT! AAAAAAAARGH!" rbold .. "
+		He is infuriated! " .. thegroup .. " is forced to leave." $) badfx
 	then +crtext medicalREV
 ;
 
 cyoa: trade-medicalt
-	"Ecole medicale facile" cyoa-title!
-	($ Thegroup .. " decouvre une cabane troublante et sale. elle porte un signaletique qui dit : " .. "ECOLE MEDICALE FACILE" rbold .. " suspendu a l'enquete sur la porte... . 	interieur, se trouve un homme inquietant et sales vetus de souillures... ." .. "QUELQU'UN VEUT APPRENDRE A TRAVERS L'OPERATION ?" pbold $) cyoa-text! basic-tone
+	"EZ Medical College" cyoa-title!
+	($ Thegroup .. " discovers an unsettling and filthy shack. It has a sign that says " .. "EZ MEDICAL COLLEGE" rbold .. " hanging crookedly over the door.
+	Inside is an unsettling and filthy dude in overalls.
+	" .. "WELL? WHO WANTS TO LEARN ABOUT SURGERY?" pbold $) cyoa-text! basic-tone
 	trunk-food 6 < if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
-		choice( ": conduite agressive en terrain difficile !" )choice: trade-medical-give
+		choice( "Give 6 food for training" )choice: trade-medical-give
 		trade-train-pay? if
-			choice( "Donner " .. trade-train-amt .. " vous devez vous entrainer et mettre du muscle !" )choice:  trade-medical-group
+			choice( "Give " .. trade-train-amt .. " food for group training" )choice:  trade-medical-group
 		then
 	then
 		most-charming if
-			charchoice( " utilise le charme." )choice: trade-medical-charm
+			charchoice( " uses charm" )choice: trade-medical-charm
 		then
 		most-grating if 
-			charchoice( ": DIRE PAS L'ARROSAGE" fcoolit )choice: trade-medical-coolit
+			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-medical-coolit
 		then
-		choice( "Sortir de la voie" )choice
+		choice( "Drive off" )choice
 ;
 
 // Mechanical
 
 cyoa-choice: trade-mechanic-charm 
 	charmroll if
-		($ cname .. " obtiens une formation gratuite dans l'art et les sciences de l'ingenierie antizombie !" $) cyoa-text! 
+		($ cname .. " gets FREE training in the art and science of anti-zombie engineering!" $) cyoa-text! 
 		cchar .mechanical@ 5 > if 
-			($ "Cela n'a reellement ameliore " .. chis .. " competence mecanique, mais c'etait gratuit !" $) +crtext
+			($ "It didn't actually improve " .. chis .. " mechanical skill, but it was FREE!" $) +crtext
 		then		
 		goodfx mechanicREV mechanic++
 	else
-		($ cname .. " il n'a rien laisse tomber par accident, ca sonne plutot sinistre. . ." .. gHe .. " il est demande a vous de quitter." $) cyoa-text! badfx
+		($ cname .. " accidentally just comes off as creepy. 
+		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
 	then
 ;
 
 cyoa-choice: trade-mechanic-train
 	cchar .mechanical@ 6 < if
-		($ cname .. " obtient une formation rapide en reparation, en construction de barrages efficaces et autres ingenieries antizome !" $) goodfx
+		($ cname .. " gets a crash course in repair, effective barricades, and other anti-zombie engineering!" $) goodfx
 	else
-		($ cname .. " n'ai appris rien de nouveau. " .. cHe .. " je savais deja tout ce que le mecanicien pouvait enseigner." $) badfx
+		($ cname .. " didn't learn anything new. " .. cHe .. " was already aware of all the stuff the mechanic could teach." $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	mechanicREV mechanic++
 ;
 
 cyoa-choice: trade-mechanic-group
-	($ "L'ensemble du groupe recoit une formation mecanique !" $) cyoa-text! goodfx
+	($ "The entire group gets mechanic training!" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-mechanic-group! foreach-human-char
 ;
 
 cyoa-choice: trade-mechanic-coolit
 	cpet? if
-		($ cname .. " le mecanicien est frappe d'une flatulence tres bruyante et grave." $)
+		($ cname .. " farts really loudly at the mechanic, in a low pitch." $)
 	else
-		($ cname .. " tours de phrases, locutions colorees ou expressions idiom " .. "DIRE PAS LE FAIRE DE L'ARROSAGE" pbold .. " un pied dans la fosse" $) 
+		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the mechanic." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "Cela lui amuse a mort ! mecanicien heureux s'engage a donner. " .. cname .. " une formation intense sur tout ce qu'elle sait." .. "
-		" .. cname .. " -> VOTRE COMPETENCE MECANIQUE EST MAXIMALE !" rbold $) goodfx 6 cchar .mechanical! cooled-it 
+		($ "She finds this hilarious! Delighted, the mechanic pledges to give " .. cname .. " an intense crash course in absolutely everything she knows." .. "
+		" .. cname .. " -> MECHANICAL SKILL MAXED OUT!" rbold $) goodfx 6 cchar .mechanical! cooled-it 
 	else cool-it++
-		($ "Elle s'enfonce dans ses gisements pour chercher un boulon, puis le jette. " .. cname .. "elle continue a faire cela sans parler jusqu'a ce qu'... " .. thegroup .. " il est contraint de quitter." $) badfx
+		($ "She responds to this by digging into her pockets for a bolt, then throwing it at " .. cname .. ". She continues doing this, not saying a word, until " .. thegroup .. " is forced to leave." $) badfx
 	then +crtext mechanicREV
 ;
 
@@ -375,94 +403,104 @@ cyoa: trade-mechanic-give
 	solohuman if
 		choosehuman trade-mechanic-train
 	then;
-	"Qui devrait recevoir la formation mecanicienne ?" cyoa-text!
+	"Who should get the mechanic's training?" cyoa-text!
 	' trade-mechanic-train cyoa-human-choice
 ;
 
 cyoa: trade-mechanic
-	"Mechanic savant : maitre mecanicien extraordinaire." cyoa-title!
-	($ Thegroup .. " rencontre une femme portant des couvertures huilees." .. "Je peux vous aider a ameliorer vos competences en reparation et construction. cela est vraiment utile. peut-etre sauver votre vie." pbold .. "si rien d'autre, cela faciliterait au moins les reparations automobiles." $) cyoa-text! basic-tone
+	"Mechanic Savant" cyoa-title!
+	($ Thegroup .. " meets a woman wearing oil stained coveralls.
+	" .. "I can help you get better at repairing and building stuff. It's a real handy skill. Might save your life." pbold .. "
+	If nothing else, it would make car repairs easier." $) cyoa-text! basic-tone
 	trunk-food 6 < if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
-		choice( ": conduite agressive en terrain difficile !" )choice: trade-mechanic-give
+		choice( "Give 6 food for training" )choice: trade-mechanic-give
 		trade-train-pay? if
-			choice( "Donner " .. trade-train-amt .. " vous devez vous entrainer et mettre du muscle !" )choice:  trade-mechanic-group
+			choice( "Give " .. trade-train-amt .. " food for group training" )choice:  trade-mechanic-group
 		then
 	then
 		most-charming if
-			charchoice( " utilise le charme." )choice: trade-mechanic-charm
+			charchoice( " uses charm" )choice: trade-mechanic-charm
 		then
 		most-grating if 
-			charchoice( ": DIRE PAS L'ARROSAGE" fcoolit )choice: trade-mechanic-coolit
+			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-mechanic-coolit
 		then
-		choice( "Sortir de la voie" )choice
+		choice( "Drive off" )choice
 ;
 
 // Army Surplus
 
 cyoa-choice: trade-army-1
-	($ Thegroup .. " lance quelques aliments dans la fenetre et sort une grenade. cela peut faire beaucoup de degats !" .. "Attendez-vous, la broche etait encore en place ?" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " drops some food into the window and a grenade comes out. This could cause a lot of damage!
+	" .. "Wait, was the pin still on?" pbold $) cyoa-text! basic-tone
 	1 WEAPON_GRENADE trunk.weapon+ -4 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-army-2
-	($ Thegroup .. " jete quelques aliments a la fenetre et des grenades s'y affolent, une apres l'autre. ces dernieres peuvent etre tres utiles!." .. "Ne jetez rien de ces choses la." pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " drops some food into the window and a bunch of grenades plop out, one at a time. These can come in handy!
+	" .. "Please don't drop any of those back into here." pbold $) cyoa-text! basic-tone
 	3 WEAPON_GRENADE trunk.weapon+ -12 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-army-3
-	($ Thegroup .. " un homme jette beaucoup de nourriture par la fenetre. quelqu'un jette de nouveau un uzi ! cet arme peut ejecter des balles a une vitesse incroyable ! garder l'attention, meme un tireur experimente aura du mal a gerer le recul... ." .. "Amuse-vous beaucoup ! alors allez-en donc." pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " drops a lot of food into the window. Someone pushes an uzi back out! It can spray out bullets at an incredible speed! Watch out, even a skilled shooter will have trouble with the recoil.
+	" .. "Have fun! Also please go away." pbold $) cyoa-text! basic-tone
 	1 WEAPON_UZI trunk.weapon+ -15 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-army-4
-	($ Thegroup .. " alimente une quantite tres importante de nourriture dans la fenetre. il y a une pause, puis quelqu'un force un fusil d'assaut a travers ! cela pourrait vraiment faciliter le voyage !" .. "Merci beaucoup pour tout la nourriture ! bonne chance partout !" pbold $) cyoa-text! goodfx
+	($ Thegroup .. " feeds a very large amount of food into the window. There's a pause, then someone pushes an assault rifle through! This could really help the trip!
+	" .. "Thanks for all the food! Good luck out there!" pbold $) cyoa-text! goodfx
 	1 WEAPON_AK47 trunk.weapon+ -25 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-army-5
-	($ Thegroup .. " feed un grand nombre de nourriture dans la fenetre. il y a une pause, puis quelqu'un au-dela de la porte commence a renvoyer une douzaine de grenades en arriere... ." .. "Soyez extremement prudents avec ces derniers !" pbold $) cyoa-text! goodfx
+	($ Thegroup .. " feeds a very large amount of food into the window. There's a pause, then someone beyond the door starts pushing a dozen grenades back through.
+	" .. "Be really careful with these!" pbold $) cyoa-text! goodfx
 	12 WEAPON_GRENADE trunk.weapon+ -40 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-army-6
-	($ Thegroup .. " alimente une quantite immense de nourriture dans la fenetre. quelqu'un de l'autre cote de la porte tente de pousser un fusil a flammes a travers la petite fenetre... ." .. "Allumez-les !" pbold $) cyoa-text! goodfx
+	($ Thegroup .. " feeds a massive amount of food into the window. Someone on the other side of the door strains to push a flamethrower through the little window.
+	" .. "Light them up!" pbold $) cyoa-text! goodfx
 	1 WEAPON_FLAMETHROWER trunk.weapon+ -60 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-army-7
-	($ Thegroup .. " lentement, on vers une charge de nourriture dans la fenetre d'une voiture. des bruits de grattage sont entendus et puis un barrel de mitrailleuse est pousse a travers l'obscurite. le cadre de la fenetre est brise en raison de la taille de la mitrailleuse lorsqu'elle est inseree." .. "Vous pouvez rester cache ici pendant des mois." pbold $) cyoa-text! goodfx
+	($ Thegroup .. " slowly feeds a car-load of food into the window. Scraping noises are heard and then a minigun barrel is pushed through from the darkness. The frame of the window is broken due to the size of the minigun as it's jammed through.
+	" .. "Thanks so much! I can hide in here for months now!" pbold $) cyoa-text! goodfx
 	1 WEAPON_MINIGUN trunk.weapon+ -75 trunk-food+ someicon
 ;
 
 cyoa: trade-army
-	"Fort de surplus militaire" cyoa-title!
-	($ Thegroup .. " une magasin de surplus militaire est decouvert, recouvert de barricades. il est verrouille etroitement. il y a un panneau indiquant les prix d'armes a l'exterieur, a cote d'une petite fenetre." .. "Laissez tomber simplement la nourriture par la fenetre !" pbold .. " une voix minuscule nous appelle du noir." $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Army Surplus Fort" cyoa-title!
+	($ Thegroup .. " finds an army surplus store, covered in barricades. It's locked tight. There's a sign of weapon prices on a wall outside, next to a small window.
+	" .. "Just drop the food in the window!" pbold .. " says a tiny voice in the darkness." $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	trunk-food 5 < if
-		($ "Il manque de nourriture pour acheter quoi que ce soit ! " .. Thegroup .. " il doit quitter." $) +crtext badfx
+		($ "There isn't enough food to buy anything that they are selling! " .. Thegroup .. " has to leave." $) +crtext badfx
 	else
 		trunk-food 74 > if
-			choice( "Mitrailleuse mini pour 75 nourritures" )choice: trade-army-7
+			choice( "Minigun for 75 food" )choice: trade-army-7
 		then
 		trunk-food 59 > if
-			choice( "Lance-flammes pour 60 nourriture" )choice: trade-army-6
+			choice( "Flamethrower for 60 food" )choice: trade-army-6
 		then
 		trunk-food 39 > if
-			choice( "douze grenades donnent 40 aliments." )choice: trade-army-5
+			choice( "12 grenades for 40 food" )choice: trade-army-5
 		then
 		trunk-food 24 > if
-			choice( "Fusil d'assaut pour 25 aliments." )choice: trade-army-4
+			choice( "Assault Rifle for 25 food" )choice: trade-army-4
 		then
 		trunk-food 14 > if
-			choice( "Un uzi en echange de quinze aliments." )choice: trade-army-3
+			choice( "Uzi for 15 food" )choice: trade-army-3
 		then
 		trunk-food 11 > if
-			choice( "trois grenades contre douze aliments" )choice: trade-army-2
+			choice( "3 grenades for 12 food" )choice: trade-army-2
 		then
 		trunk-food 3 > if
-			choice( "1 grenade fournit 4 nourritures" )choice: trade-army-1
+			choice( "1 grenade for 4 food" )choice: trade-army-1
 		then
 	then
 ;
@@ -471,70 +509,76 @@ cyoa: trade-army
 
 cyoa-choice: trade-shotgun-coolit
 	cpet? if
-		($ cname .. " fait un petit flatulence devant l'homme au fusil a canons." $)
+		($ cname .. " farts right in front of the shotgun guy." $)
 	else
-		($ cname .. " orderle a l'homme au fusil de chasse : " .. "FAITES LE REFROIDIR." pbold $)
+		($ cname .. " tells the shotgun guy to " .. "COOL IT." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		($ "Cela le met en crise emotionnellement..." .. "Tu es juste ! et moi, qu'est-ce que je fais de la vie ?!" pbold .. "un creepypasta est une histoire ou une image inqu " .. cname .. " sa " $) +crtext goodfx
-		50 %chance if "une mitraillette automatique et une quantite de cartouches !" 1 WEAPON_AUTOSHOT trunk.weapon+ else "munition de gros calibre a rainure pour fusil a canons et une grande quantite de cartouches !" 1 WEAPON_SLUG trunk.weapon+ then +text
+		($ "This causes him some sort of emotional crisis.
+		" .. "You're right! What am I even doing with my life?!" pbold .. "
+		He gives " .. cname .. " his " $) +crtext goodfx
+		50 %chance if "automatic shotgun and a bunch of shells!" 1 WEAPON_AUTOSHOT trunk.weapon+ else "rifled slug shotgun and a bunch of shells!" 1 WEAPON_SLUG trunk.weapon+ then +text
 		// used to also give a shotgun, a rifled slug shotgun, and the BIG DAWG. Too much. Busting down the value of mega coolit to about 40-50 food or so instead of like 150.
 		50 trunk-shotgun-shell+ cooled-it
 	else cool-it++
-		($ "Le marchand est vraiment gene par cela ..." .. "Je m'efforce de gagner ma vie ici !" pbold .. "il refuse de le vendre ensuite. " .. thegroup .. " n'importe quoi." $) badfx +crtext 
+		($ "The peddler is really annoyed by this.
+		" .. "I'm trying to make a living here!" pbold .. "
+		He then refuses to sell " .. thegroup .. " anything." $) badfx +crtext 
 	then attitudeREV witsREV
 ;
 
 cyoa-choice: trade-shotgun-4
-	($ Thegroup .. " achete " .. "PERD" rbold .. "c'est un fusil a chaque coup unique, chaque tir est une explosion de dechiquetage de zombies massif." $) cyoa-text! goodfx
+	($ Thegroup .. " buys the " .. "BIG DAWG" rbold .. ". It's a one of a kind custom shotgun! Every shot is a massive blast of zombie splattering." $) cyoa-text! goodfx
 	1 WEAPON_DAWG trunk.weapon+ -50 trunk-food+ someicon charm-shotgun-shell
 ;
 
 cyoa-choice: trade-shotgun-3
-	($ Thegroup .. " un tireur habile achete une fusil a canon raye. il lance un gros projectile solide au lieu de billes de plomb. un tireur experimente pourrait detruire une ligne solide de zombies avec chaque coup !" $) cyoa-text! goodfx
+	($ Thegroup .. " buys a rifled slug shotgun. It fires a heavy, solid slug instead of buckshot. A skilled shooter could destroy a solid line of zombies with each shot!" $) cyoa-text! goodfx
 	1 WEAPON_SLUG trunk.weapon+ -40 trunk-food+ someicon charm-shotgun-shell
 ;
 
 cyoa-choice: trade-shotgun-2
-	($ Thegroup .. " achete une carabine a pompe automatique. cette arme tire beaucoup plus vite qu'une fusil a chargement manuel, mais la puissance d'un tir unique est un peu moins intense." $) cyoa-text! goodfx
+	($ Thegroup .. " buys an automatic shotgun. This weapon fires way faster than a normal shotgun, though the power of a single shot is a little weaker." $) cyoa-text! goodfx
 	1 WEAPON_AUTOSHOT trunk.weapon+ -30 trunk-food+ someicon charm-shotgun-shell
 ;
 
 cyoa-choice: trade-shotgun-1
-	($ Thegroup .. " achete une fusil a canon. le vendeur jette quelques cartouches gratuitement !" $) cyoa-text! goodfx
+	($ Thegroup .. " buys a shotgun. The peddler throws in some shells for free!" $) cyoa-text! goodfx
 	1 WEAPON_SHOTGUN trunk.weapon+ -10 trunk-food+ 15 trunk-shotgun-shell+ someicon charm-shotgun-shell
 ;
 
 cyoa: trade-shotgun
-	"Vendeur d'arme a canon raccourci" cyoa-title!
-	($ Thegroup .. " une voix retentit avec force : 'attention tous! un intrus est detecte dans notre village ! nous devons prendre des precautions immediates et rester vigilants. personne ne sort de leurs maisons jusqu'a ce que nous savons qui c'est et quelles sont ses intentions.'" .. "SHOTGUNS FOR SALE! SHOTGUNS FOR SAAAALE!" pbold $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Shotgun Peddler" cyoa-title!
+	($ Thegroup .. " stops for awhile at a small settlement. No one is trusting of outsiders, everyone seems very cold and silent.
+	Only one voice can be heard booming out:
+	" .. "SHOTGUNS FOR SALE! SHOTGUNS FOR SAAAALE!" pbold $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-grating if 
-		charchoice( " calme-toi." fcoolit )choice: trade-shotgun-coolit
+		charchoice( " tells him to COOL IT" fcoolit )choice: trade-shotgun-coolit
 	then
 	trunk-food 5 < if
-		($ "Desole, il n'y a pas assez d'aliments pour en acheter aucun! par misericorde, le marchand de vagabonds offre quelque chose. " .. thegroup .. " des cartouches de chasse a pistolet sans frais." $) +crtext goodfx 5 trunk-shotgun-shell+
+		($ "There isn't enough food to buy anything! Out of pity, the peddler gives " .. thegroup .. " some free shotgun shells." $) +crtext goodfx 5 trunk-shotgun-shell+
 	else
 		trunk-food 49 > if
-			choice( "Chien grand pour 50 alimentations" )choice: trade-shotgun-4
+			choice( "BIG DAWG for 50 food" )choice: trade-shotgun-4
 		then
 		trunk-food 39 > if
-			choice( "Canon a slug pour 40 aliments." )choice: trade-shotgun-3
+			choice( "Slug Shotgun for 40 food" )choice: trade-shotgun-3
 		then
 		trunk-food 29 > if
-			choice( "10 points gagnes en zomboches!" )choice: trade-shotgun-2
+			choice( "Autoshotty for 30 food" )choice: trade-shotgun-2
 		then
 		trunk-food 14 > if
-			choice( "soixante-cinq coquilles pour quinze aliments." )choice: trade-shotgun-shell-15
+			choice( "75 shells for 15 food" )choice: trade-shotgun-shell-15
 		then
 		trunk-food 9 > if
-			choice( "Fusil a chasse pour dix aliments" )choice: trade-shotgun-1
+			choice( "Shotgun for 10 food" )choice: trade-shotgun-1
 		then
 		trunk-food 9 > if
-			choice( "50 coquilles pour 10 aliments" )choice: trade-shotgun-shell-10
+			choice( "50 shells for 10 food" )choice: trade-shotgun-shell-10
 		then
 		trunk-food 4 > if
-			choice( "25 coquilles pour 5 aliments" )choice: trade-shotgun-shell-5
+			choice( "25 shells for 5 food" )choice: trade-shotgun-shell-5
 		then
 
 	then
@@ -544,68 +588,78 @@ cyoa: trade-shotgun
 
 cyoa-choice: trade-rifle-coolit
 	cpet? if
-		($ cname .. " regardez attentivement la collection puis roulez des des. " .. chis .. " groupe" $)
+		($ cname .. " takes a look at the collection and then rolls " .. chis .. " eyes." $)
 	else
-		($ cname .. " dites a la femme aimable de : " .. "FAITES LE REFROIDIR." pbold $)
+		($ cname .. " tells the friendly woman to " .. "COOL IT." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		($ "Elle donne un signe d'accord." .. "Bien sur, je peux prendre quelques pieces de votre collection si cela vous fait plaisir." pbold .. "le collecteur donne " .. cname .. " une fusil a chasse a portee limitee et un autre. " .. "etre tue" rbold $) goodfx
+		($ "She nods in agreement.
+		" .. "Yeah, I think my collection is getting too big. Mind just taking some off my hands?" pbold .. "
+		The collector gives " .. cname .. " a scoped hunting rifle and an " .. "assault rifle." rbold $) goodfx
 		1 WEAPON_HUNTING trunk.weapon+ 1 WEAPON_AK47 trunk.weapon+ cooled-it
 	else cool-it++
-		($ "Le collectionneur de fusil semble blesse par cela... ." .. "I... I am cool..." pbold .. "elle lui fait savoir ensuite : " .. thegroup .. " quitter." $) badfx
+		($ "The rifle collector seems hurt by this.
+		" .. "I... I am cool..." pbold .. "
+		She then tells " .. thegroup .. " to leave." $) badfx
 	then +crtext attitudeREV witsREV
 ;
 
 cyoa-choice: trade-rifle-4
-	($ Thegroup .. " achete " .. "CREDITS :" rbold .. "il semble heureux de le vendre." .. "Well, technically it's not a rifle! And I couldn't figure out how to hang it on my wall, so..." pbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys the " .. "MINIGUN" rbold .. ". The collector seems glad to sell it. 
+	" .. "Well, technically it's not a rifle! And I couldn't figure out how to hang it on my wall, so..." pbold $) cyoa-text! goodfx
 	1 WEAPON_MINIGUN trunk.weapon+ -65 trunk-food+ someicon charm-rifle-shell
 ;
 
 cyoa-choice: trade-rifle-3
-	($ Thegroup .. " achetez une carabine de chasse puissante. le collectionneur vous offre un prix excellent sur elle, car elle en possede deja plusieurs ..." .. "Une des grandes choses a propos de fusils a chasse est que une seule balle peut ecraser beaucoup de zombies. mon record personnel est de 7 en un coup !" pbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys a high powered hunting rifle. The collector gives you a great price on it, as she already has several.
+	" .. "The great thing about hunting rifles is that one shot can splat a lot of zombies. My record is 7 in one shot!" pbold $) cyoa-text! goodfx
 	1 WEAPON_HUNTING trunk.weapon+ -20 trunk-food+ someicon charm-rifle-shell
 ;
 
 cyoa-choice: trade-rifle-2
-	($ Thegroup .. " achete une fusil d'assaut. sa puissance approximative par balle est similaire a celle d'un fusil de chasse au boeuf et il tire beaucoup plus vite. . ." .. "J'ai une preference pour les fusils a un coup. les mitraillettes consomment trop beaucoup de munitions et ne percent pas bien." pbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys an assault rifle. Nearly as powerful as a cowboy rifle per shot, and it fires much faster.
+	" .. "I prefer the single shot rifles, personally. Automatics use up too much ammo and don't pierce as well." pbold $) cyoa-text! goodfx
 	1 WEAPON_AK47 trunk.weapon+ -25 trunk-food+ someicon charm-rifle-shell
 ;
 
 cyoa-choice: trade-rifle-1
-	($ Thegroup .. " achete une carabine cow-boy. le collectionneur ajoute gratuitement des munitions supplementaires et une seconde carabine !" .. "Des fusils cow-boy sont excellents pour les debutants. faciles a manier, agreables a tirer. je en trouve des tonnes, donc prenons deux !" pbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys a cowboy rifle. The collector throws in some ammo for free, along with a second rifle!
+	" .. "Cowboy rifles are great for beginners. Easy to handle, fun to shoot. I find tons of these, so take two!" pbold $) cyoa-text! goodfx
 	2 WEAPON_RIFLE trunk.weapon+ -10 trunk-food+ 20 trunk-rifle-shell+ someicon charm-rifle-shell
 ;
 
 cyoa: trade-rifle
-	"Casse-tete a fusils" cyoa-title!
-	($ Thegroup .. " arrete un moment devant un immeuble d'appartements transforme en petite forteresse par un groupe pacifique de survivants. un vivant vous invite a decouvrir sa collection de fusils." .. "J'en ai obtenu tant qu'il en reste un a vendre !" pbold $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Rifle Collector" cyoa-title!
+	($ Thegroup .. " stops for awhile at an apartment building. It has been turned into a small fort by a peaceful group of survivors.
+	One invites you to check out her collection of rifles.
+	" .. "I've gotten so many that I'm looking to sell one!" pbold $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-grating if 
-		charchoice( " arrete de te chauffer !" fcoolit )choice: trade-rifle-coolit
+		charchoice( " tells her to COOL IT" fcoolit )choice: trade-rifle-coolit
 	then
 	trunk-food 5 < if
-		($ "Desole, il n'y a pas assez de nourriture pour en acheter ! pour rester amical, le recueilleur en donne gratuitement. " .. thegroup .. " des munitions de rifle sans frais." $) +crtext goodfx 10 trunk-rifle-shell+
+		($ "There isn't enough food to buy any! To be friendly, the collector gives " .. thegroup .. " some free rifle ammo." $) +crtext goodfx 10 trunk-rifle-shell+
 	else
 		trunk-food 64 > if
-			choice( "Mitrailleuse pour 65 nourriture" )choice: trade-rifle-4
+			choice( "Minigun for 65 food" )choice: trade-rifle-4
 		then
 		trunk-food 24 > if
-			choice( "Fusil d'assaut pour 25 aliments." )choice: trade-rifle-2
+			choice( "Assault Rifle for 25 food" )choice: trade-rifle-2
 		then
 		trunk-food 19 > if
-			choice( "Fusil a chasse pour 20 aliments" )choice: trade-rifle-3
+			choice( "Hunting Rifle for 20 food" )choice: trade-rifle-3
 		then
 		trunk-food 14 > if
-			choice( "90 obus de fusil pour 15 aliments" )choice: trade-rifle-shell-15
+			choice( "90 rifle ammo for 15 food" )choice: trade-rifle-shell-15
 		then
 		trunk-food 9 > if
-			choice( "Fusil de cow-boy pour 10 aliments" )choice: trade-rifle-1
+			choice( "Cowboy Rifle for 10 food" )choice: trade-rifle-1
 		then
 		trunk-food 9 > if
-			choice( "60 obus de fusil contre 10 aliments" )choice: trade-rifle-shell-10
+			choice( "60 rifle ammo for 10 food" )choice: trade-rifle-shell-10
 		then
 		trunk-food 4 > if
-			choice( "trente obus de fusil contre cinquante aliments" )choice: trade-rifle-shell-5
+			choice( "30 rifle ammo for 5 food" )choice: trade-rifle-shell-5
 		then
 	then
 ;
@@ -614,71 +668,82 @@ cyoa: trade-rifle
 
 cyoa-choice: trade-fanatic-coolit
 	cpet? if
-		($ cname .. " recruter un chat ? " .. "REFRIGERER" pbold .. " faire des flatulences ! incroyable !" $)
+		($ cname .. " says the phrase " .. "COOL IT" pbold .. " by farting! Amazing!" $)
 	else
-		($ cname .. " la femme fanatique, veuillez arreter votre harcelement. veuillez laisser moi vivre en paix. " .. "FAITES LE REFROIDIR." pbold $)
+		($ cname .. " tells the fanatical woman to " .. "COOL IT." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		($ "Elle en est ravi" .. "WHOA!	WHOAAAAAAA!" rbold .. "le commercant donne " .. cname .. " presque toute son inventaire. huit cocktails molotov, un stationnement et une boite a piegons. " .. "saw pour arbres a chaine." rbold $) goodfx +crtext
+		($ "She's delighted by this, somehow.
+		" .. "WHOA!	WHOAAAAAAA!" rbold .. "
+		The trader gives " .. cname .. " nearly her entire stock. 8 molotovs, a parking meter, and a " .. "chainsaw." rbold $) goodfx +crtext
 		1 WEAPON_CHAINSAW trunk.weapon+ 1 WEAPON_PARKING trunk.weapon+ 8 WEAPON_MOLOTOV trunk.weapon+ cooled-it
 	else cool-it++
-		($ "Le marchand d'armes est en colere a cause de cela." .. "Arretez de gonfler, perdons-leur la patience !" rbold .. Thegroup .. " cette idee n'etait pas la meilleure ! la negociatrice signale a ses collegues d'attaquer !" $) +crtext bitefx rob-megafail
+		($ "The weapons trader is infuriated by this.
+		" .. "COOL IT? COOL IT??! LOSERS COOL IT!!
+		" rbold .. Thegroup .. " realizes that this was a pretty bad idea! The trader signals the rest of her group to attack!" $) +crtext bitefx rob-megafail
 	then attitudeREV witsREV
 ;
 
 cyoa-choice: trade-fanatic-1
-	($ Thegroup .. " achete une paire de cocktails molotov." .. "Une petite flamme peut aller loin !" rbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys a couple of molotov cocktails.
+	" .. "A little fire can go a long way!" rbold $) cyoa-text! goodfx
 	2 WEAPON_MOLOTOV trunk.weapon+ -5 trunk-food+ someicon charm-gas
 ;
 cyoa-choice: trade-fanatic-2
-	($ Thegroup .. " achete cinq cocktails molotov." .. "Quand il y a de la incertitude, brulez tout!!" rbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys five molotov cocktails.
+	" .. "When in doubt, burn it all down!!" rbold $) cyoa-text! goodfx
 	5 WEAPON_MOLOTOV trunk.weapon+ -10 trunk-food+ someicon charm-gas
 ;
 cyoa-choice: trade-fanatic-4
-	($ Thegroup .. " achete huit cocktails molotov." .. "1. 'ne pas utiliser les mots ci-dessus ensemble !'" rbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys eight molotov cocktails.
+	" .. "Don't use them all in one place!" rbold $) cyoa-text! goodfx
 	8 WEAPON_MOLOTOV trunk.weapon+ -15 trunk-food+ someicon charm-gas
 ;
 cyoa-choice: trade-fanatic-3
-	($ Thegroup .. " achetez un parkingmetre ? c'est tres lourd... ." .. "Nous l'avons arrachee de terre ! c'est ainsi que nous pouvons transmettre les economies a vous !" rbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys a parking meter? It's very heavy.
+	" .. "We ripped this out of the ground! That's how we can pass the savings on to you!" rbold $) cyoa-text! goodfx
 	1 WEAPON_PARKING trunk.weapon+ -10 trunk-food+ someicon
 ;
 cyoa-choice: trade-fanatic-5
-	($ Thegroup .. " achetez une scie a chaine ! elle transforme le gaz d'epargne en destruction de zombies ... ." .. "Repondez : repandre les uns apres les autres, j'en dechire tous !" rbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys a chainsaw! It converts spare gas into zombie destruction.
+	" .. "Hahaha! PERFECT! Rip them all apart!" rbold $) cyoa-text! goodfx
 	1 WEAPON_CHAINSAW trunk.weapon+ -20 trunk-food+ someicon charm-gas
 ;
 cyoa-choice: trade-fanatic-6
-	($ Thegroup .. " achete un lance-flammes ! tente de ne pas incendier vos camarades a l'aide de lui." .. "Aaaaaaa! Looks GREAT on you!!" rbold $) cyoa-text! goodfx
+	($ Thegroup .. " buys a flamethrower! Try not to shoot your team members with it.
+	" .. "Aaaaaaa! Looks GREAT on you!!" rbold $) cyoa-text! goodfx
 	1 WEAPON_FLAMETHROWER trunk.weapon+ -50 trunk-food+ someicon charm-gas
 ;
 
 // chainsaw 40 - flamethrower 100 - molotovs 2 5 10 for 5 10 20 - 15 parking meter
 cyoa: trade-fanatic
-	"Maison hantee" cyoa-title!
-	($ Thegroup .. " vous entrez dans le camp d'un grand groupe d'intimidants. ils sont habilles quelque part entre un gang motard et un film post-apocalyptique des annees 80... une femme particulierement intensive vous offre de vous vendre une arme supplementaire. " .. "Je ne transporte que la meilleure marchandise !" rbold $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Carnage Weapons" cyoa-title!
+	($ Thegroup .. " stumbles into the camp of a large group of intimidating people. They're dressed somewhere between biker gang and 80's post apocalypse movie.
+	One particularly intense looking woman offers to sell you a spare weapon. " .. "I only carry the BEST stuff!" rbold $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-grating if 
-		charchoice( " arrete de te chauffer !" fcoolit )choice: trade-fanatic-coolit
+		charchoice( " tells her to COOL IT" fcoolit )choice: trade-fanatic-coolit
 	then
 	trunk-food 5 < if
-		($ "Il n'y a pas assez d'aliments pour en acheter des nous! le marchand offre gratuitement un cocktail molotov. " .. thegroup .. "promouvez simplement la destruction de zombies." $) +crtext goodfx 1 WEAPON_MOLOTOV trunk.weapon+
+		($ "There isn't enough food to buy any! The trader gives a free molotov to " .. thegroup .. ", just to promote zombie destruction." $) +crtext goodfx 1 WEAPON_MOLOTOV trunk.weapon+
 	else
 		trunk-food 49 > if
-			choice( "Lance-flammes pour 50 nourriture" )choice: trade-fanatic-6
+			choice( "Flamethrower for 50 food" )choice: trade-fanatic-6
 		then
 		trunk-food 19 > if
-			choice( "Saw de chaine pour 20 aliments" )choice: trade-fanatic-5
+			choice( "Chainsaw for 20 food" )choice: trade-fanatic-5
 		then
 		trunk-food 14 > if
-			choice( "huit molotovs contre quinze aliments" )choice: trade-fanatic-4
+			choice( "8 molotovs for 15 food" )choice: trade-fanatic-4
 		then
 		trunk-food 9 > if
-			choice( "Bornier pour 10 alimentations" )choice: trade-fanatic-3
+			choice( "Parking meter for 10 food" )choice: trade-fanatic-3
 		then
 		trunk-food 9 > if
-			choice( "luttez contre l'armee de zombies" )choice: trade-fanatic-2
+			choice( "5 molotovs for 10 food" )choice: trade-fanatic-2
 		then
 		trunk-food 4 > if
-			choice( "deux molotov cocktails pour cinq aliments." )choice: trade-fanatic-1
+			choice( "2 molotovs for 5 food" )choice: trade-fanatic-1
 		then
 	then
 ;
@@ -689,73 +754,77 @@ cyoa: trade-fanatic
 
 cyoa-choice: trade-blade-rob 
 	50 %chance if
-		($ cname .. " vole a la maitre d'epees deux de ses armes les plus efficaces. chacune est un arme de melee redoutable dans son genre." $) cyoa-text! goodfx
+		($ cname .. " robs the Blade Master of two of his best weapons. Both are powerful melee weapons in their own way." $) cyoa-text! goodfx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		trade-blade-three rob-guilt
 	else
-		($ "Le maitre d'epee parvient a tenir tete a la bataille. " .. thegroup .. " en utilisant sa vaste connaissance en matiere d'epees et son katana de marche, il effectuera une excellente tache." $) cyoa-text! bitefx rob-fail
+		($ "The Blade Master manages to fight off " .. thegroup .. " using his considerable sword knowledge and mall katana." $) cyoa-text! bitefx rob-fail
 	then aholeREV
 ;
 cyoa-choice: trade-blade-coolit
 	cpet? if
-		($ cname .. " mangent mecaniquement l'une des gaines de l'maitre d'epees, contre son gre." $)
+		($ cname .. " starts gnawing on one of the Blade Master's scabbards, in spite." $)
 	else
-		($ cname .. " instructez le maitre d'epees a : " .. "FAITES LE REFROIDIR." pbold $)
+		($ cname .. " tells the Blade Master to " .. "COOL IT." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		($ "Il se remplit de doute a propos de soi." .. "Ma vie est un mensonge ! je vais abandonner ces choses d'epee et commencer a collecter des lance-flammes." pbold .. "ancien maitre d'epees : il donne " .. cname .. " deux de ses meilleures armees. elles sont un robuste machette et une lance a main. " .. "Epee du chevalier." rbold $) goodfx
+		($ "He becomes filled with self-doubt.
+		" .. "My life is a lie! I'm going to give up this sword stuff and start collecting flamethrowers." pbold .. "
+		The former Blade Master gives " .. cname .. " two of his best weapons. They are a sturdy machete and a " .. "Knight's Sword." rbold $) goodfx
 		trade-blade-three cooled-it
 	else cool-it++
-		($ "C'est magnifique de parler de ces epees si cool. 	 " .. thegroup .. " jamais n'a l'occasion d'acheter quelque chose." $) badfx
+		($ "The Blade Master ignores this.
+		He starts talking about how cool swords are and " .. thegroup .. " never gets a chance to buy anything." $) badfx
 	then +crtext attitudeREV witsREV
 ;
 
 cyoa-choice: trade-blade-4
-	($ Thegroup .. " achete " .. "EPEE DE TERRE PUISSANTE" rbold .. "la mine claymore est lente et difficile a manipuler, mais extremement puissante. elle peut parfois couper jusqu'a quatre zombies a la fois !" $) cyoa-text! goodfx
+	($ Thegroup .. " buys the " .. "MIGHTY CLAYMORE" rbold .. ". The claymore is slow and hard to handle, but extremely powerful. It can sometimes chop 4 zombies at once!" $) cyoa-text! goodfx
 	1 WEAPON_CLAYMORE trunk.weapon+ -35 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-blade-3
-	($ Thegroup .. " achetez un type de epee qu'un chevalier a l'epoque medievale utilisera. cela ferait un excellent arme ! elle peut facilement frapper deux zombies avec une seule coups." $) cyoa-text! goodfx
+	($ Thegroup .. " buys the type of sword a knight in the middle ages would use. This will make a great weapon! It can easily hit two zombies in one swing." $) cyoa-text! goodfx
 	1 WEAPON_KNIGHT trunk.weapon+ -25 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-blade-2
-	($ Thegroup .. " achetez une machette extremement solide et legere. elle est robuste assez pour couper des arbres, de sorte qu'elle ne brisera pas avec l'utilisation routiere." $) cyoa-text! goodfx
+	($ Thegroup .. " buys a very strong yet light machete. It's sturdy enough to chop down trees with, so it won't break with 'road trip usage'." $) cyoa-text! goodfx
 	1 WEAPON_MACHETE2 trunk.weapon+ -15 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-blade-1
-	($ Thegroup .. " achete une katana de ce type dans un centre commercial. elle ressemble a ce qui pourrait se briser a tout moment. c'est dommage." $) cyoa-text! goodfx
+	($ Thegroup .. " buys a katana of the type you'd get at a mall. It looks like it might break at any moment. What a rip off." $) cyoa-text! goodfx
 	1 WEAPON_OTAKU trunk.weapon+ -5 trunk-food+ someicon 
 ;
 
 cyoa: trade-blade
-	"C'est un dinkus." cyoa-title!
-	($ Thegroup .. " un homme rencontre en train de descendre la route porte beaucoup d'epees dans des gaines ou liees a son sac..." .. "Un jour je ferai la plus fine epee dediee aux zombies jamais vue ! mais d'abord, je dois me faire une idee de la fabrication des epees. voici une que j'ai trouvee ici. je vous en vends une !" pbold $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Blade Master" cyoa-title!
+	($ Thegroup .. " meets a man shuffling down the road. He's carrying many swords in scabbards or tied to his pack.
+	" .. "One day I'll make the finest zombie slicing sword ever seen! Though I have to figure out how to make swords first. I just found these lying around. I'll sell you one!" pbold $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " volle le marchand" )choice: trade-blade-rob
+		charchoice( " robs the trader" )choice: trade-blade-rob
 	then
 	most-grating if 
-		charchoice( " calme-toi." fcoolit )choice: trade-blade-coolit
+		charchoice( " tells him to COOL IT" fcoolit )choice: trade-blade-coolit
 	then
 	trunk-food 5 < if
-		($ "Il n'y a pas assez de nourriture pour rien acheter ! le marchand nous offre une consolation. " .. thegroup .. " une hache a viande du charcutier." $) +crtext goodfx 1 WEAPON_CLEAVER trunk.weapon+
+		($ "There isn't enough food to buy anything! As consolation the trader gives " .. thegroup .. " a butcher's cleaver." $) +crtext goodfx 1 WEAPON_CLEAVER trunk.weapon+
 	else
 		trunk-food 34 > if
-			choice( "Epee en terre puissante pour 35 nourritures." )choice: trade-blade-4
+			choice( "Mighty Claymore for 35 food" )choice: trade-blade-4
 		then
 		trunk-food 24 > if
-			choice( "Epee de chevalier pour 25 nourriture" )choice: trade-blade-3
+			choice( "Knight's Sword for 25 food" )choice: trade-blade-3
 		then
 		trunk-food 14 > if
-			choice( "Le prochain pas dans le plan :" )choice: trade-blade-2
+			choice( "Sturdy Machete for 15 food" )choice: trade-blade-2
 		then
 		trunk-food 4 > if
-			choice( "Une katana a bon marche pour cinq aliments." )choice: trade-blade-1
+			choice( "Cheap Katana for 5 food" )choice: trade-blade-1
 		then
 	then
 ;
@@ -764,70 +833,72 @@ cyoa: trade-blade
 
 cyoa-choice: trade-axe-rob 
 	40 %chance if
-		($ cname .. " volez l'axier du marchand, qui ne repond pas du tout. " .. cname .. " attrape l'hache medievale mais est trop effraye " $) cyoa-text! 0.4 1100 tone
+		($ cname .. " robs the axe merchant, who simply stands there without responding at all. " .. cname .. " grabs the medieval axe but is too creeped out to steal a second thing. " $) cyoa-text! 0.4 1100 tone
 		notsolo if
-			($ Theothersare .. " s'est effraye encore." $) +text
+			($ Theothersare .. " also creeped out." $) +text
 		then morale2-all 1 WEAPON_MEDIEVAL trunk.weapon+
 	else
-		($ "Le marchand d'haches se deplace trop rapidement pour son apparence. dans un rien de temps, il tient une grande hache medievale dans une main habillee. " .. Thegroup .. " il est terrifie a l'extreme pour continuer le vol." $) cyoa-text! badfx morale3-all
+		($ "The axe merchant moves way too fast for its appearance. In a flash, it is holding a huge medieval axe in one robed hand. " .. Thegroup .. " is far too terrified to continue the robbery attempt." $) cyoa-text! badfx morale3-all
 	then aholeREV
 ;
 cyoa-choice: trade-axe-coolit
 	cpet? if
-		($ cname .. " une bruite enorme de petarde s'echappe de ses jambes." $)
+		($ cname .. " rips an especially loud fart." $)
 	else
-		($ cname .. " demandez au marchand d'axes : " .. "FAITES LE REFROIDIR." pbold $)
+		($ cname .. " tells the axe merchant to " .. "COOL IT." pbold $)
 	then cyoa-text!
 	cool-it++
-	($ "Le marchand d'axes ne semble pas reagir... ." .. "....." rbold .. "
-	" .. cname .. " n'a aucune idee si " .. che .. " voit quelque chose." $) 
+	($ "The axe merchant doesn't seem to react.
+	" .. "....." rbold .. "
+	" .. cname .. " has no idea if " .. che .. " was heard or not." $) 
 	+crtext attitudeREV witsREV 0.3 600 tone
 ;
 
 cyoa-choice: trade-axe-4
-	($ Thegroup .. " achete " .. "VILLE TRANQUILLE" rbold .. "cette chose est vraiment lourde et lente. elle peut souvent couper trois zombies a la fois ! donnez-la a quelqu'un fort et en bonne condition physique." $) cyoa-text! goodfx
+	($ Thegroup .. " buys the " .. "MEDIEVAL AXE" rbold .. ". This thing is really heavy and slow. It can often cleave 3 zombies at once! Give it to someone strong and fit." $) cyoa-text! goodfx
 	1 WEAPON_MEDIEVAL trunk.weapon+ -25 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-axe-3
-	($ Thegroup .. " achete une guitare a forme de hache. cela ferait un arme elegante." $) cyoa-text! goodfx
+	($ Thegroup .. " buys an axe-shaped guitar. This would make a stylish weapon." $) cyoa-text! goodfx
 	1 WEAPON_GUITAR trunk.weapon+ -10 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-axe-2
-	($ Thegroup .. " achete une hache a feu. elle est appelee ainsi car c'etait ce qu'utilisaient les pompiers pour echiquier les zombies." $) cyoa-text! goodfx
+	($ Thegroup .. " buys a fire axe. It's called this because it was what firefighters used to chop up zombies." $) cyoa-text! goodfx
 	1 WEAPON_FIRE trunk.weapon+ -6 trunk-food+ someicon
 ;
 
 cyoa-choice: trade-axe-1
-	($ Thegroup .. " acheter un hachette. c'est le plus petit hache possible." $) cyoa-text! goodfx
+	($ Thegroup .. " buys a hatchet. It's the tiniest little axe." $) cyoa-text! goodfx
 	1 WEAPON_HATCHET trunk.weapon+ -3 trunk-food+ someicon 
 ;
 
 cyoa: trade-axe
-	"Marchand d'axes" cyoa-title!
-	($ Thegroup .. " rencontre un etrange personnage qui se deplace le long de la route. il porte une capuche et traine une charrette pleine de diverses sortes d'axes..." .. "I sell axes... Just axes..." rbold $) cyoa-text!
-	choice( "Sortir de la voie" )choice
+	"Axe Merchant" cyoa-title!
+	($ Thegroup .. " meets a strange figure shuffling down the road. It's wearing a hooded robe and pulling a cart full of different types of axes.
+	" .. "I sell axes... Just axes..." rbold $) cyoa-text!
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " dans les yeux a juste distance." )choice: trade-axe-rob
+		charchoice( " robs the merchant" )choice: trade-axe-rob
 	then
 	most-grating if 
-		charchoice( " laissez-le refroidir." fcoolit )choice: trade-axe-coolit
+		charchoice( " tells it to COOL IT" fcoolit )choice: trade-axe-coolit
 	then
 	trunk-food 3 < if
-		($ "Il n'y a pas assez de nourriture pour acheter quelque chose ! le marchand donne cependant une consolation. " .. thegroup .. " une crosse de hockey, qui est donc a forme d'axe." $) +crtext goodfx 1 WEAPON_HOCKEY trunk.weapon+
+		($ "There isn't enough food to buy anything! As consolation the merchant gives " .. thegroup .. " a hockey stick, which I guess is axe shaped." $) +crtext goodfx 1 WEAPON_HOCKEY trunk.weapon+
 	else 0.3 600 tone
 		trunk-food 24 > if
-			choice( "Hache medievale pour 25 aliments" )choice: trade-axe-4
+			choice( "Medieval Axe for 25 food" )choice: trade-axe-4
 		then
 		trunk-food 9 > if
-			choice( "Guitare electrique pour dix ans." )choice: trade-axe-3
+			choice( "Electric Guitar for 10 food" )choice: trade-axe-3
 		then
 		trunk-food 5 > if
-			choice( "Arret, arret !" )choice: trade-axe-2
+			choice( "Fire Axe for 6 food" )choice: trade-axe-2
 		then
 		trunk-food 2 > if
-			choice( "Une hache pour trois aliments" )choice: trade-axe-1
+			choice( "Hatchet for 3 food" )choice: trade-axe-1
 		then
 	then
 ;
@@ -835,83 +906,83 @@ cyoa: trade-axe
 // General Firearms, with ability to unlock a secret super shop
 
 cyoa-choice: trade-firearms-80
-	($ Thegroup .. " achete une flamothrower. les vendeurs ne le revelent pas d'ou ils l'ont obtenu. faites attention de vous avec ca pour ne pas s'enflammer !" $) cyoa-text! basic-tone
+	($ Thegroup .. " buys a flamethrower. The traders don't say where they got it. Try not to set yourself on fire with this!" $) cyoa-text! basic-tone
 	1 WEAPON_FLAMETHROWER trunk.weapon+ -40 trunk-food+ charm-gas
 ;
 
 cyoa-choice: trade-firearms-40
-	($ Thegroup .. " achetez une fusil a pompe automatique. maintenant, nous sommes sur le meme wavelength ! vous etes pret jusqu'a ce que vous manquez de cartouches pour elle." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys an automatic shotgun. NOW we're talking! You're set until you run out of shells for it." $) cyoa-text! basic-tone
 	1 WEAPON_AUTOSHOT trunk.weapon+ -25 trunk-food+ charm-rifle-shell
 ;
 
 cyoa-choice: trade-firearms-30
-	($ Thegroup .. " achete une fusil d'assaut. quiconque l'utilise en a besoin de beaucoup de competence pour le manipuler correctement !" $) cyoa-text! basic-tone
+	($ Thegroup .. " buys an assault rifle. Whoever uses this needs a lot of shooting skill to handle it right!" $) cyoa-text! basic-tone
 	1 WEAPON_AK47 trunk.weapon+ -20 trunk-food+ charm-bullet
 ;
 
 cyoa-choice: trade-firearms-20
-	($ Thegroup .. " achete une uzi. ideal pour disperser des balles partout. quasiment toute personne experimentee a la tir peut avoir des ennuis a la manipulation de cela." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys an uzi. Great for spraying bullets EVERYWHERE. Even someone great with guns will have problems handling this." $) cyoa-text! basic-tone
 	1 WEAPON_UZI trunk.weapon+ -10 trunk-food+ charm-bullet
 ;
 
 cyoa: trade-firearms-mega 
 
-	($ "Les negociants decident d'afficher. " .. thegroup .. " LES BONNES CHOSES." $) cyoa-text! goodfx
-	choice( "Sortir de la voie" )choice
+	($ "The traders decide to show " .. thegroup .. " THE GOOD STUFF." $) cyoa-text! goodfx
+	choice( "Drive off" )choice
 	trunk-food 39 > if
-		choice( "Lance-flammes pour 40 nourriture." )choice: trade-firearms-80
+		choice( "Flamethrower for 40 food" )choice: trade-firearms-80
 	then
 	trunk-food 24 > if
-		choice( "Fusil achargement automatique pour 25 aliments." )choice: trade-firearms-40
+		choice( "Auto-Shotgun for 25 food" )choice: trade-firearms-40
 	then
 	trunk-food 19 > if
-		choice( "Fusil d'assaut pour 20 aliments." )choice: trade-firearms-30
+		choice( "Assault Rifle for 20 food" )choice: trade-firearms-30
 	then
 	trunk-food 9 > if
-		choice( "Une uzi en echange de dix aliments." )choice: trade-firearms-20
+		choice( "Uzi for 10 food" )choice: trade-firearms-20
 	then
 ;
 
 cyoa-choice: trade-firearms-15
-	($ Thegroup .. " achete une fusil a cannons. c'est une arme classique et efficace dans presque toutes les mains." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys a shotgun. What a classic choice! This weapon is good in the hands of nearly anyone." $) cyoa-text! basic-tone
 	1 WEAPON_SHOTGUN trunk.weapon+ -5 trunk-food+ charm-shotgun-shell
 ;
 
 cyoa-choice: trade-firearms-10
-	($ Thegroup .. " achete une carabine cow-boy. comme utilisaient les cow-boys. quelqu'un ayant des competences de tir correctes pourrait reellement en faire preuve." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys a cowboy rifle. Just like the cowboys used. Someone with good shooting skill could really make this work." $) cyoa-text! basic-tone
 	1 WEAPON_RIFLE trunk.weapon+ -5 trunk-food+ charm-rifle-shell
 ;
 
 cyoa-choice: trade-firearms-5
-	($ Thegroup .. " achat d'une revolver. dans des mains experimentees, cela peut permettre a quelqu'un de faire beaucoup de degats aux zombies avec des cartouches bon marche." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys a revolver. In the right hands, this could let someone using cheap bullets do a lot of zombie damage." $) cyoa-text! basic-tone
 	1 WEAPON_DOLT trunk.weapon+ -5 trunk-food+ charm-bullet
 ;
 
 cyoa-choice: trade-firearms-1
-	($ Thegroup .. " achete une pistolet. c'etait tres bon marche, mais c'est du meme type que l'on retrouve partout." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys a pistol. It was very cheap, but this is the same type one can find anywhere." $) cyoa-text! basic-tone
 	1 WEAPON_PISTOL trunk.weapon+ -1 trunk-food+ charm-bullet
 ;
 
 cyoa: trade-firearms
-	"Exposition de canons mobiles" cyoa-title!
-	($ Thegroup .. " une grande bande de survivants itinerants est decouverte. ils echangent des armes a feu, meme si le choix semble assez commun." $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Mobile Gun Show" cyoa-title!
+	($ Thegroup .. " finds a large band of travelling survivors. They are trading firearms, though the selection seems like pretty common stuff." $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	shootest-pass trunk-food 9 > and if
-		shootest charchoice( " demande de voir les bonnes choses." )choice: trade-firearms-mega
+		shootest charchoice( " demands to see the good stuff" )choice: trade-firearms-mega
 	then
 	trunk-food 1 < if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
 		trunk-food 4 > if
-			choice( "Arme a canon a cannons pour cinq unites de nourriture." )choice: trade-firearms-15
+			choice( "Shotgun for 5 food" )choice: trade-firearms-15
 		then
 		trunk-food 4 > if
-			choice( "Fusil de cow-boy pour 5 aliments" )choice: trade-firearms-10
+			choice( "Cowboy Rifle for 5 food" )choice: trade-firearms-10
 		then
 		trunk-food 4 > if
-			choice( "Pistolet revolver pour cinq aliments." )choice: trade-firearms-5
+			choice( "Revolver for 5 food" )choice: trade-firearms-5
 		then
-		choice( "Pistolet pour une nourriture" )choice: trade-firearms-1
+		choice( "Pistol for 1 food" )choice: trade-firearms-1
 
 	then
 ;
@@ -919,64 +990,69 @@ cyoa: trade-firearms
 // Pipebomb dude
 
 cyoa-choice: trade-pipebomb-rob 
-	($ "Au premier signe de probleme, le negociant ouvre son manteau pour reveler qu'il est recouvert de bombes a pipe. dans un mouvement rapide, il allume une meche d'une d'entre elles ..." .. cname .. " il est a cote de lui et a presque assez de temps pour profondement se reprouver tout entier du larcin." $) cyoa-text! bitefx
+	($ "At the first glimmer of trouble, the trader opens his coat to reveal that he's covered in pipebombs. In a quick motion, he lights a fuse on one of them.
+	" .. cname .. " is right next to him, and has just barely enough time to deeply regret the whole robbery thing." $) cyoa-text! bitefx
 		rob-megafail aholeREV
 ;
 cyoa-choice: trade-pipebomb-coolit
 	cpet? if
-		($ cname .. " fait des flatulences tres bruyantes a la personne qui fabrique les bombes en tubes." $)
+		($ cname .. " farts really loud at the pipebomb guy." $)
 	else
-		($ cname .. " laissez le bombardier de tuyau faire son affaire. " .. "FAITES LE REFROIDIR." pbold $)
+		($ cname .. " tells the pipebomb guy to " .. "COOL IT." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		($ "Il comprend cela comme " .. cname .. " jouer au ballon dur avec les echanges commerciaux ..." .. "LAISSEZ-MOI VOS BOMBES! PRENEZ DES ECHANTILLONS GRATUITS!" pbold .. "un creepypasta est une histoire ou une image inqu " .. chim .. " 25 bombes a gaz : c'est une grande quantite !" $) goodfx
+		($ "He interprets this as " .. cname .. " playing hardball with the trade.
+		" .. "NO! TAKE MY BOMBS! FREE SAMPLES!" pbold .. "
+		He gives " .. chim .. " 25 pipebombs! That's a massive amount!" $) goodfx
 		25 WEAPON_PIPEBOMB trunk.weapon+ cooled-it
 	else cool-it++
-		($ "ARRETEZ-VOUS, ARRETEZ-VOUS !" pbold .. "l'atmosphere devient assez tendue avec l'homme qui vend des explosifs. " .. thegroup .. " feuilles." $) badfx
+		($ "YOU COOL IT! YOU COOL IT!!" pbold .. "
+		The mood gets pretty tense with the guy selling explosives, so " .. thegroup .. " leaves." $) badfx
 	then +crtext attitudeREV witsREV
 ;
 : charm-pipebomb
 	most-charming if
-		choosechar ($ " Le negociant donne " .. cname .. " essayez une pipe bombe supplementaire dans une tentative maladroite et ambigue, soit pour la seduction, soit pour l'amitie. c'est difficile de dire a quoi ca sert reellement." $) +cr +text 1 WEAPON_PIPEBOMB trunk.weapon+
+		choosechar ($ " The trader gives " .. cname .. " an extra pipebomb in an extremely awkward attempt at either flirting or friendliness. It's hard to say for sure." $) +cr +text 1 WEAPON_PIPEBOMB trunk.weapon+
 	then
 ;
 cyoa-choice: trade-pipebomb-20
-	($ Thegroup .. " achete 8 bombes pipelines." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys 8 pipebombs." $) cyoa-text! basic-tone
 	8 WEAPON_PIPEBOMB trunk.weapon+ -15 trunk-food+ charm-pipebomb someicon
 ;
 
 cyoa-choice: trade-pipebomb-10
-	($ Thegroup .. " achete 5 bombes a pipe." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys 5 pipebombs." $) cyoa-text! basic-tone
 	5 WEAPON_PIPEBOMB trunk.weapon+ -10 trunk-food+ charm-pipebomb someicon
 ;
 
 cyoa-choice: trade-pipebomb-5
-	($ Thegroup .. " achete 2 bombes a canon." $) cyoa-text! basic-tone
+	($ Thegroup .. " buys 2 pipebombs." $) cyoa-text! basic-tone
 	2 WEAPON_PIPEBOMB trunk.weapon+ -5 trunk-food+ charm-pipebomb someicon
 ;
 
 cyoa: trade-pipebomb
-	"Fournisseur de bombes a pipe" cyoa-title!
-	($ Thegroup .. " un homme nerveux revendeur de bombes fait maison. il porte un gilet enrobe avec des lumpes saillants sous son manteau." .. "ACHETEZ MES BOMBES !" pbold $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Pipebomb Supplier" cyoa-title!
+	($ Thegroup .. " finds a twitchy man selling homemade bombs. He's wearing a bulky coat with lumps bulging out from underneath.
+	" .. "BUY MY BOMBS!" pbold $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " volle le marchand" )choice: trade-pipebomb-rob
+		charchoice( " robs the trader" )choice: trade-pipebomb-rob
 	then
 	most-grating if 
-		charchoice( " calme-toi." fcoolit )choice: trade-pipebomb-coolit
+		charchoice( " tells him to COOL IT" fcoolit )choice: trade-pipebomb-coolit
 	then
 	trunk-food 5 < if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce, mais il donne gratuitement une bombe a retardement !" $) +cr +text
+		($ "Sadly, there isn't enough food left for trading, though he does give away a free pipebomb!" $) +cr +text
 		1 WEAPON_PIPEBOMB trunk.weapon+
 	else
 		trunk-food 14 > if
-			choice( "huit bombes a pipe pour quinze aliments" )choice: trade-pipebomb-20
+			choice( "8 pipebombs for 15 food" )choice: trade-pipebomb-20
 		then
 		trunk-food 9 > if
-			choice( "cinq bombes a pipe pour dix aliments" )choice: trade-pipebomb-10
+			choice( "5 pipebombs for 10 food" )choice: trade-pipebomb-10
 		then
 		trunk-food 4 > if
-			choice( "deux bombes a pipe pour cinq aliments" )choice: trade-pipebomb-5
+			choice( "2 pipebombs for 5 food" )choice: trade-pipebomb-5
 		then
 	then
 ;
@@ -985,23 +1061,25 @@ cyoa: trade-pipebomb
 
 cyoa-choice: trade-anime-rob 
 	70 %chance if
-		($ cname .. " vol le trader de quelques epees et des shurikens, mais ecrase accidentellement certaines animes parfaitement utiles dans le proces. " $) cyoa-text! goodfx
+		($ cname .. " robs the trader of some swords and shuriken, but smashes some perfectly usable animes in the process. " $) cyoa-text! goodfx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		5 WEAPON_SHURIKEN trunk.weapon+ 4 WEAPON_OTAKU trunk.weapon+ rob-guilt
 	else
-		($ Thegroup .. " la livraison est compromuee quand le negociant ferme les grilles blindees et s'en va en conduisant." $) cyoa-text! badfx morale--all
+		($ Thegroup .. " is foiled when the trader snaps the truck's armored shutters closed and then drives away." $) cyoa-text! badfx morale--all
 	then aholeREV
 ;
 : charm-anime
 	most-charming if
-		choosechar ($ " Le negociant donne " .. cname .. " une katana supplementaire ..." .. "OFFRE PROMOTIONNELLE, SPECIALEMENT POUR TOI ! *BRIS DE RIRE*" pbold $) 
+		choosechar ($ " The trader gives " .. cname .. " an extra katana.
+		" .. "PROMOTIONAL OFFER, JUST FOR YOU! *WINK*" pbold $) 
 		+cr +text 1 WEAPON_OTAKU trunk.weapon+
 	then
 ;
 cyoa-choice: trade-anime-20
-	($ Thegroup .. " achete une etoile lance-pierre de grosse taille." .. "C'EST LE WINDSTAR OFFICIEL UTILISE DANS LA VERSION LIVE-ACTION DE L'ANIME WINDSTAR !! EXCELLENTE CHOIX !" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " buys a gigantic throwing star.
+	" .. "THIS IS THE OFFICIAL WINDSTAR USED IN THE LIVE-ACTION VERSION OF THE WINDSTAR ANIME!! EXCELLENT CHOICE!" pbold $) cyoa-text! basic-tone
 	1 WEAPON_WINDSTAR trunk.weapon+ -15 trunk-food+ charm-anime
 ;
 : trade-anime-roll 
@@ -1009,51 +1087,57 @@ cyoa-choice: trade-anime-20
 ;
 cyoa-choice: trade-anime-10
 	($ Thegroup .. " buys an anime figurine. It seems really expensive...
-	" .. "VOUS AVEZ DES GOUTS REFINES !" pbold $) cyoa-text! basic-tone
+	" .. "I CAN TELL YOU HAVE EXQUISITE TASTES!" pbold $) cyoa-text! basic-tone
 	' trade-anime-roll foreach-team-char -10 trunk-food+ charm-anime
 ;
 
 cyoa-choice: trade-anime-5
-	($ Thegroup .. " achete 4 katanas." .. "ASSEZ POUR UN GROUPE ENTIER ! FAITES PASSAGE A TRAVERS N'IMPORTE QUELLE CHOSE !" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " buys 4 katanas.
+	" .. "ENOUGH FOR A WHOLE GROUP! CUT THROUGH ANYTHING!" pbold $) cyoa-text! basic-tone
 	4 WEAPON_OTAKU trunk.weapon+ -5 trunk-food+ charm-anime
 ;
 
 cyoa-choice: trade-anime-1
-	($ Thegroup .. " achete 5 shurikens . . ." .. "UNE INCROYABLE OFFRE !" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " buys 5 Shuriken.
+	" .. "INCREDIBLE DEAL!" pbold $) cyoa-text! basic-tone
 	5 WEAPON_SHURIKEN trunk.weapon+ -1 trunk-food+ charm-anime
 ;
 cyoa-choice: trade-anime-coolit
 	cpet? if
-		($ cname .. " destruire certaines animes, comme une protestation contre l'existence meme de l'anime. le vendeur d'anime comprend." $)
+		($ cname .. " destroys some anime, as a protest against the very existence of anime. The anime trader gets the message." $)
 	else
-		($ cname .. " dites a l'echangiste d'anime de : " .. "Reduit la chaleur . . . anime n'est pas reel!" pbold $) then cyoa-text!
+		($ cname .. " tells the anime trader to " .. "COOL IT. 
+	ALSO, ANIME ISN'T REAL!" pbold $) then cyoa-text!
 	cool-it++
-		($ "Il n'y a aucune facon qu'il puisse accepter cela bien." .. "NO! YOU'RE WRONG! STOP IT! NOooooooo!" rbold .. "il monte dans son siege de conducteur et s'en va en bouclant les roues, en colere et confus." $) badfx +crtext attitudeREV witsREV
+		($ "There is no way that he could take this well.
+		" .. "NO! YOU'RE WRONG! STOP IT! NOooooooo!" rbold .. "
+		He goes to his driver's seat and then peels out in anger and confusion." $) badfx +crtext attitudeREV witsREV
 ;
 cyoa: trade-anime
-	"Vente derniere anime" cyoa-title!
-	($ Thegroup .. " un homme vend des anime et des accessoires d'anime a partir d'un camion alimentaire transforme et blinde." .. "J'FAIS MA PART POUR QU'LE CIVILISATION DEMEURE ENSEMBLE, UNE VENTE D'ANIME A LA FOIS" pbold $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"The Last Anime Sale" cyoa-title!
+	($ Thegroup .. " finds a man selling anime and anime accessories from a converted, armored food truck.
+	" .. "I AM DOING MY PART TO KEEP CIVILIZATION TOGETHER, ONE ANIME SALE AT A TIME" pbold $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " volle le marchand" )choice: trade-anime-rob
+		charchoice( " robs the trader" )choice: trade-anime-rob
 	then
 	most-grating if 
-		charchoice( " calme-toi." fcoolit )choice: trade-anime-coolit
+		charchoice( " tells him to COOL IT" fcoolit )choice: trade-anime-coolit
 	then
 	trunk-food 1 < if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce, mais il offre gratuitement une shuriken en souvenir." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading, though he gives away a free shuriken as a souvenir." $) +cr +text
 		1 WEAPON_SHURIKEN trunk.weapon+
 	else
 		trunk-food 14 > if
-			choice( "Etoile de vent pour 15 aliments" )choice: trade-anime-20
+			choice( "Windstar for 15 food" )choice: trade-anime-20
 		then
 		trunk-food 9 > if
-			choice( "Figurine d'anime pour 10 aliments" )choice: trade-anime-10
+			choice( "Anime Figurine for 10 food" )choice: trade-anime-10
 		then
 		trunk-food 4 > if
-			choice( "quatre katanas pour cinq aliments." )choice: trade-anime-5
+			choice( "4 Katanas for 5 food" )choice: trade-anime-5
 		then
-		choice( "5 shurikens pour une nourriture" )choice: trade-anime-1
+		choice( "5 Shuriken for 1 food" )choice: trade-anime-1
 	then
 ;
 
@@ -1061,58 +1145,60 @@ cyoa: trade-anime
 
 cyoa-choice: trade-gas-rob 
 	75 %chance if
-		($ cname .. " vole soigneusement le marchand de gaz. " $) cyoa-text! badfx
+		($ cname .. " robs the gas merchant, very carefully. " $) cyoa-text! badfx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		80 120 rnd trunk-gas+ rob-guilt
 	else
-		($ Thegroup .. " vol la gaz dans le dos du marchand qui s'enfuit... c'est finalement ete decouvert que la plupart du gaz etait melange a quelque chose qui a detruit le moteur de la voiture." $) cyoa-text! badfx car-break 40 trunk-gas+
+		($ Thegroup .. " steals the gas as the merchant runs away.
+		It turns out most of the gas was laced with something that destroyed the car's engine." $) cyoa-text! badfx car-break 40 trunk-gas+
 	then aholeREV
 ;
 
 cyoa-choice: trade-gas-5
-	($ Thegroup .. " 5 aliments sont echanges contre 50 unites de gaz." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 5 food for 50 units of gas." $) cyoa-text! basic-tone
 	food-5-to-gas
 ;
 
 cyoa-choice: trade-gas-10
-	($ Thegroup .. " echange de 10 denrees alimentaires contre 100 unites de gaz." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 10 food for 100 units of gas." $) cyoa-text! basic-tone
 	food-10-to-gas
 ;
 
 cyoa-choice: trade-gas-15
-	($ Thegroup .. " 15 aliments sont echanges contre 150 unites de gaz." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 15 food for 150 units of gas." $) cyoa-text! basic-tone
 	food-15-to-gas
 ;
 
 cyoa-choice: trade-gas-all
-	($ Thegroup .. " negociations, transactions, echanges commerciaux. " .. ghis .. " nourriture restante pour l'alimentation en gaz." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades " .. ghis .. " remaining food for gas." $) cyoa-text! basic-tone
 	food-all-to-gas
 ;
 
 cyoa: trade-gas
-	"Vente de gaz" cyoa-title!
+	"Gas For Sale" cyoa-title!
 	someicon	
-	($ Thegroup .. " un homme assis a proximite d'un camion rouille. ce camion est rempli de reservoirs de gazole et de torchons huiles. l'homme et le camion emanaient tous les deux l'odeur du gazole. il propose de vendre 10 unites de gaz en echange de chaque article alimentaire qu'il recoit." $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	($ Thegroup .. " finds a man sitting near a rusted truck. The truck is full of gas tanks and oily rags. Both the man and truck reek of the smell of gasoline.
+	He offers to sell 10 units of gas in exchange for every food item he gets." $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	// Possibly replace some with weaselest-pass if weaselest
 	most-ahole if
-		charchoice( " volle le marchand" )choice: trade-gas-rob
+		charchoice( " robs the trader" )choice: trade-gas-rob
 	then
 	trunk-food 0 = if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
 		trunk-food 14 > if
-			choice( "Ami agreable" )choice: trade-gas-15
+			choice( "Trade 15 food" )choice: trade-gas-15
 		then
 		trunk-food 9 > trunk-food and if
-			choice( "Echangez 10 aliments." )choice: trade-gas-10
+			choice( "Trade 10 food" )choice: trade-gas-10
 		then
 		trunk-food 4 > if
-			choice( "Echangez cinq aliments." )choice: trade-gas-5
+			choice( "Trade 5 food" )choice: trade-gas-5
 		else	
-			choice( "Commercez " .. trunk-food .. " nourriture" )choice: trade-gas-all
+			choice( "Trade " .. trunk-food .. " food" )choice: trade-gas-all
 		then
 	then
 ;
@@ -1122,57 +1208,58 @@ cyoa: trade-gas
 cyoa-choice: trade-bullet-rob 
 	cicon
 	70 %chance if
-		($ cname .. " vole a la ravageuse ses cartouches supplementaires. " $) cyoa-text! badfx
+		($ cname .. " robs the scavenger of her extra bullets. " $) cyoa-text! badfx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		70 100 rnd trunk-bullet+ rob-guilt
 	else
-		($ Thegroup .. "essai de vol de la part de 's est un echec lorsqu'il s'avere que le ravitaillement mentait sur ne pas utiliser des pistolets. elle etait tres rapide a tirer." $) cyoa-text! bitefx
+		($ Thegroup .. "'s robbery attempt ends in failure when it turns out the scavenger was lying about not using pistols. She was very fast on the draw." $) cyoa-text! bitefx
 		rob-fail
 	then aholeREV
 ;
 
 cyoa-choice: trade-bullet-5
-	($ Thegroup .. " cinq aliments echanges contre quarante balles." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 5 food for 40 bullets." $) cyoa-text! basic-tone
 	food-5-to-bullet someicon
 ;
 
 cyoa-choice: trade-bullet-10
-	($ Thegroup .. " l'art de gaspiller du mobilier !" $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 10 food for 80 bullets." $) cyoa-text! basic-tone
 	food-10-to-bullet someicon
 ;
 
 cyoa-choice: trade-bullet-15
-	($ Thegroup .. " echange de quinze aliments contre cent vingt balles." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 15 food for 120 bullets." $) cyoa-text! basic-tone
 	food-15-to-bullet someicon
 ;
 
 cyoa-choice: trade-bullet-all
-	($ Thegroup .. " negociations, transactions, echanges commerciaux. " .. ghis .. " nourriture restante pour balles." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades " .. ghis .. " remaining food for bullets." $) cyoa-text! basic-tone
 	food-all-to-bullet someicon
 ;
 
 cyoa: trade-bullet
-	"Surplus de munitions" cyoa-title!
-	($ Thegroup .. " vous parlez avec un ravageur cordial. elle pretend avoir trouve beaucoup de munitions supplementaires. elle affirme ne pas utiliser de pistolet en raison des tirs qui exacerbent les zombies...... 	elle vous offre huit balles en echange de chaque aliment qu'elle obtient." $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Bullet Surplus" cyoa-title!
+	($ Thegroup .. " talks to a friendly scavenger. She claims to have found lots of extra bullets. She says she doesn't use pistols due to how gunshots rile up zombies.
+	She offers 8 bullets in exchange for every food item she gets." $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " volle le marchand" )choice: trade-bullet-rob
+		charchoice( " robs the trader" )choice: trade-bullet-rob
 	then
 	trunk-food 0 = if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
 		trunk-food 14 > if
-			choice( "Ami agreable" )choice: trade-bullet-15
+			choice( "Trade 15 food" )choice: trade-bullet-15
 		then
 		trunk-food 9 > trunk-food and if
-			choice( "Echangez 10 aliments." )choice: trade-bullet-10
+			choice( "Trade 10 food" )choice: trade-bullet-10
 		then
 		trunk-food 4 > if
-			choice( "Echangez cinq aliments." )choice: trade-bullet-5
+			choice( "Trade 5 food" )choice: trade-bullet-5
 		else	
-			choice( "Commercez " .. trunk-food .. " nourriture" )choice: trade-bullet-all
+			choice( "Trade " .. trunk-food .. " food" )choice: trade-bullet-all
 		then
 	then
 ;
@@ -1181,57 +1268,58 @@ cyoa: trade-bullet
 
 cyoa-choice: trade-shotgun-shell-rob 
 	65 %chance if
-		($ cname .. " voler le marchand de gros calibres de ses obus de fusil a cannons. " $) cyoa-text! badfx
+		($ cname .. " robs the shotgun shell merchant. " $) cyoa-text! badfx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		40 60 rnd trunk-shotgun-shell+ rob-guilt
 	else
-		($ cname .. " ce n'en est qu'au debut. " .. chis .. " avant que le marchand tire une fusil et commence a tirer." $) cyoa-text! bitefx
+		($ cname .. " doesn't even get to finish " .. chis .. " sentence before the merchant whips out a shotgun and starts blasting." $) cyoa-text! bitefx
 		rob-fail
 	then aholeREV
 ;
 
 cyoa-choice: trade-shotgun-shell-5
-	($ Thegroup .. " echange 5 aliments contre 25 coquillettes de fusil." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 5 food for 25 shotgun shells." $) cyoa-text! basic-tone
 	food-5-to-shotgun-shell
 ;
 
 cyoa-choice: trade-shotgun-shell-10
-	($ Thegroup .. " echange de dix denrees alimentaires contre cinquante cartouches de fusil a cannons." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 10 food for 50 shotgun shells." $) cyoa-text! basic-tone
 	food-10-to-shotgun-shell
 ;
 
 cyoa-choice: trade-shotgun-shell-15
-	($ Thegroup .. " 15 aliments contre 75 coquilles de gros calibre." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 15 food for 75 shotgun shells." $) cyoa-text! basic-tone
 	food-15-to-shotgun-shell
 ;
 
 cyoa-choice: trade-shotgun-shell-all
-	($ Thegroup .. " negociations, transactions, echanges commerciaux. " .. ghis .. " reste de nourriture pour cartouches de fusil a canon escamotable." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades " .. ghis .. " remaining food for shotgun shells." $) cyoa-text! basic-tone
 	food-all-to-shotgun-shell
 ;
 
 cyoa: trade-shotgun-shell
-	"Rack pour cartouches de fusil a canon rotatif." cyoa-title! someicon
-	($ Thegroup .. " voit un homme rustique dans une boutique artisanale en bois construite a la main. " .. "AVERTISSEMENT :" pbold .. " a ete ecarte de son signe par " .. "PETIT VILLAGE PERI-URBAN" rbold .. " il propose d'echanger 5 coquilles de gros calibre contre chaque article alimentaire que vous donniez." $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Shotgun Shell Stand" cyoa-title! someicon
+	($ Thegroup .. " sees a gruff man in a hand-built wooden shop stand. The word " .. "LEMONADE" pbold .. " has been crossed off its sign with " .. "SHOTGUN SHELLS" rbold .. " written in.
+	He offers to sell 5 shotgun shells in exchange for every food item you give him." $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " volle le marchand" )choice: trade-shotgun-shell-rob
+		charchoice( " robs the trader" )choice: trade-shotgun-shell-rob
 	then
 	trunk-food 0 = if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
 		trunk-food 14 > if
-			choice( "Ami agreable" )choice: trade-shotgun-shell-15
+			choice( "Trade 15 food" )choice: trade-shotgun-shell-15
 		then
 		trunk-food 9 > trunk-food and if
-			choice( "Echangez 10 aliments." )choice: trade-shotgun-shell-10
+			choice( "Trade 10 food" )choice: trade-shotgun-shell-10
 		then
 		trunk-food 4 > if
-			choice( "Echangez cinq aliments." )choice: trade-shotgun-shell-5
+			choice( "Trade 5 food" )choice: trade-shotgun-shell-5
 		else	
-			choice( "Commercez " .. trunk-food .. " nourriture" )choice: trade-shotgun-shell-all
+			choice( "Trade " .. trunk-food .. " food" )choice: trade-shotgun-shell-all
 		then
 	then
 ;
@@ -1240,57 +1328,58 @@ cyoa: trade-shotgun-shell
 
 cyoa-choice: trade-rifle-shell-rob 
 	60 %chance if
-		($ cname .. " voler le vendeur d'munitions de fusil. " $) cyoa-text! badfx
+		($ cname .. " robs the rifle ammo seller. " $) cyoa-text! badfx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		50 80 rnd trunk-rifle-shell+ rob-guilt
 	else
-		($ Thegroup .. "essai de vol de lui aboutit a l'echec lorsqu'il apparait que le vendeur en possession egalement deux fusils d'assaut charges. elle tire indiscriminement, une main sur chaque arme, jettant des obus partout.'" $) cyoa-text! bitefx
+		($ Thegroup .. "'s robbery attempt ends in failure when it turns out the seller also has two loaded assault rifles. She fires them wildly, one in each hand, spraying ammo everywhere." $) cyoa-text! bitefx
 		rob-fail
 	then aholeREV
 ;
 
 cyoa-choice: trade-rifle-shell-5
-	($ Thegroup .. " echange 5 aliments contre 30 cartouches de fusil." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 5 food for 30 rifle ammo." $) cyoa-text! basic-tone
 	food-5-to-rifle-shell someicon
 ;
 
 cyoa-choice: trade-rifle-shell-10
-	($ Thegroup .. " echangez 10 denrees alimentaires contre 60 cartouches de fusil." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 10 food for 60 rifle ammo." $) cyoa-text! basic-tone
 	food-10-to-rifle-shell someicon
 ;
 
 cyoa-choice: trade-rifle-shell-15
-	($ Thegroup .. " 15 aliments echanges contre 90 cartouches de fusil." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 15 food for 90 rifle ammo." $) cyoa-text! basic-tone
 	food-15-to-rifle-shell someicon
 ;
 
 cyoa-choice: trade-rifle-shell-all
-	($ Thegroup .. " negociations, transactions, echanges commerciaux. " .. ghis .. " reste de nourriture pour munitions de fusil." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades " .. ghis .. " remaining food for rifle ammo." $) cyoa-text! basic-tone
 	food-all-to-rifle-shell someicon
 ;
 
 cyoa: trade-rifle-shell
-	"Vendeur d'munitions de fusil" cyoa-title!
-	($ Thegroup .. " vous rencontrez quelqu'un qui vend de l'amorce supplementaire pour fusil. elle affirme avoir une grande surplus car elle tire precisement, tuant souvent plusieurs zombies a coup sur dans une seule balle... . 	elle propose de vous donner 6 amorces de fusil par aliment qu'elle recupere." $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Rifle Ammo Seller" cyoa-title!
+	($ Thegroup .. " runs into someone selling extra rifle ammo. She says she got a big surplus because she aims carefully, often killing multiple zombies in one shot.
+	She offers to give 6 rifle ammo per food item she gets." $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " volle le marchand" )choice: trade-rifle-shell-rob
+		charchoice( " robs the trader" )choice: trade-rifle-shell-rob
 	then
 	trunk-food 0 = if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
 		trunk-food 14 > if
-			choice( "Ami agreable" )choice: trade-rifle-shell-15
+			choice( "Trade 15 food" )choice: trade-rifle-shell-15
 		then
 		trunk-food 9 > trunk-food and if
-			choice( "Echangez 10 aliments." )choice: trade-rifle-shell-10
+			choice( "Trade 10 food" )choice: trade-rifle-shell-10
 		then
 		trunk-food 4 > if
-			choice( "Echangez cinq aliments." )choice: trade-rifle-shell-5
+			choice( "Trade 5 food" )choice: trade-rifle-shell-5
 		else	
-			choice( "Commercez " .. trunk-food .. " nourriture" )choice: trade-rifle-shell-all
+			choice( "Trade " .. trunk-food .. " food" )choice: trade-rifle-shell-all
 		then
 	then
 ;
@@ -1299,57 +1388,58 @@ cyoa: trade-rifle-shell
 
 cyoa-choice: trade-medical-rob 
 	70 %chance if
-		($ cname .. " vole au vendeur d'echecs, malgre le fait que certaines fournitures soient detruites dans le processus. " $) cyoa-text! badfx
+		($ cname .. " robs the medicine salesman, though some supplies are ruined in the process. " $) cyoa-text! badfx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		6 12 rnd trunk-medical+ rob-guilt
 	else
-		($ Thegroup .. " il vole au negociant mais plus tard realise que tout ce qui etait la etait simplement des medicaments a base de fumier pour chats." $) cyoa-text! badfx
+		($ Thegroup .. " robs the trader but later realizes that everything was just poop medicine for cats." $) cyoa-text! badfx
 		' .morale2- foreach-team-char
 	then aholeREV
 ;
 
 cyoa-choice: trade-medical-5
-	($ Thegroup .. " echange 5 aliments contre 5 fournitures medicales." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 5 food for 5 medical supplies." $) cyoa-text! basic-tone
 	food-5-to-medical
 ;
 
 cyoa-choice: trade-medical-10
-	($ Thegroup .. " echange de dix aliments contre dix fournitures medicales." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 10 food for 10 medical supplies." $) cyoa-text! basic-tone
 	food-10-to-medical
 ;
 
 cyoa-choice: trade-medical-15
-	($ Thegroup .. " echange de quinze aliments contre quinze fournitures medicales." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 15 food for 15 medical supplies." $) cyoa-text! basic-tone
 	food-15-to-medical
 ;
 
 cyoa-choice: trade-medical-all
-	($ Thegroup .. " echangent leur nourriture restante contre des fournitures medicales." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades their remaining food for medical supplies." $) cyoa-text! basic-tone
 	food-all-to-medical
 ;
 
 cyoa: trade-medical
-	"Vendeur de medicaments" cyoa-title! someicon
-	($ Thegroup .. " un homme pretend reclamer etre un vendeur de medicaments itinerant. il transporte deux valises pleines de fournitures medicales... . 	il offre ses marchandises en echange d'un echange equitable de nourriture. l'un d'article medical pour chaque article de nourriture." $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Medicine Salesman" cyoa-title! someicon
+	($ Thegroup .. " finds a man claiming to be a travelling medicine salesman. He's carrying two suitcases of medical supplies.
+	He offers his wares for an even exchange of food. One medical item for each item of food." $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " volle le marchand" )choice: trade-medical-rob
+		charchoice( " robs the trader" )choice: trade-medical-rob
 	then
 	trunk-food 0 = if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
 		trunk-food 14 > if
-			choice( "Ami agreable" )choice: trade-medical-15
+			choice( "Trade 15 food" )choice: trade-medical-15
 		then
 		trunk-food 9 > trunk-food and if
-			choice( "Echangez 10 aliments." )choice: trade-medical-10
+			choice( "Trade 10 food" )choice: trade-medical-10
 		then
 		trunk-food 4 > if
-			choice( "Echangez cinq aliments." )choice: trade-medical-5
+			choice( "Trade 5 food" )choice: trade-medical-5
 		else	
-			choice( "Commercez " .. trunk-food .. " nourriture" )choice: trade-medical-all
+			choice( "Trade " .. trunk-food .. " food" )choice: trade-medical-all
 		then
 	then
 ;
@@ -1358,21 +1448,21 @@ cyoa: trade-medical
 
 cyoa-choice: trade-groupheal-rob 
 	50 %chance if
-		($ cname .. " vole dans l'hopital, debordant les defenseurs avant qu'ils ne comprennent reellement quoi s'est passe. bravo. " $) cyoa-text! badfx
+		($ cname .. " robs the hospital, overwhelming the defenders before they know what's going on. Way to go. " $) cyoa-text! badfx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		10 16 rnd trunk-medical+ rob-guilt2
 	else
-		($ Thegroup .. " essaye de voler dans l'hopital. les nombreux defenseurs qu'ils ont montrent simplement comment ils se sont maintenus vivants tant de temps." $) cyoa-text! bitefx rob-fail
+		($ Thegroup .. " attempts to rob the hospital. Their many defenders show just how they managed to survive this long." $) cyoa-text! bitefx rob-fail
 	then aholeREV
 ;
 
 : trade-groupheal-guy
 	cchar damage 0 = if
-		($ cname .. " il se fait verifier mais rien ne lui est mal. " .. chim .. "." $)
+		($ cname .. " gets a check-up, but there's nothing wrong with " .. chim .. "." $)
 	else
-		($ cname .. " obtient traitement pour " .. chis .. " blessures." $) 
+		($ cname .. " gets treatment for " .. chis .. " wounds." $) 
 	then cchar .fullheal
 ;
 
@@ -1385,16 +1475,16 @@ cyoa-choice: trade-groupheal-heal
 cyoa-choice: trade-groupheal-group
 	
 	team-damage 0 = if
-		($ Thegroup .. " il se fait verifier, mais il n'y a rien mal pour eux." $) cyoa-text!
+		($ Thegroup .. " gets a check-up, but there's nothing wrong with them." $) cyoa-text!
 	else
 		7 groupheal
-		($ Thegroup .. " obtient traitement pour " $) cyoa-text!
+		($ Thegroup .. " gets treatment for " $) cyoa-text!
 		team-damage 1 < if 
-			"toutes les" +text 
+			"all" +text 
 		else
-			"le plus grand nombre" +text
+			"most" +text
 		then
-			" soigner les blessures de chacun d'eux." +text
+			" of their wounds." +text
 	then
 	goodfx
 	-15 trunk-food+
@@ -1405,94 +1495,99 @@ cyoa-choice: trade-groupheal-group
 	solo if
 		soloer choosechar trade-groupheal-heal
 	then;
-	"Qui devrait recevoir le traitement ?" cyoa-text!
+	"Who should get the treatment?" cyoa-text!
 	' trade-groupheal-heal cyoa-team-choice
 ;
 
 cyoa-choice: trade-groupheal-charm 
 	charmroll if
-		($ cname .. " convaincrez le personnel de l'hopital d'offrir leurs services gratuitement." .. cHe .. "c'est simplement charmant a l'aspect." $) cyoa-text! goodfx
+		($ cname .. " convinces the staff of the hospital to offer their services for free!
+		" .. cHe .. "'s just that charming." $) cyoa-text! goodfx
 		trade-groupheal-guy +crtext
 	else
-		($ cname .. " il n'a rien laisse tomber par accident, ca sonne plutot sinistre. . ." .. gHe .. " il est demande de quitter l'hopital et de ne jamais revenir." $) cyoa-text! badfx
+		($ cname .. " accidentally just comes off as creepy. 
+		" .. gHe .. " is asked to leave the hospital and never return." $) cyoa-text! badfx
 	then
 ;
 
 cyoa: trade-groupheal
-	"Hopital fonctionnel" cyoa-title! someicon
-	($ Thegroup .. " une colonie s'est etablie dans un hopital. les feux sont encore allumes, quelques medecins y sont restes et ils continuent d'accueillir des patients! ils offrent de fournir des soins de sante a contre prix en echange de nourriture : 10 alimentations pour un traitement complet." $) cyoa-text! basic-tone
+	"Functional Hospital" cyoa-title! someicon
+	($ Thegroup .. " finds a settlement built into a hospital. The lights are still, a few doctors are still there, and they're still open for business!
+	They offer to provide health care for food. 10 food for full treatment." $) cyoa-text! basic-tone
 	trunk-food 6 < if
-		($ "Desolement, il n'y a pas assez de nourriture pour leurs besoins." $) +cr +text
+		($ "Sadly, there isn't enough food for their services." $) +cr +text
 	else
-		choice( "1. riz aux herbes" )choice: trade-groupheal-give
+		choice( "Give 6 food for treatment" )choice: trade-groupheal-give
 		trunk-food 14 > notsolo and if
-			choice( "Dans la zombification, il est important de :" )choice: trade-groupheal-group
+			choice( "Give 15 food for group care" )choice: trade-groupheal-group
 		then
 	then
 		most-charming if
-			charchoice( " utilise le charme." )choice: trade-groupheal-charm
+			charchoice( " uses charm" )choice: trade-groupheal-charm
 		then
 		most-ahole if
-			charchoice( " couvert de boue." )choice: trade-groupheal-rob
+			charchoice( " robs the hospital" )choice: trade-groupheal-rob
 		then
-		choice( "Sortir de la voie" )choice
+		choice( "Drive off" )choice
 ;
 
 // All Ammo
 
 cyoa-choice: trade-allammo-rob 
 	60 %chance if
-		($ cname .. " il vole une partie de la reserve d'munitions, mais cela ne se fait pas sans une violente resistance. " $) cyoa-text! bitefx
+		($ cname .. " robs some of the ammo cache, but not without a huge fight. " $) cyoa-text! bitefx
 		notsolo if
-			($ Theothersare .. " s'en trouve pris dans cela." $) +text
+			($ Theothersare .. " dragged into it." $) +text
 		then
 		50 60 rnd trunk-bullet+ 20 30 rnd trunk-shotgun-shell+ 30 40 rnd trunk-rifle-shell+ rob-fail
 	else
-		($ Thegroup .. " il s'est revele avoir fait une mauvaise choix la-bas. les gardes ne sont pas heureux." $) cyoa-text! bitefx
+		($ Thegroup .. " turned out to make a really bad choice there. The guards are not happy." $) cyoa-text! bitefx
 		rob-megafail
 	then aholeREV
 ;
 
 cyoa-choice: trade-allammo-5
-	($ Thegroup .. " echange 5 alimentations contre une petite quantite d'munitions." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 5 food for a bit of ammo." $) cyoa-text! basic-tone
 	food-5-to-allammo someicon
 ;
 
 cyoa-choice: trade-allammo-10
-	($ Thegroup .. " echangez 10 aliments contre une gerbe d'munitions." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 10 food for a bunch of ammo." $) cyoa-text! basic-tone
 	food-10-to-allammo someicon
 ;
 
 cyoa-choice: trade-allammo-15
-	($ Thegroup .. " echange de quinze aliments contre une variete d'munitions." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades 15 food for an assortment of ammo." $) cyoa-text! basic-tone
 	food-15-to-allammo someicon
 ;
 
 cyoa-choice: trade-allammo-all
-	($ Thegroup .. " negociations, transactions, echanges commerciaux. " .. ghis .. " restant de nourriture pour certaines munitions." $) cyoa-text! basic-tone
+	($ Thegroup .. " trades " .. ghis .. " remaining food for some ammo." $) cyoa-text! basic-tone
 	food-all-to-allammo someicon
 ;
 
 cyoa: trade-allammo
-	"Magasin d'munitions" cyoa-title!
-	($ Thegroup .. " trouve un marchand gourmand dans un magasin barricade plein d'munitions. elle est entouree de gardes." .. "bienvenue dans l'emporium des munitions ! tout doit etre vendu !" pbold .. "elle offre cinq balles, quatre obus de fusil et trois cartouches de fusil a pompe en echange de chaque aliment qu'elle obtient." $) cyoa-text! basic-tone
-	choice( "Sortir de la voie" )choice
+	"Ammo Emporium" cyoa-title!
+	($ Thegroup .. " finds a plump merchant in a barricaded shop full of ammo. She is surrounded by guards." .. "
+	WELCOME TO THE AMMO EMPORIUM! EVERYTHING MUST GO!" pbold .. "
+	She offers to give 5 bullets, 4 rifle ammo, and 3 shotgun shells in exchange for every food item she gets." $) cyoa-text! basic-tone
+	choice( "Drive off" )choice
 	most-ahole if
-		charchoice( " volle le magasin" )choice: trade-allammo-rob
+		charchoice( " robs the shop" )choice: trade-allammo-rob
 	then
 	trunk-food 0 = if
-		($ "Desole, il n'y a plus assez de nourriture pour le commerce." $) +cr +text
+		($ "Sadly, there isn't enough food left for trading." $) +cr +text
 	else
 		trunk-food 14 > if
-			choice( "Ami agreable" )choice: trade-allammo-15
+			choice( "Trade 15 food" )choice: trade-allammo-15
 		then
 		trunk-food 9 > trunk-food and if
-			choice( "Echangez 10 aliments." )choice: trade-allammo-10
+			choice( "Trade 10 food" )choice: trade-allammo-10
 		then
 		trunk-food 4 > if
-			choice( "Echangez cinq aliments." )choice: trade-allammo-5
+			choice( "Trade 5 food" )choice: trade-allammo-5
 		else	
-			choice( "Commercez " .. trunk-food .. " nourriture" )choice: trade-allammo-all
+			choice( "Trade " .. trunk-food .. " food" )choice: trade-allammo-all
 		then
 	then
 ;

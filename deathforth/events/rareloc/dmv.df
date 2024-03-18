@@ -11,61 +11,63 @@
 cyoa{
 
 : dmv-cool-namer args( chara )
-	"Frais : cool " <- chara .name@ $cat <- chara .name!
+	"Cool " <- chara .name@ $cat <- chara .name!
 ;
 
 : dmv-text-1
-	($ cname .. "son nom est maintenant " $) text!
+	($ cname .. "'s name is now " $) text!
 ;
 
 : dmv-text-2
-	($ cname .. "ce document de permis de conduire vous le dit ! c'est une obligation legale !" $) +text clear-cyoa
+	($ cname .. "! The driver's license says so! It's legally binding!" $) +text clear-cyoa
 ;
 
 : dmv-text-badname
 	cchar dsyp? if
-		($ cname .. " c'est bien, le nom n'est pas reellement importants pour lui. il est assez approprie !" $) +crtext goodfx
+		($ cname .. " doesn't really mind the name too much. It's kind of fitting!" $) +crtext goodfx
 		morale++ vitality++ statmod{ -5 to dsyp-farted }
 	then;
-	($ cname .. " forme instantanement une grosse eclat de chipeau. " .. chis .. " epaule. " .. cHe .. " entre dans un etat permanent de colere en fusion !" $) +crtext strength++ fitness++ morale-- temper-- badfx
+	($ cname .. " instantly forms a massive chip on " .. chis .. " shoulder. " .. cHe .. " enters a permanent state of simmering rage!" $) +crtext strength++ fitness++ morale-- temper-- badfx
 ;
 
 cyoa-choice: dmv-machine-1
-	dmv-text-1 "Reparateur d'odeurs, smellbert." pchar .name! dmv-text-2
-	"Test de l'itineraire post-mission stacke dans le cyoa." +crtext dmv-text-badname
+	dmv-text-1 "Smellbert" pchar .name! dmv-text-2
+	"What a completely awful new name!" +crtext dmv-text-badname
 ;
 
 cyoa-choice: dmv-machine-2
-	dmv-text-1 "Un tutorat est une relation d'" pchar .name! dmv-text-2
-	($ "C'est encore mieux que ca " .. chis .. " ancienne appellation." $) +crtext dmv-text-badname
+	dmv-text-1 "Fartfart" pchar .name! dmv-text-2
+	($ "This is still better than " .. chis .. " previous name." $) +crtext dmv-text-badname
 ;
 
 cyoa-choice: dmv-machine-3
-	dmv-text-1 "Harry ham : c'est un nom d'une personne." pchar .name! dmv-text-2
-	$( cname .. " ce nom etait le plus populaire pendant des siecles dans l'epoque tardive du moyen age, a la fois pour les filles et les garcons. on pensait qu'il apportait une benediction de bonne sante." $) +crtext
+	dmv-text-1 "Harry Ham" pchar .name! dmv-text-2
+	$( cname .. " was the most popular name for centuries in the Late Medieval era, for both girls and boys. It was thought that it provided a blessing of good health." $) +crtext
 	vitality++ goodfx
 ;
 
 cyoa-choice: dmv-machine-4
 	dmv-text-1 pchar dmv-cool-namer dmv-text-2
-	($ cname .. " ressent beaucoup plus cool qu' ca ne faut. " .. chis .. " nouvelle nom !" $) +crtext
+	($ cname .. " feels way past cool with " .. chis .. " new name!" $) +crtext
 	morale3+ goodfx
 ;
 
 cyoa-bridge: dmv-machine-go
-	"La licence de conduire devrait porter le nom complet du detenteur." text!
-	choice( "Reparateur d'odeurs, smellbert." )choice: dmv-machine-1
-	choice( "Un tutorat est une relation d'" )choice: dmv-machine-2
-	choice( "Harry ham : c'est un nom d'une personne." )choice: dmv-machine-3
-	choice( "Frais : cool " .. pchar .name@ )choice: dmv-machine-4
+	"What should the name be on the driver's license?" text!
+	choice( "Smellbert" )choice: dmv-machine-1
+	choice( "Fartfart" )choice: dmv-machine-2
+	choice( "Harry Ham" )choice: dmv-machine-3
+	choice( "Cool " .. pchar .name@ )choice: dmv-machine-4
 ;
 
 cyoa: dmv-machine
 	"A License... to Drive" cyoa-title! picon!
-	"Croyez-vous reellement avoir saute la ligne ! tres impolitement. . 	ceci est une machine utilisee pour imprimer des permis de conduire. . 	elle peut imprimer un dernier permis de conduire avant d'en manquer des approvisionnements." text!
-	($ pname .. " nous pouvons utiliser une nouvelle une. " .. phis .. " la licence va bientot expirer !" $) +crtext
-		choice( "Laissez-le pour le moment" )choice
-		choice( "Imprimer une nouvelle licence" )choice: dmv-machine-go
+	"I can't believe you skipped the line! Very rude!
+	This is a machine used to print driver's licenses.
+	It can print one final license before running out of supplies." text!
+	($ pname .. " could use a new one, " .. phis .. " license is about to expire!" $) +crtext
+		choice( "Leave it for now" )choice
+		choice( "Print new license" )choice: dmv-machine-go
 ;
 
 }
@@ -81,9 +83,9 @@ location: dmv
 		script: set-theme-office
 				
 		: dmvdoors
-			random-door "la commande dmvend n'existe pas" only-with-door
-			random-door "salle de bains" only-with-door
-			random-door "salle de bains" only-with-door
+			random-door "dmvend" only-with-door
+			random-door "restroom" only-with-door
+			random-door "restroom" only-with-door
 		;
 		
 		room-choice: dmvstart

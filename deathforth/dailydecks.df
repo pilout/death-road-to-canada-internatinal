@@ -12,7 +12,7 @@ cyoa{
 	road{ road-trip-days } 3 = if	
 		zombop+
 		ZOMBOP_CAP 11 < if
-			($ " Ils " .. "ZP" pbold .. " pour debloquer des caracteristiques, avantages et autres fonctionnalites sur l'ecran d'accueil !" $) +text
+			($ " Use " .. "ZP" pbold .. " to unlock traits, perks, and more on the title screen!" $) +text
 		else
 			rewardevent-zp
 		then
@@ -26,47 +26,47 @@ cyoa{
 ;
 
 cyoa-choice: rewardevent-morale
-	"Chaque jour est une grande maitresse, a condition que tu ne sois pas mange." cyoa-text!
+	"Every day is a great teacher, as long as you don't get eaten." cyoa-text!
 	morale++all ' rewardevent-random foreach-team-char goodfx
 	rewardevent-end
 ;
 cyoa-choice: rewardevent-heal
-	"La temps guerit toutes blessures, y compris celles infligees par des morsures de zombies." cyoa-text!
+	"Time heals all wounds, especially zombie bites." cyoa-text!
 	morale++all ' .health++ foreach-team-char goodfx
 	rewardevent-end
 ;
 cyoa-choice: rewardevent-strength
-	"Dans l'apres-apocalypses, il est encore possible d'avoir du muscle." cyoa-text!
+	"Even in the post apocalypse, it's still possible to get swole." cyoa-text!
 	' .strengthREV foreach-team-char ' .strength++ foreach-team-char goodfx
 	rewardevent-end
 ;
 cyoa-choice: rewardevent-fitness
-	"Courir tous les jours de zombies est une excellente forme d'exercice." cyoa-text!
+	"Running from zombies all day is a great form of exercise." cyoa-text!
 	' .fitnessREV foreach-team-char ' .fitness++ foreach-team-char goodfx
 	rewardevent-end
 ;
 cyoa-choice: rewardevent-shooting
-	"S'habituer a ces zombies permet de viser plus stablement." cyoa-text!
+	"Getting used to these zombies makes for steadier aiming." cyoa-text!
 	' .shootingREV foreach-team-char ' .shooting++ foreach-team-char goodfx
 	rewardevent-end
 ;
 cyoa-choice: rewardevent-mechanical
-	"Ces voitures ne s'arrangent pas du tout." cyoa-text!
+	"All these cars aren't getting any less broken." cyoa-text!
 	' .mechanicREV foreach-team-char ' .mechanic++ foreach-team-char goodfx
 	rewardevent-end
 ;
 cyoa-choice: rewardevent-medical
-	"En soin de zombies, la pratique fait maitre." cyoa-text!
+	"When it comes to zombie first aid, practice makes perfect." cyoa-text!
 	' .medicalREV foreach-team-char ' .medical++ foreach-team-char goodfx
 	rewardevent-end
 ;
 
-: hazreward1 choice( "Force" )choice: rewardevent-strength ;
-: hazreward2 choice( "Chassis." )choice: rewardevent-fitness ;
-: hazreward3 choice( "Tir" )choice: rewardevent-shooting ;
-: hazreward4 choice( "Mecaniques" )choice: rewardevent-mechanical ;
-: hazreward5 choice( "Derriere" )choice: rewardevent-medical ;
-: hazreward6 choice( "L'esprit et la sante mentale et physique sont retablis." )choice: rewardevent-heal ;
+: hazreward1 choice( "Strength" )choice: rewardevent-strength ;
+: hazreward2 choice( "Fitness" )choice: rewardevent-fitness ;
+: hazreward3 choice( "Shooting" )choice: rewardevent-shooting ;
+: hazreward4 choice( "Mechanical" )choice: rewardevent-mechanical ;
+: hazreward5 choice( "Medical" )choice: rewardevent-medical ;
+: hazreward6 choice( "Morale and one health healed" )choice: rewardevent-heal ;
 
 0 var hazard-reward-deck
 	deck-new
@@ -88,52 +88,55 @@ HAZARD-REWARD shuffles to hazard-reward-deck
 // Special rewards
 
 cyoa-choice: rewardevent-haz1
-	($ cname .. " ressent une immense reprise de force !" $) cyoa-text!
+	($ cname .. " feels a huge surge in strength!" $) cyoa-text!
 	strengthREV strength++ strength++ morale++ goodfx rewardevent-end
 ;
 cyoa-choice: rewardevent-haz2
-	($ cname .. " s'habitue a tout ce travail !" $) cyoa-text!
+	($ cname .. " is getting used to all this exercise!" $) cyoa-text!
 	fitnessREV fitness++ fitness++ morale++ goodfx rewardevent-end
 ;
 cyoa-choice: rewardevent-haz3
-	($ cname .. " ressent le gout de l'armeurier !" $) cyoa-text!
+	($ cname .. " feels like a gunslinger!" $) cyoa-text!
 	shootingREV shooting++ shooting++ morale++ goodfx rewardevent-end
 ;
 cyoa-choice: rewardevent-haz4
-	($ cname .. " le devient maitre zombie !" $) cyoa-text!
+	($ cname .. " is becoming a zombie master!" $) cyoa-text!
 	// strengthREV shootingREV fitnessREV mechanicREV medicalREV
 	strength++ fitness++ shooting++ mechanic++ medical++ morale++ goodfx rewardevent-end
 ;
 cyoa-choice: rewardevent-haz5
-	($ cname .. " se durcit peu a peu !	" .. cname .. " gagne une point supplementaire de point de vie maximum !" rbold $) cyoa-text!
+	($ cname .. " is getting toughened up!
+	" .. cname .. " gains an extra point of maximum health!" rbold $) cyoa-text!
 	vitality++ health++ morale++ goodfx rewardevent-end
 ;
 cyoa-choice: rewardevent-haz6
-	($ cname .. " il devient vraiment excellent a courir !" .. cname .. " maintenant fonctionne plus rapidement a titre permanent !" rbold $) cyoa-text!
+	($ cname .. " gets really good at running!
+	" .. cname .. " now permanently runs faster!" rbold $) cyoa-text!
 	dexterity++ morale++ goodfx rewardevent-end
 ;
 cyoa-choice: rewardevent-haz7
-	($ cname .. " se met en harmonie avec les esprits de la voiture !" $) cyoa-text!
+	($ cname .. " gets in tune with the car spirits!" $) cyoa-text!
 	mechanicREV mechanic++ mechanic++ morale++ goodfx rewardevent-end
 ;
 cyoa-choice: rewardevent-haz8
-	($ cname .. " cree une rupture dans le domaine de la sante des zombies !" $) cyoa-text!
+	($ cname .. " invents a breakthrough in zombie health care!" $) cyoa-text!
 	medicalREV medical++ medical++ morale++ goodfx rewardevent-end
 ;
 cyoa-choice: rewardevent-haz9
-	($ cname .. " se sent totalement revitalise !" .. cname .. "sa sante est a plein!" rbold $) cyoa-text!
+	($ cname .. " feels completely revitalized!
+	" .. cname .. "'s health is full!" rbold $) cyoa-text!
 		cchar .fullheal morale3+ morale3+ cchar statmod{ .untired } goodfx rewardevent-end
 ;
 
-: hazspecial1 cchar charchoice( "+2 de force" )choice: rewardevent-haz1 ;
-: hazspecial2 cchar charchoice( "+2 de fitness" )choice: rewardevent-haz2 ;
-: hazspecial3 cchar charchoice( "deux points supplementaires pour le tir." )choice: rewardevent-haz3 ;
-: hazspecial4 cchar charchoice( "+1 a toutes les competences." )choice: rewardevent-haz4 ;
-: hazspecial5 cchar charchoice( "+1 a la vie maximum" )choice: rewardevent-haz5 ;
-: hazspecial6 cchar charchoice( "vitesse de course plus rapide" )choice: rewardevent-haz6 ;
-: hazspecial7 cchar charchoice( "+2 mecaniques." )choice: rewardevent-haz7 ;
-: hazspecial8 cchar charchoice( "+ 2 points d'experience medicale" )choice: rewardevent-haz8 ;
-: hazspecial9 cchar charchoice( ": guerison complete" )choice: rewardevent-haz9 ;
+: hazspecial1 cchar charchoice( ": +2 Strength" )choice: rewardevent-haz1 ;
+: hazspecial2 cchar charchoice( ": +2 Fitness" )choice: rewardevent-haz2 ;
+: hazspecial3 cchar charchoice( ": +2 Shooting" )choice: rewardevent-haz3 ;
+: hazspecial4 cchar charchoice( ": +1 All Skills" )choice: rewardevent-haz4 ;
+: hazspecial5 cchar charchoice( ": +1 to Max Health" )choice: rewardevent-haz5 ;
+: hazspecial6 cchar charchoice( ": Faster Run Speed" )choice: rewardevent-haz6 ;
+: hazspecial7 cchar charchoice( ": +2 Mechanical" )choice: rewardevent-haz7 ;
+: hazspecial8 cchar charchoice( ": +2 Medical" )choice: rewardevent-haz8 ;
+: hazspecial9 cchar charchoice( ": Full Heal" )choice: rewardevent-haz9 ;
 
 0 var hazard-special-deck
 	deck-new
@@ -158,13 +161,15 @@ HAZARD-SPECIAL shuffles to hazard-special-deck
 0 value wyk-reward
 
 : wyk-newrecord
-	($ wyk-name .. " alle plus loin sur la route de la mort que jamais auparavant !" .. "Voici un morceau de code a celebrer : " rainbold $) +crtext
+	($ wyk-name .. " got further on the Death Road than he ever did before!
+	" .. "Here's a code to celebrate: " rainbold $) +crtext
 	gstats{ ' wyk-highscore ++ }
 ;
 
 cyoa: rewardevent
-	"Un sourire d'espoir sur la route de la mort" cyoa-title!
-	($ Thegroup .. " s'est inspire apres s'en etre sorti vivant de cette situation !" .. gThey .. " sentir" .. g1s .. " comme " .. gtheyare .. " getting the hang of this..." $) cyoa-text!
+	"Glimmer of Hope on the Death Road" cyoa-title!
+	($ Thegroup .. " feels inspired after managing to survive that situation!
+	" .. gThey .. " feel" .. g1s .. " like " .. gtheyare .. " getting the hang of this..." $) cyoa-text!
 	
 	// STREAM RACE wyk stuff
 	wyk? if
@@ -185,11 +190,11 @@ cyoa: rewardevent
 	
 	someicon goodfx
 	solo if
-		"Offrir une recompense au survivant :"
+		"Choose a reward for the survivor:"
 	else
-		"Choisissez un recompense pour le groupe :"
+		"Choose a reward for the group:"
 	then +crtext
-		choice( "Moral et gagnes aleatoires de competence :" )choice: rewardevent-morale
+		choice( "Morale and random skill gain" )choice: rewardevent-morale
 		hazard-reward-shuffle
 		hazard-reward-draw
 		team-count 3 < if

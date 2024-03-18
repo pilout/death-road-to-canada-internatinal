@@ -2,7 +2,7 @@ cyoa{ road{
 
 (*
 ------------------------------------------------------------------------------------------------------------------------
-	003 - "Le tetragraphique vortex" - Don Thacker
+	003 - "The Tetrographic Vortex" - Don Thacker
 	A small geometrically impossible vortex opens in front of the car.
 	Is it a portal? A gravity well? A dimensional rift? A pizza?
 ------------------------------------------------------------------------------------------------------------------------
@@ -55,75 +55,79 @@ then
 
 : don-common-vortex-namechange // Just a way to save retyping things in bonus and toss
 	cchar revname
-	($ cHe .. " fidelite. " .. cname .. "!" $) +crtext
+	($ cHe .. " is now " .. cname .. "!" $) +crtext
 	cchar char-reroll
 ;
 
 cyoa-choice: don-common-vortex-drivethrough
-	($ cname .. " accelere plein gaz et continue !" $) cyoa-text! car-plowthrough
+	($ cname .. " puts the pedal to the metal and DRIVES ON THROUGH!" $) cyoa-text! car-plowthrough
 	' char-reroll foreach-team-char
 	' revname foreach-team-char
-	($ Thegroup .. " reapparait sur la route un instant plus tard, comme si rien n'etait. " .. gthey .. " sentir" .. g1s .. " different..." pbold $) +crtext goblin-laugh
+	($ Thegroup .. " emerges back on the road a moment later, like nothing happened. Yet " .. gthey .. " feel" .. g1s .. " different..." pbold $) +crtext goblin-laugh
 ;
 
 cyoa-choice: don-common-vortex-bonus
-	($ "Maintenant, c'est fait. ." .. cname .. " resurgit, sentant neuf et incroyablement bien !" $) cyoa-text!
+	($ "NOW YOU'VE DONE IT
+	" .. cname .. " re-emerges, feeling new and amazing!" $) cyoa-text!
 	don-common-vortex-namechange don-vortex-extra goodfx
 ;
 
 cyoa-choice: don-common-vortex-toss
-	($ "Maintenant, c'est fait. ." .. cname .. " reapparait, transforme." $) cyoa-text!
+	($ "NOW YOU'VE DONE IT
+	" .. cname .. " re-emerges, changed." $) cyoa-text!
 	don-common-vortex-namechange goblin-laugh
 ;
 
 cyoa-bridge: don-common-vortex-bonus4
 	someicon
-	"Quel personne devrait etre optimalement jetee dans le vortex ?" cyoa-text!
+	"Who should be OPTIMALLY tossed into the vortex?" cyoa-text!
 	' don-common-vortex-bonus cyoa-team-choice
 ;
 
 cyoa-bridge: don-common-vortex-toss4
 	someicon
-	"Quelqu'un doit etre jete dans le vortex ?" cyoa-text!
+	"Who should be tossed into the vortex?" cyoa-text!
 	' don-common-vortex-toss cyoa-team-choice
 ;
 	
 cyoa-bridge: don-common-vortex-calculate
-	($ "RACCROCHER ! " .. cname .. "calculations de 's seraient assez violents pour changer quelqu'un, probablement sans en faire une victime fatale." $) cyoa-text!
+	($ "ACCORDING TO " .. cname .. "'s CALCULATIONS you could chuck someone in here and it would change them, probably not even in a fatal way!" $) cyoa-text!
 	cwits+ if
-	($ cHe .. " calcule quelques chiffres supplementaires et determine la meilleure facon de jeter quelqu'un dedans !" $) +crtext goodfx
+	($ cHe .. " crunches some extra numbers and figures out the optimal way to toss someone in!" $) +crtext goodfx
 	then
 	basic-tone
 	cwits+ if
 		team-count 3 > if
 			' don-common-vortex-bonus 2 #cyoa-team-choice
-			choice( "Choisissez quelqu'un d'autre." )choice: don-common-vortex-bonus4
+			choice( "Pick someone else" )choice: don-common-vortex-bonus4
 		else
 			' don-common-vortex-bonus 3 #cyoa-team-choice
 		then
 	else
 		team-count 3 > if
 			' don-common-vortex-toss 2 #cyoa-team-choice
-			choice( "Choisissez quelqu'un d'autre." )choice: don-common-vortex-toss4
+			choice( "Pick someone else" )choice: don-common-vortex-toss4
 		else
 			' don-common-vortex-toss 3 #cyoa-team-choice
 		then
 	then
-	choice( "Ne touchez pas a ce portail" )choice		
+	choice( "Don't mess with that portal" )choice		
 ;
 	
 cyoa-choice: don-common-vortex-fight
 	cpet? if
-		($ cname .. " essaie de mordre le portail et glisse ensuite dedans..." .. cHe .. " se reapparait quelques instants plus tard, avec une nouvelle intelligence etrange." $)
+		($ cname .. " tries to bite the portal and then slides right into it.
+		" .. cHe .. " reappears moments later, with a strange new intelligence." $)
 	else
-		($ cname .. " pren un coup de baguette et tombe ensuite dans le portail de la meme maniere lisse..." .. cHe .. " il revient brievement quelques instants plus tard, beaucoup plus pelucheux. au moins, c'est probablement ca. " .. chim .. "?" $) 
+		($ cname .. " takes a swing and then falls into the portal in the same smooth motion. 
+		" .. cHe .. " reappears moments later, now much more furry. At least, it's probably " .. chim .. "?" $) 
 	then cyoa-text! cchar revname attitudeREV 
 	cpet? if
 		cchar .dogtosuperdog	
 	else
 		cchar .doggify
 		10 %chance if
-			($ cname .. " garde " .. chis .. " intelligence humaine !" $) +crtext
+			($ cname .. " keeps " .. chis .. " human intelligence!" $) +crtext
 			cchar .dogtosuperdog
 		then
 	then goodfx
@@ -134,14 +138,15 @@ cyoa-choice: don-common-vortex-fight
 // A vortex opens in front of the car
 cyoa: don-common-vortex
 	image-vortex
-	"Le tetragraphique vortex" cyoa-title!
+	"The Tetrographic Vortex" cyoa-title!
 	someone choosechar
-	($ Thegroup .. " assurez-vous de conduire correctement. " .. "'vortex geometrique impossible'" fbold ..  " s'alignant devant de la voiture en marche ... 	elle reste quelques pieds devant le frein, humant menacamment." $) cyoa-text! basic-tone
-	choice( "Conduise-le travers" )choice: don-common-vortex-drivethrough
-	smartest charchoice( "calculez ses vecteurs." )choice: don-common-vortex-calculate
-	choice( "Ne touche pas a cela !" )choice
+	($ Thegroup .. " notices a " .. "geometrically impossible vortex" fbold ..  " forming in front of the moving car. 
+	It hovers a few feet in front of the bumper at speed, humming ominously." $) cyoa-text! basic-tone
+	choice( "Drive through it" )choice: don-common-vortex-drivethrough
+	smartest charchoice( ": CALCULATE its VECTORS" )choice: don-common-vortex-calculate
+	choice( "Don't mess with it!" )choice
 	angriest-pass if
-		angriest charchoice( "lundi" )choice: don-common-vortex-fight
+		angriest charchoice( ": Fight it!" )choice: don-common-vortex-fight
 	then
 	;
 

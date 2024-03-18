@@ -3,11 +3,11 @@
 : .applyperk args( chara )
 	0 6 rnd <- chara .wits! 0 6 rnd <- chara .attitude!
 	0 6 rnd <- chara .composure! 0 6 rnd <- chara .loyalty!
-	<- chara .perk@ dup "APPEL A L'APPLICATION DE LA CARACTERISTIQUE SPECIALE : " type print perk-find dup if <- chara swap execute then
+	<- chara .perk@ dup "APPLYING PERK: " type print perk-find dup if <- chara swap execute then
 ;
 
 : .applytrait args( chara )
-	<- chara .trait@ dup "APPEL A L'UTILISATION DE TRAIT : " type print trait-find dup if <- chara swap execute then
+	<- chara .trait@ dup "APPLYING TRAIT: " type print trait-find dup if <- chara swap execute then
 ;
 
 : draw-familiar
@@ -25,21 +25,21 @@ cyoa{ road{
 
 : fam-text
 	0 stack
-		($ rHe .. " n'a pas vu. " .. thegroup .. " encore, et est reellement occupe a rassembler. " .. rhis .. " nez." $) shove
-		($ rHe .. " dorm sur une table de pique-nique, a l'air libre." $) shove
-		($ rHe .. " a ete trouve essayer de tirer vers le haut une porte indiquant pushez." $) shove
-		($ rHe .. " il chante un petit air, sans le remarquer. " .. thegroup .. " pas encore." $) shove
-		($ rHe .. " est jete dehors par " .. rhis .. " ancien groupe. ils paraissent assez en colere. " .. rname .. " echappement des shoulders." $) shove
-		($ rHe .. " dormait dans une maison abandonnee. " .. rHe .. " est legerement irritee d'avoir ete reveillee." $) shove
-		($ rHe .. " il est assis dans un parc, littrice un livre." $) shove
-		($ rHe .. " jouait a plein volume sur sa console de jeu portable et faisait beaucoup de bruit." $) shove
-		($ rHe .. " mange une barre de chocolat. ces choses n'ont toujours pas gate." $) shove
-		($ rHe .. " etirez-vous pendant un moment, puis . . . " .. rhe .. " une serie de longues et elaborees sequences de flexion." $) shove
-		($ rHe .. " poke le sol avec une batonnet. peut-etre. " .. rhe .. " il dessine des plans ou simplement pique la terre avec un baton." $) shove
-		($ rHe .. " il regarde la carte avec une expression totalement betle." $) shove
-		($ rHe .. " il harangue des survivants car ils se moquaient de lui. " .. rhis .. " cheveux." $) shove
-		($ rHe .. " il donne des coups a une voiture en emotivite. la voiture emet des jets de fumee." $) shove
-		($ rHe .. " se bat contre un zombie unique, puis tombe et s'ecrase brusquement par une gaffe malheureuse. " .. rHe .. " se fait vraiment rougir quand " .. rhe .. " avertissements " .. thegroup .. "." $) shove
+		($ rHe .. " hasn't seen " .. thegroup .. " yet, and is real busy picking " .. rhis .. " nose." $) shove
+		($ rHe .. " is sleeping on a picnic table, right out in the open." $) shove
+		($ rHe .. " was found trying to pull open a door that said PUSH on it." $) shove
+		($ rHe .. " is humming a little song, and hasn't noticed " .. thegroup .. " yet." $) shove
+		($ rHe .. " is being thrown out by " .. rhis .. " former group. They seem pretty angry. " .. rname .. " shrugs." $) shove
+		($ rHe .. " was sleeping in an abandoned house. " .. rHe .. " is slightly irritated to have been woken up." $) shove
+		($ rHe .. " is sitting in a park, reading a book." $) shove
+		($ rHe .. " was making tons of noise, playing a portable game console at full blast." $) shove
+		($ rHe .. " is eating a candy bar. Those things still haven't gone bad." $) shove
+		($ rHe .. " stretches. Then " .. rhe .. " stretches some more. It's an elaborate stretching routine." $) shove
+		($ rHe .. " pokes the dirt with a stick. Maybe " .. rhe .. " is drawing plans, maybe just poking the dirt with a stick." $) shove
+		($ rHe .. " is staring at a map, with an expression of total confusion." $) shove
+		($ rHe .. " is yelling at some survivors, because they made fun of " .. rhis .. " hair." $) shove
+		($ rHe .. " is kicking a car in frustration. The car is emitting plumes of smoke." $) shove
+		($ rHe .. " is fighting a single zombie, then suddenly trips and falls down in an awkward mistake. " .. rHe .. " gets really embarassed when " .. rhe .. " notices " .. thegroup .. "." $) shove
 		// ($ rHe .. " " $) shove
 	shuffles pops nip
 ;
@@ -52,10 +52,11 @@ cyoa{ road{
 ;
 
 cyoa: familiar-carnut-event
-	"Voyage doux" cyoa-title! ricon
-		($ rname .. " a dit que " .. rhe .. " avais " .. rhis .. " voila votre voiture cachee a proximite, et qu'elle s'agit bien d'une voiture personnelle. " .. "'une jolie course en voiture'" pbold .. "voulez-vous changer vers " .. rname .. "voiture de lui ?" $) cyoa-text!
-		choice( "Gardez la voiture actuelle." )choice
-		choice( "Premier coup de rear" )choice: familiar-carnut-yes
+	"Sweet Ride" cyoa-title! ricon
+		($ rname .. " said that " .. rhe .. " had " .. rhis .. " own car stashed nearby, and that it's a " .. "'pretty sweet ride'" pbold .. "
+		Would you like to switch to " .. rname .. "'s car?" $) cyoa-text!
+		choice( "Keep current car" )choice
+		choice( "Switch to new car" )choice: familiar-carnut-yes
 		
 ;
 
@@ -69,7 +70,7 @@ cyoa: familiar-carnut-event
 
 cyoa-choice: recruit-familiarreplace
 	ricon
-	($ cname .. " est expulse du groupe pour laisser place a " .. rname .. "." $) cyoa-text!
+	($ cname .. " gets booted out of the group to make room for " .. rname .. "." $) cyoa-text!
 	decruit-bad-silent-takeweapons 0.5 600 tone
 	recruited
 	familiar-recruit-check
@@ -77,16 +78,17 @@ cyoa-choice: recruit-familiarreplace
 
 : recruit-familiarreplace?
 	' recruit-familiarreplace cyoa-team-choice
-	choice( "Quitter " .. rname .. " derriere" )choice
+	choice( "Leave " .. rname .. " behind" )choice
 ;
 
 cyoa: recruit-familiaryes
 	team-full? if
-		($ "Vous devez laisser quelqu'un pour que place soit disponible. quel personne voulez-vous remplacer ? " .. rname .. "?" $) cyoa-text!
+		($ "The group is full.
+		Who would you like to replace to make room for " .. rname .. "?" $) cyoa-text!
 			recruit-familiarreplace?
 	then;
 	ricon
-	($ Thegroup .. " accepte " .. rname .. " a l'equipe !" $) cyoa-text! 2 300 tone
+	($ Thegroup .. " accepts " .. rname .. " to the team!" $) cyoa-text! 2 300 tone
 	recruited
 	familiar-recruit-check
 ;
@@ -94,17 +96,17 @@ cyoa: recruit-familiaryes
 defer use-recruit-deck
 
 cyoa: famevent
-	"Visages familiers" cyoa-title!
+	"Familiar Faces" cyoa-title!
 
-	draw-familiar dup not if drop "PAS PLUS DE PERSONNES !" text! use-recruit-deck then;
+	draw-familiar dup not if drop "NO MORE PEOPLE!" text! use-recruit-deck then;
 
 	to recruitee ricon
 
-	($ "C'est incroyable ! " .. rname .. "c'est agreable de voir un visage connu ! " .. fam-text $) text! 
-		($ "TRAITE. " pbold .. recruitee .trait@ $) +crtext 
-		($ " PERK : " pbold .. recruitee .perk@ $) +text 
-			choice( "Recruter " .. rname .. " a l'equipe." )choice: recruit-familiaryes
-			choice( "Quitter " .. rname .. " derriere" )choice
+	($ "Whoa, it's " .. rname .. "! It's nice to see a familiar face! " .. fam-text $) text! 
+		($ "TRAIT: " pbold .. recruitee .trait@ $) +crtext 
+		($ "  PERK: " pbold .. recruitee .perk@ $) +text 
+			choice( "Recruit " .. rname .. " to team" )choice: recruit-familiaryes
+			choice( "Leave " .. rname .. " behind" )choice
 ;
 
 } }

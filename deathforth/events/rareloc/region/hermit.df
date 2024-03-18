@@ -6,28 +6,33 @@ cyoa{
 
 cyoa-choice: cabin1-hermitchat-wisdom
 	ricon
-	($ "L'ermite enseigne. " .. pname .. " des conseils agreables pour la tir de precision et aussi revele les secrets suivants : " .. "RESISTANCE FAROUCHE DU HERMITON GRISE !" rbold .. "sortez immediatement et ne revenez jamais!" pbold $) cyoa-text! goodfx
+	($ "The hermit teaches " .. pname .. " some sweet shooting tips, and also gives up the secrets of " .. "GRIZZLED HERMIT TOUGHNESS!" rbold .. "
+	NOW GET OUT AND NEVER RETURN!" pbold $) cyoa-text! goodfx
 		pchar .vitality++ pchar .shooting++
 ;
 
 cyoa-choice: cabin1-hermitchat-recruit
 	ricon
 	pchar charming? if
-		($ "L'ermite est agite par " .. pname .. "les charmes de 's sont fascinants." .. "Vous etes bienvenus, malgre mon solitaire existence." pbold $) cyoa-text! goodfx
+		($ "The hermit is swayed by " .. pname .. "'s charms!
+		" .. "Well, I'm a hermit, but you know what? You're alright!" pbold $) cyoa-text! goodfx
 		recruit-yesno
 	else
-		($ "Je ne vais pas m'y joindre ! je fais tres bien avant que vous n'en apportiez une horde !" pbold .. "l'ermite ne cede pas a " .. pname .. "les attraits de 's charme." $) cyoa-text! badfx
+		($ "Of course I'm not going to join you! I was doing fine before you brought the horde with you!" pbold .. "
+		The hermit isn't swayed by " .. pname .. "'s charms." $) cyoa-text! badfx
 	then
 ;
 
 cyoa-bridge: cabin1-hermitchat-coolit
 	ricon
 	cool-it-7 if
-		($ "L'ermite le refroidit immediatement ! il partage avec vous sa reserve de cartouches de fusil a pompe, ainsi que ses connaissances d'ermite. il propose egalement de rejoindre l'equipe !" .. pname .. " a mon grande surprise, cela a fonctionne !" $) cyoa-text!
+		($ "The hermit cools it immediately! He shares his stash of shotgun shells with you, along with his hermit knowledge. He also offers to join the team!
+		" .. pname .. " was surprised that this worked!" $) cyoa-text!
 		pchar .morale2+ goodfx cooled-it 40 add-shell pchar .shooting++ pchar .vitality++
 		recruit-yesno
 	else cool-it++
-		($ "Le moine ne s'arrete pas. au contraire, il lance un jargon d'insultes." .. pname .. "les sensibilites de sont blessees !" $) cyoa-text!
+		($ "The hermit does not cool it. Instead, he lets loose a tirade of swears.
+		" .. pname .. "'s sensibilities are offended!" $) cyoa-text!
 		pchar .morale2- badfx
 	then
 ;
@@ -35,15 +40,20 @@ cyoa-bridge: cabin1-hermitchat-coolit
 cyoa: cabin1-hermitchat
 	ricon 1 nearest .character@ .party!
 	image-angry-hermit
-	"L'ermite le plus en colere" cyoa-title!
+	"The Angriest Hermit" cyoa-title!
 	region.zombie_basespawn@ 0 > if
-		($ "L'ermite est deja en colere." .. "vous avez apporte tous ces zombies, n'avez-vous pas ?. . 		quittez mon maison !" pbold .. "il serait peut-etre plus sur de reessayer quand il y a moins de zombies." $) cyoa-text!
+		($ "The hermit is already infuriated." .. "
+		YOU BROUGHT ALL THESE ZOMBIES, DIDN'T YOU?
+		GET OUT OF MY HOUSE!" pbold .. "
+		Maybe try again when there's less zombies." $) cyoa-text!
 	else
 		0 nearest .character@ .party!
-		($ "Le moine est un peu moins en colere maintenant, mais cela ne represente pas beaucoup de calme." .. "quel est ca, puisque je dois faire beaucoup d'affaires importantes de moine ?" pbold $) cyoa-text!
-		choice( "Demandez au sage herisson sa sagesse." )choice: cabin1-hermitchat-wisdom
-		choice( "Demandez-le de vous rejoindre." )choice: cabin1-hermitchat-recruit
-		choice( "Dis-lui de se calmer." fcoolit )choice: cabin1-hermitchat-coolit
+		($ "The hermit is slightly less infuriated now, but not by much." .. "
+		Well? What is it?
+		I've got a lot of important hermit stuff to do!" pbold $) cyoa-text!
+		choice( "Ask for hermit wisdom" )choice: cabin1-hermitchat-wisdom
+		choice( "Ask him to join you" )choice: cabin1-hermitchat-recruit
+		choice( "Tell Hermit to 'Cool it'" fcoolit )choice: cabin1-hermitchat-coolit
 		clear-cyoa 
 	then
 ;
@@ -57,12 +67,12 @@ cyoa: cabin1-hermitchat
 	4 over .fitness!
 	4 over .vitality!
 	4 over .health!
-	"Ancien moine," over .name!
+	"Hermit" over .name!
 	0 over .female!
 	0 over .attitude!
 	0 over .composure!
 	0.88 over .ai.threat_threshold!
-	"il a ete etonne qu'il s'est joint a l'equipe, etant donne qu'il etait un ermite." over .job!
+	"was surprised that he even joined the team, being a hermit and all." over .job!
 	WEAPON_SHOTGUN over .weapona!
 	WEAPON_FIRE over .weaponb!
 	40 LOOT_SHOTGUN_SHELL 2 pick .lootamt!
@@ -105,7 +115,7 @@ regiondef{
 		on-foot
 		
 		: make-a-cabin map{
-			"le cabane-ermite" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
+			"cabin-hermit" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
 			addloc // Add a location using the resulting location definition  ( locdefid -- locid )
 			prefab{ 10 cabin } // Create a cabin of 5 width using the new location ( locid w -- <build cabin centered in upper part of map> )
 			}

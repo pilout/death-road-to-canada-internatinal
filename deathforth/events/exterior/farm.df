@@ -85,9 +85,9 @@ cyoa{
 	interactee .character@ choosechar
 	1 cchar .party-familiar cchar to gothic-pa
 	gothic-ma 0= not if
-		"CETTE FERME EST TERMINEE, ALLONS-Y COURIR"
+		"THIS FARM IS DONE FOR, LET'S RUN"
 	else
-		"RENSEIGNEMENTS SUR MA : NOUS ALLONS LA CHERCHER."
+		"LET'S TRACK DOWN MA!"
 	then nearest .sprayitfast clear-cyoa
 	mission{ ' farmrescue to post-mission-cyoa }
 ;
@@ -96,17 +96,17 @@ cyoa{
 	interactee .character@ choosechar
 	1 cchar .party-familiar cchar to gothic-ma
 	gothic-pa 0= not if
-		"SORTONS-EN D'ICI !"
+		"LET'S GET OUT OF HERE!"
 	else
-		"NOUS AVONS BESOIN DE SECOURIR PA !"
+		"WE NEED TO RESCUE PA!"
 	then
 	nearest .sprayitfast clear-cyoa
 	mission{ ' farmrescue to post-mission-cyoa }
 ;
 
 cyoa-choice: farm-pig-betray
-	($ cname .. " eloigne les zombies pendant quelques heures en transformant le cochon en nourriture." $) text!
-	($ Thegroup .. " a pu avoir un vrai ami. cela a ete jete en avant a la place de quelques rashers. a-t-il ete rentable ? probablement, le bacon est bon." $) +crtext 7 10 rnd trunk-food+ rob-guilt2 aholeREV o'clock@ 3 + o'clock
+	($ cname .. " fends off zombies for a few hours while turning the pig into food." $) text!
+	($ Thegroup .. " could have had a true friend. This was thrown away for some bacon. Was it worth it? Probably, bacon's pretty good." $) +crtext 7 10 rnd trunk-food+ rob-guilt2 aholeREV o'clock@ 3 + o'clock
 	badfx 4 7 rnd nearest .tpos anchor! zombs deleteme
 ;
 
@@ -118,12 +118,14 @@ cyoa-choice: farm-pig-betray
 cyoa: farm-pig
 	nearest .character@ to recruitee
 	recruitee choosechar cicon
-	"UN COCHON PARTICULIER" cyoa-title!
-	($ "Une araignee tisse une toile sur le plafond... cela ressemble exactement a charlotte la araignee... le cochon fait pousser les yeux. " .. thegroup .. "les cochons sont reputes pour leur saveur et leurs sauts incessants. ils ne peuvent pas conduire des voitures." $) text!
-	choice( "Laisse-le de cote pour le moment" )choice
-	choice( "Gymnasium envahi par une horde" )choice: farm-pig-recruit
+	"SOME PIG" cyoa-title!
+	($ "There's a spider web on the ceiling.
+	This is EXACTLY like Charlotte's Web.
+	The pig squints at " .. thegroup .. ". Pigs are well known for their flavor and their constant hopping around. They can't drive cars." $) text!
+	choice( "Leave it alone for now" )choice
+	choice( "Recruit Pig" )choice: farm-pig-recruit
 	pchar ahole? if
-		pchar charchoice( ": TRAHIR LE COCHON." )choice: farm-pig-betray
+		pchar charchoice( ": BETRAY PIG" )choice: farm-pig-betray
 	then
 ;
 
@@ -264,18 +266,18 @@ root{
 ;
 
 : fbldg tanchor! map{ 
-	"ferme paysanne" $picklocid addloc prefab{ farmhouse } 
+	"farmhouse" $picklocid addloc prefab{ farmhouse } 
 } ;
 
 : bbldg tanchor! map{ 
-	"grange" $picklocid addloc prefab{ barn } 
+	"barn" $picklocid addloc prefab{ barn } 
 } ;
 
 : tbldg tanchor! map{
 
-//	"magasin" $picklocid addloc 6 5 prefab{ yallmart }
-//	"magasin" $picklocid addloc 5 13 0 prefab{ shop }
-	"magasin" $picklocid addloc "POLICE DE BUTTVILLE." sign-text! prefab{ 5 9 0 shop }
+//	"shop" $picklocid addloc 6 5 prefab{ yallmart }
+//	"shop" $picklocid addloc 5 13 0 prefab{ shop }
+	"shop" $picklocid addloc "BUTTVILLE POLICE" sign-text! prefab{ 5 9 0 shop }
 } ;
 
 : wall-boards 0x d loc-wtheme! ;

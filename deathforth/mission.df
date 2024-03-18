@@ -37,8 +37,8 @@ root{ : to-road }
 0 value anime-countdown 
 0 value kills-this-game
 
-: readyanimefan? args( chara ) <- chara .trait@ "Un fan de l'anime." $= <- chara .morale@ 5 > and ;
-: animefanchecker checkchar .trait@ "Un fan de l'anime." $= checkchar .morale@ 5 > and ;
+: readyanimefan? args( chara ) <- chara .trait@ "Anime Fan" $= <- chara .morale@ 5 > and ;
+: animefanchecker checkchar .trait@ "Anime Fan" $= checkchar .morale@ 5 > and ;
 
 : animefan?
 	team-stack ' readyanimefan? stack-filter nip 0 > ;
@@ -76,10 +76,10 @@ cyoa{ voc{ mission
 : leave-car me .leave ;
 
 cyoa: anime-boom
-	65 stpick if choosechar cicon else "L'anime girl allait exploser, mais a ete empechee de le faire juste a temps." text! morale++all exit then
-	"Anime overdose : une surdosage d'anime." cyoa-title!
-	($ cname .. " soudainmente explosion alors qu'il circulait sur la route. tout est gravement endommage par des eclats volant d'anime." $) text!
-		($ "UNE FILLE D'ANIME SE FAIT ELIMINER !" fbold $) +crtext
+	65 stpick if choosechar cicon else "The Anime Girl was going to explode, but got prevented from doing so at the last possible moment." text! morale++all exit then
+	"Anime Overdose" cyoa-title!
+	($ cname .. " suddenly explodes while on the road. Everything is heavily damaged by flying shards of anime." $) text!
+		($ "ANIME GIRL GETS OBLITERATED!" fbold $) +crtext
 		sfx{ ruffle 1000 fx .d! 0.25 fx .s! 2000 fx .r! 0.925 fx .q! 1250 fx .filt! 1 fx .scale! 3 fx .freq2! }
 		10 0.9 rumble-gui
 		cchar .weapons-to-trunk TEAM_STATUS_DIED cchar .decruit sfx{ creepy } deadtally
@@ -89,29 +89,32 @@ cyoa: anime-boom
 
 cyoa: knight-oneuse
 	53 stpick if choosechar cicon then
-	"La fin de la bataille" cyoa-title!
-	($ "Le chevalier." pbold .. " elle vous remercie de l'experience, mais devrait peut-etre continuer seule a partir de maintenant. elle commence lentement a cliqueter !" $) text! decruit-good
+	"End of the Battle" cyoa-title!
+	($ "The knight" pbold .. " thanks you for the experience, but says she should probably go on her own from here. She starts slowly clanking away!" $) text! decruit-good
 	cheevo: knight-leave
 ;
 
 cyoa-choice: trade-rare-coldsteel-buy
-	($ "Apres l'avoir vu en fonctionnement, " .. Thegroup .. " il doit acheter l'epee ..." .. "Ce achat ne vous decevra pas ! bonne chance pour le voyage !" pbold $) cyoa-text! basic-tone
+	($ "After seeing it in action, " .. Thegroup .. " has to buy the sword.
+	" .. "You will not regret this purchase! Good luck out there!" pbold $) cyoa-text! basic-tone
 	1 WEAPON_ZWEI trunk.weapon+ -30 trunk-food+ goodfx
 ;
 
 cyoa: lynn-oneuse
 	79 stpick if choosechar cicon then
-	"Demo en direct de cold steel" cyoa-title!
+	"Cold Steel Live Demo" cyoa-title!
 	cchar .seed@ 555 < if
-		($ cname .. " pret a monter !" .. "
+		($ cname .. " is raring to go!" .. "
 			Are you ready to see the power of a Cold Steel weapon?
 			You'll see what this greatsword can do once you let me out of this car!" pbold $) text!
 	then;
 	decruit-good
-	($ "La demonstration est terminee !" .. "vous etes pret pour le pouvoir d'une epee de cold steel ?. . 		j'offre une reduction pour avoir combattu cote a cote comme guerriers ! reduction de 33 % !" pbold $) text!
-		choice( "Je n'en suis pas encore a la hauteur. " .. DX )choice: badfx
+	($ "The demonstration is over!" .. "
+		Well, are you ready for the power of a Cold Steel sword?
+		I'll give you a discount because we fought together as warriors! 33% off!" pbold $) text!
+		choice( "I'm still not good enough for it " .. DX )choice: badfx
 	trunk-food 29 > if
-		choice( "Achetez-le ! - 30 aliments" .. " une reduction de 33 % !" fbold )choice: trade-rare-coldsteel-buy
+		choice( "Buy it! - 30 food" .. " 33% Discount!" fbold )choice: trade-rare-coldsteel-buy
 	then
 	
 ;
@@ -167,26 +170,26 @@ cyoa: lynn-oneuse
 		' resting-check foreach-team-char
 		cyoa-new
 			cyoa-leftjust
-			"RESUME DE LA MISSION" cyoa-title!
+			"MISSION SUMMARY" cyoa-title!
 			mission-total-loot if
-				"Trouve" cyoa-text-append cyoa-text-cr
+				"Found:" cyoa-text-append cyoa-text-cr
 				cyoa-loot-text cyoa-text-cr
 			then
 			mission-kills cyoa-text-append
-			" zombis detruits." cyoa-text-append
+			" zombies destroyed." cyoa-text-append
 			cyoa-text-cr
 
 			killtally
 	
 			absentees if
-				"GAGNE POUR ARRIERE : " swap $cat cyoa-text-append
+				"LEFT BEHIND: " swap $cat cyoa-text-append
 			else drop then
 	
 			mission>road-car-chassis
 	
 			cyoa-add-choice
 			DEMO if
-				"Fin de la demonstration." cyoa-choice-text!
+				"END of DEMO" cyoa-choice-text!
 				' quit-to-title cyoa-choice-handler! // end of demo
 			else
 				' to-road cyoa-choice-handler! // go to driving mode

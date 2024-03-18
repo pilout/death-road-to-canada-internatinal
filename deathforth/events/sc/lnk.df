@@ -5,20 +5,22 @@ cyoa{ road{
 0 value lnk-bombbag
 
 : lnk-chest
-	($ cname .. " des joyaux precieux et des pieces d'or. 	 " $) cyoa-text!
+	($ cname .. " stumbles on a treasure chest. He opens it and lifts its contents high above his head.
+		It contained the " $) cyoa-text!
 ;
 
 : lnksword 1 6 rnd case
-	1 of "Orange = orange" endof
-	2 of "Maitre" endof
-	3 of "Monsieur" endof
-	4 of "Montrer" endof
-	5 of "Armoire a vetements" endof
-	6 of "Mystere" endof
+	1 of "M*ster" endof
+	2 of "Mester" endof
+	3 of "Mister" endof
+	4 of "Moster" endof
+	5 of "Muster" endof
+	6 of "Myster" endof
 endcase ;
 
 cyoa-choice: lnk-heart
-	($ cname .. " obtenu. " .. "Conteneur de coeur !" pbold .. "la sante maximale a augmente !" $) cyoa-text!
+	($ cname .. " got the " .. "Heart Container!" pbold .. "
+	Maximum Health has increased!" $) cyoa-text!
 		STAT_VITALITY cchar .stat++ cchar .health++
 ;
 
@@ -29,34 +31,37 @@ cyoa-choice: lnk-heart
 ;
 
 cyoa-choice: lnk-bomb
-	($ cname .. " obtenu. " .. "Sac de bombes !" pbold .. "il peut jeter maintenant trois bombes chaque mission !" $) cyoa-text!
+	($ cname .. " got the " .. "Sack of Bombs!" pbold .. "
+	He can now throw three bombs every mission! 
+	New bombs will show up in the trunk whenever they're fully used up!" $) cyoa-text!
 		1 to lnk-bombbag
 		// lnk-restock
 		 3 WEAPON_LNKBOMB trunk.weapon+
 ;
 
 cyoa: lnk-timeup
-	52 stpick if choosechar cicon else ($ "Liens :" pbold .. " cette entite n'est plus parmi nous. cela peut etre le mieux. s'il vous plait, ne dites rien a personne que nous l'avons mis dans notre jeu." $) text! exit then
+	52 stpick if choosechar cicon else ($ "L*nk" pbold .. " is no longer around. This is probably for the best. Please do not tell anyone that we put this character in the game." $) text! exit then
 	"DA NA NA NAAAAAAA!" cyoa-title!
 	lnk-event 0 = if
-		lnk-chest ($ "Couteau de bois retourne!" pbold $) +text
+		lnk-chest ($ "Wooden Boomerang!" pbold $) +text
 			1 WEAPON_WOODBOOM trunk.weapon+
 	then
 	lnk-event 1 = if
-		lnk-chest ($ "Epee blanche !" pbold $) +text
+		lnk-chest ($ "White Sword!" pbold $) +text
 			WEAPON_WHITESWORD cchar .weapona! 1 cchar .weapon_nodropa!
 	then
 	lnk-event 2 = if
-		lnk-chest ($ "Lance-bouclier en metal !" pbold $) +text
+		lnk-chest ($ "Metal Boomerang!" pbold $) +text
 			1 WEAPON_METALBOOM trunk.weapon+
 	then
 	lnk-event 3 = if
-		lnk-chest ($ "..." pbold .. "selectionner une option :" $) +text
-			choice( "Assecurer le depotoir" )choice: lnk-heart
-			choice( "Sac de bombes" )choice: lnk-bomb
+		lnk-chest ($ "..." pbold .. "
+		Choose One:" $) +text
+			choice( "Heart Container" )choice: lnk-heart
+			choice( "Sack of Bombs" )choice: lnk-bomb
 	then
 	lnk-event 4 = if
-		lnk-chest ($ PURPLE .. lnksword .. " Epee !" .. WHITE $) +text
+		lnk-chest ($ PURPLE .. lnksword .. " Sword!" .. WHITE $) +text
 				WEAPON_HERO cchar .weapona! 1 cchar .weapon_nodropa!
 	then 
 	' lnk-event ++ goodfx
@@ -70,8 +75,10 @@ cyoa: lnk-timeup
 
 cyoa: lnk-despair
 	bully choosechar cicon
-	"Attaque tournante" cyoa-title!
-	($ cname .. " tient son epee devant lui et effectue une rotation rapide." .. "KYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!" rbold .. "il finit par couper tout autour de lui et s'endommage lui-meme assez gravement." $) cyoa-text!
+	"Spin Attack" cyoa-title!
+	($ cname .. " holds his sword in front of him, and then spins around at high speeds.
+	" .. "KYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!" rbold .. "
+	He ends up cutting everything near him, and also cuts himself up pretty bad." $) cyoa-text!
 	morale2+ lnk-event 1 > if ouch-- else sting-- then
 	cchar ' lnk-cut foreach-team-char-except bitefx 
 ;

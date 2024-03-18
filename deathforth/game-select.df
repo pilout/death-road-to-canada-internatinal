@@ -16,7 +16,7 @@ cyoa{
 	;
 
 	: start-the-actual-game-here
-		"NOUVELLE SAUVEGARDE" slot-info-name $swrite
+		"NEW SAVE" slot-info-name $swrite
 		"($ skull .. skull .. skull .. skull $) print" slot-data-name $swrite
 		gogo
 		MAIN_EVENT_NEW main-post-event
@@ -35,16 +35,16 @@ cyoa{
 	cyoa-choice: cont-saveslot
 		choicenum saveslot!
 		cyoa-start
-		"CONTINUER LA PARTIE." cyoa-title!
+		"- CONTINUE GAME -" cyoa-title!
 		"THE HORROR CONTINUES..." cyoa-text!
-		choice( "NERVE : NERF" )choice: continue-the-saved-game-here
+		choice( "YIKES" )choice: continue-the-saved-game-here
 	;
 
 	defer select-new
 
 	cyoa-choice: delete-slot make-it-snappy
 		skull cyoa-title!
-		"SUPPRIMER CETTE INSTRUCTION." cyoa-text!
+		"DELETED" cyoa-text!
 		delete-the-game
 		sfx{ bite } 10 0.75 rumble-gui
 		choice( "OK" )choice: select-new
@@ -54,17 +54,17 @@ cyoa{
 	cyoa-choice: new-delete-game
 		choicenum saveslot!
 		cyoa-start make-it-snappy
-		"SUPPRIMER JEU." cyoa-title!
-		($ "Supprimer le sauvegarde ancienne '" .. slotinfo saveslot peek nip .. "'?" $) cyoa-text!
-		choice( "NON" )choice: select-new thumbdownicon
-		choice( "OUI" )choice: delete-slot thumbupicon
+		"- DELETE GAME -" cyoa-title!
+		($ "DELETE old saved game '" .. slotinfo saveslot peek nip .. "'?" $) cyoa-text!
+		choice( "NO" )choice: select-new thumbdownicon
+		choice( "YES" )choice: delete-slot thumbupicon
 	;
 
 	: slotchoices-new 0 args( slot )
 		load-slotinfo
 		3 for
 			3 i - -> slot
-			choice( "vide" )choice: new-gamestart circleicon
+			choice( "empty" )choice: new-gamestart circleicon
 			<- slot slot? if
 				slotinfo <- slot peek cyoa-choice-text! drop
 				icons16_id ICON_UP + cyoa-choice-iconid!
@@ -91,19 +91,19 @@ cyoa{
 	defer select-start // forward reference
 
 	cyoa: select-new-game make-it-snappy
-		"NOUVELLE PARTIE" cyoa-title!
-		"Choisissez une case de jeu :" cyoa-text!
+		"- NEW GAME -" cyoa-title!
+		"Choose game slot:" cyoa-text!
 		slotchoices-new
-		choice( "RETOUR" )choice: select-start backicon cyoa-choice-esc-default
+		choice( "BACK" )choice: select-start backicon cyoa-choice-esc-default
 	;
 
 	last to select-new
 
 	cyoa: select-cont-game make-it-snappy
-		"CONTINUER LA PARTIE." cyoa-title!
-		"Choisissez une case de jeu :" cyoa-text!
+		"- CONTINUE GAME -" cyoa-title!
+		"Choose game slot:" cyoa-text!
 		slotchoices-cont
-		choice( "RETOUR" )choice: select-start backicon cyoa-choice-esc-default
+		choice( "BACK" )choice: select-start backicon cyoa-choice-esc-default
 	;
 
 	cyoa-choice: select-create-char
@@ -122,25 +122,25 @@ cyoa{
 		filesave{ ' delete-game } to delete-the-game
 
 		"- SELECT -" cyoa-title!
-		"Choisissez l'option jeu :" cyoa-text!
+		"Choose game option:" cyoa-text!
 		slotcount if
-			choice( "Continuer la partie." )choice: select-cont-game
+			choice( "Continue Game" )choice: select-cont-game
 		then
-		choice( "Nouvelle partie" )choice: select-new-game
+		choice( "New Game" )choice: select-new-game
 
 		// TODO: unlock?
-		choice( "Personnages personnalises" )choice: do-char-maker
-		// choice( "Personnages personnalises" )choice: select-create-char
+		choice( "Custom Characters" )choice: do-char-maker
+		// choice( "Custom Characters" )choice: select-create-char
 
-		choice( "RETOUR" )choice backicon cyoa-choice-esc-default
+		choice( "BACK" )choice backicon cyoa-choice-esc-default
 	;
 
 	// TEMP: FOR QUICK GAME START
 (*
 	cyoa: quick-start-game
-		"NOUVELLE PARTIE" cyoa-title!
+		"- NEW GAME -" cyoa-title!
 		"THE HORROR BEGINS..." cyoa-text!
-		choice( "OH DANG !" )choice: start-the-actual-game-here
+		choice( "OH, DANG" )choice: start-the-actual-game-here
 	;
 *)
 	: select-boot

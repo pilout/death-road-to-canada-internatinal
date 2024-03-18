@@ -2,7 +2,7 @@ cyoa{ road{
 
 (*
 ------------------------------------------------------------------------------------------------------------------------
-	004 - "Les invoques inconnus" - Don Thacker
+	004 - "The Unsummoned" - Don Thacker
 	One of the group becomes posessed by the demon HEKTATRIUS. He wants PIZZA and SMOKES.
 	That's cool, right? I mean he sounds pretty rad.
 ------------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,8 @@ cyoa{ road{
 // The group kicks the character TO THE CURB
 cyoa-choice: don-common-demon-offload
 	victim to cchar
-	($ notcname .. " des coups de pied " .. vname .. " sortir par la porte laterale des passagers. ... 	 " .. vhe .. " tombe. " .. vhe .. " s'effondre en une horde de chauves-souris noires minuscules." $) cyoa-text!
+	($ notcname .. " kicks " .. vname .. " out through the passenger door. 
+	As " .. vhe .. " falls, " .. vhe .. " explodes into a swarm of tiny black bats." $) cyoa-text!
 	victim .kill
 	morale--all
 ;
@@ -34,7 +35,8 @@ cyoa-choice: don-common-demon-offload
 
 cyoa-choice: don-common-demon-pizza-refuse
 // Victim was necessary to carry the character selected at the start all the way to here. Otherwise the intermediary cyoa: would have cleared it. Could have also gotten around this using the vortex-003 example of not using cyoa: and using cyoa-start instead, but it would have been really clumsy and prone to breaking.
-	($ "Bah, malheureusement merci tout de meme... ." rbold .. "Lorsque le demon libere : " .. vname .. "qui est modifie par l'experience." $) cyoa-text!
+	($ "UGH, WELL, THANKS ANYWAY I GUESS.
+	" rbold .. "The demon releases " .. vname .. ", who is changed by the experience." $) cyoa-text!
 	don-common-demonify sfx{ creepy }
 ;
 
@@ -42,14 +44,14 @@ cyoa-choice: don-common-demon-pizza-refuse
 
 cyoa-choice: don-common-demon-pizza2
 	($ "THANKS FOR THE SOOOUUUUUUUUL.
-	" rbold .. "Tous les survivants sont impregnes de puissance demoniaque." $) cyoa-text!
+	" rbold .. "All the survivors are infused with demonic power." $) cyoa-text!
 	cchar .kill
 	cchar ' don-common-demon-pizzaboost foreach-team-char-except
 ;
 
 cyoa-bridge: don-common-demon-pizza2-4
 	someicon
-	"Aucun humain ne devrait etre sacrifie a hekate. dans la mythologie grecque, hekate n'exige pas de sacrifice humain mais plutot des offrandes comme des bougies, des fruits et des fleurs." cyoa-text!
+	"Who should be sacrificed to HEKATRIUS?" cyoa-text!
 	' don-common-demon-pizza2 cyoa-team-choice
 ;
 
@@ -58,18 +60,20 @@ cyoa: don-common-demon-pizza
 image-demon
 solo if
 	soloer choosechar
-	($ "Merci beaucoup, dingus. ." rbold .. "Le demon eclate de feu. " .. cname .. " avec des pouvoirs etranges, puis disparait !" $) cyoa-text!
+	($ "THANKS A BUNCH, DINGUS.
+	" rbold .. "The demon blasts " .. cname .. " with spooky powers, then vanishes!" $) cyoa-text!
 	cchar to victim
 	don-common-demonify sfx{ creepy }
 else
-	($ "Bien, les puces etaient a saveur de pizza." .. " HECATEE, POETE GREC ANCIEN. IL EST CONNU POUR ETRE L" rbold .. " demande une ame pour la rincer." .. "QUI SERA SACRIFICE?" rbold $) cyoa-text!
+	($ "The chips were pizza flavored. GOOD ENOUGH." .. " HEKATRIUS" rbold .. " asks for a soul to wash it down with.
+	" .. "WHO WILL BE SACRIFICED?" rbold $) cyoa-text!
 	team-count 3 > if
 		' don-common-demon-pizza2 2 #cyoa-team-choice
-		choice( "Choisissez quelqu'un d'autre." )choice: don-common-demon-pizza2-4
+		choice( "Pick someone else" )choice: don-common-demon-pizza2-4
 	else
 		' don-common-demon-pizza2 3 #cyoa-team-choice
 	then
-	choice( "Ne sacrifier personne." )choice: don-common-demon-pizza-refuse	
+	choice( "Uh, sacrifice no one." )choice: don-common-demon-pizza-refuse	
 then
 	-1 trunk-food+
 ;	
@@ -77,8 +81,9 @@ then
 
 cyoa-choice: don-common-demon-facepunch
 	
-	($ "Malheureux humain, maudit toi ! malheureux toi aussi !" pbold .. "HECATEE, POETE GREC ANCIEN. IL EST CONNU POUR" rbold .. " epaule. " .. cname .. " ressent plutot bien cela." $) cyoa-text!
-		($ "C'est une merveilleuse gifle !" $) +crtext
+	($ "CURSE YOU HUMAN! CURSE YOU!
+	" pbold .. "HEKATRIUS" rbold .. " vanishes. " .. cname .. " feels pretty good about this." $) cyoa-text!
+		($ "What a miracle punch!" $) +crtext
 		morale2+ strengthREV strength++ temperREV goodfx
 
 ;	
@@ -88,12 +93,12 @@ cyoa-choice: don-common-demon-freakout
 	// the demon leaves and you have essentially lost a person for nothing
 	// maybe don't freak out next time
 	
-	($ Thegroup .. " se dechaine !" rbold $) text!
+	($ Thegroup .. " freaks out!" rbold $) text!
 	notsolo if
-		($ "HECATEE, POETE GREC ANCIEN. IL EST CONNU POUR" rbold .. " se fait ebranler pendant un peu de temps ! puis il redevient " .. vname .. "alors, c'est lui qui explosion !" $) +crtext
+		($ "HEKATRIUS" rbold .. " freaks out for awhile! He then morphs back into " .. vname .. ", who then explodes!" $) +crtext
 		victim .kill
 	else
-		($ "HECATEE, POETE GREC ANCIEN. IL EST CONNU POUR" rbold .. " se fait emotionnellement agiter pendant un moment, puis disparait dans une nuee de fumigenes ! c'est tres traumatisant !" $) +crtext
+		($ "HEKATRIUS" rbold .. " freaks out for awhile, then vanishes into a poof of smoke! It's very traumatizing!" $) +crtext
 		morale--
 	then badfx
 ;	
@@ -101,35 +106,35 @@ cyoa-choice: don-common-demon-freakout
 	
 : don-common-demon-angrypunch 
 	most-angrystrong if
-		choice( "Caheter son visage" )choice: don-common-demon-facepunch
+		choice( "Punch his face" )choice: don-common-demon-facepunch
 	then
 ;	
 
 : don-common-demon-choiceblock
 		trunk-food 0 > if
-			choice( "Offrez-lui un sac de chips." )choice: don-common-demon-pizza	
+			choice( "Offer him a bag of chips - 1 food" )choice: don-common-demon-pizza	
 		then
-		choice( "La tranquillite, la calme et la ser" )choice: don-common-demon-freakout
+		choice( "Freak out" )choice: don-common-demon-freakout
 ;
 
 : don-common-demon-transmutetext
-	($ cname .. "achetez un fusil de precision ! " .. che .. " se met a convulser ! " .. cHe .. " hurle et secoue dans des langues arcanes." $) +crtext
-	($ "Dans : " .. vname .. "il y a maintenant sa place. " .. "LE DEMON HEKATRIOS" rbold .. "il demande si vous avez de la pizza. il en aurait vraiment besoin une tranche chaude." $) +crtext
+	($ cname .. "'s eyes roll back and " .. che .. " starts to convulse! " .. cHe .. " shakes and screams in arcane tongues." $) +crtext
+	($ "In " .. vname .. "'s place now sits " .. "THE DEMON HEKATRIUS" rbold .. ". He asks if you have pizza. He could really use a hot slice." $) +crtext
 	
 	don-common-demon-choiceblock
 ;	
 	
 // Enter HEKTATRIUS
 cyoa: don-common-demon
-	"Les invoques inconnus" cyoa-title!
-	($ Thegroup .. " odeur de soufre, viande de mouton gachee, bonbon cornee." $) cyoa-text! basic-tone 
-	($ "Une eclaircie de lumiere et un bruit bruyant. " .. "mille de baleines explosant" pbold .. " a plus tard, bouba." $) +crtext
+	"The Unsummoned" cyoa-title!
+	($ Thegroup .. " notices a foul smell coming from the floorboards. Sulfur. Rotting mutton. Candy corn." $) cyoa-text! basic-tone 
+	($ "A flash of light and the sound of a " .. "thousand whales exploding" pbold .. " fills the car." $) +crtext
 	
 	solo if // alone
 		image-demon
 		soloer choosechar
-		($ "Enregistrement provisoire dans un tampon de memoire " .. "LE DEMON HEKATRIOS" rbold .. "." $) +crtext
-		($ "Vous avez une pizza ? il en aurait besoin chaud." $) +crtext	
+		($ "The smoke clears to reveal " .. "THE DEMON HEKATRIUS" rbold .. "." $) +crtext
+		($ "He asks if you have pizza. He could use a hot slice." $) +crtext	
 		don-common-demon-angrypunch 
 		don-common-demon-choiceblock
 		

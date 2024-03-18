@@ -3,7 +3,7 @@
 cyoa{
 
 : giver2 -10 the-pm .vel.z! ;
-: giver "APPUIE SUR LE CHAMPIGNON !" the-pm .yellmsg 60 ' giver2 timer_add ;
+: giver "GIVE 'ER!" the-pm .yellmsg 60 ' giver2 timer_add ;
 
 : end-it
 	clear-cyoa
@@ -12,22 +12,22 @@ cyoa{
 ;
 
 : ending-choice
-	choice( "Vers le canada !" )choice: end-it
+	choice( "Onward to Canada!" )choice: end-it
 ;
 
 : end-unlock-checker
 	gstats{ ZOMBOP_CAP } 15 < if
-		($ "POINTS DE ZOMBIE" rainbold .. " La limite maximale a ete augmentee a 15 !" rbold $) +crtext
+		($ "ZOMBO POINTS" rainbold .. " Maximum increased to 15!" rbold $) +crtext
 		gstats{ 15 to ZOMBOP_CAP ' ugnome-unlocks ++ }
 	then
 	
 	gamedef{ ' deadlier gamemode? } gstats{ ZOMBOP_CAP } 20 < and if
-		($ "POINTS DE ZOMBIE" rainbold .. " La limite a ete augmentee a 20 !" rbold $) +crtext
+		($ "ZOMBO POINTS" rainbold .. " Maximum increased to 20!" rbold $) +crtext
 		gstats{ 20 to ZOMBOP_CAP ' ugnome-unlocks ++ }
 	then
 		
 	(* gamedef{ ' kepamode gamemode? } gstats{ ZOMBOP_CAP } 21 < and if
-		($ "POINTS DE ZOMBIE" rainbold .. " La limite a ete augmentee a 30 !" rbold $) +crtext
+		($ "ZOMBO POINTS" rainbold .. " Maximum increased to 30!" rbold $) +crtext
 		gstats{ 30 to ZOMBOP_CAP }
 	then *)
 	
@@ -65,8 +65,8 @@ cyoa{
 ;
 
 cyoa-bridge: wyk-ending
-	($ "Le " .. "l'honneur" rbold .. " et " .. "reputation" rbold .. " l'equipe de would you kindly est sauvee par " .. wyk-name .. "!" $) text!
-	"Voici quelques codes pour feter !" rainbold +crtext
+	($ "The " .. "honor" rbold .. " and " .. "reputation" rbold .. " of the Would You Kindly team is saved by " .. wyk-name .. "!" $) text!
+	"Here are some codes to celebrate!" rainbold +crtext
 		gstats{ ' wyk-highscore ++ }
 		wyk-win1 +crtext 
 		wyk-win2 +crtext
@@ -79,32 +79,35 @@ cyoa-bridge: wyk-ending
 
 cyoa: pm-dead
 	the-pm .character@ choosechar cicon
-	"Premier ministre" cchar .name!
-	"BRAVO, PETITE CHOSE" cyoa-title!
-	($ " Vous avez tue quelqu'un. " .. cname .. "tous les autres sont morts ! " .. "FLEXIBLE : SOUPLE, ADAPTABLE." fbold $) text!
+	"Prime Minister" cchar .name!
+	"NICE ONE, DINGUS" cyoa-title!
+	($ " You've somehow murdered the " .. cname .. "! 
+	Congratulations! " .. "YOU LOSE!" fbold $) text!
 	sfx{ creepy }
 	clear-streak delete-the-game
 	mission{ killtally }
 	cheevo: pm-killer
-	choice( "DARN, MALHEUREUSEMENT." )choice: quit-to-title
+	choice( "DANG IT" )choice: quit-to-title
 ;
 
 cyoa: cyoa-the-pm
 	the-pm player face-each-other
 	the-pm .character@ choosechar cicon
 //	clear-cyoa
-	"Premier ministre" cchar .name!
+	"Prime Minister" cchar .name!
 	
-	"Victoire sur la route de la mort." cyoa-title!
+	"Victory Over The Death Road" cyoa-title!
 			mission{ killtally }
-	($ "Felicitations pour votre attitude determinee et pour avoir reussi a atteindre le canada !" pbold .. ". . est le " .. cname .. " se fait lui-meme " .. thegroup .. " citoyen d'honneur" ganVSs .. " of Canada. He welcomes " ..
-		ghim .. " a la derniere nation restante sur terre !" $) text! goodfx
+	($ "YOU'VE GOT A CAN-DO ATTITUDE, EH?
+	CONGRATS ON MAKING IT TO CANADA!" pbold .. "
+	The " .. cname .. " himself makes " .. thegroup .. " honourary citizen" ganVSs .. " of Canada. He welcomes " ..
+		ghim .. " to the last remaining nation on Earth!" $) text! goodfx
 
 	wyk? if 
-		($ wyk-name rainbold .. " a gagne la partie !" $) +crtext
+		($ wyk-name rainbold .. " has won the game!" $) +crtext
 		
 		gstats{ wyk-highscore } 5 < if 
-			choice( "Victoire de wyk !" )choice: wyk-ending
+			choice( "WYK Victory!" )choice: wyk-ending
 		then;
 	then
 	
@@ -193,30 +196,30 @@ roadw 2 / value roadrad
 : wink$ 3 $chr ;
 
 0 stack
-	"Ignorer le fantome pour le moment" shove
-	"Bravo, tu l'as fait ! magnifique !" shove
-	"Vous transportez-vous des fruits ou des legumes ?" shove
-	"Les pommes de terre de l'ile-du-prince-edouard sont les meilleures." shove
-	"Ces zombies donnaient simplement tout leur poids!" shove
-	"Nous jouerons au hockey sur route plus tard" shove
-	RAINBOW 0x dd $chr .. " Je suis bud le pomme de terre de l'argile rouge brillante. " .. 0x de $chr .. shove
-	"Les zombies n'aiment pas tout le neige que nous avons ici haut." shove
-	"Comment parlez-vous ? comment parlez-vous ? " WHITE .. wink$ .. shove
-	"Je mangerai une poutine apres cela." shove
-	RAINBOW 0x dd $chr .. " PRENDRE L'AIR VERS LE GRAND NORD BLANC ! "  .. 0x de $chr .. shove
-	"Voulez-vous une boite de soda ?" shove
-	"Et ensuite, un sasquatch." shove
-	"COMMENT VA-T-ELLE DE L'ENCHAINEMENT ?" shove
-	"Ma preferee anime est dragon ball zed." shove
-	"Une salle de bain est juste a gauche de la." shove
-	"Effacez-le avec cette serviette :" shove
-	"Retirez tous les armes a feu de votre sac a dos" shove
-	"Avez-vous apporte une traineuse ?" shove
-	"Je me lasse bien de tes paris malsains, tu as surement laisse un peu de toi-meme la-derriere." shove
-	"Ne touchez pas aux castors." shove
-	"Nous disons about, pas about. hez." shove
-	"Voici un toonie pour deux doubles a tim hortons." shove
-	"Quel est votre couleur preferee pour une toque ?" shove
+	"Welcome to Canada, eh!" shove
+	"You made it, eh? Beauty!" shove
+	"Are you transporting any fruits or vegetables?" shove
+	"P.E.I. potatoes are the BEST" shove
+	"Those zombies were just a givin'er!" shove
+	"Let's play some road hockey later" shove
+	RAINBOW 0x dd $chr .. " I'm Bud the Spud from the bright red mud " .. 0x de $chr .. shove
+	"Zombies don't like all the snow we've got up here" shove
+	"It's ABAYAHT time Y'ALL came up to see us Y'KNOW? " WHITE .. wink$ .. shove
+	"I'm eating a poutine after this" shove
+	RAINBOW 0x dd $chr .. " TAKE OFF! TO THE GREAT WHITE NORTH! "  .. 0x de $chr .. shove
+	"Want a can of pop?" shove
+	"Where's your skidoo?" shove
+	"HOW'S SHE BOOTIN'ER?" shove
+	"My favourite anime is Dragon Ball ZED" shove
+	"De washroom is just over der on de left" shove
+	"Here, wipe that gunk off with this serviette" shove
+	"Please remove all firearms from your knapsack" shove
+	"Did you bring a toboggan?" shove
+	"I betcha crapped your gitch back there" shove
+	"Don't pet the beavers" shove
+	"We say ABOOT, not ABOOT. GEEZ" shove
+	"Here's a toonie for a double-double at Timmies" shove
+	"What's your favourite toque colour?" shove
 value canada-sayings-base
 canada-sayings-base shuffles var canada-sayings
 
@@ -227,7 +230,7 @@ canada-sayings-base shuffles var canada-sayings
 
 : endcanada-chat args( me )
 	<- me .character@ .pet@ 3 = if
-		"TIREZ."
+		"MOORF!!"
 	else
 		<- me .character@ .specialtype@ 38 = <- me .character@ .specialmode@ 1 = or if
 			random-canada-saying else "NURP squerp!" 
@@ -274,7 +277,7 @@ canada-sayings-base shuffles var canada-sayings
 
 	<- me .anim.substate@ if
 		' guard-events <- me .events!
-		"LE COMMERCANT DONNE" <- me statmod{ .mecha-say }
+		"LET ME TAKE CARE OF IT EH" <- me statmod{ .mecha-say }
 		90 <- me .stun!
 	then;
 
@@ -377,22 +380,24 @@ zomb-wave-calc constant ZOMB_WAVES // formerly 5
 // ** SIEGE STATE EVENTS **
 
 : siege-gate-reached
-	// DEBUG_BUILD if "PORTE ATTEINTE" msg then
-	"Bienvenue en presque-canada !. . 	mais attention, il y a beaucoup de zombies qui se dirigent vers la. "
-	"attendez-nous ici avec les portes ... nous vous ferons attendre jusqu'arrivee du gros homme !" ..
+	// DEBUG_BUILD if "GATE REACHED" msg then
+	"Welcome to almost-Canada!
+	Oh so like watch out eh, there's a whole buttload of zombies givin' 'er towards the "
+	"gates here. 
+	Hang tight and we'll give you a hand until the big guy gets here!" ..
 	$cyoa-ok-dialog
-	"Du dormir." cyoa-title!
+	"O Canada" cyoa-title!
 	mountie1 .charid@ cyoa-char-icon!
 ;
 
 : debug-unseen-reached
-	"*RENIFLE*"	$cyoa-ok-dialog
-	"Tu as gagne." cyoa-title!
+	"BE UNSEEN"	$cyoa-ok-dialog
+	"U win" cyoa-title!
 ;
 
 
 : siege-spawned-mecha
-	// DEBUG_BUILD if "UN MECHA S'EST MATERIALISE." msg then
+	// DEBUG_BUILD if "MECHA SPAWNED" msg then
 
 ;
 
@@ -400,7 +405,7 @@ zomb-wave-calc constant ZOMB_WAVES // formerly 5
 : siege-zombie-waves args( wave )
 
 	( waves count from 1 to 5 )
-	// DEBUG_BUILD if "EXERCICE PRATIQUE" <- wave .. msg then
+	// DEBUG_BUILD if "ZOMBIE WAVE" <- wave .. msg then
 
 	// <- wave 5 = if hideall debug-unseen-reached then
 	
@@ -503,9 +508,9 @@ zomb-wave-calc constant ZOMB_WAVES // formerly 5
 mission{
 	: .mountie-saying args( thing )
 		<- thing .character@ .weapona@ if
-			rnd5050 if "Tir de poing, ou slapshot en anglais, est une" else "Affronter a l'egal : face a face, sans faire" then
+			rnd5050 if "Slapshot" else "Face off" then
 		else
-			rnd5050 if "Desole, je n'ai pas" else "Il est temps maintenant" then
+			rnd5050 if "Sorry" else "It's aboot time" then
 		then
 		BLUE swap $cat <- thing statmod{ .yellmsg }
 	;
@@ -514,7 +519,7 @@ mission{
 	"M'EH" shove
 	"MOO?" shove
 	"MUHH" shove
-	"DEFINIR" shove
+	"MERRP" shove
 	var moose-sayings
 
 	: .moose-saying args( thing )
@@ -524,10 +529,10 @@ mission{
 	;
 
 	0 stack
-	"ceci n'est qu'une instruction en" shove
-	"pas de sortie" shove
-	"lentement" shove
-	"avertissement :" shove
+	"squ'eh" shove
+	"squeep?" shove
+	"squh" shove
+	"squerp!" shove
 	var beaver-sayings
 
 	: .beaver-saying args( thing )
@@ -1149,7 +1154,7 @@ constant maplayout
 : lowerjunk 0 h 60 - w 1- h 1- ' plotsroadjunk boxcall ;
 
 : plotmap
-	tstart 0 -1 maplayout xyplot: pt "TRACE DE TEMPS " type tend
+	tstart 0 -1 maplayout xyplot: pt "PLOTTING TIME " type tend
 ;
 
 : carblow-cheev cheevo: ramcrossing ;
@@ -1169,12 +1174,12 @@ constant maplayout
 
 	// TODO: Random bail messages
 0 stack
-	"MANGEZ CELA, VOUS GENS D'U" shove
-	"ELLE ALLUME !" shove
+	"EAT THIS U HOSERS" shove
+	"SHE'S GONNA BLOW!" shove
 	"EXTREEEEEEMMMMME!" shove
 	"TUCK AND ROLL! OOOOOOF" shove
 	"ZOMBIES ARE NEEEEEEERDS!" shove
-	"POINTS DE ZOMBIE" shove
+	"LETS DO THIS!" shove
 	"UH WOOPS... MY CAR!" shove
 shuffles var saystack
 

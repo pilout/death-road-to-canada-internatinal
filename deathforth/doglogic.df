@@ -86,7 +86,7 @@
 	soloer notpet? if
 		soloer .doggify beep
 	then;
-	soloer statmod{ .superdog? } if "DES LA NAISSANCE, SUPERCHIEN ETAIT EXCEPTIONNEL." print bitefx then;
+	soloer statmod{ .superdog? } if "ALREADY SUPERDOG" print bitefx then;
 	soloer ispet? if
 		soloer statmod{ dup .superdog .undog } goodfx
 	then
@@ -123,76 +123,76 @@ cyoa{
 
 : cpetderp
 	cdog? if 
-		($ cname .. " se trouve assis, soufflant, totalement perdu a savoir quoi faire." $)
+		($ cname .. " sits there, panting, not understanding what to do, at all." $)
 	else
-		($ cname .. " il met en mouille quelque chose et ne fait rien d'interessant." $)
+		($ cname .. " horks something up and otherwise does nothing of value." $)
 	then
 ;
 
 : fingspaws
-	superpet? if "patelles" else "doigts" then
+	superpet? if "paws" else "fingers" then
 	// account for other animals later?
 ;
 
 : growlhiss args( chara )
 	<- chara dog? if 
-		"cote !" 
+		"growl" 
 	else 
 		<- chara cat? if 
-			"miaou enrage" 
+			"angry meow" 
 		else
-			"sniffer de paqu"
+			"snort"
 		then
 	then
 ;
 
 : snarlhiss args( chara )
 	<- chara dog? if 
-		"rugir : un" 
+		"snarl" 
 	else 
 		<- chara cat? if 
-			"souffler" 
+			"hiss" 
 		else
-			"frappes ou mar"
+			"stomp"
 		then
 	then
 ;
 
 : petbite args( chara )
 	<- chara dog? if 
-		"mordre" 
+		"bite" 
 	else 
 		<- chara cat? if 
-			"griffes" 
+			"claw" 
 		else
-			"grise"
+			"maul"
 		then
 	then
 ;
 	
 : barkmeow args( chara )
 	<- chara dog? if 
-		"aboiement :" 
+		"bark" 
 	else 
 		<- chara cat? if 
-			"miaou" 
+			"meow" 
 		else
-			"se eternuer."
+			"sneeze"
 		then
 	then
 ;
 
 : dogcat args( chara )
 	<- chara dog? if 
-		"chien" 
+		"dog" 
 	else 
 		<- chara cat? if 
-			"lui" 
+			"cat" 
 		else
 			<- chara goat? if
-				"chevre"
+				"goat"
 			else
-				"animalinet"
+				"critter"
 			then
 		then
 	then
@@ -200,27 +200,27 @@ cyoa{
 
 : teethclaws args( chara )
 	<- chara dog? if 
-		"dents" 
+		"teeth" 
 	else 
 		<- chara cat? if 
-			"griffes" 
+			"claws" 
 		else
-			"charger"
+			"rage"
 		then
 	then
 ;
 
 : Dogcat args( chara )
 	<- chara dog? if 
-		"Chien" 
+		"Dog" 
 	else 
 		<- chara cat? if 
-			"Chat" 
+			"Cat" 
 		else
 			<- chara goat? if 
-				"Chevre"
+				"Goat"
 			else
-				"Critte : un etre vivant"
+				"Critter"
 			then		
 		then
 	then
@@ -239,7 +239,7 @@ cyoa{
 
 : pet-grow-up args( pet )
 
-	<- pet .trait@ "ELEVAGE DEANIMAUXDECOMPAGNIE" $= if
+	<- pet .trait@ "GROWING PET" $= if
 		<- pet choosechar cicon
 		<- pet dog? if
 			<- pet .bodytype@ 18 = if 0 <- pet .bodytype! then
@@ -253,7 +253,7 @@ cyoa{
 		then
 		
 		0 <- pet .speed_bonus!
-		"ANIMAL ADULTE" <- pet .trait!
+		"GROWN PET" <- pet .trait!
 		-1 STAT_MORALE <- pet .bonus+
 		<- pet .morale@ 1 < if 
 			1 <- pet .morale! 
@@ -263,18 +263,18 @@ cyoa{
 ;
 
 cyoa: pet-grow 
-	"Les animaux de compagnie grandissent rapidement." cyoa-title!
+	"Pets Grow Up Fast" cyoa-title!
 	
 	' pet-grow-up foreach-pet-char
 	
-	($ "Ce semble soudainement, mais " .. cname .. " est devenu une taille adulte " .. cdogcat .. "!" $) text!
+	($ "It seems really sudden, but " .. cname .. " has grown into a full sized " .. cdogcat .. "!" $) text!
 	goodfx
 	0 to petgrow-checker
 ;
 
  cyoa-choice: testtest
-  "Soiree de testy" cyoa-title!
-  ($ cname .. "BONJOUR !" $) cyoa-text!
+  "TESTY Night" cyoa-title!
+  ($ cname .. ", HI!" $) cyoa-text!
 	' .morale++ foreach-human-char
  ;
 
