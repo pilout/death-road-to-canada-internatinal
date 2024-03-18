@@ -2,10 +2,10 @@
 // Called once for each character
 : some-bullcrap
 	blurbslot 0= if // Conversation starter, then everyone in party responds
-		"Ceci est de la bouille." blurbsay
+		"'Das ist doch totaler Schwachsinn." blurbsay
 	else
 		rnd5050 if
-			blurbslot 2 < if ($ "Je suis d'accord. " .. 1st-char .name@ .. "." $) blurbsay
+			blurbslot 2 < if ($ "Ich stimme zu " .. 1st-char .name@ .. "." $) blurbsay
 			then
 		else
 			STAT_MORALE me .stat--
@@ -18,7 +18,7 @@
 		"Maybe we should turn back..." blurbsay
 	else
 		blurbslot 2 < if
-			"Peut-etre devrais-tu taire un peu !" blurbsay
+			"Vielleicht solltest du einfach mal die Klappe halten!" blurbsay
 			STAT_MORALE me .stat++
 			STAT_MORALE 1st-char .stat--
 		then
@@ -27,32 +27,32 @@
 
 : legend-bodybuild
 	blurbslot 0= if
-		"J'ai vu une fois un bodybuilder jeter une voiture sur certains zombies !" blurbsay
+		"'Ich habe einmal einen Bodybuilder ein Auto bei den Zombies geworfen!" blurbsay
 	else
 		blurbslot 2 < if
 			rnd5050 if
-				($ "Ceci n'a aucun sens. " .. 1st-char .name@ .. "." $) blurbsay
-				"Tu es un etrange !" blurbsay
+				($ "'Das macht keinen Sinn, " .. 1st-char .name@ .. "." $) blurbsay
+				"'Du bist ein Fremdling!" blurbsay
 				STAT_MORALE 1st-char .stat--
 		else
-			"Tres joli !" blurbsay
+			"'Aha, super!" blurbsay
 			STAT_MORALE me .stat++
 		then then
 	then
 ;
 
 : whinetopic 1 6 rnd case
-	1 of "zombies : creatures vivantes" endof
-	2 of "s sales" endof
-	3 of "le temps meteorologique." endof
-	4 of "insectes de" endof
-	5 of "est peur des poulets." endof
-	6 of ($ me .name@ .. "pere de '" $) endof
+	1 of "'Zombies" endof
+	2 of "'sie sind schmutzig" endof
+	3 of "'das Wetter" endof
+	4 of "'Kafer" endof
+	5 of "'wie jeder ein Arschloch ist" endof
+	6 of ($ me .name@ .. "'sein Vater" $) endof
 	endcase ;
 
 : whiner // Picks two other people, lowers their morale
 	blurbslot 0= if
-		qmsg ($ me .name@ .. " gemisse sans cesse a propos de ... " .. whinetopic .. "." $) txt
+		qmsg ($ me .name@ .. " 'jammert unaufhorlich daruber, dass " .. whinetopic .. "." $) txt
 	else
 		blurbslot 3 < if
 			STAT_MORALE me .stat--
@@ -66,23 +66,23 @@
 	else
 		blurbslot 2 < if
 			rnd5050 if
-			qmsg ($ me .name@ .. " roule des yeux avec beaucoup de gravite." $) txt then
+			qmsg ($ me .name@ .. " 'tut stellenweise heftiges Augenrollen." $) txt then
 		then
 	then
 ;
 
 : smalltopic 1 6 rnd case
-	1 of "un animal d'accompagnement ancien." endof
-	2 of "Le canada" endof
-	3 of "le temps meteorologique." endof
-	4 of "les dinosaures" endof
-	5 of "le prochain pas dans le plan :" endof
-	6 of "quelque chose amusant du passe." endof
+	1 of "'ein altes Haustier" endof
+	2 of "'Kanada" endof
+	3 of "'das Wetter" endof
+	4 of "'Dinosaurier" endof
+	5 of "'den nachsten Schritt in der Planung" endof
+	6 of "'etwas Lustiges in der Vergangenheit" endof
 	endcase ;
 
 : smalltalk // small chance to raise morale for each member of group
 	blurbslot 0= if
-		qmsg ($ me .name@ .. " parle de " .. smalltopic .. "." $) txt
+		qmsg ($ me .name@ .. " 'spricht uber " .. smalltopic .. "." $) txt
 	else
 		15 %chance if
 			STAT_MORALE me .stat++
@@ -91,28 +91,28 @@
 ;
 
 : civnoun 1 11 rnd case
-	1 of "Twitter :" endof
-	2 of "rapide service alimentaire" endof
-	3 of "courriel" endof
-	4 of "selfies sont des photos que l'" endof
-	5 of "des informations sur la derniere actualite de celebrites." endof
-	6 of "videos virales" endof
-	7 of "streamers de jeux video" endof
-	8 of "la proprete corporelle ou personnelle, ainsi que l'entretien des lieux et des objets," endof
-	9 of "histoire crudement illustree : fanfiction" endof
-	10 of "tableaux d'images heberges sur internet, t" endof
-	11 of "un creepypasta est une histoire ou une image inqu" endof
+	1 of "'Twitter" endof
+	2 of "'Schnellimbiss" endof
+	3 of "'E-Mail" endof
+	4 of "'Selbstportrats" endof
+	5 of "'Promi-News" endof
+	6 of "'viral Videos" endof
+	7 of "videospiele-Streamer" endof
+	8 of "the concept of cleanliness" endof
+	9 of "'Schmierfinkenfanfiktion'" endof
+	10 of "'imageboards" endof
+	11 of "'creepypasta" endof
 	endcase ;
 
-	: one-line1 "Tout ira bien si je peux atteindre le canada." ;
-	: one-line2 "Des zombies ne sont pas une grosse chose. bien sur, peut-etre un petit probleme." ;
+	: one-line1 "'Zombies sind kein Problem. Vielleicht eine kleine Sache." ;
+	: one-line2 "'Zombies sind kein Problem. Vielleicht ein kleines Problem." ;
 	: one-line3 "Rooaaaad triiiiip." ;
-	: one-line4 "Tout ca sent beaucoup differemment qu'avant que le savon soit rare." ;
+	: one-line4 "'Alles riecht anders aus, als bevor Seife selten geworden war." ;
 	: one-line5 "Hope I don't run into any more bandits..." ;
-	: one-line6 ($ "Dans la ruine de la civilisation, ce que je manque le plus est principalement cela : " .. civnoun .. "." $) ;
+	: one-line6 ($ "'Mit der Zivilisation verschwunden, fehlen mir hauptsachlich " .. civnoun .. "." $) ;
 	: one-line7 "If only we knew about throwing chairs when the zombies first showed up..." ;
 	: one-line8 "I wonder if I could get strong enough to just throw the car at zombies..." ;
-	: one-line9 "Somme-nous la deja ?" ;
+	: one-line9 "'Sind wir schon dran?" ;
 	: one-line10 "Let's hope the car doesn't break down..." ;
 
 	deck-new

@@ -3,12 +3,12 @@ cyoa{
 
 // Unused
 : npc-panda-go 
-	($ cname .. " suivez ces instructions : " .. pname .. " pendant un moment !" $) +crtext ccharget
+	($ cname .. " ' starts following ' wird zu ' beginnt zu folgen ' im Deutschen " .. pname .. " 'fur eine Weile!" $) +crtext ccharget
 ;
 
 : npc-panda-recruit
 	cchar to recruitee goodfx clear-cyoa
-	($ "Le panda semble vouloir suivre. " .. pname .. "!" $) +crtext
+	($ "'Der Panda scheint zu wollen, dem zu folgen " .. pname .. "!" $) +crtext
 	pchar .morale3+ pchar .loyaltyREV pchar .attitudeREV
 	recruitee .strengthREV recruitee .fitnessREV
 	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
@@ -16,21 +16,21 @@ cyoa{
 ;
 
 : npc-panda-attack
-	($ "Le panda " .. "se jette sur quelqu'un a coups de fouets !" rbold $) +crtext pchar .ouch-- bitefx
+	($ "'Der Panda " .. "'schlagt aus!" rbold $) +crtext pchar .ouch-- bitefx
 ;
 
 cyoa-bridge: npc-panda-food
-	($ pname .. " offre un aliment a la pandemonium." $) text!
+	($ pname .. " ' bietet dem Panda etwas zu essen." $) text!
 	50 %chance if 
 		npc-panda-recruit
 	else
-		($ "Le panda mache sur la nourriture et ensuite l'expulse. les pandas sont des mangeurs selectifs, mais vous pouvez continuer d'essayer avec de nouvelles quantites de nourriture." $) +crtext badfx
+		($ "'Der Panda kaut auf dem Essen herum und spuckt es dann aus. Pandas sind wahlerische Esser, aber Sie konnen es weiterhin mit mehr Essen versuchen." $) +crtext badfx
 	then	
 	-1 add-food
 ;
 
 cyoa-bridge: npc-panda-pull
-	($ pname .. " tire vers le panda. " .. phim .. " esperons qu'l'animal le suit : cela parait valable une essai." $) text!
+	($ pname .. " 'zieht den Panda zu " .. phim .. " 'hin, in der Hoffnung, dass das Tier folgt. Es scheint, als ware es einen Versuch wert." $) text!
 	50 %chance if 
 		npc-panda-recruit
 	else
@@ -41,14 +41,14 @@ cyoa-bridge: npc-panda-pull
 
 cyoa-bridge: npc-panda-charm
 	pchar isdogpal? if
-		($ pname .. " biais. " .. phis .. " La psychologie canine sur le panda, qui est un type de chien." $) text!
+		($ pname .. "  benutzt " .. phis .. " 'HUNDEVERHALTEN auf den Panda, der eine Art Hund ist." $) text!
 		npc-panda-recruit
 	else
 		pchar charming? if 
-			($ pname .. " biais. " .. phis .. " une belle naturelle pour attirer le panda pour suivre." $) text!
+			($ pname .. "  benutzt " .. phis .. " 'naturlichen Charme, um den Panda dazu zu bringen, Ihnen zu folgen." $) text!
 			npc-panda-recruit
 		else
-			($ "Le panda semble inquiet, voire irrite. " .. pname .. "." $) text!
+			($ "'Der Panda scheint nur genervt zu sein von " .. pname .. "." $) text!
 			npc-panda-attack
 		then
 	then
@@ -57,30 +57,30 @@ cyoa-bridge: npc-panda-charm
 // pchar .nonfatal if then
 
 cyoa: npc-panda
-	"Ne le faites pas !" cyoa-title!
+	"'Panda Panik" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "C'est un panda qui se tient devant l'immeuble en ruines. il regarde autour de lui. " .. pname .. " with a blank expression. It may be possible to get it to follow you..." $) text!
-	"Avertissement : il est tres probable que vous le tuez si vous ne lui offrez pas de nourriture. c'est un gadget qui a 50% de chances de depenser votre alimentation." rbold +crtext
-		choice( "Laissez-le tranquille" )choice
-		choice( "Tractionner le panda" )choice: npc-panda-pull
+	($ "'Es handelt sich um ein Panda, das nahe einer vernachlassigten Gebaudestruktur steht. Es schaut auf dich her. " .. pname .. " with a blank expression. It may be possible to get it to follow you..." $) text!
+	"'WARNUNG: Ding dafur sehr wahrscheinlich, dich zu toten, wenn du nicht Essen anbietest. Handelt es sich um ein ding mit 50%-Wahrscheinlichkeit, dein Essen zu verschenken." rbold +crtext
+		choice( "'Lass es in Ruhe" )choice
+		choice( "'Das Panda ziehen" )choice: npc-panda-pull
 		LOOT_FOOD pchar .lootamt@ 0 > if
-			choice( "Attire-le" )choice: npc-panda-food
+			choice( "'Mit Essen locken" )choice: npc-panda-food
 		then
-		choice( "Charmez-le delicieusement." )choice: npc-panda-charm	
+		choice( "'Mit Charme ansprechen" )choice: npc-panda-charm	
 ;
 
 }
 
 : .panda args( char )
 	35 <- char .specialtype!
-	"Geant panda" <- char .name!
+	"'Panda" <- char .name!
 	WEAPON_FIERCE <- char .weapon_default!
 	2 STAT_STRENGTH <- char .bonus!
 	6 <- char .strength!
 	6 <- char .fitness!
 	1 <- char .female!
 	1 <- char .carrying.slot_count!
-	"une panda. tres mignonne, jusqu'a ce qu'elle soit en colere." <- char .job!
+	"'ist ein Panda. Sehr schon, bis er wutet." <- char .job!
 	<- char cyoa{ ' npc-panda cyoa! }
 	drop
 ;

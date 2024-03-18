@@ -1,16 +1,16 @@
 : sharp-topic 1 7 rnd case
-	1 of "la proprete des mains est primordiale. il est important de laver soigneusement les mains avec un savon et de rincer sous l'eau chaude pendant au moins 20 secondes" endof
-	2 of "la importance de faire bouillir l'eau est essentielle dans de nombreuses situations quotidiennes. en effet, la chaleur du point d'ebullition" endof
-	3 of "pour lever des meubles correctement, suivez ces etapes :" endof
-	4 of "les meilleures facons d'ouvrir une boite de conserve sont :" endof
-	5 of "vous ne devriez pas avoir confiance aux etrangers sans verification prealable. certains peuvent etre dangereux ou mauvais intentionnels." endof
-	6 of "placement de tirs pour economiser des munitions" endof
-	7 of "la valeur essentielle des fournitures medicales steriles" endof
+	1 of "'Die Wichtigkeit des Waschens der Hande" endof
+	2 of "'Die Wichtigkeit des Kochens von Wasser" endof
+	3 of "'Wie man Mobel richtig hebt" endof
+	4 of "'Die besten Wege, Dosenleere zu offnen" endof
+	5 of "'Warum Du nicht auf Fremde vertrauen sollst" endof
+	6 of "'Schussplatzierung, um Munition zu sparen" endof
+	7 of "'Die Wichtigkeit sauberer medizinischer Versorgungsmittel" endof
 	endcase ;
 
 : sharp-advice
 	blurbslot 0= if
-		qmsg ($ me .name@ .. " parle de " .. sharp-topic .. "." $) txt
+		qmsg ($ me .name@ .. " 'spricht uber " .. sharp-topic .. "." $) txt
 	else
 		blurbslot 3 < if
 			STAT_MORALE me .stat++
@@ -21,14 +21,14 @@
 : boring-stuff
 	2nd-char choosechar
 	blurbslot 0= if
-		"Nous avons besoin d'effectuer un inventaire de tous nos approvisionnements !" blurbsay
+		"'Wir mussen alle unseren Vorraten einmal durchgehen!" blurbsay
 	else
 		blurbslot 2 < if
 			ctemper- cwits- or if
-				($ "NOUS N'AVONS PAS LE TEMPS POUR CELA, CA SERAIT TROP ENNUYEUX !" $) blurbsay
+				($ "'WIR HABEN NICHT ZEIT FUR DAS ARG LIEBIGES!" $) blurbsay
 				STAT_MORALE 1st-char .stat--
 		else
-			($ "Peut-etre quand nous aurons un peu plus de temps. " .. 1st-char .name@ .. "." $) blurbsay
+			($ "'Vielleicht konnen wir das auf ein spateres Mal verschieben, " .. 1st-char .name@ .. "." $) blurbsay
 			
 		then then
 	then
@@ -36,10 +36,10 @@
 
 : useful-info
 	blurbslot 0= if
-		"Si vous enroulez une corde autour de votre doigt tres etroitement, votre doigt va devenir pourpre!" blurbsay
+		"'Wenn du einen Faden sehr eng um deinen Finger bindest, wird dein Finger lila!" blurbsay
 	else
 		blurbslot 2 < if
-			// sc-pick 0= works to check if there's a character in there or not, but I have no idea why. If it's the right character, printing it out says their phrase like Gnomey's "Tu es un dinkus !". If it's the wrong character, checking by printing either does a blank line or an underflow error. So not sure how this logic works with 0=, especially since there's no false in sc-pick.
+			// sc-pick 0= works to check if there's a character in there or not, but I have no idea why. If it's the right character, printing it out says their phrase like Gnomey's "'Du bist ein DINKUS!". If it's the wrong character, checking by printing either does a blank line or an underflow error. So not sure how this logic works with 0=, especially since there's no false in sc-pick.
 			sc-pick 0= if
 				rnd5050 if
 					// Similarly I'm not sure how this works either. It's also checking sc-pick. Does it count as 1 if there's simply any text in there? If so, why isn't it sc-pick 1 = above, too? 
@@ -50,11 +50,11 @@
 				then
 			then
 			rnd5050 if
-				($ "C'est possible que vous n'en aiez besoin, mais savoir parler un autre langue peut etre utile dans de nombreuses situations. par exemple, si vous voyage " .. 1st-char .name@ .. "?" $) blurbsay
-				"PROPRIETE NOMMEE 'PROPNAME" blurbsay
+				($ "'Warum sollte ich das wissen mussen, " .. 1st-char .name@ .. "?" $) blurbsay
+				"'WER STIMMT DAFUR?" blurbsay
 				1st-char .morale--
 			else
-				"C'est agreable a connaitre, merci!" blurbsay
+				"'Danke fur den Tipp!" blurbsay
 				me .morale++
 			then 
 		then
@@ -64,29 +64,29 @@
 : snare-trap
 	2nd-char choosechar
 	blurbslot 0= if
-		"La prochaine fois ou nous arreterons, vous devrais me montrer comment fabriquer des pieges a guepards." blurbsay
+		"'Beim nachsten Halt sollte ich dir zeigen, wie man Schlingenfallen baut." blurbsay
 	else
 		blurbslot 2 < if
 			screply 1 = if exit then
 			ctemper- if
-				($ "Peut-etre devrais-je vous montrer comment fermer votre gueule a la prochaine occasion !" $) blurbsay
+				($ "'Vielleicht sollte ich dir beim nachsten Mal zeigen, wie man den Mund halt!" $) blurbsay
 				1st-char .morale--
 			else
-				($ "C'est a mon gout, " .. 1st-char .name@ .. "." $) blurbsay
+				($ "'Klingt gut fur mich, " .. 1st-char .name@ .. "." $) blurbsay
 		then then
 	then
 ;
 
 : sharp-too-swole
 	blurbslot 0= if
-		"Est-il possible qu'un humain etre trop muscle ?" blurbsay
+		"'Kann ein Mensch jemals zu muskulos sein?" blurbsay
 	else
 		blurbslot 2 < if
 			rnd5050 if
-				($ "Qu'est-ce que tu veux dire reellement ?" $) blurbsay
+				($ "'Uber was sprichst du eigentlich?" $) blurbsay
 				STAT_MORALE 1st-char .stat--
 		else
-			"TROP GROS POUR LE CONTROLER, BEBE. HAHA!" blurbsay
+			"'ZU MUSKULOS, UM DICH ZU KONTROLLIEREN, BABY. WOO!" blurbsay
 			STAT_MORALE me .stat++
 			STAT_MORALE 1st-char .stat++
 		then then
@@ -96,15 +96,15 @@
 : sharp-dull1
 2nd-char choosechar
 	blurbslot 0= if
-		"Si nous pouvions obtenir des panneaux solaires et quelques batteries, ca pourrait etre utile." blurbsay
+		"'Wenn wir Solarpanels und ein paar Batterien hatten, konnte das nutzlich sein." blurbsay
 	else
 		blurbslot 2 < if
 			cwits- if
-				($ "Idee magnifique. " .. 1st-char .name@ .. "!" $) blurbsay
-				"Je peux connecter mon console de jeu video a cela !" blurbsay
+				($ "'Tolle Idee, " .. 1st-char .name@ .. "!" $) blurbsay
+				"Ich konnte meine Videospielkonsole daran anschließen!" blurbsay
 				STAT_MORALE 1st-char .stat--
 		else
-			"Regardons-y de pres, cela pourrait nous etre utile." blurbsay
+			"'Lass uns also die Augen offen halten. Ich kann mir vorstellen, dass so etwas nutzlich sein konnte.'" blurbsay
 		then then
 	then
 ;
@@ -112,43 +112,43 @@
 : sharp-aggressive1
 2nd-char choosechar
 	blurbslot 0= if
-		"Tenez a deux mains sur la roue lorsqu'il y a conduite ! " blurbsay
+		"'Sorgen Sie darum, beide Hande auf dem Lenkrad zu halten, wahrend Sie fahren! " blurbsay
 	else
 		blurbslot 2 < if
 			ctemper- if
-				($ "Fermer ca. " .. 1st-char .name@ .. "!" $) blurbsay
-				"Comment vais-je faire pour abattre des zombies en meme temps ?" blurbsay
+				($ "'Schweige, " .. 1st-char .name@ .. "!" $) blurbsay
+				"'Wie sollte ich anders Zombies gleichzeitig schießen?" blurbsay
 				STAT_MORALE 1st-char .stat--
 		else
-			"La intrigue s'epaisse." blurbsay
+			"'Besser geht es mir also nicht!" blurbsay
 			STAT_MORALE me .stat--
 		then then
 	then
 ;
 
-	: sharp-oneline1 "Nous pouvons continuer autant que nos approvisionnements et notre moral restent a flot." ;
-	: sharp-oneline2 "Ne pas forcement recruter chaque nouvelle personne, sauf si nous avons beaucoup de nourriture." ;
-	: sharp-oneline3 "Parfois il semble interessant de courir au-dela d'une horde plutot que de la combattre." ;
-	: sharp-oneline4 "Les zombies ont beaucoup de mal avec des portes fermees." ;
+	: sharp-oneline1 "'Wir konnen es schaffen, solange unsere Vorrate und Moral aufrechterhalten bleiben." ;
+	: sharp-oneline2 "'Man muss nicht jeden Rekrutieren, außer wir haben viel Essen." ;
+	: sharp-oneline3 "'Manchmal scheint es wert, durch eine Horde zu rennen statt sie anzugreifen." ;
+	: sharp-oneline4 "'Die Zombies haben ein großes Problem mit geschlossenen Turen." ;
 	: sharp-oneline5 "Really need to be careful with our supply of gas..." ;
 // VVVVVVVV JONZ BLURBZ VVVVVVVVV
-	: sharp-oneline6 "Tentez de conserver votre munition, attaquez uniquement lorsque c'est necessaire." ;
-	: sharp-oneline7 "La placement des tirs est determinante pour faire durer notre munition." ;
-	// : sharp-oneline8 "Il nous faudrait maintenir la voiture a un regime moteur plus bas pour economiser notre essence." ;
-	: sharp-oneline8 "Nous devrions essayer de trouver des voitures efficaces pour preserver notre essence." ;
-	: sharp-oneline9 "Jeter des meubles aux zombes semble fonctionner assez bien." ;
-	: sharp-oneline10 "Nous devrions attirer le moins d'attention sur nous possible." ;
-	: sharp-oneline11 "Cette boite de conservas est beaucoup meilleure lorsque vous pouvez la chauffer." ;
-	: sharp-oneline12 "Il est importante de respecter les rations definies pour conserver nos approvisionnements." ;
-	: sharp-oneline13 "Nous faisons bien maintenant, mais nous devons rester prets pour n'importe quelle chose." ;
-	: sharp-oneline14 "Preparation est l'un des aspects les plus importants de la survie." ;
-	: sharp-oneline15 "Gardez vos yeux ouverts a tout signe suspect." ;
-	: sharp-oneline16 "Zombis ne sont pas nos seules problemes ici." ;
-	: sharp-oneline17 "Il faut se garder de la gens aleatoire, on ne sait jamais ce qu'ils sont capables de faire." ;
-	: sharp-oneline18 "Il nous faut prendre soin de possibles embuscades de voleurs." ;
-	: sharp-oneline19 "Il n'est pas mauvais idee de chercher a alimenter soi-meme lorsque c'est possible." ;
-	: sharp-oneline20 "Gardez votre eau, nous ne voulons pas en gaspiller." ;
-	: sharp-oneline21 "Ralentir les zombies en les faisant passer devant du mobilier." ;
+	: sharp-oneline6 "'Versuche dein Munition zu sparen, angreife nur dann." ;
+	: sharp-oneline7 "'Der Treffpunkt ist entscheidend, um unser Munition zu erhalten." ;
+	// : sharp-oneline8 "'Sie sollten den Wagen auf niedrigen Umdrehungen halten, um Ihr Benzin zu sparen." ;
+	: sharp-oneline8 "'Wir sollten versuchen effiziente Autos zu finden, um unser Benzin zu erhalten." ;
+	: sharp-oneline9 "'Mobel auf Zombies werfen scheint ziemlich effektiv zu sein.'" ;
+	: sharp-oneline10 "'Wir sollten so wenig Aufmerksamkeit wie moglich auf uns ziehen." ;
+	: sharp-oneline11 "'Dieses Konservenfutter ist viel besser, wenn man es erhitzen kann." ;
+	: sharp-oneline12 "'Es ist wichtig, vorgegebene Rationen einzuhalten, um unsere Vorrate zu schonen." ;
+	: sharp-oneline13 "'Derzeit lauft alles gut, aber wir mussen auf alles vorbereitet sein." ;
+	: sharp-oneline14 "'Vorbereitet zu sein, ist einer der wichtigsten Aspekte der Selbsterhaltung." ;
+	: sharp-oneline15 "'Halten Sie die Augen offen nach allem, was verdachtig erscheint." ;
+	: sharp-oneline16 "'Zombies sind nicht unser einziges Problem hier draußen." ;
+	: sharp-oneline17 "'Wir mussen vorsichtig mit zufalligen Menschen sein, wer weiß, was sie konnen." ;
+	: sharp-oneline18 "'Wir mussen auf mogliche Banditenambushes achten." ;
+	: sharp-oneline19 "'Es ware keine schlechte Idee, nach Moglichkeit nach Nahrung zu jagen." ;
+	: sharp-oneline20 "'Sparen Sie Wasser, wir wollen keines verschwenden." ;
+	: sharp-oneline21 "'Sie konnen Zombies verlangsamen, indem Sie Mobel vor sie fallen lassen." ;
 	
 	deck-new
 		card: sharp-oneline1

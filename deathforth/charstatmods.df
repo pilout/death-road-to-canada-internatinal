@@ -51,7 +51,7 @@ uses weapondef.df
 
 statmod{
 
-: modcount?! CHARACTER_MOD_COUNT >= if abort" HORS DE MODS !" then ;
+: modcount?! CHARACTER_MOD_COUNT >= if abort" ' AUF DEM MOD-LISTE FEHLT!" then ;
 
 (* TODO:
 	- switch most of these used for special characters to being the actual character's main_events handler instead
@@ -106,7 +106,7 @@ dup constant MOD_COUNT modcount?!
 0 value eventid
 
 0 value mod
-: #set dup CHARACTER_MOD_COUNT >= if abort" DESOLE, PAS ASSEZ DE PLACES DANS LES EMPLACEMENTS MODIFIES !" then #mod to mod ;
+: #set dup CHARACTER_MOD_COUNT >= if abort" ' AUF DEM PLATZ FUR MODS MISSING!" then #mod to mod ;
 
 // : set_special mod .special_flags@ rot | swap .special_flags! ;
 // : clr_special mod .special_flags@ rot ~ & swap .special_flags! ;
@@ -181,7 +181,7 @@ dup constant MOD_COUNT modcount?!
 : .injured? MOD_INJURED swap .ismod? ;
 
 : .reportmod args( themod chara )
-	<- chara .name@ " est " .. BLUE .. TOGGLE .. <- themod #mod .desc@ .. " " .. WHITE .. <- themod #mod-icon$ ..
+	<- chara .name@ " ' IST " .. BLUE .. TOGGLE .. <- themod #mod .desc@ .. " " .. WHITE .. <- themod #mod-icon$ ..
 		blurbevent 
 	<- chara blurbchar
 	blurb!icon
@@ -239,7 +239,7 @@ dup constant MOD_COUNT modcount?!
 0x e9 constant STATMOD_ICONS	// Starting glyph of icons, in hex
 
 	MOD_SICK #set
-		"MALADE" desc!
+		"'KRANK" desc!
 		-2 STAT_MORALE statmod+
 		-1 STAT_FITNESS statmod+
 		STATMOD_ICONS icon!
@@ -247,13 +247,13 @@ dup constant MOD_COUNT modcount?!
 		// EXAMPLE SICK MESSAGE, probably don't use this like this
 		: sickmsg
 			dup .sick? if
-				"RAS-LE-BOL, J'AI ENVIE DE VOMIR." swap .charsay else drop
+				"' UGEL, FUHL ICHE MUDE" swap .charsay else drop
 			then ;
 
 		last handler!
 
 	MOD_INJURED #set
-		"BLESSE" desc!
+		"' VERLETZT" desc!
 		-1 STAT_MORALE statmod+
 		-2 STAT_STRENGTH statmod+
 		STATMOD_ICONS 1 + icon!
@@ -263,26 +263,26 @@ dup constant MOD_COUNT modcount?!
 		: injuredbeep drop ; last handler!
 
 	MOD_TIRED #set
-		"FATIGUE" desc!
+		"' MUDE" desc!
 		-3 STAT_FITNESS statmod+
 		-3 STAT_STRENGTH statmod+
 		-3 STAT_SHOOTING statmod+
 		STATMOD_ICONS 3 + icon!
 
 	MOD_SUPERDOG #set
-		"ENTRAINEMENT SUPERVISE" desc!
+		"' SUPERTRAINIERT" desc!
 		STATMOD_ICONS 5 + icon!
 	
 	MOD_DOGPAL #set
-		"AMI CHIEN" desc!
+		"' HUNDENFREUND" desc!
 		STATMOD_ICONS 6 + icon!
 	
 	MOD_EXPLORER #set
-		"EXPLORER : NAVIGUER, DECOU" desc!
+		"' ERDKUNDER" desc!
 		STATMOD_ICONS 6 + icon!
 	
 	MOD_DOGMALUS #set
-		"CHIEN GAFFEUX" desc!
+		"' KLAUMSIGER HUND" desc!
 		-4 STAT_FITNESS statmod+
 		-4 STAT_STRENGTH statmod+
 		-4 STAT_SHOOTING statmod+
@@ -318,7 +318,7 @@ dup constant MOD_COUNT modcount?!
 		; last command!
 
 	MOD_PETMALUS #set
-		"PAS ASSEZ INTELLIGENT." desc!
+		"' NICHT SAPIENT" desc!
 		-4 STAT_STRENGTH statmod+
 		-4 STAT_SHOOTING statmod+
 		-4 STAT_MECHANICAL statmod+
@@ -326,7 +326,7 @@ dup constant MOD_COUNT modcount?!
 //		STATMOD_ICONS 2 + icon!		
 	
 	MOD_COFFEE #set
-		"SE PREPARER LA CAFE" desc!
+		"KAFFEESUCHTIG" desc!
 		+4 STAT_FITNESS statmod+
 		+4 STAT_STRENGTH statmod+
 		+3 STAT_DEXTERITY statmod+
@@ -334,15 +334,15 @@ dup constant MOD_COUNT modcount?!
 		STATMOD_ICONS 1 + icon!
 	
 	MOD_HAGGLER #set
-		"VENDEUR" desc!
+		"VERKAUFER" desc!
 		STATMOD_ICONS 6 + icon!
 	
 	MOD_SOUNDSLEEP #set
-		"DORALISATION SONORISEE" desc!
+		"0x00000001" desc!
 		STATMOD_ICONS 6 + icon!
 	
 	MOD_PATHFINDER #set
-		"ONCLE SAM" desc!
+		"WEGFINDER" desc!
 		STATMOD_ICONS 6 + icon!
 		
 	// TODO: actual gameplay effects
@@ -395,7 +395,7 @@ dup constant MOD_COUNT modcount?!
 			10 3 * over .action_cooldown!
 			dup .shudderpuff
 			// dup .carryid@ 0= if
-			dup ($ DEATH .. "GROGNEMENT." $) 0.5 swap rot .reportdur
+			dup ($ DEATH .. "*GRUNT* + 1" $) 0.5 swap rot .reportdur
 			// then
 			.gruntsound
 		;
@@ -403,7 +403,7 @@ dup constant MOD_COUNT modcount?!
 		: .flex
 			10 3 * over .action_cooldown!
 			dup .shudderpuff
-			dup ($ DEATH .. "*FLEXION" $) 0.5 swap rot .reportdur
+			dup ($ DEATH .. "'*FLEX*" $) 0.5 swap rot .reportdur
 
 			.gruntsound
 		;
@@ -418,17 +418,17 @@ dup constant MOD_COUNT modcount?!
 
 	MOD_WRESTLER #set
 		: slamname 1 11 rnd case
-			1 of "PRISE DE CEINTURE !" endof
-			2 of "FOUET-MARTEAU TOURNANT !" endof
-			3 of "BOMBE ATOMIQUE DERNIEREMENT !" endof
-			4 of "CONDUCTEUR DE MARTEAU-PILON!" endof
-			5 of "LE SATAN FRAPPE A LA POING ATOMIQUE !" endof
-			6 of "LE BARON VON SLAMMIN SLAMMER !" endof
-			7 of "DERNIER OS BRISE AVANT-DERNIER !" endof
-			8 of "LANCEZ UNE PROJECTION EN JUDO !" endof
-			9 of "GOLEM SURPLUS DE FORCE !" endof
-			10 of "CONCASSEUR A FLORIDE !" endof
-			11 of "EQUIPEMENT DR CRUSHER : EPINEUSE REPENTEUR !" endof
+			1 of "'Korperpressung!" endof
+			2 of "'Dreh-Piledriver!" endof
+			3 of "'Endstandiger Atomschlag!" endof
+			4 of "'Piledriver!" endof
+			5 of "'El Satan Atomischer Faustschlag!" endof
+			6 of "'Baron von Slammin Slammer!" endof
+			7 of "'Vorletzter Knochenbrecher!" endof
+			8 of "'Judo-Umkip!" endof
+			9 of "'Mega-Korperpressung!" endof
+			10 of "'Florida Crusher!" endof
+			11 of "'Dr. Crushers Ruckenreissmaschine!" endof
 		endcase ;
 
 		: slammin
@@ -436,7 +436,7 @@ dup constant MOD_COUNT modcount?!
 				me .carried .zombie? if
 					($ RAINBOW .. slamname $) me .yellmsg
 				else me .carried .item? if
-					 ($ RAINBOW .. "OBJET ETRANGER !" $) me .yellmsg
+					 ($ RAINBOW .. "'Fremdes Gegenstand!" $) me .yellmsg
 					then
 				then
 				// me .gruntsound2
@@ -451,16 +451,16 @@ dup constant MOD_COUNT modcount?!
 
 	MOD_FENCER #set
 		: fencersay 1 10 rnd case
-			1 of "Attention !" endof
-			2 of "He he he !" endof
-			3 of "Je vous ai maintenant !" endof
-			4 of "Parer et riposter !" endof
-			5 of "C'est trop lent pour moi !" endof
-			6 of "Pour terminer par une bouche raffinee !" endof
-			7 of "Ho ho" endof
-			8 of "Pousse ! evite ! haha !" endof
-			9 of "He he ! oh oh !" endof
-			10 of "Trop lent ! honteux !" endof
+			1 of "'Auf der Hut!" endof
+			2 of "'Ho ho ho!" endof
+			3 of "'Ich habe dich!" endof
+			4 of "'Pariere und kontere!" endof
+			5 of "'Die sind mir alle zu langsam!" endof
+			6 of "'Jetzt kommt der Todesstoß!" endof
+			7 of "'Haha!" endof
+			8 of "'Stoß! Weiche! Haha!" endof
+			9 of "'Haha! Ho ho!" endof
+			10 of "'Zu langsam! Verworfen!" endof
 		endcase ;
 
 		: engarde
@@ -480,17 +480,17 @@ dup constant MOD_COUNT modcount?!
 			3 of "CARL! CAAAAARL!" endof
 			4 of "CAAAAAAAAAAAAAAAAAAAAARL!" endof
 			5 of "CAAAARL!" endof
-			6 of "CARL, S'" endof
-			7 of "Je fais des choses" endof
-			8 of "CORAIL !" endof
+			6 of "'CARL!" endof
+			7 of "'Ich mache Sachen" endof
+			8 of "'CORAL!" endof
 			9 of "CAAAARL!" endof
 			10 of "CAAAAAAAAAAAARL!" endof
-			11 of "CARL, CARL, CARL !" endof
+			11 of "'CARL! CARL! CARL!'" endof
 			12 of "CAAAAAAAAAAAAAAAAARL!" endof
-			13 of "CARL!!" endof
-			14 of "CRL" endof
-			15 of "WAYNE !" endof
-			16 of "CARL, S'" endof
+			13 of "'CAARL!" endof
+			14 of "'CRL!" endof
+			15 of "'WAYNE!" endof
+			16 of "'CARL!" endof
 			17 of "CAAARL!" endof
 			18 of "CAAAAAARL!" endof
 			19 of "CAAAAAAARL!" endof
@@ -498,16 +498,16 @@ dup constant MOD_COUNT modcount?!
 			21 of "CAAAAAAAAARL!" endof
 			22 of "CAAAAAAAAAARL!" endof
 			23 of "CAAAAAAAAAAARL!" endof
-			24 of "CARL, S'" endof
-			25 of "CARL, S'" endof
-			26 of "CARL, S'" endof
-			27 of "CARL, S'" endof
-			28 of "CARL, S'" endof
-			29 of "CARL, S'" endof
-			30 of "CARL, S'" endof
-			31 of "CARL, S'" endof
-			32 of "CARL, S'" endof
-			33 of "CARL, S'" endof
+			24 of "'CARL!" endof
+			25 of "'CARL!" endof
+			26 of "'CARL!" endof
+			27 of "'CARL!" endof
+			28 of "'CARL!" endof
+			29 of "'CARL!" endof
+			30 of "'CARL!" endof
+			31 of "'CARL!" endof
+			32 of "'CARL!" endof
+			33 of "'CARL!" endof
 		endcase ;
 
 		: carl
@@ -548,7 +548,7 @@ dup constant MOD_COUNT modcount?!
 	MOD_MADSCI #set
 		: madsci-port
 			30 3 * me .action_cooldown!
-			($ RAINBOW .. "INSERER L'EFFET DE TELEPORTATION ICI" $) me .yellmsg
+			($ RAINBOW .. "'Fuge Teleport-Effekt hinein" $) me .yellmsg
 		;
 
 		: madsci-commands to me
@@ -560,7 +560,7 @@ dup constant MOD_COUNT modcount?!
 	MOD_VALK #set
 		: valk-throw
 			30 3 * me .action_cooldown!
-			($ RAINBOW .. "MANGEZ MARTEAU, NULS." $) me .yellmsg
+			($ RAINBOW .. "'Esse Handschuh, Nerds" $) me .yellmsg
 		;
 
 		: valk-commands to me
@@ -585,7 +585,7 @@ dup constant MOD_COUNT modcount?!
 	MOD_HORSE #set
 		: horse-neigh
 			10 3 * me .action_cooldown!
-			($ RAINBOW .. "CRI DE CHEVAL" $) me .yellmsg
+			($ RAINBOW .. "'Miau" $) me .yellmsg
 		;
 
 		: horse-commands to me
@@ -605,7 +605,7 @@ dup constant MOD_COUNT modcount?!
 		
 		: .mew dup .character@ .charmew
 			dup sfx{ .adjust-vol } >r
-			0.375 ($ PINK .. "miaou" $) r@ .reportdur
+			0.375 ($ PINK .. "'miau" $) r@ .reportdur
 			-5 r> .shudder!
 		;
 
@@ -630,7 +630,7 @@ dup constant MOD_COUNT modcount?!
 		: cat-commands to me
 			me .isattack? if
 				me .hiss
-				0.375 ($ RED .. FLICKER .. "ssst!" $) me .reportdur
+				0.375 ($ RED .. FLICKER .. "'hisst!" $) me .reportdur
 			then;
 			me .cooldown@ if exit then
 			me .isswap? if cat-mew then;
@@ -652,7 +652,7 @@ dup constant MOD_COUNT modcount?!
 		: dsyp-fart
 
 			30 3 * me .action_cooldown!
-			($ RAINBOW .. "FAUSSE ALL" $) me .yellmsg
+			($ RAINBOW .. "'FART" $) me .yellmsg
 			' dsyp-farted ++
 
 			dsyp-farted 3 < if
@@ -673,22 +673,22 @@ dup constant MOD_COUNT modcount?!
 
 	MOD_ANIME #set
 		: animesay 1 16 rnd case
-			1 of "Rayon de coeur !" endof
+			1 of "'Herzstrahl!" endof
 			2 of "Heeeaaaart Beeeaaaam!" endof
 			3 of "Kyaaaaaa!" endof
-			4 of "Vous allez etre mis a l'epreuve maintenant !" endof
-			5 of "BELLE METAMORPHOSIS!" endof
-			6 of "eclats de lumiere" endof
-			7 of "* s'amuse a tourner la" endof
-			8 of "Je ne peux pas croire que senpai est un zome !" endof
+			4 of "'Du bist dran, jetzt!" endof
+			5 of "WUNDERBARE VERWANDLUNG!" endof
+			6 of "*glitzert*" endof
+			7 of "'*dreht sich um*" endof
+			8 of "'Ich kann nicht glauben, dass senpai ein Zombie ist!" endof
 			9 of "( ^ '-' ^ )" endof
 			10 of "(*' ^'*)" endof
 			11 of "(* > ^ < *)" endof
 			12 of "(po_o)q" endof
 			13 of "(*' ^'*)" endof
-			14 of "(('v' *))" endof
-			15 of "( 'v' )" endof
-			16 of "`" endof
+			14 of "(((v)*))" endof
+			15 of "(( v ))" endof
+			16 of "(`^w^`)" endof
 		endcase ;
 
 		: kyaaaaaa
@@ -978,7 +978,7 @@ dup constant MOD_COUNT modcount?!
 		;
 
 		: .mecha-sayings args( thing )
-			rnd5050 if "RAYON INTENSE Z !" else rnd5050 if "O CANADA" else "REGULATEUR D" then then
+			rnd5050 if "'EH-ZER STRAHLENBUND!" else rnd5050 if "'O, KANADA" else "'HOSER" then then
 			<- thing .mecha-say
 		;
 
@@ -1027,7 +1027,7 @@ dup constant MOD_COUNT modcount?!
 	1 <- self .pet!
 	2 <- self .vitality!
 	2 <- self .health!
-	"un chien est un animal domestique. ils ont ete des animaux de compagnie, maintenant la majorite d'entre eux sont sauvages." <- self .job!
+	"'ist ein Hund. Hunde waren fruher Haustiere, jetzt sind die meisten wild." <- self .job!
 
 	6 <- self .footoff.y!
 
@@ -1053,7 +1053,7 @@ dup constant MOD_COUNT modcount?!
 	36 over .specialtype!
 	900 over .seed!
 	0 over .female!
-	"une chanteuse qui tente de faire carriere dans ce monde de zombies." over .job!
+	"'ist ein Sanger, der es versucht, groß in diesem Zombie-Welt zu werden." over .job!
 	WEAPON_KARATE over .weapon_default!
 	.bardify drop
 ;
@@ -1069,7 +1069,7 @@ dup constant MOD_COUNT modcount?!
 	100 STAT_STRENGTH 2 pick .bonus!
 	0 over .female!
 	6 over .strength!
-	"le dernier bodybuilder. il est le vrai gros muscle, les autres sont des pretendants." over .job!
+	"'ist Der Letzte Korperbauer. Er ist der Wahre Muskelfan, andere sind bloße Nachahmer." over .job!
 	1 over .carrying.slot_count!
 	dup .nodropweapon
 	dup .zombielifter
@@ -1082,7 +1082,7 @@ dup constant MOD_COUNT modcount?!
 	4 over .fitness!
 	0 over .female!
 	4 over .strength!
-	"c'est un lutteur celebre au monde issu d'un pays ou la lutte est reelle." over .job!
+	"'ist ein weltberuhmter Wrestler aus einem der Lander, in denen Wrestling wirklich ist." over .job!
 	dup .zombiewrestler
 	dup .nocanshoot
 	statmod{ MOD_WRESTLER over .setmod } drop
@@ -1095,7 +1095,7 @@ dup constant MOD_COUNT modcount?!
 	6 over .fitness!
 	1 over .female!
 	3 over .strength!
-	"j'avais toujours su que mon entrainement historique de combats d'epee se poursuivrait a bien." over .job!
+	"'Hab ich doch immer gewusst, dass das ganze historische Schwertkampftraining sich irgendwann auszahlen wurde.'" over .job!
 	WEAPON_RAPIER over .weapona!
 	1 over .weapon_nodropa!
 	statmod{ MOD_FENCER over .setmod } drop
@@ -1104,17 +1104,17 @@ dup constant MOD_COUNT modcount?!
 : ricknamer args( char )
 	0 stack
 		"R#ck" shove
-		"Rimes malades" shove
-		"Coups de cloche de dimes" shove
-		"Raccourcis de trois termes" shove
-		"Sherif" shove
-		"Faire retir" shove
-		"Roche" shove
-		"Ruck : se" shove
-		"Raccourcir" shove
-		"Rack : r" shove
-		"Rebecka" shove
-		"Rk" shove
+		"Kranke Reime" shove
+		"Dinge Dimes" shove
+		"'Ruck Trimes" shove
+		"'Sheriff" shove
+		"'Rock" shove
+		"'Rock" shove
+		"'Ruck" shove
+		"'Ryck" shove
+		"'Rack" shove
+		"'Reyeck" shove
+		"'Rk" shove
 	shuffles pops nip
 	<- char .name!
 ;
@@ -1141,7 +1141,7 @@ dup constant MOD_COUNT modcount?!
 	2 over .mechanical!
 	"R#ck" over .name!
 	"used to be a sheriff. CAAAAAAAAAAAAAAAAAAAAAAAAAAAARL!!!" over .job!
-	"CARL, S'" over .trait!
+	"'CARL!" over .trait!
 	"CAAAAAAARL!" over .perk!
 	WEAPON_DOLT over .weapona!
 	6 LOOT_BULLET 2 pick .lootamt!
@@ -1153,7 +1153,7 @@ dup constant MOD_COUNT modcount?!
 	3 over .fitness!
 	1 over .female!
 	2 over .strength!
-	"c'est un vestige d'une epoque beaucoup plus civile." over .job!
+	"'ist ein Relikt aus einer viel zivilisierteren Zeit." over .job!
 	WEAPON_DEBUTANTE over .weapona!
 	1 over .weapon_nodropa!
 	WEAPON_PURSE over .weaponb!
@@ -1165,7 +1165,7 @@ dup constant MOD_COUNT modcount?!
 	0 over .female!
 	3 over .strength!
 	4 over .fitness!
-	"cela n'est pas base sur quelque chose et si c'est le cas, c'est une parodie." over .job!
+	"'basiert auf nichts und wenn er es tut, ist er eine Parodie." over .job!
 	2 over .carrying.slot_count!
 	dup .nodeathdrop
 	dup .nodropweapon
@@ -1182,7 +1182,7 @@ dup constant MOD_COUNT modcount?!
 	6 over .fitness!
 	0 over .female!
 	6 over .strength!
-	"aime passer du temps avec ses amis !" over .job!
+	"liebt es, mit Freunden abzuhangen!" over .job!
 	0 over .mechanical!
 	0 over .medical!
 	dup .nodeathdrop
@@ -1203,7 +1203,7 @@ dup constant MOD_COUNT modcount?!
 	1 STAT_MORALE 2 pick .bonus!
 	0 over .fitness!
 	0 over .female!
-	"un pere. un pere post-apocalyptique." over .job!
+	"'ist ein Vater. Ein post-apokalyptischer Vater." over .job!
 	0 over .strength!
 	1 over .vitality!
 	1 over .health!
@@ -1223,7 +1223,7 @@ dup constant MOD_COUNT modcount?!
 	0 over .shooting!
 	6 over .attitude!
 	dup .nodeathdrop
-	"elle est une boxeuse, dure a cause de ses combats au ring. elle ne retire jamais ses gants." over .job!
+	"'ist eine Boxerin, hart geworden durchs Ringkampfen. Sie nimmt ihre Handschuhe nie ab." over .job!
 	2 over .carrying.slot_count!
 	WEAPON_GLOVE over .weapona!
 	1 over .weapon_nodropa!
@@ -1244,8 +1244,8 @@ dup constant MOD_COUNT modcount?!
 	10 <- chara .specialtype!
 	1 <- chara .female!
 	0 <- chara .shooting!
-	"Documentation" <- chara .name!
-	"une scientifique qui a quitte son laboratoire secret pour effectuer des essais en plein air. elle n'est pas folle." <- chara .job!
+	"'Doktor" <- chara .name!
+	"'ist eine Wissenschaftlerin, die ihr geheimes Labor verlassen hat, um einige Feldversuche durchzufuhren. Sie ist NICHT verruckt." <- chara .job!
 	6 <- chara .wits!
 	6 <- chara .mechanical!
 	// <- chara .nodeathdrop
@@ -1263,9 +1263,9 @@ dup constant MOD_COUNT modcount?!
 	6 over .strength!
 	4 over .vitality!
 	4 over .health!
-	"Lynn :" over .perk!
-	"Gourmet" over .trait!
-	"il est un lutteur de sumo, perpetuant la tradition ancienne de ce sport." over .job!
+	"'Sumo" over .perk!
+	"'Gourmet" over .trait!
+	"'ist ein Sumo-Ringer, der die alte Tradition des Sumos lebt." over .job!
 	WEAPON_SUMO over .weapon_default!
 	drop
 ;
@@ -1275,7 +1275,7 @@ dup constant MOD_COUNT modcount?!
 
 statmod{
 char-event: valk-main-events
-//	"VALKYRIE " type eventid print
+//	"'VALKYRIE " type eventid print
 	eventid MAIN_EVENT_DRIVING_START = if
 		"WIZARD SHOT THE FOOOD... :(" print
 		// TODO: Check if holding MJOLNIR
@@ -1292,7 +1292,7 @@ char-event: valk-main-events
 	5 over .fitness!
 	5 over .strength!
 	1 over .composure!
-	"c'est quelque chose de guerrier celeste. bien sur." over .job!
+	"'Eine Art himmlischer Krieger. Irgendwas." over .job!
 	WEAPON_MJOLNIR over .weapona!
 	statmod{ MOD_VALK over .setmod 
 	' valk-main-events swap } .main_events!
@@ -1305,7 +1305,7 @@ char-event: valk-main-events
 	5 over .fitness!
 	5 over .strength!
 	0 over .composure!
-	"cette instruction ressemble un peu a celle de cet autre personne, mais est une caracteristique originale entierement differente." over .job!
+	"' hat Ahnlichkeiten mit jenem Mann, aber ist ein ganz originaler Charakter." over .job!
 	// dup .nodeathdrop
 	WEAPON_MINIGUN over .weapona!
 	1 over .weapon_nodropa!
@@ -1320,7 +1320,7 @@ char-event: valk-main-events
 	0 over .female!
 	5 over .shooting!
 	dup .nodeathdrop
-	"un pecheur. avec la chute de la civilisation, il n'y a plus de reglementation de peche." over .job!
+	"'ist ein Fischer. Mit der Zivilisation ausgestorben, gibt es keine Fischereiregulierungen mehr." over .job!
 	WEAPON_RIDIC over .weaponc!
 	1 over .weapon_nodropc!
 	12 LOOT_SHOTGUN_SHELL 2 pick .lootamt!
@@ -1339,7 +1339,7 @@ char-event: valk-main-events
 	6 over .fitness!
 	3 over .composure!
 	0.3 over .speed_bonus!
-	"elle est une ninja. ses motivations sont des caprices mysterieux. elle est susceptible de disparaitre." over .job!
+	"'ist eine Ninja. Ihre Motive sind geheimnisvolle Wimse. Sie ist wahrscheinlich verschwunden." over .job!
 	-2 STAT_MORALE 2 pick .bonus!
 	dup .nodeathdrop
 
@@ -1361,7 +1361,7 @@ char-event: valk-main-events
 	4 over .strength!
 	0 over .composure!
 	0.2 over .speed_bonus!
-	"ancien champion de roller derby pret a ecraser des cranes." over .job!
+	"'war eine ehemalige Roller Derby-Meisterin, bereit, Kopfschadel zu zerdrucken." over .job!
 	WEAPON_WRENCH over .weapona!
 	WEAPON_BASEBALL over .weaponb!
 	drop
@@ -1379,7 +1379,7 @@ char-event: valk-main-events
 	3 over .attitude!
 	2 over .vitality!
 	0.4 over .speed_bonus!
-	"c'est un homme masque de cheval, mais il est plus qu'un homme. il est un cheval." over .job!
+	"'ist ein Mann in einem Pferdmaskenkostum. Aber er ist mehr als ein Mann. Er ist ein Pferd." over .job!
 	1 over .carrying.slot_count!
 	dup .atkspecial
 	dup .nodropweapon
@@ -1395,7 +1395,7 @@ char-event: valk-main-events
 	6 over .strength!
 	30 over .health!
 	dup .nodeathdrop
-	"elle porte un gros uniforme d'armure a juste mesure. elle est presque indetruible !" over .job!
+	"'tragt eine dicke Rustung aus anpassungsgemasser Panzerung. Sie ist fast unverwundbar!" over .job!
 	1 over .carrying.slot_count!
 	WEAPON_KNIGHT over .weapona!
 	1 over .weapon_nodropa!
@@ -1408,8 +1408,8 @@ char-event: valk-main-events
 	45 over .specialtype!
 	1 over .female!
 	4 over .fitness!
-	// "c'est peut-etre une femme de menage, mais cela n'est pas forcement le cas. elle pourrait simplement apprecier l'habilement." 
-	"nous nous sommes joints pour eviter qu'elle fasse ses taches de nettoyage." over .job!
+	// "'ist nicht notwendigerweise eine Reinigungskraft. Sie mag das Outfit einfach nur" 
+	"'schloss sich Ihnen an, um ihre Reinigungsarbeiten zu vermeiden." over .job!
 	WEAPON_ULTRAMOP over .weapona!
 	1 over .weapon_nodropa!
 	drop
@@ -1424,7 +1424,7 @@ char-event: valk-main-events
 	3 over .composure!
 	3 over .wits!
 	3 over .attitude!
-	"c'est l'etoile d'un jeu tres populaire dont je ne peux pas indiquer le titre." over .job!
+	"5" over .job!
 	1 over .carrying.slot_count!
 	WEAPON_CARDBOARD over .weapona!
 	statmod{ MOD_DSYP over .setmod } dup .swapspecial
@@ -1433,15 +1433,15 @@ char-event: valk-main-events
 ;
 
 : .animeify args( chara )
-	<- chara .name@ dup $len 8 min $left "c'est un aff" $cat <- chara .name!
+	<- chara .name@ dup $len 8 min $left "'-chan" $cat <- chara .name!
 	62 <- chara .specialtype!
 	1 <- chara .female!
 	0 <- chara .shooting!
 	5 <- chara .fitness!
 	2 <- chara .strength!
 	6 <- chara .attitude!
-	"Fille anime" <- chara .trait!
-	"elle est une fille magique d'anime. il semblerait qu'elle en devienne de plus en plus chaque jour." <- chara .job!
+	"'Anime Madchen" <- chara .trait!
+	"'ist ein magisches Anime-Madchen. Sie wird immer mehr animehaft." <- chara .job!
 	WEAPON_LOVELY <- chara .weapona!
 	1 <- chara .weapon_nodropa!
 	statmod{ MOD_ANIME <- chara .setmod }
@@ -1559,7 +1559,7 @@ statmod{
 	skeletons_base_id 0x c + <- chara .skeleton_spriteid!
 	statmod{ MOD_CAT <- chara .setmod } <- chara .swapspecial
 
-	"un chat est un animal. les chats ont ete des animaux de compagnie, maintenant la plupart sont sauvages et tres gros." <- chara .job!
+	"'ist eine Katze. Katzen waren fruher Haustiere, jetzt sind die meisten verwildert. Und riesig." <- chara .job!
 
 	3 <- chara .vitality!
 	3 <- chara .health!
@@ -1576,33 +1576,33 @@ statmod{
 
 : .oscarcatify dup args( chara ) .catify
 	9 <- chara .bodytype!
-	"Oscar : oscar" <- chara .name!
+	"'Oscar" <- chara .name!
 	1 STAT_MORALE <- chara .bonus!
 	0 <- chara .female!
 	6 <- chara .wits!
 	6 <- chara .attitude!
 	6 <- chara .composure!
-	"c'est le chat le plus gentil au monde." <- chara .job!
+	"'ist die netteste Katze der Welt." <- chara .job!
 	' kspet-checker ++
 ;
 
 : .sambyoolify dup args( chara ) .doggify
 	20 <- chara .bodytype!
 	<- chara statmod{ .superdog }
-	"Sam Byool" <- chara .name!
+	"'Sam Byool" <- chara .name!
 	0 <- chara .female!
 	WEAPON_SHOTGUN <- chara .weapona!
 	12 LOOT_SHOTGUN_SHELL <- chara .lootamt!
 	6 <- chara .shooting!
 	6 <- chara .composure!
 	6 <- chara .wits!
-	($ "un chien dachshund extremement intelligente. . . " .. "Petit sam byool" pbold $) <- chara .job!
+	($ "'ist ein hyperintelligenter Wiener Dog. Voller Name: " .. "'Lil' Sam Byool" pbold $) <- chara .job!
 	' kspet-checker ++
 ;
 
 : .nugsify dup .cur_thingid@ #thing args( chara thing ) statmod{ 
-	"NUGS CHUNGUS" <- chara .name!
-	"c'est le marque-page le plus puissant." <- chara .job!
+	"'NUGS CHUNGUS" <- chara .name!
+	"'ist der ubermachtigste Stempel." <- chara .job!
 	0 <- chara .pet!
 	3 <- chara .specialtype!
 	1 <- chara .specialmode!

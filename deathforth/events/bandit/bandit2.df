@@ -2,85 +2,85 @@
 cyoa{ road{
 
 cyoa-choice: bandit-car-plow
-	($ Thegroup .. " il decide de faire passer la voiture directement a travers le barrage de bandits et l'humain geant. ." .. gThey .. " prendre" .. g1s .. " beaucoup de degats, mais survivre" .. g1s .. "." $) cyoa-text! sting12rnd--all bitefx car-plowthrough someicon
+	($ Thegroup .. " 'entscheidet sich, das Auto mit voller Absicht durch die Banditen-Sperre und Lord Humungoid zu steuern." .. gThey .. " 'nehmen" .. g1s .. " 'viel Schaden, uberleben aber" .. g1s .. "." $) cyoa-text! sting12rnd--all bitefx car-plowthrough someicon
 ;
 
 cyoa-choice: bandit-car-paranoid
-	($ cname .. " etabli un plan pendant le discours." $) cyoa-text!
+	($ cname .. " 'hatte wahrend der Rede einen Plan ausgearbeitet." $) cyoa-text!
 	cpet? if
-		($ cHe .. " l'animal fait sonner la cloche sonore. les voleurs sont divertis par la vue d'un animal faisant cela. ils decident de la laisser passer. " .. thegroup .. " tout fonctionne selon le plan !" $)
+		($ cHe .. "  go. " .. thegroup .. " alles Teil des Plans!" $)
 	else
-		($ cHe .. " soudainement, il presse dur sur l'accelerateur et tourne brusquement. la voiture passe par une petite fissure dans le barrage routier, puis continue. ... a la fin, les bandits ne peuvent reagir a temps.		 " .. thegroup .. " il a trop avance pour etre rentable de le poursuivre." $)
+		($ cHe .. " 	they are already far behind. " .. thegroup .. " schon zu weit voraus, um es noch einzuholen." $)
 	then +crtext morale++all witsattREV goodfx
 ;
 
 cyoa-bridge: bandit-car-coolit
 	cpet? if
-		($ "Les frais de passage du bandit sont reduits. " .. cname .. " les flatulences. elles resonnent." $)
+		($ "Nach einer dramatischen Pause " .. cname .. " 'Furz. Es hallt.'" $)
 	else
-		($ cname .. " dit a lord humungoid de" .. " FAITES ATTENTION A NE PAS S'ECH" pbold $)
+		($ cname .. " " .. " KUHL ES." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		char-gen to recruitee "Geant humain" recruitee .name!
-		($ "Le seigneur humungus a une grosse modification d'attitude...." .. "THERE HAS BEEN TOO MUCH VIOLENCE... TOO MUCH PAIN. BUT I HAVE AN HONORABLE COMPROMISE!" rbold .. "offre un cadeau et une passe securisee !" $)
+		char-gen to recruitee "'Riesling" recruitee .name!
+		($ "'Lord Riesling hat ein riesiges Umdenken. Er bietet ein Geschenk und sichere Passage!" .. "THERE HAS BEEN TOO MUCH VIOLENCE... TOO MUCH PAIN. BUT I HAVE AN HONORABLE COMPROMISE!" rbold .. "'Lord Riesling mag das nicht. Die Banditen nehmen das Auto und alles, was sie finden konnen." $)
 		+crtext morale3+all rescue-trainitem cooled-it goodfx
 	else cool-it++
-		($ "Le seigneur humungus ne supporte pas cela. les voleurs prennent la voiture et tout. " .. thegroup .. "fournit des approvisionnements qu'ils trouvent." $) +crtext badfx car-abandon bandit-all morale2-all
+		($ "'Lord Riesling ist nicht einverstanden. Die Autosammlerbanditen nehmen das Auto und all seine Vorrate. " .. thegroup .. "'steigt aus dem Auto aus und geht unversehrt weg. Lord Rieslings letzte Worte, bevor er mit dem Auto des" $) +crtext badfx car-abandon bandit-all morale2-all
 	then witsattREV 
 ;
 
 cyoa-choice: bandit-car-pay
 	image-buff-bandit
-	($ Thegroup .. " sortie du voiture et s'en va indemne. paroles dernieres de seigneur humungoid avant de rouler a grande vitesse. " .. thegroup .. "les voitures de lui sont. " .. "ADIEUX POUR LE MOMENT, NERDS !" rbold $) cyoa-text! car-abandon bandit-gas
+	($ Thegroup .. " 'steigt aus dem Auto aus und geht unversehrt weg. Lord Humungoids letzte Worte, bevor er mit schrillem Gerausch wegfahrt in " .. thegroup .. "'s davonbraust, sind " .. "'RIECH ICH DICH SPATER, NERDS!" rbold $) cyoa-text! car-abandon bandit-gas
 ;
 	
 
 cyoa: bandit-car
-	"Collecteurs de voitures voleurs" cyoa-title!
-	($ "Ce groupe de brigands a bloque la etroite route devant eux avec leurs voitures. leur chef est present. " .. "Seigneur humungus" pbold .. " parle : . ." .. "Fuyez simplement ! donnez-moi votre voiture ! votre petrole ! et l'essence et je ferai epargner vos vies... je vous attend une reponse." rbold $) cyoa-text!
-		choice( "Laisser la voiture et tous les gaz de carburant" )choice: bandit-car-pay
+	"'Autosammlerbanditen" cyoa-title!
+	($ "'Die Banditen haben die schmale Straße vor ihnen mit ihren Autos versperrt. Ihr Anfuhrer, Lord " .. "'Riesling" pbold .. " " .. "' LASST SICH SIMPLY NIE AUSSTEIGEN! GIB IHR IHR FAHRT, IHR OEL! DAS BENZIN! Und ich werde eure LEBEN sparen.	ICH WARTE AUF EURE Antwort." rbold $) cyoa-text!
+		choice( "' opfert den Wagen und alle Benzin auf" )choice: bandit-car-pay
 		bandit-fight
 		most-paranoid if
-			charchoice( " des deja un plan" )choice: bandit-car-paranoid
+			charchoice( " ' hat schon eine Planung gemacht" )choice: bandit-car-paranoid
 		then
 		most-grating if
-			charchoice( " fais-le bief, voyous." fcoolit )choice: bandit-car-coolit
+			charchoice( " ': LASSTS DAS SPRINGEN']" fcoolit )choice: bandit-car-coolit
 		then
-		choice( "Cultivez-les !" )choice: bandit-car-plow
+		choice( "' durchbricht sie!" )choice: bandit-car-plow
 ;
 
 // Medical bandits
 
 cyoa-choice: bandit-medic-help
-	($ cname .. " offre de guerir le voleur blesse. " .. chis .. " competences medicales. " $) cyoa-text!
+	($ cname .. " ' bietet an, die Verletzten Bander mit " .. chis .. " ' medizinischem Wissen zu heilen. " $) cyoa-text!
 	medicalroll cmedical+ or if
-		($ cHe .. " regle tout a fait ! les voleurs laissaient. " .. thegroup .. " allez." $) +text goodfx
+		($ cHe .. " ' heilt es sofort auf! Die Bander lassen " .. thegroup .. " ' los." $) +text goodfx
 	else
-		($ cHe .. " la chose finit par se compliquer et les voleurs ne sont pas du tout ravis." $) +text
+		($ cHe .. " ' macht es schlimmer! Die Bander sind nicht sehr zufrieden." $) +text
 		bandithurt bitefx
 	then medicalREV medical++
 ;
 
 cyoa-choice: bandit-medic-paranoid
 	cpet? if
-		($ cname .. " savait que quelque chose etait tres mal place tout le temps a cause de... " .. chis .. " " .. cgrowlhiss .. "ing, " .. everyone .. " est averti precocement. " .. gTheyare .. " pret a lutter devant que les brigands soient prets, et s'enfuir indemne." $) 
+		($ cname .. " ' wusste, dass etwas sehr falsch war das ganze Mal. Aufgrund von " .. chis .. " " .. cgrowlhiss .. "' Instinkt, ', " .. everyone .. " ' wird fruh gewarnt. " .. gTheyare .. " 'bereit, vor den Banditen zu kampfen und unversehrt zu entkommen." $) 
 	else
-		($ "Suspectueusement prudent, " .. cname .. " cacher voiture et approvisionnements avant d'approcher le reglement. " .. cHe .. " les voleurs doutent de cela, mais ne trouvent rien de precieux. ils laissent finalement aller. " .. thegroup .. " allez." $)
+		($ "'immer misstrauisch, " .. cname .. " 'das Auto und die Vorrate versteckt, bevor er sich dem Siedlung nahert. " .. cHe .. " 'bekundet, nichts von Wert zu besitzen.		Die Banditen bezweifeln das, konnen aber nichts finden. Sie lassen " .. thegroup .. " ' los." $)
 	then cyoa-text! witsattREV goodfx
 ;
 
 cyoa-bridge: bandit-medic-coolit
 	cpet? if
-		($ cname .. " farterie avec une tonalite qui ressemble a une petite viole." $)
+		($ cname .. " 'Pups in einer Tonlage, die wie ein winziger Geigenklang klingt." $)
 	else
-		($ cname .. " laissez-passer aux fraudeurs : " .. " FAITES ATTENTION A NE PAS S'ECH" pbold $)
+		($ cname .. " 'den falschen Handlern sagt " .. " KUHL ES." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		char-gen to recruitee "Faux negociateur" recruitee .name!
-		($ "Un blesse de voleur semble etre reellement touche par cela !" .. "Je me sens beaucoup mieux maintenant!" rbold .. "elle se leve, fait un volterete et ordonne que vous soyez amene un cadeau !" $)
+		char-gen to recruitee "'Falscher Handler" recruitee .name!
+		($ "'Der verletzte Bandit sieht wirklich bewegt von dieser Geste aus!		" .. "'Wow! Jetzt fuhle ich mich viel besser!" rbold .. "'		Sie steht auf, macht eine Handstandubung und ordnet an, dass man Ihnen ein Geschenk bringt!" $)
 		+crtext morale3+all rescue-trainitem cooled-it goodfx
 	else cool-it++
-		($ "Les voleurs ne font qu'observer. " .. thegroup .. " puis ils prennent la plus grande partie de...  " .. ghis .. " tres epais" $) +crtext badfx bandit-mostgas morale2-all
+		($ "'Die Banditen starren den " .. thegroup .. " 'einen Moment an.		Dann nehmen sie die meisten von " .. ghis .. " vorrate" $) +crtext badfx bandit-mostgas morale2-all
 	then witsattREV 
 ;
 
@@ -90,26 +90,26 @@ cyoa-bridge: bandit-medic-coolit
 	
 
 cyoa: bandit-medic
-	"Kevin clark : kevin clark" cyoa-title!
-	($ Thegroup .. " se semble etre un etablissement de negociants. " .. gTheyare .. " ils sont attaques par des voleurs qui l'ont pris d'assaut. un d'entre eux semble blesse." .. "Prendre le deck numero 2 chaque jour. " rbold $) cyoa-text!
+	"Handlerfalle" cyoa-title!
+	($ Thegroup .. "  Uberpruft, was wie ein Handlerlager aussieht. " .. gTheyare .. " 	Stattdessen" .. "Sie verlangen " rbold $) cyoa-text!
 	solo if
 		soloer ispet? if
 			($ "... oh wait, it's just an animal. False alarm!" rbold .. "
-			The bandits let " .. soloname .. " allez !" $) +text goodfx
+			The bandits let " .. soloname .. " los!" $) +text goodfx
 		then;
 	then
 	trunk-medical 7 > if
-		($ "huit fournitures medicales !" rbold $) +text
-		choice( "Huit approvisionnements medicaux :" )choice: bandit-medic-pay
+		($ "'8 medizinischen Vorraten!" rbold $) +text
+		choice( "8 Medikits" )choice: bandit-medic-pay
 	else
 		bandit-demand
 	then
-		medicalest charchoice( " offre de guerir une blessure" )choice: bandit-medic-help
+		medicalest charchoice( " ' bietet an, Verletzung zu heilen" )choice: bandit-medic-help
 		most-grating if
-			charchoice( " fais-le bief, voyous." fcoolit )choice: bandit-medic-coolit
+			charchoice( " ': LASSTS DAS SPRINGEN']" fcoolit )choice: bandit-medic-coolit
 		then
 		most-paranoid if
-			charchoice( " j'en avais prevu cela." )choice: bandit-medic-paranoid
+			charchoice( " habe das kommen sehen" )choice: bandit-medic-paranoid
 		then
 		bandit-fight
 ;
@@ -118,18 +118,18 @@ cyoa: bandit-medic
 
 cyoa-choice: bandit-weapon-paranoid
 	solo if 
-		($ cname .. " j'avais des doutes quant a ce campsite. " .. che .. " laissez l'automobile allumee. " .. cHe .. " se prete a leurs demandes, mais court vers la voiture attendante des qu'ils l'ont faite. " .. che .. " les armes des voleurs ne sont pas assez solides pour faire quelque chose a l'automobile. " .. che .. "dans elle, donc. " .. che .. " SORT SES PELURES." rbold $) cyoa-text! goodfx
+		($ cname .. " ' verdachtigte sich gegenuber dem Campingplatz und ', " .. che .. " ' ließ das Auto laufen.', " .. cHe .. " ' vorgibt, den Anforderungen nachzugeben, aber zum wartenden Wagen fluchtet er sich sofort, sobald ', " .. che .. " ' kann.		Die Bandeits Waffen sind zu schwach, um etwas an das Auto zu tun, wenn es ', " .. che .. "' drin ist, also ', " .. che .. " ' RASEND FahrT AUF." rbold $) cyoa-text! goodfx
 	else
-		($ cname .. " j'avais des doutes quant a ce campsite. " .. che .. " voulait attendre pres de la voiture ... " .. everyone .. " le conducteur volant la voiture saccage le camping, ecrase un chapiteau et arrete brusquement. les voleurs sont effrayes, ils prennent la fuite !" $) cyoa-text!
+		($ cname .. " ' verdachtigte sich gegenuber dem Campingplatz und ', " .. che .. " " .. everyone .. " ' wird uberfallen, der Wagen zerquetscht ein Lagerlager und zerstort dann ein Zelt. Die Bande ist verunsichert, also fliehen sie!" $) cyoa-text!
 		cpet? if 
 			cdog? if 
-				($ cname .. " involontairement verrouille. " .. chim .. "s'asseoir dans la voiture et aboie pour etre sorti." $)
+				($ cname .. " ' hat versehentlich ', " .. chim .. "'sich in dem Wagen eingesperrt und rauszulassen schreit." $)
 			else
-				($ Everyone .. " n'est pas sur " .. cname .. " a fait-il tout cela avec intention ou non." $)
+				($ Everyone .. " ' ist unsicher, ob ', " .. cname .. " ' das alles absichtlich gemacht hat oder nicht." $)
 			then +crtext
 		else
 			cloyalty- if
-				($ notcname .. " est vraiment etonne/e " .. cname .. " n'ai pas essaye a voler la voiture. " .. cHe .. " se figure nerveuse pendant un moment." $) +crtext
+				($ notcname .. "  ist wirklich uberrascht " .. cname .. "  versuchte nicht, das Auto zu stehlen.  " .. cHe .. " sieht nervos fur einen Moment aus." $) +crtext
 			then loyaltyREV
 		then
 	then goodfx witsattREV morale++all
@@ -137,22 +137,22 @@ cyoa-choice: bandit-weapon-paranoid
 
 cyoa-bridge: bandit-weapon-coolit
 	cpet? if
-		($ cname .. " fait des flatulences et en fait grand cas." $)
+		($ cname .. " 'furzt und macht ein Riesen-Theater darum'" $)
 	else
-		($ cname .. " une voiture qu'ils ont unefois possedee" .. " FAITES ATTENTION A NE PAS S'ECH" pbold $)
+		($ cname .. " 'verlangt den Raubern," .. " KUHL ES." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		char-gen to recruitee "Voleur de mauvaise qualite" recruitee .name!
-		($ "Les voleurs en prennent reellement a coeur cela..." .. "Oui ! quand nous avons l'amitie, quels besoin aurions de armes ?" rbold .. "ils offrent un cadeau !" $)
+		char-gen to recruitee "'Schlechter Bandit" recruitee .name!
+		($ "'Die Banditen nehmen das wirklich zu Herzen." .. "'Ja! Waffen brauchen wir nicht, wenn wir Freundschaft haben!" rbold .. "'Sie bieten ein Geschenk!" $)
 		+crtext morale3+all rescue-trainitem cooled-it goodfx
 	else cool-it++
-		($ "Les bandits commencent tous a attaquer. " .. cname .. "ils oublient des armes." $) +crtext badfx ouch2-
+		($ "'Die Banditen beginnen alle anzugreifen " .. cname .. "' . Sie vergessen die Waffen." $) +crtext badfx ouch2-
 	then witsattREV 
 ;
 
 : bandit-weapon-check args( @ ) 
 	<- @ .cstrength+ if
-		($ <- @ .colourname .. " lute contre les voleurs " .. <- @ xhis .. " faites de l'effort !" $) +crtext
+		($ <- @ .colourname .. " ' kampft gegen die Banditen mit " .. <- @ xhis .. " ' Starke!" $) +crtext
 		<- @ .strengthREV
 	else
 		<- @ .cstrength- if
@@ -164,92 +164,92 @@ cyoa-bridge: bandit-weapon-coolit
 ;
 
 cyoa-choice: bandit-weapon-fight
-	($ Thegroup .. " les bandits decident de se lancer dans une bagarre... ." $) cyoa-text! 
+	($ Thegroup .. " ' entscheidet sich, sein Gluck in einem Kampf zu versuchen. Die Waffen der Banditen sind grob, aber sie sind trotzdem gefahrlich." $) cyoa-text! 
 		bitefx ' bandit-weapon-check foreach-team-char
 ;
 
 cyoa-choice: bandit-weapon-pay
-	($ Thegroup .. " sous une voix floue : " .. ghis .. " des armes ... 	ils donnent des armes. " .. ghim .. " il lui transmet des armes anciennes, peut-etre sentant un peu de culpabilite." $) cyoa-text! 0weaponsall trunk.clear morale2-all someicon badfx
+	($ Thegroup .. " ' uberlasst allen " .. ghis .. " 'Waffen den Banditen. Die Banditen geben " .. ghim .. " ' ihm einige alte Waffen, vielleicht wegen einiger Reue." $) cyoa-text! 0weaponsall trunk.clear morale2-all someicon badfx
 	3 WEAPON_NAIL trunk.weapon+ 2 WEAPON_REBAR trunk.weapon+ 1 WEAPON_FISHING trunk.weapon+
 	1 WEAPON_PARKING trunk.weapon+
 ;
 
 cyoa-choice: bandit-weapon-calmshot
-	($ cname .. " objectives " .. ghis .. " les bandits s'enfuient, leurs armes desemparees face a la vitesse et aux explosions de l'arme." $) cyoa-text! goodfx shootingREV temperREV shooting++
+	($ cname .. " ' zielt " .. ghis .. " ' Waffe mit blitzartigen Geschwindigkeiten zerreißt die schwachen Waffen der Bande.	Die Bande beginnt zu fluchten!" $) cyoa-text! goodfx shootingREV temperREV shooting++
 ;
 	
 
 cyoa: bandit-weapon
-	"Voleurs de gun :" cyoa-title! someicon
-	($ "Commme " .. thegroup .. " explore un camping. " .. gtheyare .. " attaques par des voleurs. ils brandissent des armeaux faits maison... ." .. "Un jour d'autre, une autre boite de conserve." rbold .. "cela est absurde. pas meme les voleurs le feront generalement, car c'est une condamnation a mort lente mais sure." $) cyoa-text!
+	"' Die Waffenraub-Bande" cyoa-title! someicon
+	($ "'Als " .. thegroup .. " ' eine Campingstatte erkundet,	 " .. gtheyare .. " ' wird von Bandigen uberfallen. Sie zeigen improvisierte Waffen vor." .. "' fordern alle Ihre Waffen ab." rbold .. "'		Das ist absurdig. Selten tun sogar Bande das, denn es ist ein langsamer aber sicherer Todesstraf." $) cyoa-text!
 		calmshot-check if
-			charchoice( " tire et tire-rapides" )choice: bandit-weapon-calmshot
+			charchoice( " ' zieht schnell heraus und feuert ab" )choice: bandit-weapon-calmshot
 		else
-			choice( "Lutte contre les voleurs !" )choice: bandit-weapon-fight
+			choice( "'Die Bande bekampfen!" )choice: bandit-weapon-fight
 		then
 		most-paranoid if
-			solo if charchoice( " laisser le moteur allume" )choice: bandit-weapon-paranoid
-			else charchoice( " vient en aide" )choice: bandit-weapon-paranoid then
+			solo if charchoice( " ' kommt zum Rettungsschlag" )choice: bandit-weapon-paranoid
+			else charchoice( " ' ist zuruckgeblieben, um das Auto laufen zu lassen" )choice: bandit-weapon-paranoid then
 		then
 		most-grating if
-			charchoice( " fais-le bief, voyous." fcoolit )choice: bandit-weapon-coolit
+			charchoice( " ': LASSTS DAS SPRINGEN']" fcoolit )choice: bandit-weapon-coolit
 		then
 		bandit-charm
-		choice( "Laissez tomber tous vos armes !" )choice: bandit-weapon-pay
+		choice( "Geben Sie alle Waffen auf!" )choice: bandit-weapon-pay
 ;
 
 cyoa-choice: bandit-loyal-pick
 	cicon
-	($ cname .. " 's'en va agiter les bandits pour qu'ils quitte leur poste de controle routier.'" $) cyoa-text!
+	($ cname .. " ' wird an die Banditen gesendet, um sie abzulenken, damit sie ihren Autoposten verlassen." $) cyoa-text!
 	cloyalty- if
-		($ cname .. " immediatement allume " .. everyone .. " se fait collaborer avec les voleurs au lieu de cela." $) +crtext
+		($ cname .. " ' schaltet sich sofort ein " .. everyone .. " ' und schließt sich den Banditen an, stattdessen." $) +crtext
 		loyaltyREV decruit-bad
-		($ Thegroup .. " est attaque ! " .. gThey .. " essayer." .. g1s .. " to escape..." $) +crtext
+		($ Thegroup .. " ' wird angegriffen! " .. gThey .. " ' Versuch" .. g1s .. " to escape..." $) +crtext
 		bandithurt
 	then;
-	($ cname .. " ne vende pas. " .. everyone .. " courrez aux voleurs ! " .. cHe .. " derive-les de loin et s'enfuit : ils le poursuivent, et la voiture parvient a depasser." $) +crtext
+	($ cname .. " ' verkauft nicht " .. everyone .. " ' verrat sie nicht an die Banditen! " .. cHe .. " ' lenkt sie von Weitem ab und rennt weg. Sie verfolgen das Auto, und es gelingt, vorbeizukommen." $) +crtext
 	ctemper- if
-		($ cname .. " panique en retraite. " .. cHe .. " finit par ne suivre le plan et se blesser !" $) +crtext cchar .sting12rnd-- bitefx
+		($ cname .. " ' gerat in Panik beim Zuruckweichen. " .. cHe .. " ' halt sich nicht an den Plan und wird verletzt!" $) +crtext cchar .sting12rnd-- bitefx
 	else
 		goodfx
 	then
-		($ cname .. " se glisse autour du point de controle plus tard, et rejoint " .. everyone .. "." $) +crtext
+		($ cname .. " ' schleicht sich spater um den Kontrollpunkt herum und schließt sich wieder " .. everyone .. "." $) +crtext
 		loyaltyREV
 		
 ;
 
 cyoa-choice: bandit-loyal-plow
-	($ Thegroup .. " decide de faire passer la voiture directement a travers le point de controle..." .. gThey .. " prendre" .. g1s .. " beaucoup de degats, mais survivre" .. g1s .. "." $) cyoa-text! sting12rnd--all bitefx car-plowthrough someicon
+	($ Thegroup .. " ' beschließt, das Auto einfach durch den Kontrollpunkt zu rammen." .. gThey .. " 'nehmen" .. g1s .. " 'viel Schaden, uberleben aber" .. g1s .. "." $) cyoa-text! sting12rnd--all bitefx car-plowthrough someicon
 ;
-: bandit-loyal-plow? choice( "Foule la voiture par-dessus les roues !" )choice: bandit-loyal-plow ;
+: bandit-loyal-plow? choice( "'Fahr das Auto einfach durch!" )choice: bandit-loyal-plow ;
 
 cyoa-choice: bandit-loyal-paranoid
-	($ cname .. " avant d'etre repere, j'ai fait des plans de secours." $) cyoa-text!
-	($ cHe .. " se retire dans un batiment ruine, ou les brigands ne peuvent pas le voir. " .. chim .. "quand ils se approchent. " .. che .. " saute par la fenetre arriere, roule sur le sol. " .. chis .. " aller vers la voiture et s'enfuit par un controle desormais vide !" $) +crtext goodfx
+	($ cname .. " ' eine Ruckfallplan gelegt, bevor ich entdeckt wurde." $) cyoa-text!
+	($ cHe .. " ' sich nach einem zerstorten Gebaude zuruckzieht, wo die Bande nicht sehen konnen. " .. chim .. "'. Wenn sie naher kommen, " .. che .. " ' springt durch ein hinteres Fenster und schlupft " .. chis .. " ' WEG RASCH ZUM AUTO, UND FLUCHT DURCH EIN NUN LEERES SICHERHEITSPUNKT!" $) +crtext goodfx
 ;
 
 cyoa-bridge: bandit-loyal-pick4
 	someicon
-	"Envoyer quelqu'un pour detourner les brigands." cyoa-text!
+	"'Wer soll zur Ablenkung der Bande geschickt werden?" cyoa-text!
 	' bandit-loyal-pick cyoa-team-choice
 ;
 
 cyoa: bandit-loyal
-	"Qui peut etre confie ?" cyoa-title! someicon
+	"'Wen kann man vertrauen?" cyoa-title! someicon
 	solo if
-		($ cname .. " un groupe de brigands qui ont etabli un poste de controle sur la route. " .. cHe .. " il n'y a pas de bonne facon de les distraire et finit par etre repere." .. "Prendre le deck numero 2 chaque jour. " rbold $) cyoa-text!
+		($ cname .. " ' eine Gruppe von Bandigen, die auf der Straße einen Kontrollpunkt eingerichtet haben. " .. cHe .. " ' hat keine gute Moglichkeit, sie abzulenken und schließlich wird entdeckt." .. "Sie verlangen " rbold $) cyoa-text!
 		bandit-demand
 		most-paranoid if
-			charchoice( " a veut mettre en scene une ruse pour les tromper." )choice: bandit-loyal-paranoid
+			charchoice( " ' hat ein Plan, um sie zu betrugen" )choice: bandit-loyal-paranoid
 		then
 		bandit-charm
 		bandit-loyal-plow?
 		bandit-fight
 	else
-		($ Thegroup .. " une personne apaisee pour les detourner l'attention des brigands et permettre au vehicule de passer. " .. "fiable" rbold .. "." $) cyoa-text!
+		($ Thegroup .. " ' entdeckt eine Gruppe von Bandigen, die auf der Straße einen Kontrollpunkt eingerichtet haben. Jemand aus der Mannschaft konnte zur Ablenkung der Bande geschickt werden.		Das musste jemand kaltblutig und " .. "vertrauenswurdig" rbold .. "." $) cyoa-text!
 		team-count 3 > if
 			' bandit-loyal-pick 2 #cyoa-team-choice
-			choice( "Choisissez quelqu'un d'autre." )choice: bandit-loyal-pick4
+			choice( "'Wahle jemand anderen" )choice: bandit-loyal-pick4
 		else
 			' bandit-loyal-pick 3 #cyoa-team-choice
 		then

@@ -10,11 +10,11 @@ cyoa{
 
 cyoa: opp-recruit-yes2
 	team-full? if
-		($ "Laissez quelle personne vous souhaitez remplacer prendre cette place. " .. rname .. "?" $) cyoa-text!
+		($ "'Sie mussen jemanden zurucklassen, damit der Platz frei ist. Wer mochten Sie ersetzen? " .. rname .. "?" $) cyoa-text!
 		' recruit-replace cyoa-team-choice
 	then;
 	ricon
-	($ "C'est tout a fait joli de sembler cela a toi." $) cyoa-text! 2 300 tone
+	($ "'Sie scheinen Ihnen so cool" $) cyoa-text! 2 300 tone
 		recruited
 ;
 
@@ -22,30 +22,30 @@ cyoa: opp-recruit-yes
 	clear-cyoa 0.25 recruitee .ai.wander_chance! 0 nearest .unseen!
 	opp-recruit-yes2
 	' OPP-recruit-count ++
-	recruitee .name@ "Roche" $= if road{ 1 2 rnd to lnk-countdown } then;
-	recruitee .name@ "Cheveux ! " $= if road{ 6 8 rnd to ninja-countdown } then;
+	recruitee .name@ "'Link" $= if road{ 1 2 rnd to lnk-countdown } then;
+	recruitee .name@ "'Haare ! ', " $= if road{ 6 8 rnd to ninja-countdown } then;
 	recruitee .name@ "???" $= if road{ 2 3 rnd to mason-countdown 1 to mason-curse } then;
-	recruitee .name@ "Fin de la demonstration." $= if road{ 4 6 rnd to knight-countdown } then;
-	recruitee .name@ "Une petit fille ayant l'apparence d'un personnage d'anime." $= if road{ 2 to anime-countdown } then;
+	recruitee .name@ "'Ende der Demonstration." $= if road{ 4 6 rnd to knight-countdown } then;
+	recruitee .name@ "'Eine kleine Madchen, die wie eine Anime aussieht." $= if road{ 2 to anime-countdown } then;
 ;
 
 : OPP-recruit-left 4 OPP-recruit-count - rbold ;
 
 cyoa: opp-recruit
 	nearest .character@ choosechar cchar to recruitee ricon
-	($ "JE SUIS HEUREUX DE VOUS SALUER. L'HONNEUR EST A VOUS." .. rname $) text!
+	($ "'ICH BIN FREUDE DAS IHR EHRLICHE HERR SALUTIEREN. DIE Ehre ist Ihrer." .. rname $) text!
 	
 	recruitee .specialmode@ 0 > if
-		"AVERTISSEMENT : TRES ENCOURAGEMENT DESAGREABLE" fbold +crtext
+		"'WARNUNG: VERY UNSATISFYING" fbold +crtext
 		recruitee .specialtype@ 1 = if
-			"MECHANOUNIE EST TRES HEUREUX DE REPONDRE ! UTILISEZ CETTE OPPORTUNITE PENDANT VOS PROPRES RISQUES." rbold +crtext
+			"'MECHANOUNTIE IS VERY ENCOURAGED TO RESPOND ! USE THIS FACT DURING YOUR OWN RISKS." rbold +crtext
 		then
 	then
 	
-	OPP-recruit-count 3 > if ($ "Vous engagez trop de sujets exceptionnels ! je vais vous en coupper un. " bbold $) +crtext then;
-	($ "Vous pouvez embaucher des nouveaux employes. " bbold .. OPP-recruit-left .. " plus de personnages plus puissants : il convient de reduire le nombre et l'importance des personnages dans votre histoire." bbold $) +crtext
-	choice( "quittez, s'il vous plait." .. rname .. " a ce stade, rien n'est a faire." )choice
-	choice( "Pour obtenir des instructions precises, veuillez consulter le manuel du jeu ou aller sur la page d'aide en ligne." .. rname .. " pour rejoindre, veuillez utiliser les coordonnees suivantes : " )choice: opp-recruit-yes	
+	OPP-recruit-count 3 > if ($ "'Sie haben zu viele uberdurchschnittlich intelligente Personen angestellt! Ich werde Ihnen die Hand abschneiden.', " bbold $) +crtext then;
+	($ "'Sie konnen rekrutieren.', " bbold .. OPP-recruit-left .. " 'Mehr Figuren, mehr machtig!" bbold $) +crtext
+	choice( "'Gehen Sie." .. rname .. "  At this stage, nothing should be done." )choice
+	choice( "'Es fehlen Informationen, um eine prazise Antwort zu geben. Die Anweisungen konnen je nach Kontext variieren. Zum Beispiel konnen die Anweisungen in einem Videospiel" .. rname .. " ' um beizutreten, verwenden Sie bitte die folgenden Koordinaten: " )choice: opp-recruit-yes	
 ;
 
 }
@@ -128,17 +128,17 @@ roomgen{
 
 : .opp-santafy args( chara )
 	3 <- chara .specialtype!
-	"Son" <- chara .name!
+	"'Nom" <- chara .name!
 	4 <- chara .shooting! 0 <- chara .female! 6 <- chara .morale!
 ;
 
 : .opp-evilsantafy args( chara )
 	<- chara .opp-santafy
-	"Santa malefique." <- chara .name! 4 <- chara .specialtype!
+	"'Santa Mallefiz" <- chara .name! 4 <- chara .specialtype!
 ;
 
 : .opp-turkeyfy args( chara )
-	"Turquie est un pays situe en europe et en asie." <- chara .name!
+	"'Turkei ist ein Land, das sich in" <- chara .name!
 	27 <- chara .specialtype!
 ;
 
@@ -152,7 +152,7 @@ roomgen{
 
 : .opp-gordon args( char )
 	49 <- char .specialtype!
-	"Gros " <- char .name!
+	"'Groß " <- char .name!
 	WEAPON_CROWBAR <- char .weapona!
 	WEAPON_SHOTGUN <- char .weaponb!
 	WEAPON_DOLT <- char .weaponc!
@@ -167,36 +167,36 @@ roomgen{
 	3 <- char .wits!
 	3 <- char .loyalty!
 	3 <- char .composure!
-	"ils semblent calmes, ou n'auraient peut-etre aucune personnalite a tout faire." <- char .job!
+	"'sich ruhig zeigen, oder konnten gar keine Personlichkeit uberhaupt haben." <- char .job!
 	0 <- char .female!
 ;
 
 : .opp-fairy args( char )
 	13 <- char .specialtype!
-	"Fee reine. " <- char .name!
+	"'Fee-Konigin. " <- char .name!
 	5 <- char .shooting!
 	4 <- char .strength!
 	6 <- char .fitness!
 	1 <- char .female!
 	0 <- char .loyalty!
 	4 <- char .medical!
-	"Non, la reine des elfes follets n'est pas necessairement celle des elfes verts ou de tous les elfes foliages. il existe divers types d'elfes dans la mythologie et chaque type peut avoir sa propre reine." <- char .job!
+	"'Die Fee-Konigin der Elfenknicker ist sie die allerersten Elfenknicker-Koniginnen?" <- char .job!
 ;
 
 : .opp-panda args( char )
 	35 <- char .specialtype!
-	"Geant panda : geant de 1 metre." <- char .name!
+	"'Großer Panda : Große Pandas: Große von 1," <- char .name!
 	WEAPON_FIERCE <- char .weapon_default!
 	2 STAT_STRENGTH <- char .bonus!
 	6 <- char .strength!
 	6 <- char .fitness!
 	1 <- char .female!
 	1 <- char .carrying.slot_count!
-	"C'est un pandas agreable a regarder, sauf quand il est encolose." <- char .job!
+	"'Dies ist ein Panda. Er ist sehr angenehm zu sehen, außer wenn er wutend ist." <- char .job!
 ;
 
 : .opp-george args( char )
-	"C'est un simple nom de personne. " <- char .name!
+	"'Georges: Es ist ein Name " <- char .name!
 	26 <- char .specialtype!
 	6 <- char .wits! 0 <- char .attitude! 
 	0 <- char .composure! 6 <- char .loyalty!
@@ -211,19 +211,19 @@ roomgen{
 	4 <- char .fitness!
 	4 <- char .vitality!
 	4 <- char .health!
-	"Monde pour vivre une vie devouee a dieu, en solitaire ou avec une petite communaute." <- char .name!
+	"'Anachorete: Ein Einsiedler: Eine Person, die sich von" <- char .name!
 	0 <- char .female!
 	0 <- char .attitude!
 	0 <- char .composure!
-	"Il lui paraissait extraordinaire de decider de rejoindre l'equipe, malgre son statut d'eremite." <- char .job!
+	"'Er schien mir erstaunlich entschlossen, dem Team beizutreten, obwohl er ein Einsiedler ist." <- char .job!
 	WEAPON_SHOTGUN <- char .weapona!
 	WEAPON_FIRE <- char .weaponb!
 	40 LOOT_SHOTGUN_SHELL <- char .lootamt!
 ;
 
 : .opp-clown args( char )
-	"Un clown est un artiste de cirque specialise dans la comedie et l'interaction directe avec le public. " <- char .name!
-	"C'est un etrange clown. " <- char .job!
+	"'Der Clown ist ein Zirkuskunstler und " <- char .name!
+	"'Das ist ein seltsamer Clown. " <- char .job!
 	29 <- char .specialtype!
 	6 <- char .morale! 
 	0 <- char .attitude!
@@ -239,14 +239,14 @@ roomgen{
 	opprecruit-in .broomify -4 movey -4 movex
 
 	opprecruit-in .gerbilfy
-	opprecruit-in .gnomify "Gnome : un demon de la mythologie " rename 2 movex
-	opprecruit-in .gnomify2 "Toujours aussi gnome, c'est-a-dire toujours aussi proche de la nature et de l'esprit du monde g" rename 4 movex
+	opprecruit-in .gnomify "'Gnom " rename 2 movex
+	opprecruit-in .gnomify2 "'Auch gnomig" rename 4 movex
 	opprecruit-in .barbarify -2 movex
 	opprecruit-in .cleanerify -4 movex
 
-	opprecruit-in .animeify "Une petit fille ayant l'apparence d'un personnage d'anime." rename -2 movey
+	opprecruit-in .animeify "'Eine kleine Madchen, die wie eine Anime aussieht." rename -2 movey
 	opprecruit-in .opp-turkeyfy -2 movey 2 movex
-	opprecruit-in .horsify "Cheval " rename -2 movey 4 movex
+	opprecruit-in .horsify "'Pferd " rename -2 movey 4 movex
 	opprecruit-in .opp-santafy -2 movey -2 movex
 	opprecruit-in .opp-evilsantafy -2 movey -4 movex
 	
@@ -267,27 +267,27 @@ roomgen{
 : rarepartyX
 
 	opprecruit-in .lynnify 
-	opprecruit-in .chickenify "Ricochet-ricochet : rebond-rebond. " rename 2 movex
-	opprecruit-in .pqify "Le punchzerker est un personnage elite specialise dans les coups de poing." rename 4 movex
-	opprecruit-in .skelify "Sans reference a undertale : rien ne concernant undertale." rename -2 movex
+	opprecruit-in .chickenify "'Hoppel-hoppel " rename 2 movex
+	opprecruit-in .pqify "'Der Schlager ist eine Elitefigur, spezialisiert auf Faustschlage." rename 4 movex
+	opprecruit-in .skelify "'Ohne Undertale: Keine Referenz zu Undertale in" rename -2 movex
 	opprecruit-in .grimreaperify -4 movex
 
-	opprecruit-in .mountiefy "Gendarmes : policiers de l'etat " rename -2 movey
-	opprecruit-in .genieify "Genie" rename -2 movey 3 movex
+	opprecruit-in .mountiefy "'Gendarmen: Staatliche Polizisten " rename -2 movey
+	opprecruit-in .genieify "'Geist" rename -2 movey 3 movex
 	// opprecruit-in . -2 movey 4 movex
 	// opprecruit-in . -2 movey -2 movex
 	opprecruit-in .moosify -2 movey -3 movex
 	
-	opprecruit-in .fly "La mouche" rename 2 movey
+	opprecruit-in .fly "'Die Fliege" rename 2 movey
 	opprecruit-in .oscarcatify 2 movey 2 movex
 	opprecruit-in .sambyoolify 2 movey 4 movex
-	opprecruit-in .flyhead "Voler " rename 2 movey -2 movex
-	opprecruit-in .flybody "La signature est un symbole graphique ou electron" rename 2 movey -4 movex
+	opprecruit-in .flyhead "'Fliegen " rename 2 movey -2 movex
+	opprecruit-in .flybody "'Der Sign" rename 2 movey -4 movex
 	
 ;
 
 : rarepartyM
-	opprecruit-in .mechamountify "Mecanicien montant les marches, s'appretant a travailler sur quelque chose au-dessus du sol. " rename
+	opprecruit-in .mechamountify "'Mechanic en montee " rename
 ;
 	
 }
@@ -297,9 +297,9 @@ map{ regiondef{
 trade-camp-reset
 
 : bldg tanchor!
-	"famillier " $picklocid addloc 
+	"'famillier " $picklocid addloc 
 		prefab{
-		BLUE "'ATTENTION :'" .. sign-text!
+		BLUE "'FAMILIENZIMMER" .. sign-text!
 		1 1 1 sign-bg!
 		0 1 1 sign-border!
 		1 1 1 sign-fg!
@@ -308,9 +308,9 @@ trade-camp-reset
 ;
 
 : bldg2 tanchor!
-	"l'experience " $picklocid addloc 
+	"'l'experience " $picklocid addloc 
 		prefab{
-		BLUE "EXPERIMENTALES - UTILISER A VOTRE PROPRE RISQUE ET PERIL" .. sign-text!
+		BLUE "'EXPERIMENTELL - ZUR VERWENDUNG AUF EIGENE GEFAHR" .. sign-text!
 		1 1 1 sign-bg!
 		0 1 1 sign-border!
 		1 1 1 sign-fg!
@@ -325,35 +325,35 @@ trade-camp-reset
 : rareparty1
 	opprecruit .opp-gordon -4 movey -4 movex
 	opprecruit .opp-garfy -4 movey -2 movex	
-	opprecruit .opp-fairy "Fee reine. " rename -4 movey
+	opprecruit .opp-fairy "'Fee-Konigin. " rename -4 movey
 	opprecruit .opp-panda -4 movey 2 movex
 	opprecruit .opp-george -4 movey 4 movex
 	
 	opprecruit .renfairify
-	opprecruit .dsypify "La commande 'ls' liste les fichiers et repertoires presents dans le repertoire act" rename 2 movex
-	opprecruit .valkify "Valquise " rename 4 movex
-	opprecruit .tlbify "La table tourne a gauche. " rename -2 movex
+	opprecruit .dsypify "'DIE BESTELLUNG `" rename 2 movex
+	opprecruit .valkify "'Valquise " rename 4 movex
+	opprecruit .tlbify "'Der Tisch dreht sich nach links. " rename -2 movex
 	opprecruit .bortify -4 movex
 	
 	opprecruit .fencify "Epeeur / Flechettier " rename -2 movey
-	opprecruit .alvify "Preparez-vous a donner une" rename -2 movey 2 movex
-	opprecruit .wrestify "Avertissement transitoire !" rename -2 movey 4 movex
+	opprecruit .alvify "'Achtung" rename -2 movey 2 movex
+	opprecruit .wrestify "'L'etendu satan" rename -2 movey 4 movex
 	opprecruit .rickify -2 movey -2 movex
-	opprecruit .debutantify "Debutante " rename -2 movey -4 movex
+	opprecruit .debutantify "'Anfangerin " rename -2 movey -4 movex
 	
-	opprecruit .lnkify "Roche" rename 2 movey
+	opprecruit .lnkify "'Link" rename 2 movey
 	opprecruit .masonify "???" rename 2 movey 2 movex
-	opprecruit .octodadify "Un Homme Quelconque" rename 2 movey 4 movex
-	opprecruit .boxerify "Champ" rename 2 movey -2 movex
+	opprecruit .octodadify "Ein beliebiger Mann" rename 2 movey 4 movex
+	opprecruit .boxerify "Meister" rename 2 movey -2 movex
 	opprecruit .madscify 2 movey -4 movex
 ;
 
 : rareparty2
 
-	opprecruit .sumoify "C'est le son ou la somme ? " rename
-	opprecruit .rambify "Turquie est un pays situe" rename 2 movex
-	opprecruit .billify "Castor en anglais, donc" rename 4 movex
-	opprecruit .ninjaify "Cheveux ! " rename -2 movex
+	opprecruit .sumoify "'Son oder Sum, " rename
+	opprecruit .rambify "'Rameaux" rename 2 movex
+	opprecruit .billify "'Castor auf Englisch, also" rename 4 movex
+	opprecruit .ninjaify "'Haare ! ', " rename -2 movex
 	opprecruit .cupidify -4 movex
 
 	opprecruit .farmshotify -2 movey
@@ -373,7 +373,7 @@ trade-camp-reset
 : rareparty3
 
 	opprecruit .piratify
-	opprecruit .goatify "chevre " rename 2 movex
+	opprecruit .goatify "'Ziege " rename 2 movex
 	opprecruit .sportify 4 movex
 	opprecruit .skelknightify -2 movex
 	opprecruit .nimbusify -4 movex
@@ -384,7 +384,7 @@ trade-camp-reset
 	opprecruit .firemanify -2 movey -2 movex
 	opprecruit .unclesamify -2 movey -4 movex
 	
-	opprecruit .knightify "Fin de la demonstration." rename 2 movey
+	opprecruit .knightify "'Ende der Demonstration." rename 2 movey
 	opprecruit .rollerify 2 movey 2 movex
 	opprecruit .cavemanify 2 movey 4 movex
 	opprecruit .gigaguyify 2 movey -2 movex

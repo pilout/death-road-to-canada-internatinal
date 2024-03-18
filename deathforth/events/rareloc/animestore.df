@@ -1,99 +1,99 @@
 cyoa{
 
 cyoa-choice: anime-go
-	($ cname .. " une heure est necessaire pour lire cet anime." $) text!
+	($ cname .. " 'nimmt eine Stunde, um das Anime zu lesen." $) text!
 	deleteme clear-cyoa o'clock@ 1 + o'clock
-	cchar .trait@ "Un fan de l'anime." $= if
-		($ cname .. " loves anime!!! Reading this bestows " .. "POUVOIRS MYSTERIEUX DE L'ANIME !" rainbold $) +crtext
+	cchar .trait@ "'Anime Fan" $= if
+		($ cname .. " loves anime!!! Reading this bestows " .. "'GEHEIMNISVOLLE ANIME-KRAFTEN!" rainbold $) +crtext
 		goodfx morale2+
 		road{ animefan-checker }
 	then;
 	cwits+ if
-		($ cname .. " c'est une personne grossiere qui manque des gouts eleves necessaires pour apprecier cet ouvrage." $) +crtext
+		($ cname .. " ' ist ein ungebildetes Schwein, dem es an der notigen Raffinesse mangelt, um diese Arbeit zu schatzen." $) +crtext
 		badfx morale-- witsREV
 	else
-		($ cname .. " c'est une personne de gout et d'education qui apprecie beaucoup cette anime." $) +crtext
+		($ cname .. " ' ist eine Person der Kultur und des guten Geschmacks und schatzt diese Anime sehr." $) +crtext
 		goodfx morale++
 	then witsREV
 ;
 
 : animechoice
-	choice( "Laisse-le de cote pour le moment" )choice
-	cchar charchoice( " lit l'anime" )choice: anime-go
+	choice( "'Lass es jetzt in Ruhe" )choice
+	cchar charchoice( " ' liest die Anime" )choice: anime-go
 ;
 
 cyoa: anime1
-	"Decouvert une anime" cyoa-title!
+	"'Anime Gefunden" cyoa-title!
 	picon!
-	($ cname .. " trouve un anime intitule " .. "RESTER POUR L'INSTANT" pbold .. "une bande dessinee magique met en scene une jeune fille anime dotee de pouvoirs magiques qui est egalement un sandwich, ou plutot un sandwich qui serait egalement une jeune fille anime. . . 	 le fil conducteur du recit est assez complexe a suivre." $) text!
+	($ cname .. " ' findet eine Anime betitelt " .. "'SANDWICH-CHAN" pbold .. "' Es handelt sich um einen Graphic Novel uber ein magisches Anime Madchen, das zugleich eine Sandwich ist und in einem Kuhlschrank lebt. Oder vielleicht ist es ein Sandwich, das zugleich ein magisches Anime Madchen ist. Der Plot ist ein wenig schwer zu verfolgen." $) text!
 		animechoice
 ;
 
 cyoa: anime2
-	"Decouvert une anime" cyoa-title!
+	"'Anime Gefunden" cyoa-title!
 	picon!
-	($ cname .. " trouve un anime intitule " .. "JE NE PEUX PAS LE CROIRE, MON BIEN-AIME EST QUELQUE CHOSE DE POISSON-CHAT !" pbold .. "une histoire de bande dessinee sur une femme qui travaille dans un bureau et a une existence triste. sa vie est eclaircie par l'arrivee d'un poisson d'aquarium dote d'une figure humaine et qui parle. . . 	 plus tard, ils doivent se marier en raison d'une malediction de sorciere." $) text!
+	($ cname .. " ' findet eine Anime betitelt " .. "'Ich kann es nicht glauben, meine Verlobte ist eine Art Fischwesen!" pbold .. "' Es handelt sich um eine Comic uber eine Frau, die eine langweilige Arbeit in einem Buro hat. Ihr Leben wird aufgeheitert durch das Bekommen eines Haustierfisches, der ein menschliches Gesicht hat und sprechen kann. Der Plot beinhaltet, dass sie schließlich heiraten mussen aufgrund eines Fluchs eines Zauberers." $) text!
 		animechoice
 ;
 
 cyoa: anime3
-	"Decouvert une anime" cyoa-title!
+	"'Anime Gefunden" cyoa-title!
 	picon!
-	($ cname .. " trouve un anime intitule " .. "SAC DE PISTACHES" pbold .. "cet anime se concentre sur une sac de pistaches. le heros est etonne de decouvrir que les pistaches sont sensibles a la touche. chaque pistache represente une fille anime differente. . 	 il n'y a pas reellement de trame." $) text!
+	($ cname .. " ' findet eine Anime betitelt " .. "'SACK FULL OF PISTACHIOS" pbold .. "'Eine Anime-Serie uber eine Sackfulle von Pistazien. Der Protagonist ist uberrascht, dass die Pistazien lebendig sind. Jede Pistazie ist eine andere Anime-Madchenfigur.	 Es gibt wirklich kein Plot." $) text!
 		animechoice
 ;
 
 cyoa-choice: animebox-go
 	62 65 rnd cchar .specialhead!
-	($ cname .. " elle est maintenant officiellement une fille d'anime ! c'est genial !" $) text! goodfx
+	($ cname .. " 'ist jetzt offiziell eine Anime-Madchenfigur! Schon!" $) text! goodfx
 ;
 
 cyoa: animebox
-	"Boite mysterieuse de l'anime" cyoa-title!
+	"'Geheimnisvolle Anime-Schachtel" cyoa-title!
 	picon!
-	($ cname .. " trouve une boite d'anime. elle contient plusieurs masques de fille anime." $) text!
-		choice( "Laisse-le de cote pour le moment" )choice
-		cchar charchoice( " mettez l' masque d'anime" )choice: animebox-go	
+	($ cname .. " 'findet eine Schachtel mit Anime. Sie enthalt eine Menge an Anime-Madchenmasken." $) text!
+		choice( "'Lass es jetzt in Ruhe" )choice
+		cchar charchoice( " 'legt die Anime-Maske an" )choice: animebox-go	
 ;
 
 : anime-recruit nearest .character@ choosechar cicon 1 cchar .party-familiar goodfx clear-cyoa ;
 
 : animegirl-anime-check
 	pchar anime? if
-		($ cname .. "l'esprit est completement eclabousse par l'existence de " .. pname .. "!
-		" .. "L'ANIME EST REEL !" rainbold $) text!
+		($ cname .. "'Die Reinheit von ’s Liebe fur Anime hemmt den	Fluch der	Anime ab. " .. pname .. "!
+		" .. "'ANIME IST WAHRLICH!" rainbold $) text!
 		road{ anime-countdown } 50 < if
-			($ "La purete de l'eau ou du produit " .. cname .. "l'amour de pour l'anime arrete. " .. "MALEDICTION DE L'ANIME" rbold .. " qui a ete place le " .. pname .. "veuillez vous amuser !" $) +crtext road{ 99 to anime-countdown }
+			($ "'Die Reine Liebe zu	 " .. cname .. "'Liebe zu Anime halt den	Fluch der	Anime auf. " .. "'Das Fluch der	Anime" rbold .. " 'der auf	 " .. pname .. "viel Spaß!" $) +crtext road{ 99 to anime-countdown }
 		then
 	then
 ;
 
 cyoa: anime-mort
 	anime-recruit
-	"Club anime" cyoa-title!
-	($ cname .. " apparait irritee par " .. pname .. "il faut aller vite !" .. "Nous pouvons probablement vous aider, cela n'a rien a voir avec des sentiments pour vous !" pbold $) text!
+	"Der Anime Club" cyoa-title!
+	($ cname .. "  wirkt irritiert durch " .. pname .. "s Existenz." .. "'I guess we can help you out, but it's not because we like you or anything!'" pbold $) text!
 	animegirl-anime-check
 ;
 
 cyoa: anime-mark
 	anime-recruit
-	"Club anime" cyoa-title!
-	($ cname .. " regarde " .. pname .. " avec un calme superieur... ." .. "Nous pouvons probablement vous aider, cela n'a rien a voir avec des sentiments pour vous !" pbold $) text!
+	"Der Anime Club" cyoa-title!
+	($ cname .. " 'sagt nichts, beginnt aber nach '] " .. pname .. " 'sagt nichts, beginnt aber nach ']" .. "'I guess we can help you out, but it's not because we like you or anything!'" pbold $) text!
 	animegirl-anime-check
 ;
 
 cyoa: anime-clyde
 	anime-recruit
-	"Club anime" cyoa-title!
-	($ cname .. " il semble inquiete et nerveux, pas a cause de ... " .. pname .. "{ '1': 'theme 1', '2': 'theme 2', '3': '" .. "Nous pouvons probablement vous aider, cela n'a rien a voir avec des sentiments pour vous !" pbold $) text!
+	"Der Anime Club" cyoa-title!
+	($ cname .. " 'sagt nichts, beginnt aber nach '] " .. pname .. "'sagt nichts, beginnt aber nach ']" .. "'I guess we can help you out, but it's not because we like you or anything!'" pbold $) text!
 	animegirl-anime-check
 ;
 
 cyoa: anime-dave
 	anime-recruit
-	"Club anime" cyoa-title!
-	($ cname .. " suivra sans instruction " .. pname .. ".
-	" .. "Nous pouvons probablement vous aider, cela n'a rien a voir avec des sentiments pour vous !" pbold $) text!
+	"Der Anime Club" cyoa-title!
+	($ cname .. " 'sagt nichts, beginnt aber nach '] " .. pname .. ".
+	" .. "'I guess we can help you out, but it's not because we like you or anything!'" pbold $) text!
 	animegirl-anime-check
 ;
 
@@ -111,7 +111,7 @@ cyoa: anime-dave
 
 : .animemort args( char )
 	56 <- char .specialtype!
-	"Decede." <- char .name!
+	"Tod" <- char .name!
 	<- char animeclubstats
 	<- char cyoa{ ' anime-mort cyoa! }
 	drop
@@ -119,7 +119,7 @@ cyoa: anime-dave
 
 : .animemark args( char )
 	55 <- char .specialtype!
-	"Ruck : se" <- char .name!
+	"['', 'Mark']" <- char .name!
 	<- char animeclubstats
 	<- char cyoa{ ' anime-mark cyoa! }
 	drop
@@ -128,7 +128,7 @@ cyoa: anime-dave
 : .animedave args( char )
 	57 <- char .specialtype!
 	<- char animeclubstats
-	"Dave est un nom commun mascul" <- char .name!
+	"['', 'Dave']" <- char .name!
 	<- char cyoa{ ' anime-dave cyoa! }
 	drop
 ;
@@ -136,7 +136,7 @@ cyoa: anime-dave
 : .animeclyde args( char )
 	54 <- char .specialtype!
 	<- char animeclubstats
-	"Clide" <- char .name!
+	"['', 'Clyde']" <- char .name!
 	<- char cyoa{ ' anime-clyde cyoa! }
 	drop
 ;
