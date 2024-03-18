@@ -1,4 +1,4 @@
-Language: [ Français | [English]([https://github.com/Limeen/death-road-to-canada-fr/blob/main/README_english.md]) ]
+Language: [ Français | [English](https://github.com/Limeen/death-road-to-canada-fr/blob/main/README_english.md) ]
 # Death Road To Canada: Patch Français
 Patch de traduction pour le jeu Death Road To Canada, 
 
