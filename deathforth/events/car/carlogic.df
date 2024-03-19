@@ -14,23 +14,22 @@ events{ road{
 ;
 
 : car-boom
-	($ "CAR OBLITERATED!
-		Trunk weapons lost!" rbold $) +cr +text
+	($ "CARRO DESTRUIDO!		Armas do portamal perdidas!" rbold $) +cr +text
 	car-lost trunk.killer
 ;
 
 : car-break
-	($ "CAR DESTROYED!" rbold $) +cr +text
+	($ "CARRO DESTRUIDO!" rbold $) +cr +text
 	car-lost
 ;
 
 : car-stolen
-	($ "CAR STOLEN!" rbold $) +cr +text
+	($ "CARRO ROUBADO!" rbold $) +cr +text
 	car-lost
 ;
 
 : car-abandon
-	($ "CAR ABANDONED!" rbold $) +cr +text
+	($ "CARRO ABANDONADO!" rbold $) +cr +text
 	car-lost
 ;
 
@@ -113,17 +112,17 @@ events{ road{
 : mechanic-weldup // Combine with tuneup
 	mechanic-diff 1 > if
 		car-weld-rnd car-tune-rnd goodfx
-		($ cHe .. " expertly repairs the car in no time at all!" $)
+		($ cHe .. "  conserta o carro rapidamente!" $)
 	then;
 	mechanic-diff -1 > if
 		car-weld-rnd car-tune-rnd
-		"The repairs takes a good part of the day."
+		"O conserto leva boa parte do dia."
 	then;
 	mechanic-diff -2 > if
 		car-weld-rnd-half car-tune-rnd-half
-		"The repairs take a good part of the day, and are very difficult."
+		"O conserto leva boa parte do dia e e muito dificil."
 	then;
-	($ cHe .. " has no idea what " .. che .. "'s doing, and wastes a day's time pretending to work on the car." $)
+	($ cHe .. "  nao tem ideia do que " .. che .. "' esta fazendo e perde um dia fingindo trabalhar no carro." $)
 ;
 : mechanic-day?
 	mechanic-diff 2 < if
@@ -139,47 +138,47 @@ events{ road{
 ;
 : car-tunecheck
 	mechanic-repair? > if
-		($ cname .. " easily repairs the car in no time!" $) +cr +text goodfx
+		($ cname .. "  conserta o carro rapidamente!" $) +cr +text goodfx
 		mechanic-repair mechanicREV
 	then; 
 	mechanic-repair? = if
 		mechanicroll if
-			($ cHe .. " somehow manages to get the car running, but it takes a full day." $) +cr +text goodfx
+			($ cHe .. "  de alguma forma consegue fazer o carro funcionar, mas leva um dia inteiro." $) +cr +text goodfx
 			cchar .mechanical@ 6 > if
-				($  "The next time this car breaks down, " .. cname .. " absolutely won't be able to repair it." rbold $) +crtext
+				($  "Na proxima vez que o carro quebrar, " .. cname .. " ' nao conseguira consertalo." rbold $) +crtext
 			else
-				($ "The next time this car breaks down, " .. cname .. " won't be able to repair it unless " rbold .. chis rbold .. " mechanic skill is higher!" rbold $) +crtext
+				($ "Na proxima vez que o carro quebrar, " .. cname .. " nao podera reparalo a menos que " rbold .. chis rbold .. " 'A habilidade mecanica e maior!'" rbold $) +crtext
 			then
 			mechanic-repair
 		else
-			($ cHe .. " wastes a day trying to repair the car, but it refuses to start." $) +cr +text car-abandon	
+			($ cHe .. " perde um dia tentando consertar o carro, mas ele se recusa a ligar." $) +cr +text car-abandon	
 		then
 	else
-		($ cHe .. " completely fails to repair the car after wasting a day on it." $) +cr +text car-abandon
+		($ cHe .. " 'completamente falha em reparar o carro depois de desperdicar um dia nele.'" $) +cr +text car-abandon
 	then mechanicREV +cr fullcamp
 ;
 
 : car-strengthcheck
 	strengthroll if
-		($ cHe .. " is as surprised as anyone when the engine roars to life!" $) +cr +text
+		($ cHe .. " 'esta tao surpreso quanto qualquer um quando o motor ruge para a vida!'" $) +cr +text
 		mechanic-repair
 		car-chassis cchar .strength - 1 < if
-			"The car doesn't make it far down the road before some part that got punched catches fire." +cr +text
+			"'O carro nao faz muita coisa na estrada antes de alguma parte que foi perfurada pegar fogo.'" +cr +text
 		then
 		cchar .strength -1 * car-chassis+ strengthREV
 	then;
-		($ cHe .. " just manages to break something in the car and some bones in " .. chis .. " hand." $) +cr +text car-abandon morale-- strengthREV strength--
+		($ cHe .. "  'consegue quebrar alguma coisa no carro e alguns ossos' " .. chis .. " mao" $) +cr +text car-abandon morale-- strengthREV strength--
 ;
 
 // Road block encounter common stuff
 	
 : detour-roll
 	car-mpg 0 = if
-		"Funny enough, this car takes no gas." +cr +text
+		"'Engracado, esse carro nao leva gasolina.'" +cr +text
 		goodfx
 	then;
 	50 %chance if
-		($ gThey .. " get lost for a full day, until finally finding an alternate route." $)
+		($ gThey .. " perde um dia inteiro, ate encontrar uma rota alternativa." $)
 		+cr +text
 		trunk-gas 70 car-mpg * >= if
 			-55 -70 rnd car-mpg * car-gas+ 
@@ -188,7 +187,7 @@ events{ road{
 		then
 		+cr fullcamp heal-event
 	else
-		"It takes some extra time and gas, but not too much!" +cr +text
+		"Pouco mais de tempo e combustivel, mas nao muito!" +cr +text
 		trunk-gas 30 car-mpg * >= if
 			-25 -30 rnd car-mpg * car-gas+
 		else
@@ -199,33 +198,33 @@ events{ road{
 
 : car-plowthrough
 	car-armor 0 > if
-		"The car rams right through the obstacle, though some of its makeshift armor ends up falling off." +cr +text goodfx
+		"O carro passa por cima do obstaculo, mas algumas pecas de seu armadura improvisada caem." +cr +text goodfx
 		-1 ' car-armor +!
 	else
 		-2 -3 rnd car-chassis+ badfx
 		car-chassis 0 > if
-			"The car gets through, but takes some damage." +crtext
+			"O carro passa, mas sofre danos." +crtext
 		else
-			"The car got through, but took too much damage. It fell apart a short distance down the road." +crtext
+			"O carro passou, mas sofreu muita dano. Ele se desintegrou a curta distancia depois da estrada." +crtext
 		then 
 	then
 ;
 
 : car-jump
 	car-speed 2 < if
-		"The slow car immediately flips upside down and erupts into flames, not even clearing the obstacle." +cr +text badfx
+		"O carro lento gira para cima e explode em chamas, nao conseguindo mesmo passar pelo obstaculo." +cr +text badfx
 		ouch2-all car-break
 	then;
 	car-speed 2 = if
-		"The car barely makes it, but sinks like an anvil and smashes into the ground. Chunks of the car fly in various directions." +cr +text badfx
+		"O carro so consegue passar, mas afunda como um anel e colida com o solo. Pedacos do carro voam em varias direcoes." +cr +text badfx
 		-2 -3 rnd car-chassis+
-		car-chassis 0 > if "It took a beating, but it's still running!" +crtext then
+		car-chassis 0 > if "'ele sofreu um golpe, mas ainda esta funcionando!" +crtext then
 	then;
 	car-speed 3 > if
-		"The car builds up incredible speed, hits the jump, and starts flying for awhile due to the rocket boosters! It's exhilarating!" +cr +text goodfx morale2+all
+		"'o carro acumula grande velocidade, atinge o salto e voa por algum tempo devido aos foguetes de propulsao! E excitante!" +cr +text goodfx morale2+all
 	then;
 	car-speed 2 > if
-		"The car builds up great speed, hits the jump, and sails right over the obstacle!" +cr +text goodfx
+		"O carro acumula uma otima velocidade, atinge o salto e voa diretamente sobre o obstaculo!" +cr +text goodfx
 	then;
 ;
 	
@@ -255,37 +254,37 @@ cyoa{ road{
 // Common used elements for road block encounters
 
 cyoa-choice: car-detour
-	($ Thegroup .. " decides to take a detour! This is usually a bad idea." $) cyoa-text!
+	($ Thegroup .. " decide tomar um desvio! Isso e geralmente uma ma ideia." $) cyoa-text!
 	detour-roll
 ;
 
 // Used to tune up a car in a garage, before it's broken
 : car-tuneup // partially combined with weldup now
 	car-engine car-max-engine >= if
-		"The car runs like new! " 
+		"O carro corre como novo! " 
 	else
 		car-engine 14 > if
-			"The car runs like it's in good shape. "
+			"'o carro corre como se estivesse em bom estado. "
 		then
 		car-engine 15 < car-engine 7 > and if
-			"The car has seen better days. "
+			"O carro ja viu dias melhores. "
 		then
 		car-engine 8 < if
-			"The car may still break down at any moment. "
+			"O carro ainda pode quebrar a qualquer momento. "
 		then
 	then
 	+crtext
 ;
 cyoa-choice: car-weldup
-	($ cname .. " tries to repair the car in the hope it goes a little further before breaking down. " $) cyoa-text!
+	($ cname .. "  tenta consertar o carro na esperanca de que ele va um pouco mais longe antes de quebrar. " $) cyoa-text!
 	mechanic-weldup +text
 	car-chassis car-max-chassis = if
-		"The car looks undamaged!" 
+		"O carro parece intacto!" 
 	else
 		car-chassis 3 < if
-			"The car still looks all busted up."
+			"O carro ainda parece todo quebrado."
 		else
-			"The car looks all beat-up, but still sturdy."
+			"O carro parece todo amassado, mas ainda resistente."
 		then
 	then
 	car-tuneup
@@ -295,33 +294,32 @@ cyoa-choice: car-weldup
 // Standard choices in every garage
 : garage-choices
 	mechanicest choosechar
-	choice( "Car repair and tune up" )choice: car-weldup
-	// choice( "Full tune up" )choice: car-tuneup 
-	choice( "Drive away" )choice 
+	choice( "Reparo e ajuste de carro" )choice: car-weldup
+	// choice( "Ajuste completo" )choice: car-tuneup 
+	choice( "Va embora" )choice 
 ;
 
 cyoa: car-nogas
-	"OUT OF GAS" cyoa-title!
-	($ "The car has completely run out of gas, and coasts to a stop.
-	" .. "CAR ABANDONED!" rbold $) cyoa-text! badfx car-lost
+	"SEM GASOLINA" cyoa-title!
+	($ "O carro ficou completamente sem gasolina e para.	" .. "CARRO ABANDONADO!" rbold $) cyoa-text! badfx car-lost
 ;
 
 cyoa-choice: car-abandoned
-	($ "Wasting no time, " .. thegroup .. " decides to ditch the car and walk until they find a new vehicle." $) cyoa-text!
+	($ "Nao perdendo tempo, " .. thegroup .. "  decide abandonar o carro e caminhar ate encontrar um novo veiculo." $) cyoa-text!
 	car-abandon
 ;
 cyoa-choice: car-breakdown-punch
-	($ cname .. " opens the car's hood and starts PUNCHING." $) cyoa-text! car-strengthcheck strengthREV
+	($ cname .. " ' abre o capo do carro e comeca a SOCAR." $) cyoa-text! car-strengthcheck strengthREV
 ;
 cyoa-choice: car-breakdown-fix
-	($ cname .. " pops the hood of the car." $) cyoa-text! car-tunecheck mechanicREV
+	($ cname .. "  abre o capo do carro." $) cyoa-text! car-tunecheck mechanicREV
 ;
 cyoa: car-breakdown
-	"CAR BREAKDOWN" cyoa-title!
-	($ "The car has broken down from use and abuse. It won't start up again." $) cyoa-text!
-		choice( "Abandon the car" )choice: car-abandoned
-		mechanicest charchoice( " attempts to fix it" )choice: car-breakdown-fix
-		someone charchoice( " punches the car" )choice: car-breakdown-punch
+	"QUEBRA DO CARRO" cyoa-title!
+	($ "'O carro quebrou de tanto uso e abuso. Nao liga mais." $) cyoa-text!
+		choice( "Abandone o carro" )choice: car-abandoned
+		mechanicest charchoice( "  tenta consertar" )choice: car-breakdown-fix
+		someone charchoice( "  da um soco no carro" )choice: car-breakdown-punch
 		
 ;
 

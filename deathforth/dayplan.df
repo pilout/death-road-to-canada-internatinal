@@ -15,20 +15,20 @@ events{ road{
 ;
 
 : 3cyoa-day-nofam // 3 events, double common CYOA
-	8 to road-countdown "3CYOA-DAY" print
+	8 to road-countdown "3DIA-CYOA" print
 	3CYOA-DECK shuffles to daily-deck
 ;
 
 : 3cyoa-day // 3 events, double common CYOA
 	familiar-stack depths- if
-		10 to road-countdown "INNER-DAY-FAMILIAR" print
+		10 to road-countdown "DIA-INTERIO-FAMILIAR" print
 		3CYOA-FAM-DECK shuffles to daily-deck
 	then;
 	3cyoa-day-nofam // no familiar recruit option
 ;
 
 : inner-day-nofam // 2 events, one is an inner location
-	6 to road-countdown "INNER-DAY" print
+	6 to road-countdown "DIA-INTERIO" print
 	INNERDAY-DECK shuffles to daily-deck
 ;
 
@@ -40,34 +40,34 @@ events{ road{
 : inner-day // 2 events, one is an inner location
 	20 %chance if 3cyoa-day then;
 	familiar-stack depths- if 
-		8 to road-countdown "INNER-DAY-FAMILIAR" print
+		8 to road-countdown "DIA-INTERIO-FAMILIAR" print
 		INNERDAY-FAM-DECK shuffles to daily-deck
 	then;
 	inner-day-nofam // added so there's an inner day option that doesn't use familiar recruits
 ;
 
 : easyinner-day // 2 events, one is an inner location
-	6 to road-countdown "EASYINNER-DAY" print
+	6 to road-countdown "DIA-INTERIO-FACIL" print
 	EASYINNERDAY-DECK shuffles to daily-deck
 ;
 
 : easycity-day // Formerly 8 because it did an easyinnerevent before
-	6 to road-countdown "EASYCITY-DAY" print
+	6 to road-countdown "DIA-CIDADE-FACIL" print
 	EASYCITYDAY-DECK shuffles to daily-deck
 ;
 
 : city-day // Formerly 8 as it did an innervent before
-	6 to road-countdown "CITY-DAY" print
+	6 to road-countdown "DIA-CIDADE" print
 	CITYDAY-DECK shuffles to daily-deck
 ;
 
 : trade-day // 3 events, one is a trading event
-	8 to road-countdown "TRADE-DAY" print
+	8 to road-countdown "DIA-NEGOCIOS" print
 	TRADEDAY-DECK shuffles to daily-deck
 ;
 
 : recruit-day // 3 events, one is a recruiting
-	8 to road-countdown "RECRUIT-DAY" print
+	8 to road-countdown "DIA-RECRUTAMENTO" print
 	RECRUITDAY-DECK shuffles to daily-deck
 ;
 
@@ -111,12 +111,12 @@ events{ road{
 		card: trade-day
 	constant DAY-PICK-DECK6
 	
-: day-pick-1 DAY-PICK-DECK1 shuffles to day-pick-deck "DAY-PICK-DECK1" print ;
-: day-pick-2 DAY-PICK-DECK2 shuffles to day-pick-deck "DAY-PICK-DECK2" print ;
-: day-pick-3 DAY-PICK-DECK3 shuffles to day-pick-deck "DAY-PICK-DECK3" print ;
-: day-pick-4 DAY-PICK-DECK4 shuffles to day-pick-deck "DAY-PICK-DECK4 SC" print ; // formerly special character?
-: day-pick-5 DAY-PICK-DECK5 shuffles to day-pick-deck "DAY-PICK-DECK5 RECRUIT" print ;
-: day-pick-6 DAY-PICK-DECK6 shuffles to day-pick-deck "DAY-PICK-DECK6 TRADE" print ;
+: day-pick-1 DAY-PICK-DECK1 shuffles to day-pick-deck "DIA-ESCOLHA-DECK1" print ;
+: day-pick-2 DAY-PICK-DECK2 shuffles to day-pick-deck "DIA-ESCOLHA-DECK2" print ;
+: day-pick-3 DAY-PICK-DECK3 shuffles to day-pick-deck "Dia de escolher o deck 3" print ;
+: day-pick-4 DAY-PICK-DECK4 shuffles to day-pick-deck "DIA-ESCOLHA-DECK4 SC" print ; // formerly special character?
+: day-pick-5 DAY-PICK-DECK5 shuffles to day-pick-deck "DIA-ESCOLHA-DECK5 RECRUTAMENTO" print ;
+: day-pick-6 DAY-PICK-DECK6 shuffles to day-pick-deck "DIA-ESCOLHA-DECK6 NEGOCIOS" print ;
 	
 	deck-new
 		card: day-pick-1
@@ -143,23 +143,23 @@ events{ road{
 // "BOSS" days
 	
 : boss0-day 
-	12 to road-countdown "EASY-HAZARD-DAY" print
+	12 to road-countdown "DIA-FACIL-PERIGOSO" print
 	EASYHAZARDDAY-DECK to daily-deck
 ;
 	
 : boss1-day // 5 events, not shuffled, last one is a big mandatory challenge. Formerly 12.
-	10 to road-countdown "HAZARD-DAY" print
+	10 to road-countdown "DIA-PERIGOSO" print
 	HAZARDDAY-DECK to daily-deck // puts the cards in the deck in order	
 ;
 
 : canada-day
 	// 8
-	3 to road-countdown "CANADA-DAY" print
+	3 to road-countdown "DIA DO CANADA" print
 	CANADADAY-DECK to daily-deck
 ;
 
 : precanada-day
-	10 to road-countdown "PRECANADA-DAY" print
+	10 to road-countdown "ANTES-DO-CANADA-DAY" print
 	PRECANADA-DECK to daily-deck
 ;
 
@@ -293,7 +293,7 @@ events{ road{
 : days-left road{ nearcanada-day 1 + road-trip-days - } ;
 
 : road-days-report
-	($ GREEN .. days-left .. WHITE .. " DRIVING DAYS UNTIL " .. BLUE .. "CANADA!" $)
+	($ GREEN .. days-left .. WHITE .. "  DIAS DE DRIVER ATE " .. BLUE .. "CANADA!" $)
 	60 3 *
 	view_w 0.5 * 16
 	msgtickxy
@@ -352,54 +352,54 @@ events{ road{
 	day-pick
 ;
 
-: end-demo cyoa-new "You won the demo! But the Death Road continues much further!" cyoa-text! 0 cyoa-image-icon! 1 500 tone
+: end-demo cyoa-new "Voce ganhou a demonstracao! Mas a Death Road continua muito mais longe!" cyoa-text! 0 cyoa-image-icon! 1 500 tone
 	delete-the-game
 	choice( "OK" )choice: quit-to-title ;
 
-: end-demo-old cyoa-new "You won for now! Send us a message via Kickstarter if you noticed anything break or the game crashed!" cyoa-text! 0 cyoa-image-icon! 1 500 tone
+: end-demo-old cyoa-new "Voce ganhou por enquanto! Envienos uma mensagem via Kickstarter se notou alguma coisa que quebrou ou o jogo travou!" cyoa-text! 0 cyoa-image-icon! 1 500 tone
 	delete-the-game
 	choice( "OK" )choice: quit-to-title ;
 	
-: dog-driver cyoa-new "More Victims for the Death Road" cyoa-title! ($ "With no idea how to drive a car, " .. somename .. " drives it into a ditch and wanders off. The journey to Canada is over." $) cyoa-text! 0 cyoa-image-icon! 1 500 tone
+: dog-driver cyoa-new "Mais Vitimas para a Estrada da Morte" cyoa-title! ($ "'Sem a menor ideia de como dirigir um carro,' " .. somename .. " entra num buraco e se desvanece. O viagem para o Canada acabou." $) cyoa-text! 0 cyoa-image-icon! 1 500 tone
 	// This one's no longer used, on launch of the game you'd lose for only having dogs.
 	delete-the-game
-	choice( "DANG IT" )choice: quit-to-title ;
+	choice( "MALHADO!" )choice: quit-to-title ;
 	
 : petnodrivetext
 	ccat? if
-		"THAT DARN CAT"
+		"ESSE GATO MALUCO"
 	else
-		"THE END.. OR IS IT?"
+		"ACABOU... OU TA?"
 	then
 ;
 	
-: no-driver cyoa-new "More Victims for the Death Road" cyoa-title! ($ "With no one left" vehicle.which@
-	if .. " to drive the car" then .. ", the journey to Canada is at an end." $) cyoa-text!
+: no-driver cyoa-new "Mais Vitimas para a Estrada da Morte" cyoa-title! ($ "Sem ninguem para" vehicle.which@
+	if .. " dirigir o carro" then .. ", a viagem para o Canada acaba.," $) cyoa-text!
 	0 cyoa-image-icon! 1 500 tone
 	choosepet
 	cpet? if
-		($ "Oh wait... there's still a " .. cyoa{ cdogcat } .. " alive." $) +crtext
+		($ "Oh wait... there's still a " .. cyoa{ cdogcat } .. " vivo." $) +crtext
 		cdog? if
-			($ cname .. " thinks of one word in " .. chis .. " primitive animal mind: " .. "CANADA" rbold $) +crtext
+			($ cname .. " pensa numa palavra em mente primitiva animal: " .. chis .. " cANADA " .. "CANADA" rbold $) +crtext
 			vehicle.which@ if
-				($ cname .. " gets the keys, puts them in the car ignition, and starts it up. Onward to Canada!" $)
+				($ cname .. " pega as chaves, colocaas no encerrador da ignicao do carro e a aciona. Em frente para o Canada!" $)
 			else
-				($ cname .. " runs in a little circle for awhile, then starts walking north-ish. Onward to Canada!" $)
+				($ cname .. " 'Corre em um pequeno circulo por um tempo, depois comeca a andar para o norte. Rumo ao Canada!'" $)
 			then +crtext goodfx cchar .dogtosuperdog goodfx
 		else
 			ccat? if 
-				($ cname .. " horks up a hairball." $)
+				($ cname .. " 'vomita uma bola de pelo'" $)
 			else
-				($ cname .. " sneezes." $)
+				($ cname .. " espirros." $)
 			then
 				+crtext
-				($ " " .. cHe .. "'s really not interested in this Canada nonsense, and wanders off." $) +text
+				($ " " .. cHe .. "'nao esta realmente interessado nessa bobagem de Canada, e sai andando.'" $) +text
 				clear-streak delete-the-game
 				choice( petnodrivetext )choice: quit-to-title
 		then			
 	else
 		clear-streak delete-the-game
-		choice( "DANG IT" )choice: quit-to-title
+		choice( "MALHADO!" )choice: quit-to-title
 	then
 ;
 		

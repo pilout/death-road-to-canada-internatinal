@@ -5,21 +5,21 @@ moment{
 
 : guilt
 
-	subject? if "There's just the slightest pang of guilt, but it passes." +crtext then;
+	subject? if "Ha apenas a mais leve pontada de culpa, mas passa." +crtext then;
 
-	($ subjname .. " feels like " .. subject xhe .. " is to blame for all of this." $) +crtext
+	($ subjname .. "  se sente como " .. subject xhe .. " e o culpado por tudo isso." $) +crtext
 
 	subject .morale2-
 ;
 
 : winner
 
-	subject? if "Hooray!" +crtext then;
+	subject? if "Hurra!" +crtext then;
 
 	alone? if
-		($ "Victory! " .. subjname .. " pats " .. subject xhim .. "self on the back." $) +crtext
+		($ "Vitoria! " .. subjname .. " tapinhas " .. subject xhim .. "'Eu mesmo nas costas'" $) +crtext
 	else
-		($ "Victory! Everyone cheers and pats " .. subjname .. " on the back." $) +crtext
+		($ "Vitoria! Todos aplaudem e dao palmas uns nos outros. " .. subjname .. " parabens!" $) +crtext
 	then
 
 	morale++all
@@ -29,15 +29,15 @@ moment{
 
 : loser
 
-	subject? if "Nice one!" +crtext then;
+	subject? if "Bom trabalho!" +crtext then;
 
 	// TODO: Add your own stats logic to determine if people respond at
 	// all, and/or if a specific person responds and acts up etc.
 
 	alone? if
-		($ subjname .. " shakes " .. subject xhis .. " head at " .. subject xhim .. "self." $) +crtext
+		($ subjname .. " agita " .. subject xhis .. " cabeca a " .. subject xhim .. "si mesmo." $) +crtext
 	else
-		($ Everyone .. " gives " .. subjname .. " the stink eye." $) +crtext
+		($ Everyone .. "  da " .. subjname .. " o ninguem esta por perto para continuar o sonho do Canada." $) +crtext
 	then
 
 	morale--all
@@ -49,10 +49,10 @@ moment{
 	subject? if then; // Nobody died?!
 
 	team-count 1 < if
-		"There's no one around to carry on the dream of Canada." +crtext
+		"Esta profundamente afetado pela morte de" +crtext
 	then;
 	
-	($ rando .colourname .. " is deeply affected by " .. subject .colourname .. "'s death." $) +crtext
+	($ rando .colourname .. " dele. " .. subject .colourname .. "'s death." $) +crtext
 
 	rando .morale--
 	rando .attitude--
@@ -90,8 +90,8 @@ moment{
 			* if the subject is 0=, then nobody in particular was to
 			blame for the event
 		* a randomly shuffled stack of affected team members is set in
-			the value "affected"
-		* you can use RANDO to get the top "affected" character and
+			the value "afectou"
+		* you can use RANDO to get the top "afectou" character and
 		have them respond, or handle them all using forech. Up to you
 		and the type of moment. The affected stack is pre-shuffled.
 
@@ -117,42 +117,42 @@ Handy stuff to put in your hack.df file for testing the below:
 cyoa{
 
 cyoa-choice: mresult5 
-	"There will be more hot dog eating contests in the future." cyoa-text! 
+	"Havera mais competicoes de comidaquente no futuro." cyoa-text! 
 	someicon
 	social blameless winner moment
 	social guilt moment
 ;
 
 cyoa-choice: mresult4
-	"This could have been prevented!" cyoa-text! 
+	"Isso podia ter sido evitado!" cyoa-text! 
 	social blameless loser moment
 	team-count 0 > if 
-		choice( "Well, life goes on" )choice: mresult5
+		choice( "Bem, a vida continua" )choice: mresult5
 	then
 ;
 
 cyoa-choice: mresult3 
-	($ cname .. " explodes in a pulpy mess!" $) cyoa-text! 
+	($ cname .. "  explode em uma bagunca polpuda!" $) cyoa-text! 
 	TEAM_STATUS_DIED cchar .decruit
 	social death moment	bitefx
-	choice( "Dang it" )choice: mresult4
+	choice( "Droga" )choice: mresult4
 ;
 
 cyoa-choice: mresult2 
-	($ cname .. " eats another 100 hot dogs!" $) cyoa-text! 
+	($ cname .. "  come mais 100 cachorrosquentes!" $) cyoa-text! 
 	social winner moment 
 	charchoice( ": Wooooo!" )choice: mresult3
 ;
 
 cyoa-choice: mresult1 
-	($ cname .. " gets to 99 hot dogs and then literally, not figuratively, chokes." $) cyoa-text! 
+	($ cname .. "  chega a 99 cachorrosquentes e entao, literalmente, nao figurativamente, engasga." $) cyoa-text! 
 	social loser moment 
-	charchoice( ": Wait I can do this!" )choice: mresult2
+	charchoice( ": Espere eu consigo fazer isso!" )choice: mresult2
 ;
 
 cyoa: mtest
-	"There's a hotdog eating competition! Yee-haw!" cyoa-text!
-	soloer charchoice( " eats 100 hot dogs" )choice: mresult1
+	"'Ha uma competicao de comer cachorro-quente! Yee-haw!" cyoa-text!
+	soloer charchoice( "  come 100 cachorrosquentes" )choice: mresult1
 ;
 
 }

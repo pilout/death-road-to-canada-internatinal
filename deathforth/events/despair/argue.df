@@ -6,19 +6,19 @@ uses road.df
 cyoa{ road{
 
 cyoa-choice: argue-rant-shutup
-	($ Everyone .. " tells " .. cname .. " to shut it." $) cyoa-text!
+	($ Everyone .. "  conta " .. cname .. " para fecharlo." $) cyoa-text!
 	50 %chance if
-		($ cHe .. " doesn't take this well, and leaves the group in a huff." $) +crtext
+		($ cHe .. " 'nao se sente bem com isso e sai do grupo com uma toada." $) +crtext
 		decruit-bad-silent-takeweapons morale++all
 	else
-		($ cHe .. " gets quiet after " .. everyone .. " tells " .. chim .. " to stop talking, but " .. che .. " isn't very happy about it." $) +crtext
+		($ cHe .. " fica calmo depois de " .. everyone .. "  conta " .. chim .. "  para de falar, mas " .. che .. " ' nao fica muito feliz com isso." $) +crtext
 		morale-- cchar morale++all-except
 	then
 ;
 
 : argue-rant-ignore? args( vic ) 
 	<- vic oblivious? if
-		($ <- vic .colourname .. " ignores " .. bhim .. " just fine." $) +crtext
+		($ <- vic .colourname .. "  ignora " .. bhim .. "  muito bem." $) +crtext
 		<- vic .witsREV <- vic .attitudeREV
 	else
 		<- vic .morale--
@@ -26,101 +26,100 @@ cyoa-choice: argue-rant-shutup
 ;
 
 cyoa-choice: argue-rant-ignore
-	($ Everyone .. " tries to ignore " .. cname .. ", but " .. che .. " keeps going and going." $) cyoa-text! bully ' argue-rant-ignore? foreach-team-char-except
-	($ bname .. " continues to rant, and ends up feeling a little better." $) +crtext
+	($ Everyone .. "  tenta ignorar " .. cname .. ", mas " .. che .. "  continua indo e indo." $) cyoa-text! bully ' argue-rant-ignore? foreach-team-char-except
+	($ bname .. "  continua reclamando e acaba se sentindo um pouco melhor." $) +crtext
 	morale++
 ;
 
 cyoa: argue-rant
 	despair-start-victim!
-	"Giant Rant" cyoa-title!
-	($ cname .. " decides to blow off steam by delivering a seemingly endless rant to " .. everyone .. "." $) cyoa-text! basic-tone
-		choice( "Try to ignore it" )choice: argue-rant-ignore
-		choice( "Tell " .. bname .. " to shut up" )choice: argue-rant-shutup
+	"Reclamacao Gigante" cyoa-title!
+	($ cname .. "  decide desabafar fazendo um discurso aparentemente interminavel para " .. everyone .. "." $) cyoa-text! basic-tone
+		choice( "Tente ignorar" )choice: argue-rant-ignore
+		choice( "Contar " .. bname .. "  para calar a boca" )choice: argue-rant-shutup
 		bully-charm?
 		bully-sprayit?
 	(* most-charming if	- GAVE UP ON THIS because it kept picking the bully and couldn't do a working alt
-		charchoice( " talks " .. bname .. " down" )choice: bully-charm
+		charchoice( "  fala " .. bname .. "  para baixo" )choice: bully-charm
 	then
 	most-grating if
-		charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: bully-sprayit
+		charchoice( "dIZ ISSO NaO O SPRAY ISSO" fcoolit )choice: bully-sprayit
 	then *) 
 ;
 
 cyoa-choice: argue-car-go
-	($ vname .. " and " .. cname .. " keep arguing, and by the end of it everyone feels worse." $) cyoa-text! morale--all badfx
+	($ vname .. "  e " .. cname .. " 'continuem discutindo, e no final todos se sentem pior.'" $) cyoa-text! morale--all badfx
 ;
 
 cyoa-choice: argue-car-fast
-	($ cname .. " gets agitated by the argument and drives steadily faster. The argument ends abruptly when " .. che .. " accidentally rams into a flagpole." $) cyoa-text! -2 car-chassis+ bitefx
+	($ cname .. "  is reached. " .. che .. " 'acidentalmente bate em um poste de bandeira.'" $) cyoa-text! -2 car-chassis+ bitefx
 ;
 
 cyoa-choice: argue-car-stop
-	($ "The group stops the car and sets up camp near the road, so that " .. cname .. " and " .. vname .. " can get some space. This works, but it wastes a day." $) cyoa-text! +cr fullcamp heal-event 1 calendar-day+
+	($ "O grupo para o carro e monta acampamento perto da estrada, de modo que " .. cname .. "  e " .. vname .. " pode obter algum espaco. Isso funciona, mas desperdica um dia." $) cyoa-text! +cr fullcamp heal-event 1 calendar-day+
 ;
 
 cyoa-choice: argue-car-obliv
-	($ cname .. " tunes " .. bname .. " out after awhile, and it's like the argument never happened for " .. chim .. ".
-	" .. bname .. " gets even less happy." $) cyoa-text!
+	($ cname .. " ajusta " .. bname .. " 'se desfaz apos algum tempo, e e como se a discussao nunca tivesse acontecido para " .. chim .. ".
+	" .. bname .. " se torna ainda menos feliz." $) cyoa-text!
 		bully .morale-- badfx
 ;
 
 cyoa: argue-car
 	despair-start-victim!
-	"Road Trip Arguement" cyoa-title!
-	($ "While driving the car, " .. cname .. " gets into a big arguement with " .. vname .. "." $) cyoa-text! basic-tone
-		choice( "Keep driving and arguing" )choice: argue-car-go
-		choice( "Take a break for a day" )choice: argue-car-stop
+	"Viagem de Carro: Disputa" cyoa-title!
+	($ "Enquanto conduz o carro, , " .. cname .. " se envolve em uma grande briga com " .. vname .. "." $) cyoa-text! basic-tone
+		choice( "Continue a dirigir e brigar" )choice: argue-car-go
+		choice( "Tome um descanso por um dia" )choice: argue-car-stop
 		bully-charm?
 		bully-sprayit?
 		victim oblivious? if
-			victim charchoice( " doesnt hear " .. bname )choice: argue-car-obliv
+			victim charchoice( " nao ouve " .. bname )choice: argue-car-obliv
 		then	
-		bully charchoice( " drives faster" )choice: argue-car-fast		
+		bully charchoice( " acelera mais" )choice: argue-car-fast		
 ;
 
 cyoa: argue-insults
 	despair-start-victim!
-	"Bullying" cyoa-title!
-	($ cname .. " snaps and starts yelling insults at " .. vname .. "." $) cyoa-text! basic-tone
+	"Intimidar" cyoa-title!
+	($ cname .. "  estala e comeca a gritar insultos para " .. vname .. "." $) cyoa-text! basic-tone
 	victim .ctemper- if
 		victim angrystrong? nonfatal and if
-			($ vname .. " responds by punching " .. bname .. " in the face." $) +crtext sting-- victim .strengthREV
+			($ vname .. " responde com um soco " .. bname .. " na cara." $) +crtext sting-- victim .strengthREV
 		else
-			($ vname .. " yells back and it turns into a huge fight." $) +crtext
+			($ vname .. " grita de volta e vira uma briga enorme." $) +crtext
 		then
 		morale2- victim .morale2- victim .temperREV
 	then;
 	victim charming? if
-			($ vname .. " remains diplomatic while being insulted, but it still gets to " .. victim xhim .. "." $) +crtext morale++ victim .morale-- victim .witsREV victim .attitudeREV
+			($ vname .. "  permanece diplomatico enquanto e insultado, mas isso ainda chega a " .. victim xhim .. "." $) +crtext morale++ victim .morale-- victim .witsREV victim .attitudeREV
 	then;
 	victim oblivious? if
-		($ vname .. " was thinking of something else during all the insults, and didn't really hear any of them." $) +crtext morale++ victim .witsREV victim .attitudeREV
+		($ vname .. " ' estava pensando em outra coisa durante todos os insultos, e realmente nao ouviu nenhum deles." $) +crtext morale++ victim .witsREV victim .attitudeREV
 	then;
 	victim grating? if
-			($ vname .. " insults " .. cname .. " right back, except much more effectively." $) +crtext morale2- victim .morale2+ victim .witsREV victim .attitudeREV
+			($ vname .. "  insultos " .. cname .. "  de volta, exceto muito mais efetivamente." $) +crtext morale2- victim .morale2+ victim .witsREV victim .attitudeREV
 	then;
 	victim paranoid? if
-			($ vname .. " is very resentful of this, and plans revenge for later." $) +crtext victim .loyalty-- victim .witsREV victim .attitudeREV
+			($ vname .. "  esta muito ressentido com isso e planeja vinganca para mais tarde." $) +crtext victim .loyalty-- victim .witsREV victim .attitudeREV
 	then
-	($ cname .. " feels very slightly better about " .. chim .. "self." $) +crtext
+	($ cname .. "  se sente um pouco melhor com " .. chim .. "si mesmo." $) +crtext
 	morale++ victim .morale2-
 ;
 
 cyoa: group-haze-no
-"Driving Off the Death Road" cyoa-title! soloer choosechar
-($ "The team finally gives up. They retreat to an unknown fate.
-The journey to Canada is at an end." $) cyoa-text! 0 cyoa-image-icon! 1 500 tone
+"Conduzindo a Estrada da Morte" cyoa-title! soloer choosechar
+($ "A equipe finalmente desiste. Eles recuam para um destino desconhecido. A jornada para o Canada chegou ao fim." $) cyoa-text! 0 cyoa-image-icon! 1 500 tone
 	clear-streak delete-the-game
-	choice( "DANG IT" )choice: quit-to-title 
+	choice( "MALHADO!" )choice: quit-to-title 
 ;
 
 cyoa: group-haze
-	"Fatal Argument" cyoa-title!
+	"Argumento Fatal" cyoa-title!
 	despair-start!
 	($ Thegroup .. " spends so much effort arguing with each other that they don't notice they've driven into the middle of an overwhelming sea of zombies. A building is nearby, but it seems hopeless..." $) cyoa-text! badfx
 		group-haze-siege
-		choice( "Give up on the journey to Canada" )choice: group-haze-no
+		choice( "Desista da jornada para o Canada" )choice: group-haze-no
 ;
 
 } }

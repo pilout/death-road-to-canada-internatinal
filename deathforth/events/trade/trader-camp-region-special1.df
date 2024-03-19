@@ -25,45 +25,37 @@ cyoa{
 0 value tradelab-bluebot-sold
 
 cyoa-choice: tradelab-bluebot-sale
-	iicon ($ pname .. " buys a " .. "BLUE ROBIT" bbold .. "!
-	Throw it on the ground and it will help you until it runs out of batteries."  $) text!
+	iicon ($ pname .. " compra um " .. "ROBO AZUL" bbold .. "jogueo no chao e ele te ajudara ate que fique sem baterias."  $) text!
 	goodfx 1 WEAPON_BLUEROBOT trunk.weapon+ -3 trunk-food+ ' tradelab-bluebot-sold ++
 	tradelab-bluebot-sold 1 > if clear-cyoa then
 ;
 
 cyoa-choice: tradelab-redbot-sale
-	iicon ($ pname .. " buys a " .. "RED ROBIT" rbold .. "!
-	Throw it on the ground and it will help you until it runs out of batteries."  $) text!
+	iicon ($ pname .. " compra um " .. "ROBO VERMELHO" rbold .. "jogueo no chao e ele te ajudara ate que fique sem baterias."  $) text!
 	goodfx 1 WEAPON_REDROBOT trunk.weapon+ -6 trunk-food+ clear-cyoa
 ;
 
 cyoa: tradelab-bluebot
-	iicon "Helpful Robot" cyoa-title!
-	"It's a helpful robot!
-	For its off time, it's programmed with a sales pitch." text!
-	"1. BEEP 2. HONK
-	3. I AM SELLING ROBITS
-	4. UP TO TWO ROBITS" bbold +crtext
-	choice( "No sale!" )choice
+	iicon "Robo Auxiliar" cyoa-title!
+	"'It's a helpful robot! For its off time, it's programmed with a sales pitch.'" text!
+	"1. BEEP	2. TOCAR TOCAR" bbold +crtext
+	choice( "Nao vende!" )choice
 	trunk-food 2 > tradelab-bluebot-sold 2 < and if
-		choice( "Buy Blue Robot - 3 food" )choice: tradelab-bluebot-sale
+		choice( "1 food" )choice: tradelab-bluebot-sale
 	else
 		"It wants 3 food for one." +crtext
 	then
 ;
 
 cyoa: tradelab-redbot
-	iicon "Menacing Robot" cyoa-title!
-	"This robot seems intense.
-	Its claws look menacing. It must be a guard." text!
-	"1. BEEP 2. HONK
-	3. I AM SELLING A ROBIT
-	4. MAXIMUM OVERPOWER" rbold +crtext
-	choice( "Get away from me" )choice
+	iicon "Robo Ameacador" cyoa-title!
+	"Este robo parece intensivo. Suas garras parecem ameacadoras. Deve ser um guarda." text!
+	"1. BEEP 2. TOCAR TOTORA	3. VENDO UM ROBO	4. MAXIMA POTENCIA" rbold +crtext
+	choice( "Fique longe de mim" )choice
 	trunk-food 5 > if
-		choice( "Buy Red Robot - 6 food" )choice: tradelab-redbot-sale
+		choice( "Compre Robo Vermelho - 6 alimento" )choice: tradelab-redbot-sale
 	else
-		"It wants 6 food." +crtext
+		"Quer 6 alimento." +crtext
 	then
 ;
 
@@ -71,52 +63,48 @@ cyoa: tradelab-redbot
 0 value labsci-mazer
 
 cyoa-choice: tradelab-mazer-sale
-	iicon ($ pname .. " buys a " .. "MAZER PISTOL" rainbold .. "!
-	" .. "Someone with better aim than me could really use this efficently.
-	The piercing potential is immense due to the power of " pbold .. "Mazer Energy!" fbold $) text!
+	iicon ($ pname .. " compra um " .. "PISTOLA MAZER" rainbold .. "!
+	" .. "Alguem com melhor precisao que eu poderia realmente usar isso eficazmente. A potencia de perfuracao e enorme devido a forca do " pbold .. "Energia Mazer!" fbold $) text!
 	goodfx 200 WEAPON_MAZER trunk.weapon+ -12 trunk-food+ ' labsci-mazer ++
 ;
 
 cyoa-choice: tradelab-doodad-sale
-	iicon ($ pname .. " buys a " .. "SCIENCY DOODAD" rainbold .. "!
-	" .. "This can teleport you short distances. 
-	It has 5 shots. Don't lose count, I forgot to build a useful display for it. The display on it now doesn't mean anything, it just blinks at random." pbold $) text!
+	iicon ($ pname .. " compra um " .. "APARATO CIENTIFICO" rainbold .. "!
+	" .. "'Isso pode te teleportar distancias curtas. Tem 5 tiros. Nao perca de conta, eu esqueci de construir uma exibicao util para ele. A exibicao nele agora nao significa nada, ela so acende aleatoriamente." pbold $) text!
 	goodfx 5 WEAPON_DOODAD trunk.weapon+ -5 trunk-food+ ' labsci-doodad ++
 ;
 
 cyoa-bridge: tradelab-recruit
 	ricon 4 recruitee .morale! clear-cyoa 0.25 recruitee .ai.wander_chance! 0 nearest .unseen!
-	20 recruit-yes-food "I'm ready to zap things! I brought my solar recharger." pbold +crtext 
+	20 recruit-yes-food "'Estou pronto para zaptar coisas! Traguei meu recharger solar." pbold +crtext 
 	recruitee .mechanicREV recruitee .witsREV recruitee .shootingREV
 ;
 
 cyoa-bridge: tradelab-recruit-warn
-	"Sure, I can join you. I'm getting bored here, I need to do some research out in the field.
-	Finish buying anything you want before you recruit me! It's not that I don't trust you, but after I join I'm locking all my weapons to my fingerprint ID. 
-	Just in case I die mysteriously." pbold text!
-		choice( "Recruit her later" )choice
-		choice( "Recruit her! - 20 food" )choice: tradelab-recruit
+	"'Claro, eu posso me juntar a voce. Estou ficando entediada aqui, preciso fazer algumas pesquisas em campo. Termine de comprar tudo que quiser antes de me recrutar! Nao e que eu nao confie em voce, mas depois que eu me juntar, vou trancar todas as minhas armas com minha impressao digital. Apenas no caso de eu morrer misteriosamente." pbold text!
+		choice( "Recrutea mais tarde" )choice
+		choice( "Recrute-a! - 20 alimentos" )choice: tradelab-recruit
 ;
 
 cyoa: tradelab-scichat
-	"The Science of Shopping" cyoa-title!
+	"A Ciencia das Compras" cyoa-title!
 	nearest .character@ choosechar cchar to recruitee ricon
-	"All trading you do here will go towards the advancement of science!" pbold text!
+	"Todas as negociacoes que voce fizer aqui serao para o avanco da ciencia!" pbold text!
 		trunk-food 5 < if
-			"The scientist takes pity on your lack of food. She gives you a free teleporter, slightly used. 2 shots remaining!" +crtext clear-cyoa 2 WEAPON_DOODAD trunk.weapon+
+			"A cientista tem pena de sua falta de comida. Ela lhe da um teletransportador gratis, pouco usado. Restam 2 tiros!" +crtext clear-cyoa 2 WEAPON_DOODAD trunk.weapon+
 		then;
-		choice( "Leave her for now" )choice
+		choice( "Deixela para la" )choice
 		trunk-food 4 > labsci-doodad 1 < and if
-			choice( "Buy Teleporter - 5 food" )choice: tradelab-doodad-sale
+			choice( "Comprar Teletransportador - 5 alimentos" )choice: tradelab-doodad-sale
 		then
 		trunk-food 11 > labsci-mazer 1 < and if
-			choice( "Buy Mazer Pistol - 12 food" )choice: tradelab-mazer-sale
+			choice( "Comprar Pistola Mazer - 12 alimentos" )choice: tradelab-mazer-sale
 		then
 		trunk-food 19 > if
 			labsci-doodad 1 < labsci-mazer 1 < and if
-				choice( "Recruit her to team - 20 food" )choice: tradelab-recruit-warn
+				choice( "Recruta-la para a equipe - 20 alimentos" )choice: tradelab-recruit-warn
 			else
-				choice( "Recruit her to team! - 20 food" )choice: tradelab-recruit
+				choice( "Recruta-la para a equipe! - 20 alimentos" )choice: tradelab-recruit
 			then
 		then
 ;

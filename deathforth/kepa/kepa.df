@@ -1,4 +1,4 @@
-"load boot.df" to eval-buf
+"carrega boot.df" to eval-buf
 
 
 : empty depth remove ;
@@ -38,7 +38,7 @@
 	50 %chance if chair 1 movex drift then
 ;
 
-: dbasement UP column-door "bathroom" with-door ;
+: dbasement UP column-door "banheiro" with-door ;
 
 // Weapon and bullet spawning
 
@@ -52,23 +52,23 @@ cyoa{
 
 cyoa-bridge: broomy-recruit
 	cchar to recruitee goodfx clear-cyoa
-	($ cname .. " evades any attempt to be picked up." $) text!
-	($ "Stop that! I'll follow you, fine, just stop trying to pick me up!" pbold $) +crtext
-	($ pname .. " sees this as an opportunity to get a free broom, without even taking up an inventory slot!" $) +crtext
+	($ cname .. " evita qualquer tentativa de ser pego." $) text!
+	($ "Parar disso! Eu te seguirei, sim, mas pare de tentar pegame!" pbold $) +crtext
+	($ pname .. " vem vendo isto como uma oportunidade de obter um palhico gratuito, sem mesmo ocupar uma posicao de inventario." $) +crtext
 	// recruitee .strengthREV recruitee .fitnessREV
 	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
 	recruit-yesno
 ;
 
 cyoa: broomy-cyoa
-	"Zombie Sweeper" cyoa-title!
+	"Aspirador de Zumbis" cyoa-title!
 	nearest .character@ choosechar cicon
 	1 to broom-found
-	($ pname .. " tries to grab this broom " .. phe .. " found, but it suddenly starts talking!" $) text!
-		($ "HEY! Stop grabbing me, you DINGUS! I'm not a broom!" pbold $) +crtext
-	"This seems like an odd thing for a broom to say." +crtext
-		choice( "Pretend like you never saw this broom" )choice
-		choice( "Grab this broom" )choice: broomy-recruit
+	($ pname .. " tenta pegar este palhico " .. phe .. " 'Achei, mas de repente comecou a falar!'" $) text!
+		($ "Ei! Pare de me agarrar, seu DINGUS! Eu nao sou uma vassoura!" pbold $) +crtext
+	"'Isso parece uma coisa estranha para uma vassoura dizer.'" +crtext
+		choice( "Finge que nunca viu essa vassoura" )choice
+		choice( "Pegue esta escova" )choice: broomy-recruit
 ;
 
 }
@@ -179,20 +179,20 @@ endcase ;
 
 : hsmalltable spawn 0x 10 themed spriteid! rndflip bbox as-wood ;
 
-: dkitchen random-door "kitchen" with-door ;
-: dbathroom random-door "bathroom" only-with-door empty ;
-: dhall random-door "hall" with-door empty ;
-: dliving random-door "living" with-door ;
-: dcloset random-door "closet" only-with-door empty ;
+: dkitchen random-door "cozinha" with-door ;
+: dbathroom random-door "banheiro" only-with-door empty ;
+: dhall random-door "corredor" with-door empty ;
+: dliving random-door "vivo dead = morto" with-door ;
+: dcloset random-door "armario" only-with-door empty ;
 : beddoor 50 %chance if dcloset then 50 %chance if dbathroom then ;
-: dnapt n edge-inc n random-door "bedroom" with-door empty ;
+: dnapt n edge-inc n random-door "quarto" with-door empty ;
 : dwrand w edge-inc w random-door empty ;
 : derand e edge-inc e random-inset-door empty ;
 
 : trashdoor map{ add-blocked-up-door } ;
 // OLD: -1 column-door map{ block-last-door }
 
-: dsewerhall random-door "sewer-hall" with-door empty ;
+: dsewerhall random-door "salao de esgotos" with-door empty ;
 : dsewerloot
 	50 %chance if
 		50 %chance if 
@@ -200,7 +200,7 @@ endcase ;
 		else
 			e edge-inc random-door 
 		then
-		"treasure" only-with-door
+		"tesouro" only-with-door
 	then 
 ;
 
@@ -211,11 +211,11 @@ endcase ;
 		e edge-inc random-door 
 	then
 	3 250 tone
-	"sewer-end" only-with-door
+	"fim do esgoto" only-with-door
 ;
 
-: indhall random-door "indust-hall" with-door ;
-: indroom random-door "indust-room" with-door ;
+: indhall random-door "sala industrial" with-door ;
+: indroom random-door "quarto industrial" with-door ;
 : industbranch 30 %chance if indhall then 50 %chance if indroom then ; 
 	
 : flippy rndsign dup -1 * ;	

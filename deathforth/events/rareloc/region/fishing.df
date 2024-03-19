@@ -51,10 +51,10 @@ cyoa{
 	sfx{ ruffle 3 fx .pitch! 20 fx .a! 0.25 fx .s! 500 fx .r! 1500 fx .filt_high! 0.5 fx .scale! }
 ;
 
-: fishwink text! "The fish does a little wink and jumps back into the water." +crtext goodfx 30 ' fishaway timer_add ;
+: fishwink text! "O peixe da uma piscadela e volta para a agua." +crtext goodfx 30 ' fishaway timer_add ;
 
 cyoa-choice: fishing-2
-	($ cname .. " wishes for power!" $) fishwink
+	($ cname .. "  deseja poder!" $) fishwink
 		strength++ fitness++ shooting++ vitality++ health++
 ;
 
@@ -80,12 +80,12 @@ cyoa-choice: fishing-2
 
 
 cyoa-choice: fishing-3
-	($ cname .. " wishes for a fancy weapon!" $) fishwink
+	($ cname .. "  deseja uma arma chique!" $) fishwink
 	1 ' fishpoof timer_add
 ;
 
 cyoa-choice: fishing-1
-	($ cname .. " wishes for food! " .. cHe .. " decides to cook the fish. It's very nutritious!" $) text! badfx
+	($ cname .. "  deseja comida! " .. cHe .. " ' decide cozinhar o peixe. E muito nutritivo!" $) text! badfx
 	25 trunk-food+
 ;
 
@@ -93,13 +93,10 @@ cyoa-bridge: fishing-go
 	particles_base_id 0x 5a + cyoa-sprite-icon!
 
 	o'clock@ 3 + o'clock 
-	($ "Hours pass. " .. cname .. " catches a huge fish!
-	The fish has a tiny human face. It speaks: " .. "
-	hey let me go
-	i will grant you a wish" pbold $) text! goodfx
-		choice( "Wish for food" )choice: fishing-1
-		choice( "Wish for power" )choice: fishing-2
-		choice( "Wish for a fancy weapon" )choice: fishing-3
+	($ "Passamse horas. " .. cname .. "  pega um peixe enorme! 	O peixe tem um minusculo rosto humano. Ele fala: " .. "	ei me deixa ir	eu vou te conceder um desejo" pbold $) text! goodfx
+		choice( "Desejo comida" )choice: fishing-1
+		choice( "Desejo poder" )choice: fishing-2
+		choice( "Desejo por uma arma chique" )choice: fishing-3
 ;
 
 : .break-fishing args( chara )
@@ -114,15 +111,14 @@ cyoa-bridge: fishing-go
 ;
 
 cyoa: nofishing
-	"No Fishing!" cyoa-title!
+	"'Proibido Pescar!'" cyoa-title!
 	picon!
 	WEAPON_FISHING roadtrip-has-weapon? if 
-		($ "There's no one to stop " .. cname .. " from fishing here. " .. cHe .. " uses the fishing pole to cast a line into the water." $) text!
+		($ "Nao ha ninguem para parar " .. cname .. "  Daqui se pesca. " .. cHe .. " pescando com a vara de pesca no rio." $) text!
 		clear-cyoa
 		choice( "Wait for a fish..." )choice: fishing-go
 	else
-		"The sign says that you can't fish here.
-		You can't because you need a fishing pole." text!
+		"'Diz que nao e permitido pescar aqui. Voce nao pode porque voce precisa de uma vara de pesca." text!
 	then;
 ;
 
@@ -187,8 +183,8 @@ map{ regiondef{
 	LAYER_WALLSIDE -1 1 rnd -1 1 rnd .tile_layer.off!
 ;
 
-: fishhut1 "fishing" ;
-: fishhut2 "fishnoloot" ;
+: fishhut1 "pesca" ;
+: fishhut2 "peixenotirando sem recompensa" ;
 
 0 stack
 	' fishhut1 shove
@@ -201,7 +197,7 @@ constant FISH-OPTIONS
 : pick-fish-hut fish-options pops nip execute ;
 
 : bldg tanchor! map{ 
-	// "fishing" $picklocid addloc prefab{ 1 7 1 shop } 
+	// "pesca" $picklocid addloc prefab{ 1 7 1 shop } 
 	pick-fish-hut $picklocid addloc prefab{ 7 cabin } 
 	} ;
 

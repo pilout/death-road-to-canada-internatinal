@@ -3,24 +3,21 @@ cyoa{ road{
 
 cyoa-choice: camp1-boring-run
 	chumany? if 
-		($ cname .. " decides that the spot looks TOO safe and " .. ghe .. " ends up PEELING OUT of there, fast, without eating or sleeping.
-		" .. cname .. "'s feels smug in knowing " .. che .. " avoided that threat." $)
+		($ cname .. "  decide que o local parece MUITO seguro e " .. ghe .. "  acaba SAINDO de la, rapido, sem comer nem dormir." .. cname .. "''s sentese satisfeito em saber " .. che .. "  evitou essa ameaca." $)
 	else
-		($ cname .. " decides that there's DANGER AFOOT so " .. che .. " starts barking at nothing and then never, ever stops until well into the next morning." $)
+		($ cname .. " ' decide que ha PERIGO EM PE entao " .. che .. "  comeca latir para nada e depois nunca parou ate bem no seguinte manha." $)
 	then cyoa-text! 
 	cchar ' .morale-- foreach-team-char-except morale++ witsattREV attitude-- nosleep badfx ;
 cyoa-choice: camp1-boring-eat
-	($ Thegroup .. " sets up camp in this boring but safe looking spot.
-	" $) cyoa-text! fullcamp ;
+	($ Thegroup .. "  instala acampamento neste local aparentemente tedioso e seguro." $) cyoa-text! fullcamp ;
 cyoa: camp1-boring
 	camp-pic
-	"Boring Stop" cyoa-title! cyoaicon
-	($ Thegroup .. " finds an empty spot along the road that looks as good for camping as any.
-	" $) cyoa-text! basic-tone
+	"Paragem Tediosa" cyoa-title! cyoaicon
+	($ Thegroup .. "  encontra um local vazio ao longo da estrada que parece igual para qualquer outro para acampar." $) cyoa-text! basic-tone
 		most-paranoid if
-				"The weather is clear and there's no sign of danger in any direction." +text
-				choice( "Eat and Rest" )choice: camp1-boring-eat
-				charchoice( ": Can't fool me!" )choice: camp1-boring-run
+				"'O clima esta limpo e nao ha sinal de perigo em qualquer direcao." +text
+				choice( "Comer e Descansar" )choice: camp1-boring-eat
+				charchoice( "'Nao me enganas!" )choice: camp1-boring-run
 		then;
 		fullcamp
 ;
@@ -28,68 +25,62 @@ cyoa: camp1-boring
 : campstoryreveal dup .temperREV dup .attitudeREV dup .witsREV dup .loyaltyREV ;
 cyoa-choice: camp1-story-tell
 	solo if
-	($ soloname .. " swaps stories with pals and it's a very morale-boosting team-building experience despite everyone else being imaginary.
-	" .. soloname .. " forgets all about the marshmallows, and they get left behind!" $) cyoa-text! soloer .morale3+ +cr fullcamp then;
-	($ Thegroup .. " swaps stories about themselves. They learn a lot about each other, but forget all about the marshmallows!" $) cyoa-text! 
+	($ soloname .. " 'troca historias com amigos e e uma experiencia muito moralejante para o time apesar de todos os outros serem imaginarios." .. soloname .. " esquecese de tudo sobre as marshmallows e ficam deitadas por tras!" $) cyoa-text! soloer .morale3+ +cr fullcamp then;
+	($ Thegroup .. " troca historias uns sobre os outros. Aprendem muito um dos outros, mas esquecemse completamente das marshmallows!" $) cyoa-text! 
 	' campstoryreveal foreach-team-char +cr fullcamp ;
 cyoa-choice: camp1-story-eat
-	($ Thegroup .. " sets up camp, then eats a huge bag of marshmallows instead of eating dinner. There's even some left over!" $) cyoa-text! 2 LOOT_FOOD trunk.loot+ +cr sleep goodfx ;
+	($ Thegroup .. " 'instala o acampamento e depois come uma grande bolsa de marshmallows em vez de comer jantar. Ha ainda algumas sobrando!" $) cyoa-text! 2 LOOT_FOOD trunk.loot+ +cr sleep goodfx ;
 cyoa: camp1-story
 	camp-pic
-	"Old Campground" cyoa-title! cyoaicon
+	"Velho Local de Acampamento" cyoa-title! cyoaicon
 	someone choosechar
-	($ Thegroup .. " finds an abandoned campground with a fire pit. " .. cname-He .. " even finds an old, somewhat stale extra-large pack of marshmallows!
-	" $) cyoa-text! basic-tone
-				choice( "Eat Marshmallows" )choice: camp1-story-eat
-				choice( "Tell Stories" )choice: camp1-story-tell
+	($ Thegroup .. " encontra um acampamento abandonado com uma fogueira. " .. cname-He .. " 	Ate mesmo encontra um pacote extra-grande de marshmallows, um pouco velho e meio mofado!" $) cyoa-text! basic-tone
+				choice( "Coma Marshmallows" )choice: camp1-story-eat
+				choice( "Conte Historias" )choice: camp1-story-tell
 ;
 
 cyoa: camp1-quick
 	camp-pic
-	"Quick Stop" cyoa-title! cyoaicon
-	($ "After a long drive, " .. thegroup .. " finds a safe place to camp. The night passes with no incidents.
-	" $) cyoa-text! basic-tone fullcamp
+	"Parada Rapida" cyoa-title! cyoaicon
+	($ "Depois de uma longa viagem, " .. thegroup .. "  encontra um lugar seguro para acampar. A noite passa sem incidentes.	" $) cyoa-text! basic-tone fullcamp
 ;
 
 cyoa: camp1-passout
-	"Passing Out" cyoa-title! cyoaicon
-	($ "Exhausted after an extra long drive, " .. thegroup .. " scouts out a camping spot and falls asleep immediately after.
-	" $) cyoa-text! basic-tone fullcamp
+	"Desmaiando" cyoa-title! cyoaicon
+	($ "Exausto apos uma viagem muito longa, " .. thegroup .. "  explora um local de acampamento e adormece imediatamente depois.	" $) cyoa-text! basic-tone fullcamp
 ;
 
 cyoa-choice: camp1-gas-no
-	"Darn It" cyoa-title!
-	($ " Next morning, " .. thegroup .. " goes to siphon the cars, but notices a large horde of zombies approaching and the gas has to be abandoned.
-	" $) cyoa-text! fullcamp
+	"Droga" cyoa-title!
+	($ "  Na manha seguinte, " .. thegroup .. "  vai sifonar os carros, mas percebe uma grande horda de zumbis se aproximando e o gas tem que ser abandonado.	" $) cyoa-text! fullcamp
 ;
 cyoa-choice: camp1-gas-get
-	"Gassy Night" cyoa-title!
+	"Noite Gasosa" cyoa-title!
 	cpet? if
-		($ cname .. " tries to siphon some gas, but finds that " .. chis .. " body structure is really poorly suited for it." $) cyoa-text! morale-- sleep
+		($ cname .. "  tenta sugar um pouco de gas, mas descobre que " .. chis .. "  a estrutura corporal e realmente inadequada para isso." $) cyoa-text! morale-- sleep
 	else
-		($ cname .. " siphons the gas, but accidentally swallows a bit and gets really, really sick that night instead of sleeping." $) cyoa-text! 40 70 rnd trunk-gas+ sleep-except morale2-
+		($ cname .. " 0" $) cyoa-text! 40 70 rnd trunk-gas+ sleep-except morale2-
 	then	
 	+cr chowtime 
 ;
 
 cyoa-bridge: camp1-gas-get4
 	someicon
-	"Who should siphon out the gas?" cyoa-text!
+	"Quem deve sugar o gas?" cyoa-text!
 	' camp1-gas-get cyoa-team-choice
 ;
 
 cyoa: camp1-gas
 	image-abandoned-cars
-	"Night Siphon" cyoa-title! cyoaicon
-	($ Thegroup .. " sets up camp late. On the nearby highway is a bunch of abandoned cars. They're broken, but many should have a little bit of gas.
-	Would you like to send someone to siphon out the gas?" $) cyoa-text! basic-tone
+	"Sifao Noturno" cyoa-title! cyoaicon
+	($ Thegroup .. " 1" $) cyoa-text! basic-tone
 		team-count 3 > if
 			' camp1-gas-get 2 #cyoa-team-choice
-			choice( "Pick someone else" )choice: camp1-gas-get4
+			choice( "Escolha alguem outro" )choice: camp1-gas-get4
 		else
 			' camp1-gas-get 3 #cyoa-team-choice
 		then
-		choice( "Wait until morning" )choice: camp1-gas-no			
+		choice( "Aguarde ate de manha" )choice: camp1-gas-no			
 ;
 
 } }

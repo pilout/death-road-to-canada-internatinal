@@ -58,35 +58,33 @@ cyoa{
 : traderarcade-pay traderarcade-amt -1 * trunk-food+ ;
 
 cyoa-choice: traderarcade-mech
-	($ "HEY! LEAVE THE ARCADE MACHINE ALONE, YOU NERD!" bbold $) text!
-	"The arcade worker is not happy." +crtext
-	($ cname .. " flinches." $) +crtext 
+	($ "'OLHE DAQUELA MAQUINA DE ARCADE, CARA! TOMBADA!'" bbold $) text!
+	"'O funcionario de arcade nao esta feliz.'" +crtext
+	($ cname .. " 'treme.'" $) +crtext 
 	mechanicREV badfx
 ;
 
 cyoa-choice: traderarcade-shoot-go
-	($ cname .. " continues the arcade game. The screen is full of moving shapes. It's really impossible to tell what's going on, and yet " .. che .. " feels completely engrossed.
-	The game ends in a flash, yet it is burned into " .. cname .. "'s mind. There's still no clue on what the game is even called." $) cyoa-text!
+	($ cname .. " 'continua a jogar na maquina de arcade. A tela esta cheia de formas em movimento. E realmente impossivel dizer o que esta acontecendo, e ainda assim ' " .. che .. " 'se sente totalmente envolvido. O jogo acaba de forma rapida, mas esta gravado na sua mente. Ainda nao ha nenhuma pista sobre o que o jogo se chama.' " .. cname .. "p" $) cyoa-text!
 		shootingREV shooting++ goodfx traderarcade-pay ' traderarcade-shoot+ ++
 ;
 
 cyoa: traderarcade-shoot
-	"Mystery Arcade Game" cyoa-title!
+	"Jogo de Arcade Misterioso" cyoa-title!
 	picon!
-	($ "This arcade machine has its coin slot replaced with a big drop bin that says " .. "PUT FOOD IN HERE" rbold .. " above it.
-	It's not even clear what game it's supposed to be, the only thing on screen is a message that says: " $) cyoa-text!
-	($ "CONTINUE: " fbold .. traderarcade-amt rainbold .. " FOOD" rainbold $) +text
+	($ "'tem uma caixa de moedas substituida por um grande recipiente de descarte que diz DOACaO' " .. "COLOQUE COMIDA AQUI" rbold .. " ' acima dele. Nem mesmo esta claro que jogo e esse, a unica coisa na tela e uma mensagem que diz: " $) cyoa-text!
+	($ "CONTINUAR: " fbold .. traderarcade-amt rainbold .. "  COMIDA" rainbold $) +text
 	+cr foodamt
 	chumany? not if
-		($ pname .. " stares at the arcade machine in confusion. Animals mostly don't play video games, with some exceptions. For example, flatworms can play walking simulators, even though they can't understand the sublime genius of the narration." $) +crtext
+		($ pname .. " ' olha para a maquina de fliperama confusa. Animais geralmente nao jogam videogames, com algumas excecoes. Por exemplo, platelmintos podem jogar simuladores de caminhada, embora nao consigam entender o sublime genio da narracao." $) +crtext
 	then;
 		traderarcade-pay? not if
-			"You can't afford this." +crtext 
+			"'Voce nao pode pagar por isso." +crtext 
 		then;
-	choice( "Leave it for now" )choice
-	pchar charchoice( " plays for " .. traderarcade-amt .. " food" )choice: traderarcade-shoot-go
+	choice( "Deixe isso para agora" )choice
+	pchar charchoice( "  joga por " .. traderarcade-amt .. " alimentos" )choice: traderarcade-shoot-go
 	cmechanic+ if
-		pchar charchoice( " dismantles the arcade machine" )choice: traderarcade-mech
+		pchar charchoice( " desmonta a maquina de arcade" )choice: traderarcade-mech
 	then
 ;
 
@@ -98,9 +96,9 @@ cyoa: traderarcade-shoot
 cyoa-choice: traderarcade-rp-done2
 	rp-saguts 0 > rp-bryu 0 > and if
 		clear-cyoa
-		"This arcade machine suddenly shorts out!" text!
+		"Esta maquina de fliperama de repente entra em curtocircuito!" text!
 		"NO! WHAT DID YOU DOOOOOOOOOO?" bbold +crtext
-		"The arcade worker is less happy than even previously thought possible." +crtext badfx
+		"O funcionario do fliperama esta menos feliz do que o possivel." +crtext badfx
 	then 
 ;
 
@@ -111,9 +109,9 @@ cyoa-choice: traderarcade-rp-done2
 
 cyoa-bridge: rp_recruit
 	nearest .character@ choosechar cchar to recruitee ricon clear-cyoa
-	($ cname .. " is ready to test his strength on the road of punching." $) text!
+	($ cname .. "  esta pronto para testar sua forca no caminho do soco." $) text!
 	recruitee .strengthREV recruitee .fitnessREV
-	cchar .name@ "BRYU" $= if "HADOOK! HADOOK! KADOOSHIN'!" else "I-GER! I-GER! I-GER UPPERCUT!" then fbold +crtext recruit-yesno
+	cchar .name@ "BRYU" $= if "'HADOOK! HADOOK! KADOOSHIN'!" else "I-GER! I-GER! I-GER UPPERCUT!" then fbold +crtext recruit-yesno
 	0.25 cchar .ai.wander_chance! 0 nearest .unseen!	
 ;
 
@@ -140,61 +138,59 @@ cyoa-bridge: rp_recruit
 cyoa: traderarcade-rp
 	"Road Punchers 2: The New Punchers" cyoa-title!
 	picon!
-	($ "This is an old arcade machine for the famous classic fighting game: " .. "ROAD PUNCHERS" bbold .. "
+	($ "Esta e uma maquina de fliperama antiga para o famoso jogo de luta classico: " .. "SOCADORES DE ESTRADA" bbold .. "
 	This machine has been converted to run on food instead of quarters. It's 10 food to pick a character. For reasons unknown, it looks like almost all the characters are grayed out..." $) cyoa-text!
 	+cr foodamt
 		trunk-food 10 < if
-			"You don't have the food needed to play!" +crtext 
+			"Voce nao tem a comida necessaria para jogar!" +crtext 
 		then;
-	choice( "Leave it for now" )choice
+	choice( "Deixe isso para agora" )choice
 	rp-saguts 1 < if
-		choice( "Pick SAGUTS - 10 food" )choice: traderarcade-saguts
+		choice( "1 SAGUTS" )choice: traderarcade-saguts
 	then
 	rp-bryu 1 < if
-		choice( "Pick BRYU - 10 food" )choice: traderarcade-bryu
+		choice( "10 food" )choice: traderarcade-bryu
 	then
 ;
 	
 // Fireproofing Arcade
 
 cyoa-choice: traderarcade-fire-go
-	"Forged in the Fire" cyoa-title!
-	($ "On putting in the food and touching the button, the arcade machine " .. "IMMEDIATELY EXPLODES!" fbold .. " Real Mature!" $) cyoa-text!
+	"Forjado no Fogo" cyoa-title!
+	($ "1 " .. "IMEDIATAMENTE EXPLODE!" fbold .. " 'Muito maduro!'" $) cyoa-text!
 	cchar statmod{ .fireproof? } not if
-		($ cname .. " gets burnt up in a big fireball! However, " .. che .. " is alive and only mildly irritated.
-		" .. cname .. "'s skin feels strangely cool." bbold $) +crtext
+		($ cname .. "  se queima em uma grande esfera de fogo! Porem, " .. che .. "  esta vivo e apenas levemente irritado.		" .. cname .. "''sua pele sente estranamente fresca." bbold $) +crtext
 		cchar statmod{ .fireproof } sting-- bitefx
-		choice( "OW! DANG IT!" )choice
+		choice( "ODIA! PORRA!" )choice
 	else
-		($ cname .. " gets engulfed in a fireball! Of course, this doesn't do anything.
-		" .. cname .. " feels pretty smug about this." bbold $) +crtext
+		($ cname .. " ' se encha de uma esfera de fogo! Claro, isso nao faz nada.		" .. cname .. " 'se sente muito satisfeito com isso.'" bbold $) +crtext
 		goodfx morale2+
 	then
 	-10 trunk-food+ clear-cyoa deleteme
 ;
 
 cyoa: traderarcade-fire
-	"Strange Arcade Machine" cyoa-title!
+	"Maquina Arcade Estranha" cyoa-title!
 	picon!
-	($ "This is an new looking arcade machine. There are giant letters onscreen that spell out: " .. "FIRE EXPLODERS" rainbold .. "
+	($ "E uma maquina arcade nova e atraente. Ha grandes letras na tela que dizem: " .. "EXPLODIDORES DE Fogo" rainbold .. "
 	This machine has been converted to run on food, so the coin slot is enormous. There's only one button. Instead of any sort of gameplay, the machine displays a roaring fire behind the title..." $) cyoa-text!
 	+cr foodamt
 		trunk-food 10 < if
-			"You don't have the food needed to play!" +crtext 
+			"Voce nao tem a comida necessaria para jogar!" +crtext 
 		then;
-	choice( "Leave it for now" )choice
-		pchar charchoice( " plays for 10 food" )choice: traderarcade-fire-go
+	choice( "Deixe isso para agora" )choice
+		pchar charchoice( " joga por 10 alimentos" )choice: traderarcade-fire-go
 ;
 
 cyoa-choice: traderarcade-axe-go
-	($ "An flying axe spins closer and closer, and then " .. "FLIES THROUGH THE SCREEN!" fbold .. " They don't make games like this anymore!" $) cyoa-text!
+	($ "Um martelo voador gira mais perto e mais perto, e entao " .. "PASSA POR TELA!" fbold .. " 'Nao fazem mais jogos assim!" $) cyoa-text!
 	cfitness+ cstrength+ or if
-		($ cname .. " is physically fit enough to deflect the axe. " .. cHe .. " feels very happy that the axe was handle first, not blade first." $) +crtext morale++ goodfx fitnessREV strengthREV
+		($ cname .. " esta fisicamente apto para desviar o martelo. " .. cHe .. " fica muito feliz que o machado foi manuseado primeiro pelo cabo, nao pela lamina." $) +crtext morale++ goodfx fitnessREV strengthREV
 	else
-		($ cname .. " gets smashed right in the face by the axe, handle first! The arcade worker is pretty happy about this, as it's less cleanup than the other end would have required." $) +crtext ouch-- bitefx
+		($ cname .. " 'leva uma pancada bem no rosto pelo machado, cabo primeiro! O funcionario do fliperama fica bem feliz com isso, pois e menos limpeza do que o outro lado teria exigido." $) +crtext ouch-- bitefx
 		alive? if morale-- then fitnessREV strengthREV
 	then
-	"The screen glitches out as the axe clatters to the floor." +crtext
+	"A tela falha quando o machado cai no chao." +crtext
 	clear-cyoa
 ;
 
@@ -202,24 +198,21 @@ cyoa-choice: traderarcade-axe-go
 : traderarcade-axe-normal goldenaxe1 drop southofcyoa drop traderarcade-axe-go ;
 
 cyoa: traderarcade-axe
-	"DIFFICULTY SELECT" cyoa-title!
+	"SELECIONE A DIFICULDADE" cyoa-title!
 	picon!
-	($ "This machine gives an 80's vibe. There are golden letters onscreen that spell out: " .. "SHINY*AXE" rainbold .. "
-	The arcade machine seems to run on tokens from a different arcade chain. " .. pname .. " notices this and turns to look at the arcade worker, who just gives a listless shrug and looks away." $) cyoa-text!
-	($ "Someone must have put a token in before you got here, the screen says " .. "ONE CREDIT REMAINING!" fbold .. " and " .. "SELECT A DIFFICULTY:" rbold $) +crtext
-	choice( "Leave it for now" )choice
-	pchar charchoice( " plays on NORMAL mode" )choice: traderarcade-axe-normal
-	pchar charchoice( " plays on HARD mode" )choice: traderarcade-axe-hard
+	($ "'Esta maquina da uma vibracao dos anos 80. Ha letras douradas na tela que soletram: " .. "SHINY*AXE" rainbold .. "	A maquina de fliperama parece funcionar com fichas de uma rede de fliperamas diferente. " .. pname .. "  percebe isso e se vira para olhar o funcionario do fliperama, que apenas da de ombros desanimado e desvia o olhar." $) cyoa-text!
+	($ "Alguem deve ter colocado uma ficha antes de voce chegar, a tela diz " .. "UM CREDITO RESTANTE!" fbold .. "  e " .. "SELECIONE UMA DIFICULDADE:" rbold $) +crtext
+	choice( "Deixe isso para agora" )choice
+	pchar charchoice( " joga no modo NORMAL" )choice: traderarcade-axe-normal
+	pchar charchoice( " joga no modo DIFICIL" )choice: traderarcade-axe-hard
 ;
 
 
 // NPC
 
 cyoa: traderarcade
-	"Arcade Worker" cyoa-title!
-	"I'm bringing arcades back! They're going to get really popular now that the internet has been destroyed.
-	
-	No refunds." bbold text!
+	"Funcionario do fliperama" cyoa-title!
+	"0" bbold text!
 ;
 
 }
@@ -249,7 +242,7 @@ roomgen{
 ;
 
 : .arcadify args( chara )
-	"Arcader" <- chara .name!
+	"Arcadeiro" <- chara .name!
 ;
 
 : traderarcade-npc
@@ -264,7 +257,7 @@ trade-camp-reset
 : bldg tanchor!
 	"traderarcade" $picklocid addloc 
 		prefab{
-		BLINKY "THE LAST " .. FLASHY .. "ARCADE" .. sign-text!
+		BLINKY "O ULTIMO " .. FLASHY .. "ARCADE" .. sign-text!
 		0 0 0 sign-bg!
 		0 1 0 sign-border!
 		1 1 1 sign-fg!
