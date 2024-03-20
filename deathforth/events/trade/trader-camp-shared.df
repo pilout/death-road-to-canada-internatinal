@@ -30,7 +30,7 @@ map{ regiondef{
 ;
 
 : camping-road-start
-	"'SAG DASS DAS EINE SCHONES SCHLAFEN WAR, VOM WIRKLICH HEILEN ODER NICHT KRANK SEIN ODER HABE EINE FREUNDSCHAFTLICHE TRAUM ODER ETWAS ANDERES"
+	"SAG, DASS DAS EIN SCHONER SCHLAF WAR, VIELLEICHT WURDE JEMAND GEHEILT ODER IST NICHT MEHR KRANK ODER HATTE EINEN SELTSAMEN TRAUM ODER SO"
 	$cyoa-ok-dialog
 ;
 
@@ -49,8 +49,8 @@ map{ regiondef{
 ;
 
 : cyoa-chatter args( thing )
-	"'HEY, Vielleicht kann mir jemand meine Wunden verbinden oder mein Cousin hat ein geheimes Bunker im Wald oder ich habe ein urbanes Gerucht gehort"
-	" 'Zeit, um eine Nebenquest zu planen, die unsere Reise verlangert, oder wir konnen einfach uber Dinge sprechen" .. $cyoa-ok-dialog
+	"HEY VIELLEICHT KANN JEMAND MEINE WUNDEN BEHANDELN ODER MEIN COUSIN HAT EINEN VERSTECKTEN BUNKER IM WALD ODER ICH HABE EINE STADTLEGENDE GEHORT"
+	" UM ALS REISEVERLANGERNDE NEBENQUEST ZU UNTERSUCHEN ODER WIR KONNEN EINFACH UBER DINGE REDEN" .. $cyoa-ok-dialog
 	// TODO: ... And then a side quest could be QUEUED into the road event stack
 ;
 
@@ -77,23 +77,23 @@ cyoa{ regiondef{
 cyoa-choice: cyoa-fire-rest
 	someicon clear-cyoa "A day passes in the trading camp." text!
 	road{ dailyheal } basic-tone
-	($ Thegroup .. " 'kann sich etwas notige Ruhe gonnen." $) +crtext
+	($ Thegroup .. "  kann sich etwas dringend benotigte Ruhe gonnen." $) +crtext
 	team-count -2 *  LOOT_FOOD trunk.loot+ road{ 1 calendar-day+ } sleep 
 	' .morale++ foreach-team-char o'clock@ 3 6 rnd + o'clock
 ;
 
 cyoa: cyoa-fire
-	"'Handlerfeuer" cyoa-title!
+	"'Handlerlagerfeuer" cyoa-title!
 	weather@ 0.25 < if
-		"'Das Feuer ist sehr einladend." text!
+		"Das Feuer ist sehr einladend." text!
 	else
 		// TODO: Change camp options based on weather
-		"'Das Wetter in diesem Lager ist miserabel." text!
+		"Das Wetter im Lager ist miserabel." text!
 	then
-	($ Thegroup .. " 'konnte sich in diesem Lager fur einen Tag ausruhen und Wunden uberprufen, wenn Sie Zeit und Nahrung sparen konnen." $) +crtext
-	choice( "'Keine Zeit zum Ausruhen" )choice
+	($ Thegroup .. "  konnte einen Tag in diesem Lager bleiben, um sich auszuruhen und Wunden zu versorgen, wenn Sie sich die Zeit und das Essen leisten konnen." $) +crtext
+	choice( "Keine Zeit zum Ausruhen" )choice
 	trunk-food team-count 2 * 1 - > if
-		choice( "'Ruhe fur einen Tag" )choice: cyoa-fire-rest
+		choice( "Einen Tag ausruhen" )choice: cyoa-fire-rest
 	then
 ;
 } }
@@ -139,57 +139,57 @@ cyoa: cyoa-fire
 ;
 
 
-: himher if "'ihr" else "'ihn" then ;
+: himher if "ihre" else "ihn" then ;
 
 : gravename .thingseed@ dup 1 & seeded-name ;
 : gravehimher .thingseed@ 1 & himher ;
 
 : mourner-chat dup .followed args( me grave )
-	 ($ "'O weh, der arme ' " .. <- grave gravename .. "'. Ich kannte ' " .. <- grave gravehimher .. ", " .. pchar .name@ .. "..." $)
+	 ($ "Ach, armer " .. <- grave gravename .. ". Ich wusste " .. <- grave gravehimher .. ", " .. pchar .name@ .. "..." $)
 	 <- me .sprayit
 ;
 
 0 stack
-	"'I heard some people are going for Canada, LOL ' convert to deutsch: 'Ich habe gehort, dass einige Leute nach Kanada gehen, lol " trollface .. shove
-	"'How about those zombies, what a pain am I right?' convert to deutsch: 'Was ist mit diesen Zombies, was fur ein Argernis, oder?" shove
-	"'Sei vorsichtig da draußen!" shove
+	"Ich habe gehort, dass einige Leute nach Kanada gehen, LOL " trollface .. shove
+	"Wie ware es mit diesen Zombies, was fur ein Schmerz bin ich, habe ich Recht?" shove
+	"Seien Sie da drauen vorsichtig!" shove
 	"Heh, hang in there..." shove
-	"'Vorsicht vor dem Clown." shove
-	"'Ich hore, es gibt dort draußen ein Monster namens The G*rf." shove
-	"'Du wirst dir das Auge ausstechen, Kind!" shove
-	"'Nichts als alte Dosen mit Essen zu essen!" shove
-	"'Du wirst schwere Artillerie benotigen, um es nach Kanada zu schaffen." shove
-	"'Nein, DU solltest dich abkuhlen!" rbold shove
-	"'Ich glaube, dass Kanada nicht existiert! Das ist ein Verschworung!" shove
-	"'Ich habe immer gewusst, dass der Zombie-Apokalypse passieren wurde!" shove
-	"'Zombies bin ich in Ordnung, aber Geister kann ich nicht vertragen" shove
-	"'Das Quell des Wunsches verbirgt sich im Grab der Verfallenheit" shove
-	"'Ich war einmal in einer großen Gruppe, aber jeder wurde aufgefressen." shove
+	"Hute dich vor dem Clown." shove
+	"'Ich hore da drauen gibt es ein Monster namens The G*rf." shove
+	"'Du wirst dir ein Auge ausstechen, Junge!" shove
+	"Nur alte Konservendosen zum Essen!" shove
+	"'Sie werden ernsthafte Feuerkraft brauchen um es nach Kanada zu schaffen." shove
+	"Nein, DU kummere dich darum!" rbold shove
+	"'Ich wette Kanada existiert nicht einmal! Es ist eine Verschworung!" shove
+	"Ich wusste schon immer dass die Zombie Apokalypse passieren wurde!" shove
+	"'Ich habe kein Problem mit Zombies aber mit Geistern kann ich nicht umgehen" shove
+	"Der Brunnen der Wunsche versteckt sich in der Gruft des Verfalls" shove
+	"Ich war mal in einem groen Team aber alle wurden gefressen." shove
 	"If I could only find a suit of plate armor..." shove
-	"'Ich bleibe hier!" shove
-	"'Katzen existieren noch, aber sie sind sehr groß geworden!" shove
-	"'Du machst das?" shove
-	"'Gluckwunsch mit Kanada!" shove
-	"'Beweg dich weiter! Das ist die beste Art, um nicht gebissen zu werden!" shove
-	"'Ich hatte einst ein Flammenwerfer, aber ein Teamkollege hat es gestohlen" shove
-	"'Halt dein Essen nicht zu leicht ferne, du konntest es spater benotigen" shove
-	"'Tausche, bevor Banditen es holen!'" shove
-	"Ist die Death Road wirklich so schlimm, wie der Name vermuten lasst?" shove
+	"'Ich werde dieses Camp niemals verlassen!" shove
+	"'Katzen gibt es immer noch, aber sie sind jetzt richtig gro geworden!" shove
+	"'Du machst das!" shove
+	"Viel Gluck mit Kanada!" shove
+	"'Bleib in Bewegung! Das ist der beste Weg um nicht gebissen zu werden!" shove
+	"Ich hatte mal einen Flammenwerfer aber ein Teamkollege hat ihn mir gestohlen" shove
+	"'Tausche nicht zu viel Essen weg, du konntest es spater brauchen" shove
+	"'Horte dein Essen nicht, tausche es, bevor es Banditen bekommen!" shove
+	"Ist die Todesstrae wirklich so schlimm wie der Name vermuten lasst?" shove
 	"What is this... Can-adoh you speak of?" shove
-	"Was ist dein Lieblingskonservenfutter?" shove
+	"'Was ist deine Lieblingssorte von Konserven?" shove
 	"Kann Benzin schlecht werden?" shove
-	"'Wer in seinem rechten Geist ist, wurde sich niemals in einen Benzintank kriechen?" shove
-	RAINBOW 0x dd $chr .. " 'JEDEN TAG AUF DER TODESSTRASSE! IST EIN TAG, UM FREUNDE ZU MACHEN! "  .. 0x de $chr .. shove
+	"Wer kriecht schon in einen Benzintank?" shove
+	RAINBOW 0x dd $chr .. "  JEDEN TAG AUF DER TODESSTRASSE! IST EIN TAG UM FREUNDE ZU FINDEN! "  .. 0x de $chr .. shove
 	RAINBOW 0x dd $chr .. " Every day on the Death Road is a new adventuuuure! " .. 0x de $chr .. shove
-	"'Ich mache eine kleine Pause, bevor ich auf die Todesstraße zuruckkehre." pbold shove
-	"'Jemand muss die Straßen reparieren! " rbold DX .. shove
-	"'Nimm dir einfach einen Tag nach dem anderen vor." pbold shove
-	"'Ich wurde mein Vermogen fur ein echtes Klopapierrollen eintauschen." shove
-	"'Geheimes Tipp: Einkaufswagen sind die ultimative Waffe. " ;) .. shove
-	"'Stirbst du immer wieder? DANN GEH VORAN UND GEWINN! " trollface .. shove
-	"'Ich BIN FEHLER!" shove
-	"'Glaubst du, du kannst es nach Kanada schaffen? Das ist Pferdemist!" shove
-	"'Hallo. Sei nett zu Tieren." shove
+	"'Ich mache eine kleine Pause bevor ich wieder auf die Todesstrae gehe" pbold shove
+	"Jemand muss die Straen reparieren! " rbold DX .. shove
+	"Nehmen Sie die Dinge einfach einen Tag nach dem anderen" pbold shove
+	"Ich wurde mein Vermogen gegen eine echte Rolle Toilettenpapier eintauschen" shove
+	"Geheimtipp: Einkaufswagen sind die ultimative Waffe " ;) .. shove
+	"Immer noch sterben? GIT GUD " trollface .. shove
+	"ICH BIN FEHLER" shove
+	"'Denkst du du schaffst es nach Kanada? Das ist Pferdemist!" shove
+	"Hallo. Seien Sie freundlich zu Tieren." shove
 value random-sayings-base
 random-sayings-base shuffles var random-sayings
 
@@ -211,7 +211,7 @@ random-sayings-base shuffles var random-sayings
 : camper-chat camper-same-chat ; // Change to camper-unique-chat if you don't like this way
 
 // TODO: Make it so traders get angry if you loot their fridge etc.
-: getout-chat args( me ) "'HEY! VERLASS UNSER HAUS!" <- me .sprayit  ;
+: getout-chat args( me ) "HEY! RAUS AUS UNSEREM HAUS!" <- me .sprayit  ;
 
 : trader-event args( me eventid ) THING_EVENT_TIMER <- eventid <> if then;
 
@@ -482,7 +482,7 @@ random-sayings-base shuffles var random-sayings
 
 	<- me .anim.substate@ 5 >= if
 		0 <- me .anim.substate! 90 <- me .fatigue!
-		rnd5050 if "'Fuhlst du diesen SCHUB?" else "KEIN SCHMERZ!" cr$ .. "KEIN GEWINN!" .. then DEATH swap .. <- me .yellmsg
+		rnd5050 if "Fuhlen Sie diese PUMPE!" else "KEIN SCHMERZ!" cr$ .. "KEIN GEWINN!" .. then DEATH swap .. <- me .yellmsg
 	then;
 	<- me .anim.substate@ 1+ <- me .anim.substate!
 

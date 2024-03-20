@@ -93,17 +93,17 @@
 	ADJ-ZPCOST zp-buy!
 ;
 
-: trait-nowmake  " symbol in their name. " ;
-: perk-line1 0 > if "'Sie haben ein Upgrade des " else trait-nowmake then ;
-: zp-upgradenote? 0 > if "'All characters you assign or have assigned this perk will get to enjoy the new effects!' wird zu 'Alle Charaktere, denen du dieses Perk zuweist oder bereits zugewiesen hast, werden die neuen Effekte genießen!" +crtext then ;
+: trait-nowmake  "Symbol in their name " ;
+: perk-line1 0 > if "Sie haben das " else trait-nowmake then ;
+: zp-upgradenote? 0 > if "Alle Charaktere denen du diesen Vorteil zuweist oder zugewiesen hast werden die neuen Effekte genieen konnen!" +crtext then ;
 
-: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. " 'Trait!" $) text!
+: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. "  merkmal!" $) text!
 <- name 0 shared-buy! goodfx ;
 
 : perk-buy! args( title name level ) 
-	($ <- level perk-line1 .. <- title pbold .. " 'Perk!" $) text!
+	($ <- level perk-line1 .. <- title pbold .. "  vorteil!" $) text!
 	<- level zp-upgradenote? 
-	<- level 1 > if "'Dieses Perk hat die maximale Stufe erreicht!" rainbold +crtext then
+	<- level 1 > if "Dieser Vorteil hat die maximale Stufe erreicht!" rainbold +crtext then
 	<- name <- level shared-buy! goodfx 
 ;
 
@@ -117,8 +117,8 @@ defer gnomeback
 // Trait/Perk view and confirm
 // Type: 0 for trait unlock, 1 for perk unlock
 
-: unlockupgrade? 1 < if "'Sperrung von " else "'Aktualisieren " then ;
-: traitperk? 1 < if " 'Trait" else " 'Perk" then ;
+: unlockupgrade? 1 < if "Freischalten " else "Verbessere " then ;
+: traitperk? 1 < if "  Merkmal" else "  Vorteil" then ;
 : $traitperk 1 < if perkdef{ $trait } else perkdef{ $perk } then ;
 
 : shared-confirm! args( name level handler type exit )
@@ -128,12 +128,12 @@ defer gnomeback
 	// Could try splitting this zpcost section into own word if I do upgrading through CustChar menu
 	// Will have to include a zpcost calc
 	zpcost? if
-		choice( <- level unlockupgrade? .. <- name pbold .. <- type traitperk? .. "! - " .. ADJ-ZPCOST .. " ' ZP" pbold )choice <- handler cyoa-choice-handler!
+		choice( <- level unlockupgrade? .. <- name pbold .. <- type traitperk? .. "! - " .. ADJ-ZPCOST .. "  ZP" pbold )choice <- handler cyoa-choice-handler!
 	then 
 		<- level 1 < if 
-			($ "'kostet " .. ADJ-ZPCOST .. " ' ZP um zu sperren!" $) 
+			($ "Kostet " .. ADJ-ZPCOST .. "  ZP zum Freischalten!" $) 
 		else
-			($ " 'KOSTEN: " .. ADJ-ZPCOST .. " ' ZP" $) 
+			($ "  KOSTEN: " .. ADJ-ZPCOST .. "  ZP" $) 
 		then +text +cr zptally
 ;
 
@@ -147,7 +147,7 @@ defer gnomeback
 
 // Shows the choice
 : perk-view! args( name cost handler )
-	choice( <- name $upper pbold .. " - " .. <- cost .. " ' ZP" pbold )choice <- handler cyoa-choice-handler!
+	choice( <- name $upper pbold .. " - " .. <- cost .. "  ZP" pbold )choice <- handler cyoa-choice-handler!
 ;
 	
 // END the prep logic
@@ -155,22 +155,22 @@ defer gnomeback
 // Temporary Dude	
 
 cyoa: perk-dingus gstats{
-	"'Perks und Traits" cyoa-title!
+	"Vorteile und Merkmale" cyoa-title!
 		
 	"I'm developing an amazing new product
 	I call them... unlocks. Or 'uncks' for short" text!
 	
 	zombo-point 3 < if
-		"'Du wirst etwas Zombo Punkte benotigen, um das zu sehen! Ich erfand auch jene erst kurzlich."
+		"'Du wirst ein paar Zombo Punkte brauchen um zu sehen was ich meine! Die habe ich auch gerade erst erfunden."
 	else
-		"'Erlebe die Magie von 'Cheevos'\!		Aber ich meinte eigentlich 'Unlocks'.	"
+		"'Erlebe die Magie von 'Cheevos'!		Warte, ich wollte eigentlich 'Freischaltungen' sagen."
 	then +crtext +cr zptally
 	
-	choice( "'Gehen Sie fur jetzt" )choice
+	choice( "Gehen Sie vorerst" )choice
 	
 } ;
 
 ' perk-dingus to perkback
 
 	(* gstats{ trait-specialist } 0 > if
-		($ "'Sie haben alle meine " .. "'''uncks'''," pbold .. " 'fur die Zeit.		Uberprufe nachste Aktualisierung! Ich werde mehr haben!'," $) text! *)
+		($ "Du hast alle meine " .. "''Uncks'" pbold .. " ' fur den Moment gekauft.		Schau beim nachsten Update wieder vorbei! Ich werde mehr haben!" $) text! *)

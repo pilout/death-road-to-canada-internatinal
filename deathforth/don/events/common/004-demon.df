@@ -2,7 +2,7 @@ cyoa{ road{
 
 (*
 ------------------------------------------------------------------------------------------------------------------------
-	004 - "Die Unbeschworenen" - Don Thacker
+	004 - "Die ungerufenen" - Don Thacker
 	One of the group becomes posessed by the demon HEKTATRIUS. He wants PIZZA and SMOKES.
 	That's cool, right? I mean he sounds pretty rad.
 ------------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ cyoa{ road{
 // The group kicks the character TO THE CURB
 cyoa-choice: don-common-demon-offload
 	victim to cchar
-	($ notcname .. " 'wirft raus " .. vname .. " " .. vhe .. " wenn " .. vhe .. " 1" $) cyoa-text!
+	($ notcname .. "  tritt " .. vname .. " aus der Beifahrertur heraus. Als " .. vhe .. " fallt " .. vhe .. " explodiert in einen Schwarm winziger schwarzer Fledermause." $) cyoa-text!
 	victim .kill
 	morale--all
 ;
@@ -34,7 +34,7 @@ cyoa-choice: don-common-demon-offload
 
 cyoa-choice: don-common-demon-pizza-refuse
 // Victim was necessary to carry the character selected at the start all the way to here. Otherwise the intermediary cyoa: would have cleared it. Could have also gotten around this using the vortex-003 example of not using cyoa: and using cyoa-start instead, but it would have been really clumsy and prone to breaking.
-	($ "'DAS IST LEID, DASS ICH SCHON GERNETZT HABE.	" rbold .. "'Der Damon lasst " .. vname .. "', der durch die Erfahrung verandert wird." $) cyoa-text!
+	($ "UGH, NAJA, DANKE TROTZDEM, SCHATZE ICH." rbold .. "Der Damon lasst " .. vname .. "frei, der durch die Erfahrung verandert wird." $) cyoa-text!
 	don-common-demonify sfx{ creepy }
 ;
 
@@ -42,14 +42,14 @@ cyoa-choice: don-common-demon-pizza-refuse
 
 cyoa-choice: don-common-demon-pizza2
 	($ "THANKS FOR THE SOOOUUUUUUUUL.
-	" rbold .. "'Alle Uberlebenden sind mit damonischer Kraft gefullt." $) cyoa-text!
+	" rbold .. "Alle Uberlebenden werden mit damonischer Macht erfullt." $) cyoa-text!
 	cchar .kill
 	cchar ' don-common-demon-pizzaboost foreach-team-char-except
 ;
 
 cyoa-bridge: don-common-demon-pizza2-4
 	someicon
-	"'WEN SOLLTE WIR HEKATRIUS OPFERN?" cyoa-text!
+	"Wer soll HEKATRIUS geopfert werden?" cyoa-text!
 	' don-common-demon-pizza2 cyoa-team-choice
 ;
 
@@ -58,18 +58,18 @@ cyoa: don-common-demon-pizza
 image-demon
 solo if
 	soloer choosechar
-	($ "'Vielen Dank, DINGUS.	" rbold .. "'Das Monster bespuckt " .. cname .. " ' mit spukhaften Kraften und verschwindet!" $) cyoa-text!
+	($ "VIELEN DANK, DUMMKOPF.	" rbold .. "Der Damon feuert " .. cname .. "  mit gruseligen Kraften ab und verschwindet dann!" $) cyoa-text!
 	cchar to victim
 	don-common-demonify sfx{ creepy }
 else
-	($ "'Die Chips waren pizza aromatisiert. BEDENKWURDIG." .. " 'HEKATRIUS" rbold .. " 'fragt nach einer Seele, um sie zu waschen.	" .. "'WER WIRD OPFERN?" rbold $) cyoa-text!
+	($ "Die Chips hatten einen Pizzageschmack. GUT GENUG." .. "  HEKATRIUS" rbold .. "  bittet um eine Seele um sie damit runterzuspulen.	" .. "WER WIRD GEOPFERT?" rbold $) cyoa-text!
 	team-count 3 > if
 		' don-common-demon-pizza2 2 #cyoa-team-choice
-		choice( "'Wahle jemand anderen" )choice: don-common-demon-pizza2-4
+		choice( "Wahle jemand anderen" )choice: don-common-demon-pizza2-4
 	else
 		' don-common-demon-pizza2 3 #cyoa-team-choice
 	then
-	choice( "'Opfere niemanden." )choice: don-common-demon-pizza-refuse	
+	choice( "Ah, opfere niemanden." )choice: don-common-demon-pizza-refuse	
 then
 	-1 trunk-food+
 ;	
@@ -77,8 +77,8 @@ then
 
 cyoa-choice: don-common-demon-facepunch
 	
-	($ "'VERFLUCH DICH MENSCH! VERFLUCHT!" pbold .. "'HEKATRIUS" rbold .. " 'verdampft. " .. cname .. " 'fuhlt sich ziemlich gut daruber." $) cyoa-text!
-		($ "'Was ein Wunderhieb!" $) +crtext
+	($ "VERDAMMT SEI DER MENSCH! VERDAMMT SEI DER MENSCH!	" pbold .. "HEKATRIUS" rbold .. "  verschwindet. " .. cname .. "  fuhlt sich dabei ziemlich gut." $) cyoa-text!
+		($ "Was fur ein Wunderpunch!" $) +crtext
 		morale2+ strengthREV strength++ temperREV goodfx
 
 ;	
@@ -88,12 +88,12 @@ cyoa-choice: don-common-demon-freakout
 	// the demon leaves and you have essentially lost a person for nothing
 	// maybe don't freak out next time
 	
-	($ Thegroup .. " 'flippt aus!" rbold $) text!
+	($ Thegroup .. "  flippt aus!" rbold $) text!
 	notsolo if
-		($ "'HEKATRIUS" rbold .. " 'flippt eine Weile aus! Dann verwandelt er sich zuruck in " .. vname .. "', der dann explodiert!" $) +crtext
+		($ "HEKATRIUS" rbold .. "  flippt eine Weile aus! Er verwandelt sich dann wieder zuruck in " .. vname .. ", der dann explodiert!" $) +crtext
 		victim .kill
 	else
-		($ "'HEKATRIUS" rbold .. " 'flippt eine Weile aus, dann verdampft er in einem Puff aus Rauch! Es ist sehr traumatisierend!" $) +crtext
+		($ "HEKATRIUS" rbold .. " ' flippt eine Weile aus und verschwindet dann in einer Rauchwolke! Es ist sehr traumatisierend!" $) +crtext
 		morale--
 	then badfx
 ;	
@@ -101,35 +101,35 @@ cyoa-choice: don-common-demon-freakout
 	
 : don-common-demon-angrypunch 
 	most-angrystrong if
-		choice( "'Schlag ihm auf die Fresse" )choice: don-common-demon-facepunch
+		choice( "Schlag ihm ins Gesicht" )choice: don-common-demon-facepunch
 	then
 ;	
 
 : don-common-demon-choiceblock
 		trunk-food 0 > if
-			choice( "'Biete ihm eine Tute Chips - 1 Essen" )choice: don-common-demon-pizza	
+			choice( "Biete ihm eine Tute Chips an   1 Essen" )choice: don-common-demon-pizza	
 		then
-		choice( "'flippt aus" )choice: don-common-demon-freakout
+		choice( "Ausflippen" )choice: don-common-demon-freakout
 ;
 
 : don-common-demon-transmutetext
-	($ cname .. "''s eyes roll back and verliert das Bewusstsein " .. che .. "  beginnt zu krampfen! " .. cHe .. " 'Zittert und schreit in arkanen Zungen.'" $) +crtext
-	($ "1, Out = 0 " .. vname .. " 's Platz ist jetzt besetzt " .. "DER DAMON HEKATRIUS" rbold .. "er fragt, ob du Pizza hast. Er konnte wirklich ein heißes Stuck gebrauchen." $) +crtext
+	($ cname .. "''s Augen rollen nach hinten und " .. che .. "  beginnt zu krampfen! " .. cHe .. "  zittert und schreit in arkanen Sprachen." $) +crtext
+	($ "In " .. vname .. "''s Platz sitzt jetzt " .. "DER DAMON HEKATRIUS" rbold .. ". Er fragt ob Sie Pizza haben. Er konnte wirklich ein heies Stuck gebrauchen." $) +crtext
 	
 	don-common-demon-choiceblock
 ;	
 	
 // Enter HEKTATRIUS
 cyoa: don-common-demon
-	"Die Unbeschworenen" cyoa-title!
-	($ Thegroup .. " ' erfahrt einen faulen Geruch von den Bodenplanken. Schwefel. Verderbtes Schafschinken. Karamellkorner." $) cyoa-text! basic-tone 
-	($ "' ein Blitz und das Gerausch von " .. "' tausend Walen explodieren" pbold .. " ' fullt den Wagen aus." $) +crtext
+	"Die ungerufenen" cyoa-title!
+	($ Thegroup .. "  riecht einen ublen Geruch der von den Dielen kommt. Schwefel. Verfaultes Hammelfleisch. Zuckermais." $) cyoa-text! basic-tone 
+	($ "Ein Lichtblitz und der Klang von " .. "tausend explodierenden Walen" pbold .. "  erfullt das Auto." $) +crtext
 	
 	solo if // alone
 		image-demon
 		soloer choosechar
-		($ "'Der Rauch lasst nach und offenbart " .. "DER DAMON HEKATRIUS" rbold .. "." $) +crtext
-		($ "' fragt, ob Sie Pizza haben. Er hatte gern eine heiße Scheibe." $) +crtext	
+		($ "Der Rauch verzieht sich und enthullt " .. "DER DAMON HEKATRIUS" rbold .. "." $) +crtext
+		($ "Er fragt ob du Pizza hast. Er konnte ein heies Stuck gebrauchen." $) +crtext	
 		don-common-demon-angrypunch 
 		don-common-demon-choiceblock
 		

@@ -12,96 +12,96 @@ cyoa{
 
 : mghost-spooky 
 	picon
-	($ "'Das Gespenst ist " .. "'SEHR SPAßIG" fbold .. " " .. pname .. "'! Es verschwindet!" $) +crtext
+	($ "Der Geist ist " .. "SEHR GRUSELIG" fbold .. "  an " .. pname .. "! Es verschwindet!" $) +crtext
 	morale2- ghosty-sound deleteme
 ;
 
 : mghost-warn 
-	text! "'Mit einem Geist zu sprechen ist SEHR SPAßIG und wird sicherlich den Moralabschlag verursachen, neben allem Anderen was passiert." rbold +crtext
-		choice( "0" )choice
+	text! "Mit einem Geist zu reden ist EXTREM unheimlich und wird mit Sicherheit die Moral zerstoren, zusatzlich zu allem anderen, was passiert." rbold +crtext
+		choice( "Geist vorerst ignorieren" )choice
 		cheevo: ghostfound
 ;
 
 cyoa-choice: mghost-shy-talk
-	"'Der Geist rennt weg! Das heißt, er fliegt sehr schnell weg." text!
-	($ pname .. " ' amusiert sich daruber, dass " .. phe .. " ' einen Geist erschreckt hat." $) +crtext
+	"Der Geist rennt weg! Damit meine ich dass er richtig schnell davonschwebt." text!
+	($ pname .. "  ist amusiert dass " .. phe .. "  einen Geist erschreckt hat." $) +crtext
 	morale++ goodfx deleteme
 ;
 
 cyoa-choice: mghost-shy-kiss
-	($ "'Der Geist lasst fur einen Moment Dampf aus den Seiten seines Kopfes entweichen und dann " .. "'EXPLODIERT!" fbold $) text!
-	($ pname .. " ' ist verletzt, aber der Ruckstoß infundiert " .. phim .. " ' mit geheimnisvoller " .. "'GEISTERENERGIE!" rainbold $) +crtext
+	($ "Dem Geist kommt fur eine Sekunde Dampf aus den Seiten seines Kopfes, und dann " .. "EXPLODIERT ER!" fbold $) text!
+	($ pname .. "  wird verletzt, aber die Explosion fullt " .. phim .. "  mit mysterioser " .. "GEISTERENERGIE!" rainbold $) +crtext
 	morale3+ sting2- fitness++ bitefx deleteme
 	// Make character glow?
 ;
 
 cyoa-blank: mghost-shy
-	($ "'Dieser Geist wechselt schnell zwischen dem Versuch, " .. pname .. "'zu erschrecken, und dem Uberwaltigtwerden von Schuchternheit." $) mghost-warn
-		pchar charchoice( " ' spricht mit dem Geist uber Schuchternheit" )choice: mghost-shy-talk
-		pchar charchoice( " 'kusst den Geist" )choice: mghost-shy-kiss
+	($ "Dieser Geist wechselt schnell zwischen dem Versuch " .. pname .. " zu erschrecken und davon, von Schuchternheit uberwaltigt zu werden." $) mghost-warn
+		pchar charchoice( "  spricht mit Geist uber Schuchternheit" )choice: mghost-shy-talk
+		pchar charchoice( "  kusst den Geist" )choice: mghost-shy-kiss
 ;
 
 cyoa-choice: mghost-bite-go
-	"'SCHLUSSSCHLUSS SCHLUSS TAGUS" rainbold text!
-	($ "'Der Geist begrabt sich in " .. pname .. " 'mit seinen gespenstigen Zahnen! Das paranormale Leid verfestigt sich " .. phim .. " 'auf!" $) +crtext
+	"KNACK KNACK KNACK DEN GANZEN TAG" rainbold text!
+	($ "Der Geist zerkaut " .. pname .. "  mit seinen Geisterzahnen! Der paranormale Schmerz hartet " .. phim .. "  ab!" $) +crtext
 	sting-- vitality++ mghost-spooky bitefx
 ;
 
 cyoa-blank: mghost-bite
-	"'Es ist ein Geist! Es hat nette Zahne." mghost-warn
-		pchar charchoice( " 'redet mit dem Geist uber Zahne" )choice: mghost-bite-go
+	"'Es ist ein Geist! Er hat schone Beierchen." mghost-warn
+		pchar charchoice( "  spricht mit Geist uber Zahne" )choice: mghost-bite-go
 ;
 
 cyoa-choice: mghost-sass-sass
-	"'JA JA, ICH LAcher DIR AN! VERLACHERE!" rainbold text!
-	($ "'Der Geist lacht " .. pname .. "'großartig herum!" $) +crtext
+	"'NATURLICH BIN ICH FRECH ZU DIR! LASS DICH FRECH MACHEN!" rainbold text!
+	($ "Der Geist ist frech zu " .. pname .. ", ganz schon!" $) +crtext
 	morale-- badfx
 ;
 
 cyoa-choice: mghost-sass-flex
-	"'JA JA, ICH SCHAUZE! ICH HABE LIEBE DER STARKENZ!" rainbold text!
-	($ "'Der Geist flustert Fluche " .. pname .. " ... with strength!" $) +crtext
+	"'NATURLICH BIN ICH AM FLEXEN! ICH LIEBE ES STARK ZU SEIN!" rainbold text!
+	($ "Der Geist verflucht " .. pname .. " ... with strength!" $) +crtext
 	strength++ mghost-spooky
 ;
 
 cyoa-blank: mghost-sass
-	"'Fluch der Verlachung" cyoa-title!
-	"'This ghost looks like it's flexing, or maybe it's making a really sassy gesture? It's hard to tell due to the ghost lacking a corporeal form.'" mghost-warn
-		pchar charchoice( " 'bist du am flexen?'" )choice: mghost-sass-flex
-		pchar charchoice( " ' fragt ob er sich verquolt hat " .. phim )choice: mghost-sass-sass
+	"Fluch der Frechheit" cyoa-title!
+	"Dieses Gespenst sieht aus, als wurde es sich strecken, oder vielleicht macht es eine wirklich freche Geste? Es ist schwer zu sagen, da das Gespenst keine korperliche Form hat." mghost-warn
+		pchar charchoice( " bist du am posen" )choice: mghost-sass-flex
+		pchar charchoice( " fragt ob es frech ist " .. phim )choice: mghost-sass-sass
 ;
 
 cyoa-choice: mghost-lick-coolit
 	cpet? if
-		($ cname .. " 'fragt, ob es sich mit dem Geist anlegen will." $)
+		($ cname .. " furzt auf den Geist" $)
 	else
-		($ cname .. " 'er dem Geist sagt:" .. " KUHL ES." pbold $)
+		($ cname .. " " .. "  KUHL ES." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		char-gen to recruitee "'Peinlicher Geist" recruitee .name!
-		"'ICH HABE NIEMALS DERART PERFEKT GESCHAUT!	DU HAST MEINE GHOST-FLUCHTE ONTOLOGT! JETZT WAHL EINEN SPOOKIGEN PRamie!" rainbold +crtext
+		char-gen to recruitee "Nerviger Geist" recruitee .name!
+		"ICH HABE NOCH NIE SO EINE PERFEKTION GEHORT!		DU HAST MEINEN GEISTERFLUCH AUFGEHOBEN! WAHLE JETZT EINE GEISTERHAFTE BELOHNUNG!" rainbold +crtext
 		morale3+all rescue-trainitem cooled-it goodfx
 	else cool-it++
 		"WHAT? YOU CAN'T TELL ME TO COOL IT!
 		Y... YOU'RE A NERD!" rainbold +crtext
-		($ "'Der Geist verschwindet in einem wutenden kleinen Puff von Geisterrauch. " .. cname .. " 'fuhlt sich sehr selbstgefallig daruber." $) +crtext
+		($ "The Ghost disappears in an angry little puff of ghost smoke. " .. cname .. "  fuhlt sich wirklich selbstgefallig dabei." $) +crtext
 		goodfx morale2+
 	then witsattREV deleteme
 ;
 
 cyoa-choice: mghost-lick-go
-	"'AH, VORNEHMLICH SOLLST DU DAS ABKUHLEN" rainbold text!
-	($ "'Der Geist flustert Fluche " .. pname .. " 'mit dem " .. "'Fluch der Abkuhlung!" fbold $) +crtext
-	($ pname .. "''seine Personlichkeit wird sehr nervig!" $) +crtext
+	"UH, VIELLEICHT SOLLTEST DU ES KUHLEN" rainbold text!
+	($ "Der Geist verflucht " .. pname .. "  mit dem " .. "Fluch des Cool It!" fbold $) +crtext
+	($ pname .. "''s Personlichkeit wird sehr nervig!" $) +crtext
 	0 pchar .wits! 0 pchar .attitude! witsattREV mghost-spooky cool-it++
 ;
 
 cyoa-blank: mghost-lick
-	"'Das Gespenst bewegt seine Zunge die ganze Zeit hin und her. Es scheint schon jetzt ein nerviges Wesen zu sein." mghost-warn
+	"Der Geist wedelt immer wieder mit seiner Zunge herum. Es scheint bereits ein nerviges Wesen zu sein." mghost-warn
 		pchar grating? if
-			pchar charchoice( " 'sagt zum Gespenst Kuhle es runter!" fcoolit )choice: mghost-lick-coolit
+			pchar charchoice( " ' sagt dem Geist er solle sich abkuhlen" fcoolit )choice: mghost-lick-coolit
 		else
-			pchar charchoice( " 'schreit das Gespenst an" )choice: mghost-lick-go
+			pchar charchoice( "  schreit den Geist an" )choice: mghost-lick-go
 		then
 ;
 
@@ -175,17 +175,17 @@ ghost-cyoa-picker-base shuffles var ghost-cyoa-picker
 // mansion house doors
 
 0 stack
-	"greift diesen Schopfer an']" shove
-	"'offne1" shove	
-	"'offne1" shove
-	"'offne1" shove
-	"'Wohnzimmer" shove
-	"greift diesen Schopfer an']" shove
-	"'mansionpantry" shove
+	"badezimmer" shove
+	"open1" shove	
+	"open1" shove
+	"open1" shove
+	"wohnen" shove
+	"kuche" shove
+	"mansionpantry" shove
 value mansionhall-doors-base
 mansionhall-doors-base shuffles var mansionhall-doors
 
-: mansionhall-doors-pick mansionhall-doors depths 0= if drop "'offne1" then; pops nip ;
+: mansionhall-doors-pick mansionhall-doors depths 0= if drop "open1" then; pops nip ;
 
 : mansionhalldoors
 	2 for random-door mansionhall-doors-pick only-with-door next
@@ -197,15 +197,15 @@ mansionhall-doors-base shuffles var mansionhall-doors
 ;
 
 0 stack
-	"greift diesen Schopfer an']" shove
-	"schlafzimmer" shove
-	"schlafzimmer" shove
-	"schlafzimmer" shove
-	"schlafzimmer" shove
-	"schlafzimmer" shove
-	"schlafzimmer" shove
-	"'mansionend" shove
-	"schlafzimmer" shove
+	"badezimmer" shove
+	"sCHLAFZIMMER" shove
+	"sCHLAFZIMMER" shove
+	"sCHLAFZIMMER" shove
+	"sCHLAFZIMMER" shove
+	"sCHLAFZIMMER" shove
+	"sCHLAFZIMMER" shove
+	"mansionend" shove
+	"sCHLAFZIMMER" shove
 value mansionend-doors-base
 mansionend-doors-base shuffles var mansionend-doors
 
@@ -249,15 +249,15 @@ location: darkmansion
 		// post-script: toodark
 		
 		: mansionopendoors
-			random-door "'mansionhall" only-with-door
+			random-door "mansionhall" only-with-door
 			// random-door mansionhall-doors-pick only-with-door
-			random-door "greift diesen Schopfer an']" only-with-door
-			random-door "schlafzimmer" only-with-door			
+			random-door "badezimmer" only-with-door
+			random-door "sCHLAFZIMMER" only-with-door			
 		;
 		
 		: mansionstartdoors
-			2 for random-door "'Halle" only-with-door next
-			random-door "'Wohnzimmer" only-with-door
+			2 for random-door "halle" only-with-door next
+			random-door "wohnen" only-with-door
 		;
 						
 		room-choice: open1

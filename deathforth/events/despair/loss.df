@@ -6,85 +6,85 @@ uses road.df
 cyoa{ road{
 
 cyoa: loss-lost
-	"'Verzweifelt verlorengegangen" cyoa-title!
+	"Verloren in Verzweiflung" cyoa-title!
 	despair-start!
-	($ cname .. " ' hat alle Hoffnung verloren und sich weigert fortzugehen. " .. cHe .. " ' wandert in eine unbekannte Zukunft ab." $) cyoa-text! badfx
-	($ "'Was ein Nerd! Wer braucht		 " .. chim .. "', denn jeder braucht es!" $) +crtext
+	($ cname .. "  hat alle Hoffnung verloren und weigert sich, weiterzumachen. " .. cHe .. "  wandert einem unbekannten Schicksal entgegen." $) cyoa-text! badfx
+	($ "Was fur ein Nerd! Wer braucht " .. chim .. ", uberhaupt?" $) +crtext
 		decruit-bad-silent-takeweapons morale++all
 ;
 	
 cyoa: loss-hustle
 	despair-start!
-	"'Jeder muss hinlegen und arbeiten!" cyoa-title!
-	($ cname .. " ' sagt das ', " .. "JEMAND" rbold .. " the person who isn't pulling their weight." $) cyoa-text! basic-tone
+	"Jeder muss sich beeilen" cyoa-title!
+	($ cname .. "  sagt dass " .. "JEMAND" rbold .. " ' in der Gruppe zieht nicht ihr Gewicht und verlangt, dass sie rausgeworfen werden. Wer soll die Gruppe verlassen?" $) cyoa-text! basic-tone
 		' victim-kick bully cyoa-team-choice-except
 		bully charchoice( "" )choice: bully-all-kick 
 ;
 
 cyoa-choice: loss-obliv
-	($ cname .. " 'verneint ', " .. bname .. "'. Es stellt sich heraus, dass " .. che .. "  habe nicht gehort " .. bhim .. ".
-	" .. bname .. " 'raucht daruber wutend!" $) cyoa-text!
+	($ cname .. "  ignoriert " .. bname .. ". Es stellt sich heraus dass " .. che .. " ' hat nicht gehort " .. bhim .. ".
+	" .. bname .. "  raucht daran!" $) cyoa-text!
 		bully .morale-- badfx
 ;
 
 cyoa: loss-ultimatum
 	despair-start-victim!
-	"'Ultimatum" cyoa-title!
+	"Ultimatum" cyoa-title!
 	team-count 2 > if
-		($ cname .. " 'verlangt, dass entweder " .. vname .. " 'geht, oder " .. cname .. " 'es tut." $)
+		($ cname .. "  fordert entweder " .. vname .. "  geht, oder " .. cname .. "  tut." $)
 	else
-		($ cname .. " 'verlangt, dass " .. vname .. " 'geht. " .. cname .. " ' sagt das ', " .. che .. " 'wird das Auto und die Versorgungsguter nehmen und nach Kanada weiterfahren." $)
+		($ cname .. "  fordert " .. vname .. "  geht. " .. cname .. "  sagt dass " .. che .. "  wird das Auto und die Vorrate nehmen und weiter nach Kanada fahren." $)
 	then cyoa-text! basic-tone
-		victim charchoice( " 'wird rausgeworfen" )choice: victim-kick
-		bully charchoice( " 'wird rausgeworfen" )choice: bully-kick
+		victim charchoice( "  wird rausgeschmissen" )choice: victim-kick
+		bully charchoice( "  wird rausgeschmissen" )choice: bully-kick
 		bully-charm?
 		bully-sprayit?
 		victim oblivious? if
-			victim charchoice( " 'hort nicht " .. bname )choice: loss-obliv
+			victim charchoice( " ' hort nicht " .. bname )choice: loss-obliv
 		then			
 ;
 
-: sneak-everyone team-count 2 < if notcname else "'alle" then ;
+: sneak-everyone team-count 2 < if notcname else "jeder" then ;
 
 cyoa: loss-quietly
 	despair-start-victim!
-	"'Leise Verschwinden" cyoa-title!
-	($ cname .. " 'schleicht sich weg, wenn " .. everyone .. " ' beschaftigt ist." $) cyoa-text! badfx
+	"Ruhig Verschwinden" cyoa-title!
+	($ cname .. "  schleicht sich davon wenn " .. everyone .. "  beschaftigt ist.	" $) cyoa-text! badfx
 	cloyalty- if 
-		($ bHe .. " ' ist ein wahrer Igel, der die Schlussel fur das Auto stiehlt, mit dem Absicht alles wegzunehmen fur " .. bhim .. "'selbst." $) +text
+		($ bHe .. "  ist ein echtes Wiesel, das die Schlussel fur das Auto stiehlt und vorhat, alles fur " .. bhim .. "selbst." $) +text
 	else
 		cloyalty+ if
-			($ bHe .. " ' geht, nichts mitnimmt, nicht einmal " .. chis .. " ' personliche Versorgung." $) +text 
-			// Formerly: ($ bHe .. " ' geht, nehmt nur das, was " .. che .. " ' dabei trug." $) +text 
+			($ bHe .. " ohne etwas mitzunehmen, nicht einmal " .. chis .. " personliche Vorrate" $) +text 
+			// Formerly: ($ bHe .. " blatter nehmen nur das was " .. che .. " trug." $) +text 
 			loyaltyREV decruit-bad-silent-takeweapons
-			($ "'Es gibt eine Notiz zuruckgelassen, die " .. sneak-everyone .. " ' Gluck wunscht!" $) +crtext +cr morale++all
+			($ "Es gibt eine Notiz hinterlassen, die wunscht " .. sneak-everyone .. "  gluck!" $) +crtext +cr morale++all
 			exit
 		else
-			($ bHe .. " ' stehlt so viel Essen wie moglich bevor er geht. " $) +text
+			($ bHe .. "  stiehlt so viel Essen wie moglich bevor er geht. " $) +text
 		then
 	then loyaltyREV decruit-bad-silent
 	
 		most-paranoid if choosechar
 		//	cloyalty+ if exit then
-			($ "'Aber " .. cname .. " ' hat etwas Unvertragliches empfunden und folgte " .. bname .. ". " $) +crtext 
+			($ "Allerdings " .. cname .. "  spurte dass etwas nicht stimmte und folgte " .. bname .. ". " $) +crtext 
 			
 			bully .loyalty low if
-				($ "'Der Verrater wurde verhindert, den Auto und alles in ihm zu stehlen. " .. bHe .. " ' fluchtet." $)
+				($ "Der Verrater wurde daran gehindert das Auto und alles darin zu stehlen. " .. bHe .. "  flieht." $)
 			else
-				"'Der Dieb wurde uberrascht und ließ die Lebensmittel fallen, wahrend er weglief." 
+				"Der Dieb war uberrascht und lie das Essen beim Weglaufen fallen." 
 			then +text +cr witsattREV goodfx morale++all
 		then;
 		
 	cloyalty- if
-		($ bHe .. " 'fahrt mit den meisten Versorgungsgutern davon." rbold $) +crtext car-stolen trunk.killer bandit-gas bandit-food bandit-med bandit-ammo2 morale3-all
+		($ bHe .. " fahrt mit den meisten Vorraten davon." rbold $) +crtext car-stolen trunk.killer bandit-gas bandit-food bandit-med bandit-ammo2 morale3-all
 	else
 		trunk-food 0 = if
-			($ "'Schade fur " .. bname .. " 'dass es uberhaupt keine Lebensmittel gab, sowieso." $) +crtext victim .morale++ badfx
+			($ "Schade fur " .. bname .. " 'dass es sowieso kein Essen gab." $) +crtext victim .morale++ badfx
 		then;
 		trunk-food 20 < if
-			($ "'Was auch immer die Gruppe hatte, wurde gestohlen." $) +crtext eat-all badfx
+			($ "Das Wenige was die Gruppe hatte wurde gestohlen." $) +crtext eat-all badfx
 		then;
-		($ "'Der Dieb nahm alles " .. bhe .. " 'konnte tragen." $) +crtext -20 LOOT_FOOD trunk.loot+
+		($ "Der Dieb nahm alles mit " .. bhe .. " was er tragen konnte." $) +crtext -20 LOOT_FOOD trunk.loot+
 	then badfx
 ;
 

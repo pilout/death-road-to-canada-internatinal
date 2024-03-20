@@ -4,14 +4,14 @@ uses charstats.df
 uses road.df
 
 (* Basic Template
-: EFFECT cyoa-good-dialog ($ cname .. " 'pupst auf "  .. someone .colourname .. "." $) cyoa-text!
-: OLDERSTYLE "'BEISPIEL EREIGNIS KARTE 1A" $cyoa-ok-dialog 0 cyoa-image-icon! basic-tone ;
+: EFFECT cyoa-good-dialog ($ cname .. " furzt auf "  .. someone .colourname .. "." $) cyoa-text!
+: OLDERSTYLE "KARTE 1A EREIGNISBEISPIEL" $cyoa-ok-dialog 0 cyoa-image-icon! basic-tone ;
 : card1-cyoa
 	cyoa-start
 	" " cyoa-title!
 	0 to cyoaicon cyoaicon
 	" " cyoa-text! basic-tone
-	choice( "'BESCHREIBUNG" )choice: EFFECT
+	choice( "BESCHREIBUNG" )choice: EFFECT
 	// NOTE that only 4 choices are shown max, with choices on top/first taking priority.
 	; 
 *)
@@ -43,22 +43,22 @@ cyoa{ road{
 // Example of a GRAB BAG style CYOA. Give someone a point of shooting, get some ammo instead, or gamble health.
  
  // ammosearch1 gives ammo. See the bottom of chartstats.df for loot words.
-: card1-search ($ Thegroup .. " 'findet eine kleine Menge Munition." $) $cyoa-ok-dialog ammosearch1 goodfx cyoaicon ;
+: card1-search ($ Thegroup .. "  findet eine kleine Menge Munition." $) $cyoa-ok-dialog ammosearch1 goodfx cyoaicon ;
 
 // One selected person shoots
 cyoa-choice: card1-picked
-	"'Zielubungen" cyoa-title!
+	"Schietraining" cyoa-title!
 	
 	chumany? if
-		($ cname .. " 'kann etwas Zeit zum Uben mit dem Schießen verbringen. Selbst die Ziele waren zombieartig!" $) cyoa-text! +cr goodfx
+		($ cname .. "  bekommt etwas Zeit zum Uben des Schieens. 		Die Ziele waren sogar Zombie Themen!" $) cyoa-text! +cr goodfx
 		shootingREV shooting++
 	else
-		($ cname .. " 'kaut eine Weile auf einer alten rostigen Waffe herum. Sie wird schleimig." $) cyoa-text! morale2+ goodfx
+		($ cname .. "  nagt eine Weile an einer alten verrosteten Waffe. 		Es wird sabbernd." $) cyoa-text! morale2+ goodfx
 	then
 ;
 
 cyoa-choice: card1-one 
-"'Mit wem sollte man ein paar Stunden mit Schießubungen verbringen?" cyoa-text! 
+"Wer sollte etwas Zeit mit Schieubungen verbringen?" cyoa-text! 
 	' card1-picked cyoa-team-choice
 ;
 // For entire group, individually rolls a 40% chance of gaining a point in shooting skill.
@@ -74,24 +74,24 @@ cyoa-choice: card1-one
 	then 
 ;
 
-cyoa-choice: card1-group "'Alle beschließen, alle Ziele gleichzeitig im Dunkeln des Schießstandes abzuschießen. Es wird keine Uberlegung daruber angestellt, ob das eine gute Idee ist. WAS AUCH IMMER." cyoa-text! badfx
+cyoa-choice: card1-group "Alle beschlieen, die Ziele auf einmal in der dunklen Schiehalle zu sprengen. Es wird nicht daruber nachgedacht, ob dies eine gute Idee ist oder nicht. WAS AUCH IMMER." cyoa-text! badfx
 	' card1-spray foreach-team-char 
 	// Note syntax: ' <single word, make shortcut if more> foreach-team-char
 	someone .ouch--
 ;
 
 cyoa: card1-cyoa
-	"'Verlassener Schießstand" cyoa-title!
-	0 to cyoaicon cyoaicon // picks a CYOA image, displays it using "'cyoaicon"
-	($ Thegroup .. " 'findet ein Gewehrschießstand. Er ist leer und hauptsachlich von Versorgungsmitteln bereitgestellt worden. Allerdings befinden sich noch Schießscheiben und eine funktionstuchtige Pistole da. " .. gthey .. " 'findet" .. g1s .. " 'Nach Munition suchen" $) cyoa-text! basic-tone
+	"Verlassener Schiestand" cyoa-title!
+	0 to cyoaicon cyoaicon // picks a CYOA image, displays it using "cyoaicon"
+	($ Thegroup .. " ' findet einen Schiestand. Er ist leer und grotenteils von Vorraten befreit. Allerdings " .. gthey .. " findet" .. g1s .. "  einige Schieziele und eine funktionierende Pistole." $) cyoa-text! basic-tone
 	1 WEAPON_PISTOL trunk.weapon+
-	choice( "'Gruppe ungeordnet trainieren" )choice: card1-search
+	choice( "Suche nach Munition" )choice: card1-search
 	// SOLO CHOICE, cancels group choices after it if solo
 	solo if
-		soloer charchoice( " 'schießt ausbilden" )choice: card1-picked
+		soloer charchoice( "  trainiert Schieen" )choice: card1-picked
 	then;
-	choice( "'Gruppe haphazardisch ausbilden" )choice: card1-group
-	choice( "'Eine Person vorsichtig ausbilden" )choice: card1-one
+	choice( "Train Group Haphazardly" )choice: card1-group
+	choice( "Train One Person Carefully" )choice: card1-one
 ;
 
 // END Abandoned Gun Range
@@ -102,27 +102,27 @@ cyoa: card1-cyoa
 : card2-charm
 	cpet? if
 		cdog? if
-			($ cname .. " 'macht Hundaugen bei der Frau." $)
+			($ cname .. "  macht Welpenaugen bei der Frau." $)
 		else
-			($ cname .. " 'rollt sich auf und verhalt sich sehr nett." $)
-		then +crtext ($ "'sie gibt " .. cname .. " 'eine Menge Essen!" $) +crtext	7 10 rnd trunk-food+
+			($ cname .. "  rollt sich herum und tut ganz niedlich." $)
+		then +crtext ($ "Sie gibt " .. cname .. "  einen Haufen Essen!" $) +crtext	7 10 rnd trunk-food+
 	else
-		($ cname .. " ' uberredet die Frau, weitere Details zu geben. Stattdessen gibt sie jedoch hervorragende Trainingsanweisungen." $) +crtext
+		($ cname .. "  uberzeugt die Frau mehr Details zu geben. Stattdessen gibt sie ein paar tolle Ubungs Tipps." $) +crtext
 		witsREV attitudeREV morale++ strength++ strengthREV
 	then
 ;
 : card2-jerk 
 	cpet? if
-		($ cname .. " " .. cbarkmeow .. "sie sieht die Frau an." $) +crtext	
+		($ cname .. "  hektisch " .. cbarkmeow .. " bei der Frau." $) +crtext	
 	else
-		($ cname .. " 'Muskelnordchen'" $) +crtext
+		($ cname .. "  nennt die Frau grausam einen MUSKEL NERD." $) +crtext
 	then
 	aholeREV morale2+
 ;
-: card2-pumped ($ cname .. " fuhlt sich aufgepumpt wegen dieser Geschichte und setzt sich auf einen nahegelegenen Baumstamm." $) +text cyoa-text-cr
+: card2-pumped ($ cname .. "  fuhlt sich von dieser Geschichte GEpumpt und stemmt einen Baumstamm in der Nahe." $) +text cyoa-text-cr
 	strengthREV	strength++ morale++
 ;
-cyoa: card2-cyoa ($ someone .colourname .. " 'Er hat die Zombies in zwei Halften gerissen, nachdem er sie zuerst auf der Bank gedruckt hat. Er war zu stark, um ihn zu kontrollieren.'" $) cyoa-text! +cr 1 cyoa-image-icon! 4 500 tone 
+cyoa: card2-cyoa ($ someone .colourname .. " ' trifft einen anderen Uberlebenden, der daruber schimpft, dass er einen eingeolten Bodybuilder gesehen hat, der zu aufgepumpt war, um sich zu kontrollieren, und Zombies in zwei Halften gerissen hat, nachdem er sie gedruckt hatte." $) cyoa-text! +cr 1 cyoa-image-icon! 4 500 tone 
 
 	strongest-pass
 	if strongest choosechar card2-pumped then;
@@ -133,9 +133,9 @@ cyoa: card2-cyoa ($ someone .colourname .. " 'Er hat die Zombies in zwei Halften
 	most-ahole
 	if choosechar card2-jerk then;
 
-	solo if ($ soloer .colourname .. " wundert sich, was das alles sollte." $) +text then;
+	solo if ($ soloer .colourname .. "  fragt sich was das alles sollte." $) +text then;
 
-	"'Jeder in Ihrer Gruppe schaut sich gegenseitig verdachtig an." +text
+	"Alle in deiner Gruppe schauen sich nervos an." +text
 ;
 
 // END Muscle Fan
@@ -144,38 +144,38 @@ cyoa: card2-cyoa ($ someone .colourname .. " 'Er hat die Zombies in zwei Halften
 // Rest up if you have food, find some ammo for no penalty, or get more supplies in exchange for health if you don't have a paranoid character.
 
 : card3-3rest 60 %chance if .morale2+ else .morale3+ then ;
-cyoa-choice: card3-3day ($ Thegroup .. " 'wahlt eines der Hauser aus, um es fur die Barrikade zu nutzen, und ruht dort einige Tage. Es ist ein willkommener Ruhepaus, obwohl es am Ende etwas langweilig wurde." $) cyoa-text! basic-tone 
+cyoa-choice: card3-3day ($ Thegroup .. " ' wahlt eines der Hauser zum Barrikadieren aus und ruht sich dort fur ein paar Tage aus. Es ist eine willkommene Pause, auch wenn es gegen Ende langweilig wurde." $) cyoa-text! basic-tone 
 	sleep team-count -6 * LOOT_FOOD trunk.loot+ 3 calendar-day+
 	' card3-3rest foreach-team-char heal-event
 ;
-cyoa-choice: card3-1day ($ Thegroup .. " 'wahlt eines der Hauser aus, um es fur die Barrikade zu nutzen und ruht darin." $) cyoa-text! basic-tone 
+cyoa-choice: card3-1day ($ Thegroup .. "  verbarrikadiert eines der Hauser und bekommt dringend benotigte Ruhe." $) cyoa-text! basic-tone 
 	sleep team-count -2 *  LOOT_FOOD trunk.loot+ 1 calendar-day+
 	' .morale++ foreach-team-char heal-event
 ;
-cyoa-choice: card3-qloot ($ Thegroup .. " 'sucht nach offensichtlichen Platzen, um Vorrate zu verstecken. Man findet Munition." $) cyoa-text! basic-tone ammosearch1 ;
+cyoa-choice: card3-qloot ($ Thegroup .. "  durchsucht schnell die offensichtlichsten Orte um Vorrate zu verstauen. Es wird etwas Munition gefunden." $) cyoa-text! basic-tone ammosearch1 ;
 
 : card3-zomb 
 	most-paranoid
 	if choosechar
-		($ cname .. "', der stets paranoid ist, wird von dem Zombie nicht uberrascht und kann es leicht umgehen." $) +text 50 %chance if witsREV else attitudeREV then goodfx
+		($ cname .. " ist immer paranoid, wird von dem Zombie nicht uberrascht und weicht ihm leicht aus." $) +text 50 %chance if witsREV else attitudeREV then goodfx
 	else
-		someone choosechar ($ "'leidet jedoch darunter, dass das Zombie " .. cname .. " 'erst findet." $)
+		someone choosechar ($ "Leider fand der Zombie " .. cname .. "  zuerst." $)
 		+text ouch2- bitefx
 	then
 	cicon // forces the icon to be the chosen character
 ;
-cyoa-choice: card3-search ($ Thegroup .. " 'sucht die Stadt grundlich durch und wird von einem einzelnen Zombie uberrascht. " $) cyoa-text! card3-zomb ammosearch1 homesearch1 ;
+cyoa-choice: card3-search ($ Thegroup .. "  durchkammt die Stadt nach zuruckgelassenen Vorraten, wird aber von einem einzigen Zombie uberfallen. " $) cyoa-text! card3-zomb ammosearch1 homesearch1 ;
 
 cyoa: card3-cyoa
-	"'Stille Stadt" cyoa-title!
-	"'Es ist so still hier. Es gibt keine Zeichen von Leben oder Unleben. Es scheint, als ob jeder das, was er nehmen konnte, aus dieser Stadt geflohen ist." cyoa-text! 0 to cyoaicon cyoaicon basic-tone
-		choice( "'Diese Stadt grundlich durchsuchen" )choice: card3-search
-		choice( "'Schnell rauben und fliehen" )choice: card3-qloot
+	"Ruhige Stadt" cyoa-title!
+	"'Es ist so ruhig hier. Es gibt keine Anzeichen von Leben oder Untoten. Es scheint als hatten alle genommen was sie konnten und diese Stadt sofort evakuiert." cyoa-text! 0 to cyoaicon cyoaicon basic-tone
+		choice( "Stadt grundlich plundern" )choice: card3-search
+		choice( "Schnell plundern und rennen" )choice: card3-qloot
 		trunk-food team-count 2 * 1 - > if 
-			choice( "'Ruhe fur einen Tag" )choice: card3-1day
+			choice( "Einen Tag ausruhen" )choice: card3-1day
 		then
 		trunk-food team-count 6 * 1 - > if 
-			choice( "'Ruhe fur drei Tage" )choice: card3-3day 
+			choice( "Drei Tage ausruhen" )choice: card3-3day 
 		then
 ;
 
@@ -185,12 +185,12 @@ cyoa: card3-cyoa
 // Ultra simple DO A TOUGH CITY EVENT OR DON'T choice.
 
 cyoa: card4-cyoa
-	"'Verlorenes Fort" cyoa-title!
+	"Verlorene Festung" cyoa-title!
 
-	"'Dieses Apartmentgebaude wurde in eine befestigte Festung verwandelt. Es wurde vollstandig von einer Horde Zombies uberrannt. Auf der Plusseite scheinen sie im Moment recht ruhig zu sein." cyoa-text!
+	"Dieses Wohnhaus wurde in eine verbarrikadierte Festung verwandelt. Es wurde komplett von einer Horde Zombies uberrannt. Positiv ist, dass sie im Moment ziemlich zahm zu sein scheinen." cyoa-text!
 	1.3 1.7 frnd 9 15 frnd 0 1 rnd zforecast
 	"events/inner/region/hellhotel.df" $load-region
-		choice( "'Die Festung angreifen" )choice: premission
+		choice( "Greift die Festung an" )choice: premission
 		gas-draw
 ;
 
@@ -202,22 +202,22 @@ cyoa: card4-cyoa
 : card5-wacheck cchar .attitude 4 < cchar .wits 3 > and ;
 
 cyoa-choice: card5-walk good
-	($ Thegroup .. " 'verlasst das alte Auto und geht zu Fuß weiter, sucht unterwegs in Autos nach Versorgung." $) cyoa-text! car-abandon ammosearch1
+	($ Thegroup .. "  lasst das alte Auto stehen und geht los, um auf dem Weg in Autos nach Vorraten zu suchen." $) cyoa-text! car-abandon ammosearch1
 ;
 
 : card5-detadd
 	card5-wacheck if
-		good "'Der Umweg verlauft uberraschend gut!"
+		good "Der Umweg lauft unerwartet gut!"
 	then;
 
 	""
 
 	cchar .attitude 3 > if 
-		bad "'Diese Route war zu optimistisch, sie dauerte Tage! " $cat
+		bad "Diesen Weg zu nehmen war zu optimistisch, er dauerte Tage! " $cat
 	then 
 
 	cchar .wits 4 < if 
-		bad "'Der Weg erwies sich als TOTALER SCHrott, und das Auto wurde beschadigt." $cat
+		bad "Der Weg stellte sich als TOTALER MIST heraus und das Auto wurde beschadigt." $cat
 	then
 ;
 
@@ -244,16 +244,16 @@ cyoa-choice: card5-walk good
 cyoa-choice: card5-detour
 
 	chumany? if 
-		($ cname .. " ' entscheidet sich fur einen Umweg. " .. card5-detadd $) 
+		($ cname .. "  beschliet einen Umweg zu machen. " .. card5-detadd $) 
 	else
-		($ cname .. " 'bellt aus dem Fenster zu einem verborgenen, uberwucherten Pfad! " .. card5-detadd $)
+		($ cname .. "  bellt aus dem Fenster auf einen versteckten, uberwucherten Pfad! " .. card5-detadd $)
 	then cyoa-text!
 
 	witsREV	attitudeREV	card5-detadd2
 ;
 
 cyoa-choice: card5-bench
-	($ cname .. " 'druckt eine ruinierte Autotur. Das klart kaum das Wrack, und dein Auto muss immer noch verlassen werden." $) cyoa-text! goodfx
+	($ cname .. "  stemmt ein zerstortes Auto. Das bringt wenig, um das Wrack zu beseitigen, und dein Auto muss trotzdem zuruckgelassen werden." $) cyoa-text! goodfx
 	car-abandon
 	morale++ strengthREV strength++ 
 ;
@@ -265,32 +265,32 @@ cyoa-choice: card5-bench
 		good "'Mit einer Kombination aus Wut und Wahrnehmung sturzt das Auto nicht ab."
 	then;
 
-	bad "'Es lauft gut, bis das Auto gegen einen Felsen kracht."
+	bad "'Es lauft gut bis das Auto gegen einen Felsen prallt."
 ;
 
 cyoa-choice: card5-mudding
-	($ cname .. "  pflugt durch die Schulter in der Nahe der Straße. " $) card5-mudadd $cat cyoa-text!
+	($ cname .. "  pflugt durch den Seitenstreifen in der Nahe der Strae. " $) card5-mudadd $cat cyoa-text!
 	temperREV
 	card5-mudadd2
 ;
 
 cyoa: card5-cyoa
 	"Stau" cyoa-title!
-	"Ein Meer von Autos blockiert die Straße vor uns. Der Auffahrunfall ist so schlimm, dass es keinen offensichtlichen Weg hindurch gibt." cyoa-text!
+	"Ein Meer aus Autos blockiert die Strae vor uns. Die Karambolage ist so schlimm dass es keinen offensichtlichen Weg hindurch gibt." cyoa-text!
 		vehicle.which@ 0 = if 
-			($ "'It's not a problem to squeeze through on foot without a car!' " .. Thegroup .. " ' pruft die Autos auf Vorrate wahrend des Weges." $) +crtext ammosearch1 goodfx
+			($ "' Ohne Auto ist es kein Problem, sich zu Fu durchzuquetschen! " .. Thegroup .. "  uberpruft unterwegs die Autos auf Vorrate." $) +crtext ammosearch1 goodfx
 		then;
 		angriest-pass if
-			angriest choosechar chumany? if cchar charchoice( "' Offroad aggressiv!" )choice: card5-mudding then
+			angriest choosechar chumany? if cchar charchoice( ": Aggressives Offroading!" )choice: card5-mudding then
 		then
 
 		strongest-pass if
-			strongest charchoice( "': Auto banken" )choice: card5-bench
+			strongest charchoice( ": Drucke ein Auto auf die Bank" )choice: card5-bench
 		then
 
-		smartest charchoice( "': Neue Route suchen" )choice: card5-detour
+		smartest charchoice( ": Finde eine neue Route" )choice: card5-detour
 
-		choice( "'Auto verlassen und gehen" )choice: card5-walk
+		choice( " Auto stehen lassen und gehen" )choice: card5-walk
 ;
 
 // END Traffic Jam
@@ -310,42 +310,42 @@ cyoa: card5-cyoa
 
 cyoa-choice: candyshare
 solo if 
-	bad ($ soloname .. " ' ist wirklich erbost daruber, dass die Schokolade mit Freunden geteilt werden muss, obwohl diese imaginar sind. " .. soloer xHe .. " ' jascht und tritt auf das Schokoladenstuck. Nun kann niemand es haben!" $) cyoa-text! candysharesolo
+	bad ($ soloname .. "  ist wirklich verargert, dass die Suigkeiten mit Freunden geteilt werden mussen, obwohl sie imaginar sind. " .. soloer xHe .. "  tobt und stampft auf die Suigkeiten. Jetzt kann niemand sie mehr haben!" $) cyoa-text! candysharesolo
 else 
-	good ($ "'Jeder lernt eine wertvolle Lektion uber das Teilen, indem er versucht, ein schon kleines Schokoladentafelchen zu teilen. Vielleicht. Irgendwie." $) cyoa-text! ' candyshareroll foreach-team-char
+	good ($ " Jeder lernt eine wertvolle Lektion uber das Teilen indem er versucht einen bereits winzigen Schokoriegel zu teilen. Vielleicht. Irgendwie." $) cyoa-text! ' candyshareroll foreach-team-char
 then
 ;
 
 cyoa-choice: candyresult
-	"'Es ist wirklich Fun-Size" cyoa-title!
+	" Es ist wirklich in Spagroe" cyoa-title!
 	cdog? if
-		($ "'Das Schokoladenstuck war Schokolade! Hunde sollten keine Schokolade essen!	Was hast du getan?" $) text!
+		($ "' Der Schokoriegel war Schokolade! Hunde durfen keine Schokolade essen! Was hast du getan?" $) text!
 		bitefx ouch-- morale2+
 	then;
-	($ cname .. " 'frißt das Schokoladenstuck, großartig. Die sußen Zuckerstoffe machen " .. chim .. " 'etwas besser uber " .. chis .. " current life in Canada." $) cyoa-text! cyoa-text-cr goodfx
+	($ cname .. "  isst diese Suigkeit, groe Zeit. Die zuckrige Sue macht " .. chim .. "  fuhle mich ein bisschen besser " .. chis .. "  aktuelles Leben im Nicht Kanada." $) cyoa-text! cyoa-text-cr goodfx
 	solo if 
-		cyoa-text-cr ($ cHe .. " 'fuhlt sich ziemlich eingebildet, weil er nicht teilen muss.'" $) +text attitude++ attitudeREV
+		cyoa-text-cr ($ cHe .. "  fuhlt sich ziemlich selbstgefallig daruber dass er nicht teilen muss." $) +text attitude++ attitudeREV
 	then
 	morale2+ cyoa-text-cr 
 ;
 
 cyoa-bridge: candyresult-pick 
 	someicon
-	"'Wer soll die kleine Schokoladentafel essen?" cyoa-text!
+	"Wer sollte den winzigen Schokoriegel essen?" cyoa-text!
 	' candyresult cyoa-team-choice
 ;
 
 cyoa: card6-cyoa
-	"'Glucksschokoladentafel" cyoa-title! 
+	"Glucklicher Schokoriegel" cyoa-title! 
 	0 to cyoaicon cyoaicon
-	($ Thegroup .. " 'findet eine Schokoladentafel auf der Straße! Sie ist fun size. Wer darf sie essen?" $) cyoa-text! basic-tone
+	($ Thegroup .. " ' findet einen Schokoriegel am Straenrand! Er ist 'spagro'. Wer darf ihn essen?" $) cyoa-text! basic-tone
 	team-count 3 > if
 		' candyresult 2 #cyoa-team-choice
-		choice( "'Wahle jemand anderen" )choice: candyresult-pick 
+		choice( "Wahle jemand anderen" )choice: candyresult-pick 
 	else
 		' candyresult 3 #cyoa-team-choice
 	then
-	choice( "'Teile es mit jedem" )choice: candyshare 
+	choice( "Mit allen teilen" )choice: candyshare 
 ;
 
 // END Candy finding
@@ -355,58 +355,58 @@ cyoa: card6-cyoa
 
 : card7-pcheck 
 	cpet? if
-		($ cname .. " 'fuhrt einen sußen Parkour-Trick vor, bei dem er/sie einfach zwischen den Beinen der Zombies hindurchgeht. Was auch immer!" $) cyoa-text! goodfx morale++
+		($ cname .. " ' macht eine sue Parkour Bewegung bei der er einfach nur durch die Beine der Zombies geht. Was auch immer!" $) cyoa-text! goodfx morale++
 	then;
 	
 	cfitness+ if
-		($ cname .. " 'fuhrt einen" .. RED .. " 'SAHNEPARKOUR- SALTO" .. WHITE .. " 'von ein paar Mulltonnen und uber den Zaun. Kein großes Ding. Das ist alles viel zu einfach fur " .. cname .. "." $) cyoa-text! goodfx morale++ 
+		($ cname .. "  macht ein" .. RED .. " KRANKER PARKOUR FLIP" .. WHITE .. " ' aus etwas Mull und uber den Zaun. Keine groe Sache. Es ist alles zu trivial ein Zug fur " .. cname .. "." $) cyoa-text! goodfx morale++ 
 	then;
 	
 	cfitness- if
-		($ cname .. " 'versucht, uber den Zaun zu klettern, ist dafur aber viel zu aus der Form geraten. Die Zombies greifen an." $) cyoa-text! ouch-- bitefx
+		($ cname .. "  versucht unbeholfen den Zaun zu erklimmen ist aber viel zu auer Form um das zu tun. Die Zombies greifen an." $) cyoa-text! ouch-- bitefx
 	then;
 	
 	fitnessroll if
-		($ cname .. " 'schafft es, sich rechtzeitig uber den Zaun zu schwingen und entkommt so den Zombies furs Erste. Gott segne das Parkouring." $) cyoa-text! goodfx
+		($ cname .. "  schafft es, rechtzeitig auf den Zaun zu klettern und vermeidet es, vorerst zerrissen zu werden. Gott segne Parkouring." $) cyoa-text! goodfx
 		fitness++ 
 	then;
 	
-		($ cname .. " 'kampft sich uber den Zaun. Ein Zombie beißt ihm/ihr in die Beine." $) cyoa-text! bitefx sting--
+		($ cname .. "  kampft darum den Zaun zu erklimmen. Einem Zombie gelingt es in einen Beinbiss zu gelangen." $) cyoa-text! bitefx sting--
 ;
 cyoa-choice: card7-parkour card7-pcheck fitnessREV ;
 
 // Doesn't check Strength for high/low, just does a roll no matter what. Advantage: Can use it to go from 5 to 6 str. Disadvantage: Pointless and dangerous at 6.
 : card7-scheck 
 	cpet? if
-		($ cname .. " 'versteht das Prinzip des Werfens, ist aber nicht besonders gut darin, weil er/sie keine Daumen hat." $) cyoa-text! bitefx ouch--
+		($ cname .. " ' versteht das Konzept des Werfens, ist aber aufgrund fehlender Daumen nicht wirklich gut darin." $) cyoa-text! bitefx ouch--
 	then;
 	strengthroll if
-		($ cname .. " 'knallt mehrere Zombies um, indem er/sie Mulltonnen wirft. " .. cHe .. " 'entkommt und bekommt gleichzeitig ein tolles Workout. Perfekt!" $) cyoa-text! goodfx
+		($ cname .. "  wirft mehrere Zombies um indem er Mulltonnen wirft " .. cHe .. "  entkommt und bekommt gleichzeitig ein groartiges Training." $) cyoa-text! goodfx
 		strength++ morale++
 	then;
-		($ cname .. " 0" $) cyoa-text! bitefx ouch--
+		($ cname .. " 'versucht, die Zombies mit Mulltonnen abzuwehren, schafft es aber nicht, genug zu werfen, um ihren Angriff aufzuhalten." $) cyoa-text! bitefx ouch--
 ;
 cyoa-choice: card7-throw card7-scheck strengthREV ;
 
 cyoa-choice: card7-flip
-($ cname .. " 1d20+5 =  25  " .. cname .. "." $)
+($ cname .. " 'dreht VOLLKOMMEN durch und fangt an Dinge auf Zombies zu werfen und dann auf sie einzutreten. Es ist sowohl effektiv als auch sehr therapeutisch fur " .. cname .. "." $)
 cyoa-text! goodfx
 	morale++ temper++ strength++ temperREV strengthREV
 ;
 : card7-tryflip 
 	cchar angrystrong-revealed? not if then;
 	cchar angrystrong? if
-		choice( "'GANZ AUFGERISSEN WERDEN" )choice: card7-flip
+		choice( "Dreht VOLLKOMMEN durch" )choice: card7-flip
 	then
 ;
 
 cyoa: card7-cyoa
-	"Kampfen oder Kippen" cyoa-title!
+	"Kampfen oder Durchdrehen" cyoa-title!
 	choosehuman cicon
-	($ cname .. " 	Er macht Fehler beim Ausspahen einer Stadt und wird von einer großen Gruppe von Zombies ohne Waffen in die Enge getrieben." .. cHe .. "  ist in einer Gasse gefangen. Am Ende der Gasse ist schwerer Mull und ein großer Zaun." $) cyoa-text! basic-tone
+	($ cname .. " macht Fehler beim Auskundschaften einer Stadt und wird von einer groen Gruppe Zombies in die Enge getrieben, wahrend er unbewaffnet ist." .. cHe .. " ist in einer Gasse gefangen. Am Ende der Gasse befinden sich schwerer Mull und ein groer Zaun." $) cyoa-text! basic-tone
 		card7-tryflip
-		choice( "'Benutze Parkour-Fahigkeiten" )choice: card7-parkour
-		choice( "'Werfen Sie Mull weg" )choice: card7-throw
+		choice( "Parkour Fahigkeiten einsetzen" )choice: card7-parkour
+		choice( "Mull werfen" )choice: card7-throw
 ;
 
 // END Parkouuur

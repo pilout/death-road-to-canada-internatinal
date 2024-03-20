@@ -6,28 +6,28 @@ cyoa{
 
 cyoa-choice: cabin1-hermitchat-wisdom
 	ricon
-	($ "Der Eremit lehrt " .. pname .. "  'The Secret " .. "'GRIZZLED HERMIT STARKE!" rbold .. "'	JETZT GEH VERDAMMT NOCHMAL WEG UND KOMM NIE WIEDER!" pbold $) cyoa-text! goodfx
+	($ "Der Einsiedler lehrt " .. pname .. "  ein paar sue Schietipps und verrat auch die Geheimnisse von " .. "GRAUER EINSIEDLER HARTE!" rbold .. "	JETZT GEH RAUS UND KOMME NIE WIEDER!" pbold $) cyoa-text! goodfx
 		pchar .vitality++ pchar .shooting++
 ;
 
 cyoa-choice: cabin1-hermitchat-recruit
 	ricon
 	pchar charming? if
-		($ "'Der Einsiedler wird von " .. pname .. "'`s Reizen erweicht!	" .. "Well, I'm a hermit, but you know what? You're alright!" pbold $) cyoa-text! goodfx
+		($ "Der Einsiedler wird von " .. pname .. "'s Charme beeinflusst!" .. "'Nun, ich bin ein Einsiedler, aber weit du was? Du bist in Ordnung!" pbold $) cyoa-text! goodfx
 		recruit-yesno
 	else
-		($ "'Naturlich werde ich nicht mit euch kommen! Ich hatte es gut, bevor ihr die Horde mitgebracht habt!'" pbold .. "der Eremit wird nicht beeinflusst von " .. pname .. "s Reize." $) cyoa-text! badfx
+		($ "'Naturlich werde ich mich dir nicht anschlieen! Mir ging es gut bevor du die Horde mitgebracht hast!" pbold .. "'		Der Einsiedler wird nicht von " .. pname .. "'s Charme beeinflusst." $) cyoa-text! badfx
 	then
 ;
 
 cyoa-bridge: cabin1-hermitchat-coolit
 	ricon
 	cool-it-7 if
-		($ "'Der Eremit kuhlt es sofort! Er teilt seine Patronenmunition mit Ihnen, zusammen mit seinem Eremitenwissen. Er bietet auch an, dem Team beizutreten!" .. pname .. " 'Ich war uberrascht, dass das funktioniert hat!'" $) cyoa-text!
+		($ "Der Einsiedler kuhlt es sofort ab! Er teilt seinen Vorrat an Schrotflintenpatronen mit dir, zusammen mit seinem Einsiedlerwissen. Er bietet auch an, dem Team beizutreten!		" .. pname .. "  war uberrascht dass das funktioniert hat!" $) cyoa-text!
 		pchar .morale2+ goodfx cooled-it 40 add-shell pchar .shooting++ pchar .vitality++
 		recruit-yesno
 	else cool-it++
-		($ "0x0000000000000000000000000000000000000000000000000000000000000000," .. pname .. "s Empfindlichkeiten sind verletzt!" $) cyoa-text!
+		($ "Der Einsiedler kuhlt es nicht ab. Stattdessen lasst er eine Tirade aus Fluchen los.		" .. pname .. "''s Sensibilitaten sind beleidigt!" $) cyoa-text!
 		pchar .morale2- badfx
 	then
 ;
@@ -35,15 +35,15 @@ cyoa-bridge: cabin1-hermitchat-coolit
 cyoa: cabin1-hermitchat
 	ricon 1 nearest .character@ .party!
 	image-angry-hermit
-	"Der wutendste Eremit" cyoa-title!
+	"Der wutendste Einsiedler" cyoa-title!
 	region.zombie_basespawn@ 0 > if
-		($ "'der Eremit ist schon sehr wutend." .. "'	DU HAST DENN ALLESE ZOMBIES GEBRACHT, NICHT WIRD ICH?		LAß MICH IN MEINEM HAUS RUHEN!" pbold .. "'	Vielleicht versuche es mal spater, wenn es weniger Zombies gibt." $) cyoa-text!
+		($ "Der Einsiedler ist bereits wutend." .. "'		DU HAST ALLE DIESE ZOMBIES MITGEBRACHT, NICHT WAHR?		RAUS AUS MEINEM HAUS!" pbold .. "'		Versuchen Sie es vielleicht noch einmal wenn weniger Zombies da sind." $) cyoa-text!
 	else
 		0 nearest .character@ .party!
-		($ "'der Eremit ist etwas weniger wutend jetzt, aber nicht sehr viel." .. "'	WAS DARAUF ANGEBOTEN?		ICH HABE Viele wichtige Eremiten Sachen zu tun!" pbold $) cyoa-text!
-		choice( "'Frage dem Eremiten um Weisheit" )choice: cabin1-hermitchat-wisdom
-		choice( "'Bitten Sie ihn, mit Ihnen zu kommen" )choice: cabin1-hermitchat-recruit
-		choice( "'Sagt dem Eremiten Beruhige dich" fcoolit )choice: cabin1-hermitchat-coolit
+		($ "Der Einsiedler ist jetzt etwas weniger wutend, aber nicht viel." .. "'		Na? Was ist es?		Ich habe eine Menge wichtiger Einsiedlersachen zu erledigen!" pbold $) cyoa-text!
+		choice( "Frage nach Einsiedlerweisheit" )choice: cabin1-hermitchat-wisdom
+		choice( "Bitte ihn sich dir anzuschlieen" )choice: cabin1-hermitchat-recruit
+		choice( "'Sag dem Einsiedler er solle sich abkuhlen" fcoolit )choice: cabin1-hermitchat-coolit
 		clear-cyoa 
 	then
 ;
@@ -57,12 +57,12 @@ cyoa: cabin1-hermitchat
 	4 over .fitness!
 	4 over .vitality!
 	4 over .health!
-	"'Einsiedler" over .name!
+	"Einsiedler" over .name!
 	0 over .female!
 	0 over .attitude!
 	0 over .composure!
 	0.88 over .ai.threat_threshold!
-	"'war uberrascht, dass er sich dem Team anschloss, da er Einsiedler war und das." over .job!
+	"war uberrascht, dass er uberhaupt dem Team beitrat, da er ein Einsiedler und so war." over .job!
 	WEAPON_SHOTGUN over .weapona!
 	WEAPON_FIRE over .weaponb!
 	40 LOOT_SHOTGUN_SHELL 2 pick .lootamt!
@@ -105,7 +105,7 @@ regiondef{
 		on-foot
 		
 		: make-a-cabin map{
-			"'hermit-hutte" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
+			"kabineneinsiedler" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
 			addloc // Add a location using the resulting location definition  ( locdefid -- locid )
 			prefab{ 10 cabin } // Create a cabin of 5 width using the new location ( locid w -- <build cabin centered in upper part of map> )
 			}

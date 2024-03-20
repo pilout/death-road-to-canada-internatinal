@@ -66,11 +66,11 @@ cyoa{
 
 cyoa: opp-recruit-yes2
 	team-full? if
-		($ "'Die Gruppe ist voll. Wen mochtest du dafur ersetzen, um Platz fur zu machen? " .. rname .. "?" $) cyoa-text!
+		($ "Die Gruppe ist voll.		Wen wurdest du gerne ersetzen um Platz fur " .. rname .. "?" $) cyoa-text!
 		' recruit-replace cyoa-team-choice
 	then;
 	ricon
-	($ "So cool!" $) cyoa-text! 2 300 tone
+	($ "So OP!" $) cyoa-text! 2 300 tone
 		recruited
 ;
 
@@ -78,30 +78,30 @@ cyoa: opp-recruit-yes
 	clear-cyoa 0.25 recruitee .ai.wander_chance! 0 nearest .unseen!
 	opp-recruit-yes2
 	' OPP-recruit-count ++
-	recruitee .name@ "Link" $= if road{ 1 2 rnd to lnk-countdown } then;
+	recruitee .name@ "L@nk" $= if road{ 1 2 rnd to lnk-countdown } then;
 	recruitee .name@ "Ninja" $= if road{ 6 8 rnd to ninja-countdown } then;
 	recruitee .name@ "???" $= if road{ 2 3 rnd to mason-countdown 1 to mason-curse } then;
 	recruitee .name@ "Ritter" $= if road{ 4 6 rnd to knight-countdown } then;
-	recruitee .name@ "Anime-Madchen" $= if road{ 2 to anime-countdown } then;
+	recruitee .name@ "Anime chan" $= if road{ 2 to anime-countdown } then;
 ;
 
 : OPP-recruit-left 4 OPP-recruit-count - rbold ;
 
 cyoa: opp-recruit
 	nearest .character@ choosechar cchar to recruitee ricon
-	($ "HOLA SOY " .. rname $) text!
+	($ "HALLO ICH BIN " .. rname $) text!
 	
 	recruitee .specialmode@ 0 > if
-		"WARNUNG: EXTREMLY FEHLERHAFT!" fbold +crtext
+		"WARNUNG: EXTREM VERBUGGT" fbold +crtext
 		recruitee .specialtype@ 1 = if
-			"MECHAMOUNTIE ist besonders fehlerhaft! Mit eigener Gefahr verwenden!" rbold +crtext
+			"MECHAMOUNTIE IST BESONDERS VERBUGGT! VERWENDUNG AUF EIGENE GEFAHR!" rbold +crtext
 		then
 	then
 	
-	OPP-recruit-count 3 > if ($ "Du hast genugend ubermachtige Charaktere rekrutiert! Ich schneide dich ab!" bbold $) +crtext then;
-	($ "'Konnen Sie " bbold .. OPP-recruit-left .. " mehr ubermachtige Charaktere!" bbold $) +crtext
-	choice( "'Verlasse " .. rname .. " ' fur die Zeit" )choice
-	choice( "'Ask: Frage " .. rname .. " 'zum Beitreten" )choice: opp-recruit-yes	
+	OPP-recruit-count 3 > if ($ "'Du hast genug ubermachtige Charaktere rekrutiert! Ich schneide dich ab!" bbold $) +crtext then;
+	($ "Du kannst " bbold .. OPP-recruit-left .. "  mehr ubermachtige Charaktere!" bbold $) +crtext
+	choice( "Lass " .. rname .. "  vorerst" )choice
+	choice( "Frag " .. rname .. "  zum Mitmachen auf" )choice: opp-recruit-yes	
 ;
 
 }
@@ -184,17 +184,17 @@ roomgen{
 
 : .opp-santafy args( chara )
 	3 <- chara .specialtype!
-	"'Heiliger Nikolaus" <- chara .name!
+	"Weihnachtsmann" <- chara .name!
 	4 <- chara .shooting! 0 <- chara .female! 6 <- chara .morale!
 ;
 
 : .opp-evilsantafy args( chara )
 	<- chara .opp-santafy
-	"'Boser Nikolaus" <- chara .name! 4 <- chara .specialtype!
+	"Bose Weihnachtsmann" <- chara .name! 4 <- chara .specialtype!
 ;
 
 : .opp-turkeyfy args( chara )
-	"'Turkey" <- chara .name!
+	"Truthahn" <- chara .name!
 	27 <- chara .specialtype!
 ;
 
@@ -208,7 +208,7 @@ roomgen{
 
 : .opp-gordon args( char )
 	49 <- char .specialtype!
-	"'Dicke" <- char .name!
+	"Gordo" <- char .name!
 	WEAPON_CROWBAR <- char .weapona!
 	WEAPON_SHOTGUN <- char .weaponb!
 	WEAPON_DOLT <- char .weaponc!
@@ -223,36 +223,36 @@ roomgen{
 	3 <- char .wits!
 	3 <- char .loyalty!
 	3 <- char .composure!
-	"'scheint ruhig zu sein, oder vielleicht hat er gar keine Personlichkeit." <- char .job!
+	"wirkt ruhig oder hat moglicherweise uberhaupt keine Personlichkeit." <- char .job!
 	0 <- char .female!
 ;
 
 : .opp-fairy args( char )
 	13 <- char .specialtype!
-	"'Fee-Konigin" <- char .name!
+	"Feenkonigin" <- char .name!
 	5 <- char .shooting!
 	4 <- char .strength!
 	6 <- char .fitness!
 	1 <- char .female!
 	0 <- char .loyalty!
 	4 <- char .medical!
-	"'ist die Konigin aller Feeweesen." <- char .job!
+	"ist die Konigin aller Feen." <- char .job!
 ;
 
 : .opp-panda args( char )
 	35 <- char .specialtype!
-	"'Panda" <- char .name!
+	"Panda" <- char .name!
 	WEAPON_FIERCE <- char .weapon_default!
 	2 STAT_STRENGTH <- char .bonus!
 	6 <- char .strength!
 	6 <- char .fitness!
 	1 <- char .female!
 	1 <- char .carrying.slot_count!
-	"'ist ein Panda. Sehr schon, bis er wutet." <- char .job!
+	"ist ein Panda. Wirklich niedlich auer wenn er verargert ist." <- char .job!
 ;
 
 : .opp-george args( char )
-	"'George" <- char .name!
+	"George" <- char .name!
 	26 <- char .specialtype!
 	6 <- char .wits! 0 <- char .attitude! 
 	0 <- char .composure! 6 <- char .loyalty!
@@ -267,19 +267,19 @@ roomgen{
 	4 <- char .fitness!
 	4 <- char .vitality!
 	4 <- char .health!
-	"'Einsiedler" <- char .name!
+	"Einsiedler" <- char .name!
 	0 <- char .female!
 	0 <- char .attitude!
 	0 <- char .composure!
-	"'war uberrascht, dass er sich dem Team anschloss, da er Einsiedler war und das." <- char .job!
+	"war uberrascht, dass er uberhaupt dem Team beitrat, da er ein Einsiedler und so war." <- char .job!
 	WEAPON_SHOTGUN <- char .weapona!
 	WEAPON_FIRE <- char .weaponb!
 	40 LOOT_SHOTGUN_SHELL <- char .lootamt!
 ;
 
 : .opp-clown args( char )
-	"'Clown" <- char .name!
-	"'is a funny clown!' in German is 'ist ein lustiger Clown!" <- char .job!
+	"Clown" <- char .name!
+	"ist ein lustiger Clown!" <- char .job!
 	29 <- char .specialtype!
 	6 <- char .morale! 
 	0 <- char .attitude!
@@ -288,7 +288,7 @@ roomgen{
 
 : .opp-herman args( char )
 	18 <- char .specialtype!
-	"'Prince Herman' in German is 'Prinz Herman" <- char .name!
+	"Prinz Herman" <- char .name!
 	WEAPON_CLAYMORE <- char .weapona!
 	1 <- char .weapon_nodropa!
 	6 <- char .strength!
@@ -313,14 +313,14 @@ roomgen{
 	opprecruit-in .broomify -4 movey -4 movex
 
 	opprecruit-in .gerbilfy
-	opprecruit-in .gnomify "'Gnom" rename 2 movex
-	opprecruit-in .gnomify2 "'Also Gnomey' in German is 'Auch Gnomey" rename 4 movex
+	opprecruit-in .gnomify "Gnomey" rename 2 movex
+	opprecruit-in .gnomify2 "Auch Gnomey" rename 4 movex
 	opprecruit-in .barbarify -2 movex
 	opprecruit-in .cleanerify -4 movex
 
-	opprecruit-in .animeify "Anime-Madchen" rename -2 movey
+	opprecruit-in .animeify "Anime chan" rename -2 movey
 	opprecruit-in .opp-turkeyfy -2 movey 2 movex
-	opprecruit-in .horsify "'Pferd" rename -2 movey 4 movex
+	opprecruit-in .horsify "Pferd" rename -2 movey 4 movex
 	opprecruit-in .opp-santafy -2 movey -2 movex
 	opprecruit-in .opp-evilsantafy -2 movey -4 movex
 	
@@ -341,27 +341,27 @@ roomgen{
 : rarepartyX
 
 	opprecruit-in .lynnify 
-	opprecruit-in .chickenify "'Cluck-cluck' in German is 'Gack-gack" rename 2 movex
-	opprecruit-in .pqify "'Punchzerker' in German is 'Punchzerker" rename 4 movex
-	opprecruit-in .skelify "'Sans Undertale' in German is 'Sans Untertale" rename -2 movex
+	opprecruit-in .chickenify "Gack gack" rename 2 movex
+	opprecruit-in .pqify "Punchzerker" rename 4 movex
+	opprecruit-in .skelify "Sans Undertale" rename -2 movex
 	opprecruit-in .grimreaperify -4 movex
 
-	opprecruit-in .mountiefy "'Bergpolizist" rename -2 movey
-	opprecruit-in .genieify "'Geist" rename -2 movey 3 movex
+	opprecruit-in .mountiefy "Mountie" rename -2 movey
+	opprecruit-in .genieify "Genie" rename -2 movey 3 movex
 	// opprecruit-in . -2 movey 4 movex
 	// opprecruit-in . -2 movey -2 movex
 	opprecruit-in .moosify -2 movey -3 movex
 	
-	opprecruit-in .fly "'Die Fliege" rename 2 movey
+	opprecruit-in .fly "Die Fliege" rename 2 movey
 	opprecruit-in .oscarcatify 2 movey 2 movex
 	opprecruit-in .sambyoolify 2 movey 4 movex
-	opprecruit-in .flyhead "'Fliege" rename 2 movey -2 movex
-	opprecruit-in .flybody "'Der" rename 2 movey -4 movex
+	opprecruit-in .flyhead "Fliege" rename 2 movey -2 movex
+	opprecruit-in .flybody "Der" rename 2 movey -4 movex
 	
 ;
 
 : rarepartyM
-	opprecruit-in .mechamountify "Mechamontie" rename
+	opprecruit-in .mechamountify "Mecha Mountie" rename
 ;
 	
 }
@@ -371,9 +371,9 @@ map{ regiondef{
 trade-camp-reset
 
 : bldg tanchor!
-	"'vertraut" $picklocid addloc 
+	"vertraut" $picklocid addloc 
 		prefab{
-		BLUE "'FAMILIAR LOUNGE" .. sign-text!
+		BLUE "VERTRAUTE LOUNGE" .. sign-text!
 		1 1 1 sign-bg!
 		0 1 1 sign-border!
 		1 1 1 sign-fg!
@@ -382,9 +382,9 @@ trade-camp-reset
 ;
 
 : bldg2 tanchor!
-	"'Versuch" $picklocid addloc 
+	"experiment" $picklocid addloc 
 		prefab{
-		BLUE "'VERSUCHSARTIG - EIGENES RISIKO!" .. sign-text!
+		BLUE "EXPERIMENTELL   EIGENE VERANTWORTUNG" .. sign-text!
 		1 1 1 sign-bg!
 		0 1 1 sign-border!
 		1 1 1 sign-fg!
@@ -399,34 +399,34 @@ trade-camp-reset
 : rareparty1
 	opprecruit .opp-gordon -4 movey -4 movex
 	opprecruit .opp-garfy -4 movey -2 movex	
-	opprecruit .opp-fairy "'Fee-Konigin" rename -4 movey
+	opprecruit .opp-fairy "Feenkonigin" rename -4 movey
 	opprecruit .opp-panda -4 movey 2 movex
 	opprecruit .opp-george -4 movey 4 movex
 	
 	opprecruit .renfairify
-	opprecruit .dsypify "'DSYP" rename 2 movex
-	opprecruit .valkify "'Walkure" rename 4 movex
-	opprecruit .tlbify "'T*L*B" rename -2 movex
+	opprecruit .dsypify "DSYP" rename 2 movex
+	opprecruit .valkify "Walkure" rename 4 movex
+	opprecruit .tlbify "T*L*B" rename -2 movex
 	opprecruit .bortify -4 movex
 	
-	opprecruit .fencify "'Fechter" rename -2 movey
-	opprecruit .alvify "'Alvis" rename -2 movey 2 movex
-	opprecruit .wrestify "Der Satan" rename -2 movey 4 movex
+	opprecruit .fencify "Fechter" rename -2 movey
+	opprecruit .alvify "Alvis" rename -2 movey 2 movex
+	opprecruit .wrestify "El Satan" rename -2 movey 4 movex
 	opprecruit .rickify -2 movey -2 movex
 	opprecruit .debutantify "Debutantin" rename -2 movey -4 movex
 	
-	opprecruit .lnkify "Link" rename 2 movey
+	opprecruit .lnkify "L@nk" rename 2 movey
 	opprecruit .masonify "???" rename 2 movey 2 movex
-	opprecruit .octodadify "Einige Kerl" rename 2 movey 4 movex
+	opprecruit .octodadify "Einige Typen" rename 2 movey 4 movex
 	opprecruit .boxerify "Meister" rename 2 movey -2 movex
 	opprecruit .madscify 2 movey -4 movex
 ;
 
 : rareparty2
 
-	opprecruit .sumoify "'Sumo" rename
-	opprecruit .rambify "Schafbock" rename 2 movex
-	opprecruit .billify "'Unfug" rename 4 movex
+	opprecruit .sumoify "Sumo" rename
+	opprecruit .rambify "Rambos" rename 2 movex
+	opprecruit .billify "Redonk" rename 4 movex
 	opprecruit .ninjaify "Ninja" rename -2 movex
 	opprecruit .cupidify -4 movex
 
@@ -447,7 +447,7 @@ trade-camp-reset
 : rareparty3
 
 	opprecruit .piratify
-	opprecruit .goatify "'Ziege" rename 2 movex
+	opprecruit .goatify "Ziege" rename 2 movex
 	opprecruit .sportify 4 movex
 	opprecruit .skelknightify -2 movex
 	opprecruit .nimbusify -4 movex
