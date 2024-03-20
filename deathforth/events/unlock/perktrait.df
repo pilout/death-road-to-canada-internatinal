@@ -93,15 +93,15 @@
 	ADJ-ZPCOST zp-buy!
 ;
 
-: trait-nowmake  "Agora pode usar a tela de Personagens Customizados para criar pessoas com o " ;
-: perk-line1 0 > if "Voce atualizou o " else trait-nowmake then ;
-: zp-upgradenote? 0 > if "Todos os personagens que voce designa ou ja designou este perk vao poder se divertir com as novas efeitos!" +crtext then ;
+: trait-nowmake  "Agora voce pode usar a tela de Personagens Personalizados para criar pessoas com o " ;
+: perk-line1 0 > if "Voce melhorou o " else trait-nowmake then ;
+: zp-upgradenote? 0 > if "Todos os personagens que voce atribuir ou que atribuiram esta vantagem poderao aproveitar os novos efeitos!" +crtext then ;
 
-: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. " traco!" $) text!
+: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. "  traco!" $) text!
 <- name 0 shared-buy! goodfx ;
 
 : perk-buy! args( title name level ) 
-	($ <- level perk-line1 .. <- title pbold .. " perk!" $) text!
+	($ <- level perk-line1 .. <- title pbold .. "  vantagem!" $) text!
 	<- level zp-upgradenote? 
 	<- level 1 > if "Esta vantagem atingiu o nivel maximo!" rainbold +crtext then
 	<- name <- level shared-buy! goodfx 
@@ -117,8 +117,8 @@ defer gnomeback
 // Trait/Perk view and confirm
 // Type: 0 for trait unlock, 1 for perk unlock
 
-: unlockupgrade? 1 < if "Desbloqueie " else "Atualizar " then ;
-: traitperk? 1 < if "  Caracteristica" else "  Vantagem" then ;
+: unlockupgrade? 1 < if "Desbloquear " else "Melhorar " then ;
+: traitperk? 1 < if "  Traco" else "  Vantagem" then ;
 : $traitperk 1 < if perkdef{ $trait } else perkdef{ $perk } then ;
 
 : shared-confirm! args( name level handler type exit )
@@ -131,7 +131,7 @@ defer gnomeback
 		choice( <- level unlockupgrade? .. <- name pbold .. <- type traitperk? .. "! - " .. ADJ-ZPCOST .. "  ZP" pbold )choice <- handler cyoa-choice-handler!
 	then 
 		<- level 1 < if 
-			($ "Custam " .. ADJ-ZPCOST .. " Custa 65.2708 ZP para desbloquear!" $) 
+			($ "Custa " .. ADJ-ZPCOST .. "  ZP para desbloquear!" $) 
 		else
 			($ "  CUSTO: " .. ADJ-ZPCOST .. "  ZP" $) 
 		then +text +cr zptally
@@ -155,18 +155,18 @@ defer gnomeback
 // Temporary Dude	
 
 cyoa: perk-dingus gstats{
-	"Vantagens e Caracteristicas" cyoa-title!
+	"Vantagens e tracos" cyoa-title!
 		
 	"I'm developing an amazing new product
 	I call them... unlocks. Or 'uncks' for short" text!
 	
 	zombo-point 3 < if
-		"'Voce vai precisar obter alguns Pontos Zombo para ver o que quero dizer! Eu tambem os inventei agora mesmo."
+		"'Voce vai precisar obter alguns Pontos Zombo para ver o que quero dizer! Eu tambem os inventei agora."
 	else
-		"'Testemunhe a magia das 'conquistas'!		Espere, eu quis dizer 'desbloqueios'."
+		"'Testemunhe a magia dos 'cheevos'!		Espere, eu quis dizer 'desbloqueios'."
 	then +crtext +cr zptally
 	
-	choice( "Sai agora" )choice
+	choice( "Va embora por enquanto" )choice
 	
 } ;
 

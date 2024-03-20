@@ -2,7 +2,7 @@ cyoa{ road{
 
 (*
 ------------------------------------------------------------------------------------------------------------------------
-	004 - "Os Desencantados" - Don Thacker
+	004 - "O Nao Invocado" - Don Thacker
 	One of the group becomes posessed by the demon HEKTATRIUS. He wants PIZZA and SMOKES.
 	That's cool, right? I mean he sounds pretty rad.
 ------------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ cyoa{ road{
 // The group kicks the character TO THE CURB
 cyoa-choice: don-common-demon-offload
 	victim to cchar
-	($ notcname .. " da um chute " .. vname .. "  pela porta do passageiro. Como " .. vhe .. " " .. vhe .. " 'Explode em um enxame de pequenos morcegos pretos.'" $) cyoa-text!
+	($ notcname .. "  chuta " .. vname .. " pela porta do passageiro. Como " .. vhe .. " cai " .. vhe .. " explode em um enxame de pequenos morcegos pretos." $) cyoa-text!
 	victim .kill
 	morale--all
 ;
@@ -34,7 +34,7 @@ cyoa-choice: don-common-demon-offload
 
 cyoa-choice: don-common-demon-pizza-refuse
 // Victim was necessary to carry the character selected at the start all the way to here. Otherwise the intermediary cyoa: would have cleared it. Could have also gotten around this using the vortex-003 example of not using cyoa: and using cyoa-start instead, but it would have been really clumsy and prone to breaking.
-	($ "0.0" rbold .. "O demonio solta " .. vname .. "quem e alterado pela experiencia.," $) cyoa-text!
+	($ "UGH, BEM, OBRIGADO DE QUALQUER MANEIRA, EU ACHO.	" rbold .. "O demonio libera " .. vname .. ", que e mudado pela experiencia." $) cyoa-text!
 	don-common-demonify sfx{ creepy }
 ;
 
@@ -42,7 +42,7 @@ cyoa-choice: don-common-demon-pizza-refuse
 
 cyoa-choice: don-common-demon-pizza2
 	($ "THANKS FOR THE SOOOUUUUUUUUL.
-	" rbold .. "Todos os sobreviventes estao enfeitados com poder demoniaco." $) cyoa-text!
+	" rbold .. "Todos os sobreviventes sao infundidos com poder demoniaco." $) cyoa-text!
 	cchar .kill
 	cchar ' don-common-demon-pizzaboost foreach-team-char-except
 ;
@@ -58,18 +58,18 @@ cyoa: don-common-demon-pizza
 image-demon
 solo if
 	soloer choosechar
-	($ "OBRIGADA POR CUSTO, DINGUS.	," rbold .. "Os demonios explodem " .. cname .. "  com poderes misteriosos, depois desaparecem!," $) cyoa-text!
+	($ "MUITO OBRIGADO, DINGUS.	" rbold .. "O demonio ardilha com poderes espetaculares depois desaparece " .. cname .. " explodem com poderes misteriosos e desaparecem!" $) cyoa-text!
 	cchar to victim
 	don-common-demonify sfx{ creepy }
 else
-	($ "As batatas eram sabor de pizza. BOM SUFICIENTE." .. " HEKATRIUS" rbold .. " pede uma alma para lavala.	" .. "QUAL ALMA SERA SACRIFICADA?" rbold $) cyoa-text!
+	($ "Essas batatas eram sabor pizza. BOM SUFICIENTE." .. " HEKATRIUS" rbold .. " pergunta por uma alma para lava la.	" .. "QUAL ALMA SERA SACRIFICADA?" rbold $) cyoa-text!
 	team-count 3 > if
 		' don-common-demon-pizza2 2 #cyoa-team-choice
-		choice( "Escolha alguem outro" )choice: don-common-demon-pizza2-4
+		choice( "Escolha outra pessoa" )choice: don-common-demon-pizza2-4
 	else
 		' don-common-demon-pizza2 3 #cyoa-team-choice
 	then
-	choice( "Nao sacrificar ninguem.," )choice: don-common-demon-pizza-refuse	
+	choice( "Nao sacrificar ninguem." )choice: don-common-demon-pizza-refuse	
 then
 	-1 trunk-food+
 ;	
@@ -77,8 +77,8 @@ then
 
 cyoa-choice: don-common-demon-facepunch
 	
-	($ "MALEDIZA VOCE HUMANO! MALEDIZA VOCE!	" pbold .. "HEKATRIUS" rbold .. "  desaparece. " .. cname .. " 'sentese muito bem com isso.'" $) cyoa-text!
-		($ "Que soco milagroso!" $) +crtext
+	($ "MALEDIZA VOCE HUMANO! MALEDIZA VOCE!	" pbold .. "HEKATRIUS" rbold .. " desaparece. " .. cname .. " se sente muito bem sobre isso." $) cyoa-text!
+		($ "Que maravilhosa soco!" $) +crtext
 		morale2+ strengthREV strength++ temperREV goodfx
 
 ;	
@@ -88,12 +88,12 @@ cyoa-choice: don-common-demon-freakout
 	// the demon leaves and you have essentially lost a person for nothing
 	// maybe don't freak out next time
 	
-	($ Thegroup .. " 'pira'" rbold $) text!
+	($ Thegroup .. "  surta!" rbold $) text!
 	notsolo if
-		($ "HEKATRIUS" rbold .. " " .. vname .. ", que entao explode!" $) +crtext
+		($ "HEKATRIUS" rbold .. "  surta por um tempo! Ele entao se transforma de volta em " .. vname .. ", que entao explode!" $) +crtext
 		victim .kill
 	else
-		($ "HEKATRIUS" rbold .. " d" $) +crtext
+		($ "HEKATRIUS" rbold .. " ' surta por um tempo, entao desaparece em uma nuvem de fumaca! E muito traumatizante!" $) +crtext
 		morale--
 	then badfx
 ;	
@@ -101,35 +101,35 @@ cyoa-choice: don-common-demon-freakout
 	
 : don-common-demon-angrypunch 
 	most-angrystrong if
-		choice( "Bater na cara dele" )choice: don-common-demon-facepunch
+		choice( "Soque o rosto dele" )choice: don-common-demon-facepunch
 	then
 ;	
 
 : don-common-demon-choiceblock
 		trunk-food 0 > if
-			choice( "1 happiness" )choice: don-common-demon-pizza	
+			choice( "Ofereca a ele um saco de batatas fritas   1 comida" )choice: don-common-demon-pizza	
 		then
-		choice( "Pirar" )choice: don-common-demon-freakout
+		choice( "Surte" )choice: don-common-demon-freakout
 ;
 
 : don-common-demon-transmutetext
-	($ cname .. "''s olhos rolam para tras e " .. che .. "  comeca a convulsionar! " .. cHe .. " tremula e grita em linguas arcanas." $) +crtext
-	($ "Dentro " .. vname .. "'lugar agora fica ' " .. "O DEMONIO HEKATRIUS" rbold .. ". Ele pergunta se voce tem pizza. Ele poderia realmente usar uma fatia quente." $) +crtext
+	($ cname .. "'os olhos de " .. che .. "  comeca a convulsionar! " .. cHe .. "  treme e grita em linguas arcanas." $) +crtext
+	($ "Em " .. vname .. "'o lugar de " .. "O DEMONIO HEKATRIUS" rbold .. ". Ele pergunta se voce tem pizza. Ele realmente gostaria de uma fatia quente." $) +crtext
 	
 	don-common-demon-choiceblock
 ;	
 	
 // Enter HEKTATRIUS
 cyoa: don-common-demon
-	"Os Desencantados" cyoa-title!
-	($ Thegroup .. " percebe um cheiro ruim vindo do assoalho. Enxofre. Carneiro podre. Bala de milho." $) cyoa-text! basic-tone 
-	($ "Um flash de luz e o som de um " .. "mil baleias explodindo" pbold .. " enche o carro." $) +crtext
+	"O Nao Invocado" cyoa-title!
+	($ Thegroup .. "  percebe um cheiro ruim vindo das tabuas do assoalho. Enxofre. Carneiro podre. Doce de milho." $) cyoa-text! basic-tone 
+	($ "Um flash de luz e o som de um " .. "mil baleias explodindo" pbold .. "  preenche o carro." $) +crtext
 	
 	solo if // alone
 		image-demon
 		soloer choosechar
 		($ "A fumaca se dissipa para revelar " .. "O DEMONIO HEKATRIUS" rbold .. "." $) +crtext
-		($ "Ele pergunta se voce tem pizza. Ele poderia usar uma fatia quente." $) +crtext	
+		($ "Ele pergunta se voce tem pizza. Ele poderia comer uma fatia quente." $) +crtext	
 		don-common-demon-angrypunch 
 		don-common-demon-choiceblock
 		

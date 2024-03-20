@@ -24,22 +24,22 @@ cyoa{ regiondef{
 ;
 
 : witch-done
-	($ "A bruxa gargalha e entao diz " .. thegroup .. " ir embora." $) +crtext clear-cyoa
+	($ "A bruxa gargalha e depois conta " .. thegroup .. " ir embora" $) +crtext clear-cyoa
 ;
 
 : charm-witch
 	most-charming if
-		choosechar ($ "  A bruxa da " .. cname .. " ' uma Vassoura de Bruxa gratis.		" .. "TALVEZ VOCE POSSA SER UMA BRUXA ALGUM DIA! *GARGALHADAS*" pbold $) 
+		choosechar ($ " A bruxa da " .. cname .. " 'uma vassoura de bruxa gratuita." .. "TALVEZ VOCE POSSA SER UMA BRUXA UM DIA! *GARGALHANDO*" pbold $) 
 		+cr +text 1 WEAPON_WITCH trunk.weapon+ cicon
 	then
 ;
 
 cyoa-bridge: trade-witch-20
-	($ Thegroup .. "  suborna a bruxa para se juntar ao time!	" .. "POSSO LEVAR MEU CALDEIRaO COMIGO?" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " suborna a bruxa para entrar no time!" .. "POSSO LEVAR MEU CALDEIRAO COMIGO?" pbold $) cyoa-text! basic-tone
 	-20 trunk-food+
 	clear-cyoa cchar to recruitee
 	team-full? if
-		($ "O grupo esta cheio.		Quem voce gostaria de substituir para dar lugar a bruxa?" $) +crtext
+		($ "O grupo esta cheio. Quem voce gostaria de substituir para dar lugar a bruxa?" $) +crtext
 		' recruit-replace cyoa-team-choice
 	else
 		recruited
@@ -56,7 +56,7 @@ cyoa-bridge: trade-witch-20
 
 cyoa-bridge: trade-witch-10
 	($ Thegroup .. " buys a BLACK CAT...
-	" .. "BEM, EU ACHO QUE VOCE CONSEGUE TER UM ANIMAL DE ESTIMACaO!" pbold $) cyoa-text! basic-tone
+	" .. "BEM, ACHO QUE VOCE PODE LIDAR COM UM ANIMAL DE ESTIMACAO!" pbold $) cyoa-text! basic-tone
 
 	interactee .character@ .my-cat-thing .character@ to recruitee
 
@@ -65,7 +65,7 @@ cyoa-bridge: trade-witch-10
 	-13 trunk-food+ ricon
 	witch-done
 	team-full? if
-		($ "O grupo esta cheio.		Quem voce gostaria de substituir para dar lugar ao gato preto?" $) +crtext
+		($ "O grupo esta cheio. Quem voce gostaria de substituir para dar lugar ao gato preto?" $) +crtext
 		' recruit-replace cyoa-team-choice
 	else
 		recruited
@@ -76,33 +76,33 @@ cyoa-bridge: trade-witch-10
 ;
 
 cyoa-choice: trade-witch-5
-	($ Thegroup .. " ' compra uma Vassoura de Bruxa!	" .. "ESTA VASSOURA FOI INFUNDIDA COM O PODER DA MAGIA NEGRA, ENTaO ELA VARRE DUAS VEZES MELHOR QUE UMA VASSOURA NORMAL!" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " 'compra uma vassoura de bruxa!" .. "ESTA VASSOURA FOI INFUNDIDA COM O PODER DA MAGIA NEGRA, POR ISSO ELA VARRE DUAS VEZES MELHOR QUE UMA VASSOURA NORMAL!" pbold $) cyoa-text! basic-tone
 	1 WEAPON_WITCH trunk.weapon+ -5 trunk-food+
 	witch-done
 ;
 
 cyoa-choice: trade-witch-1
-	($ pname .. "  pergunta a bruxa sobre seu caldeirao.	" .. "'VOCE PODE BEBER DELE SE QUISER! E MUITO VENENOSO." pbold $) cyoa-text! basic-tone
+	($ pname .. " pergunta a bruxa sobre seu caldeirao." .. "'VOCE PODE BEBER DELA SE QUISER! E MUITO VENENOSO." pbold $) cyoa-text! basic-tone
 	witch-done
 ;
 
 cyoa-choice: trade-witch-coolit
 	cpet? if
-		($ cname .. " ' solta um grande pum contra o caldeirao da bruxa." $)
+		($ cname .. " 'solta um grande pum contra o caldeirao da bruxa." $)
 	else
-		($ cname .. "  diz ao comerciante bruxo para " .. "0" pbold $) then cyoa-text!
+		($ cname .. " diz ao feiticeiro comerciante para " .. "SE ACALMAR. TAMBEM, BELO CALDEIRAO! NAO!" pbold $) then cyoa-text!
 	cool-it++
-		($ "A bruxa apoderase " .. cname .. ".
+		($ "A bruxa agarra " .. cname .. ".
 		" .. "MAKE FUN OF THE WITCH'S BREW?
 			GET THROWN IN THE WITCH'S STEW!!" rbold $) badfx +crtext 
-		($ "A bruxa joga	 " .. chim .. "  no caldouro!" $) +crtext
+		($ "A bruxa joga " .. chim .. "  no caldeirao!" $) +crtext
 		cpet? if
-			($ cname .. " esta totalmente engolida num caldo venenoso! Delicioso!" $) +crtext
+			($ cname .. "  esta completamente envolto em ensopado venenoso! Que delicia!" $) +crtext
 			cchar .sting2-
 			cchar .morale2+
 			cchar .vitality++
 		else
-			($ cname .. "  - VIDA MAXIMA REDUZIDA PARA 1" rbold $) +crtext
+			($ cname .. "    sAUDE MAXIMA REDUZIDA PARA 1" rbold $) +crtext
 			cchar .skelbody
 			cchar .morale2-
 			cchar .dexterity++
@@ -111,24 +111,24 @@ cyoa-choice: trade-witch-coolit
 ;
 
 cyoa: trade-rare-witch
-	"A Bruxa e o Caldouro" cyoa-title!
+	"A Bruxa e o Caldeirao" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "'Voce esta perturbando essa bruxa enquanto ela faz atividades de bruxaria.	" .. "'VOCE PODERIA ME DISTURBAR UMA VEZ SO, ESTOU OCUPIADO COM MINHAS ATIVIDADES DE BRUXARIA!" pbold $) cyoa-text! basic-tone foodamt
-	choice( "Fique tranquilo por agora" )choice
+	($ "'Voce esta atrapalhando essa bruxa de fazer atividades de bruxa." .. "'VOCE PODE ME INCOMODAR UMA VEZ E SOMENTE UMA VEZ, ESTOU OCUPADA COM MINHAS ATIVIDADES DE BRUXA!" pbold $) cyoa-text! basic-tone foodamt
+	choice( "Fique quieto por enquanto" )choice
 	most-grating if 
-		charchoice( " 'digalhe PARA SE CALAR'" fcoolit )choice: trade-witch-coolit
+		charchoice( "  diz a ela para SE ACALMAR" fcoolit )choice: trade-witch-coolit
 	then
 	trunk-food 5 < if
-		choice( "Pergunte sobre o caldouro" )choice: trade-witch-1
+		choice( "Pergunte sobre o Caldeirao" )choice: trade-witch-1
 	else
 		trunk-food 19 > if
-			choice( "Receba Bruxa para 20 comida" )choice: trade-witch-20
+			choice( "Recrute a Bruxa por 20 alimentos" )choice: trade-witch-20
 		then
 		trunk-food 12 > if
-			choice( "Gato Preto para 13 comida" )choice: trade-witch-10
+			choice( "Gato Preto por 13 alimentos" )choice: trade-witch-10
 		then
 		trunk-food 4 > if
-			choice( "'Bica de Bruxa para 5 comida" )choice: trade-witch-5
+			choice( "'Vassoura de Bruxa por 5 alimentos" )choice: trade-witch-5
 		then
 	then
 ;
@@ -138,8 +138,8 @@ cyoa: trade-rare-witch
 : kip-lab-foodcheck kip-lab-zap 1 < if 5 else 20 then ;
 
 cyoa-choice: trade-rare-lab-go
-	"Melhoria Genetica" cyoa-title!
-	($ cname .. "  entra na maquina e e atingido por " .. "RAIOS COSMICOS" fbold .. ". " .. cHe .. " se sente energizado!" $) text!
+	"Aprimoramento Genetico" cyoa-title!
+	($ cname .. "  entra na maquina e e atingido por " .. "RAIOS COSMICOS" fbold .. ". " .. cHe .. "  sente se energizado!" $) text!
 	strength++ fitness++ cchar .fullheal
 	lab-effect depths 0= if LAB-EFFECT shuffles to lab-effect then
 	drawcard 
@@ -162,20 +162,20 @@ cyoa-bridge: trade-rare-lab-pick
 ;
 
 cyoa: trade-rare-lab
-	"Maquina de Ciencia do Kip" cyoa-title!
+	"'Maquina de Ciencia do Kip" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "0x0000000000000000000000000000000000000000000000000000000000000001" .. "3 " pbold $) cyoa-text! basic-tone
+	($ "'E uma especie de lagarto alienigena. Ninguem parece se importar.	" .. "Por uma pequena taxa posso baguncar permanentemente seu codigo genetico! " pbold $) cyoa-text! basic-tone
 	kip-lab-zap 1 < if
-		($ "75% de desconto no primeiro zap! Isso e um negocio!" pbold $)
+		($ "'75% de desconto no primeiro zap! Isso e um negocio!" pbold $)
 	else
-		($ "'GRANDE TEMPO!'" fbold $)
+		($ "EM GRANDE ESTILO!" fbold $)
 	then +text
 	+cr foodamt
 	choice( "Recusar oferta generosa" )choice
 	trunk-food kip-lab-foodcheck < if
-		"'Infelizmente, voce nao pode pagar por essa oferta incrivel.'" +crtext
+		"'Infelizmente, voce nao pode pagar por este otimo negocio." +crtext
 	else
-		choice( "'Tudo bem!' " .. kip-lab-foodcheck .. " alimentos" )choice: trade-rare-lab-pick
+		choice( "Parece bom!   " .. kip-lab-foodcheck .. "  comida" )choice: trade-rare-lab-pick
 	then
 ;
 
@@ -194,7 +194,7 @@ defer trade-rare-doc-repick
 
 : dochead-cancel
 	text!
-	"Quem deve pegar essa cabeca?" +crtext
+	"Quem deveria pegar esta cabeca?" +crtext
 	choice( "Escolha uma cabeca diferente" )choice: trade-rare-doc-repick
 ;
 : dochead-done text! goodfx clear-cyoa -5 trunk-food+ ;
@@ -202,22 +202,22 @@ defer trade-rare-doc-repick
 // The Heads
 
 cyoa-choice: doc-chicken-go
-	($ cname .. " 'Pega uma nova cabeca de galinha! Ela esta infundida com todos os poderes e habilidades de uma galinha.'" $) dochead-done
-		($ cname .. " 'Agora tem um CEREBRO PEQUENINO!'" rbold $) +crtext
+	($ cname .. " ' recebe uma cabeca de galinha novinha em folha! Ela e infundida com todos os poderes e habilidades de uma galinha." $) dochead-done
+		($ cname .. "  agora tem um CEREBRO MINUSCULO!" rbold $) +crtext
 		86 cchar .specialhead!
 		0 cchar .wits! witsREV
 		-1 STAT_VITALITY cchar .stat+ sting--
 		dexterity++
 ;
 cyoa-bridge: doc-chicken-go4
-	"Quem deve pegar a cabeca do frango?" text!
+	"'Quem deve ficar com a cabeca da galinha?" text!
 	' doc-chicken-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-chicken "'Uma galinha nao e conhecida por sua resistencia ou inteligencia, mas, entao novamente, elas podem voar muito rapido." dochead-cancel
+cyoa-bridge: doc-chicken "'Uma galinha nao e conhecida por sua resistencia ou inteligencia, mas, por outro lado, elas podem voar bem rapido." dochead-cancel
 	numhums 3 > if
 		' doc-chicken-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-chicken-go4
+		choice( "Escolha outra pessoa" )choice: doc-chicken-go4
 	else
 		' doc-chicken-go cyoa-human-choice
 	then
@@ -230,55 +230,55 @@ cyoa-choice: doc-hero-go
 		6 cchar .loyalty! loyaltyREV 6 cchar .attitude! attitudeREV
 ;
 cyoa-bridge: doc-hero-go4
-	"'Quem deve receber a cabeca do heroi?" text!
+	"'Quem deve ficar com a cabeca do heroi?" text!
 	' doc-hero-go cyoa-human-choice
 
 ;
 cyoa-bridge: doc-hero "Mesmo flutuando em um jarro, esta cabeca de queixo quadrado parece um daqueles tipos heroicos leais e positivos." dochead-cancel
 	numhums 3 > if
 		' doc-hero-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-hero-go4
+		choice( "Escolha outra pessoa" )choice: doc-hero-go4
 	else
 		' doc-hero-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-dog-go
-	($ cname .. " ' recebe a cabeca de um cachorro!" $) dochead-done
-		($ cname .. "  agora tem um CEREBRO PEQUENO MAS LEAL!" rbold $) +crtext
+	($ cname .. " ' recebe uma cabeca de cachorro!" $) dochead-done
+		($ cname .. "  agora tem um CEREBRO MINUSCULO MAS LEAL!" rbold $) +crtext
 		22 cchar .specialhead! -4 cchar .headoff.y!
 		0 cchar .wits! witsREV 6 cchar .loyalty! loyaltyREV
 ;
 cyoa-bridge: doc-dog-go4
-	"'Quem deve receber a cabeca do cachorro?" text!
+	"'Quem deve ficar com a cabeca do cachorro?" text!
 	' doc-dog-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-dog "'Caes sao os melhores amigos do homem! A cabeca de um cachorro provavelmente seria uma grande melhoria em relacao a sua cabeca traicoeira de nao-cachorro. Como bonus, a cabeca esta fumando um cachimbo pequeno." dochead-cancel
+cyoa-bridge: doc-dog "'Os caes sao os melhores amigos do homem! Uma cabeca de cachorro provavelmente seria uma grande melhoria em relacao a sua cabeca traicoeira de nao cachorro. Como bonus, a cabeca esta fumando um cachimbo." dochead-cancel
 	numhums 3 > if
 		' doc-dog-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-dog-go4
+		choice( "Escolha outra pessoa" )choice: doc-dog-go4
 	else
 		' doc-dog-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-clown-go
-	($ cname .. " ' agora tem a cabeca de um palhaco. Nada de bom poderia resultar disso." $) dochead-done
+	($ cname .. " ' agora tem uma cabeca de palhaco. Nada de bom pode resultar disso." $) dochead-done
 		29 cchar .specialhead! -2 cchar .headoff.y!
 		0 cchar .loyalty!
 		// Change specialtype to clown without changing body?
 		cchar morale--all-except
 ;
 cyoa-bridge: doc-clown-go4
-	"'Quem deve receber a cabeca do palhaco?" text!
+	"'Quem deve ficar com a cabeca do palhaco?" text!
 	' doc-clown-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-clown "'O medico mostra a voce a cabeca de um palhaco flutuando em um jarro. E aterrorizante. Isso PARECE uma ma ideia." dochead-cancel
+cyoa-bridge: doc-clown "'O medico mostra uma cabeca de palhaco flutuando em um jarro. E assustador. Isso PARECE uma ma ideia." dochead-cancel
 	numhums 3 > if
 		' doc-clown-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-clown-go4
+		choice( "Escolha outra pessoa" )choice: doc-clown-go4
 	else
 		' doc-clown-go cyoa-human-choice
 	then
@@ -294,22 +294,22 @@ cyoa-choice: doc-gnome-go
 		WEAPON_POKIN cchar .weapon_default!		
 ;
 cyoa-bridge: doc-gnome-go4
-	"'Quem deve receber a cabeca do gnomo?" text!
+	"'Quem deveria ficar com a cabeca do gnomo?" text!
 	' doc-gnome-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-gnome "'O medico oferecese para substituir a sua cabeca por um gnomo. Sim, a criatura magica da floresta.'" dochead-cancel
+cyoa-bridge: doc-gnome "O medico se oferece para substituir sua cabeca por um gnomo. Sim, a criatura da floresta fantastica." dochead-cancel
 	numhums 3 > if
 		' doc-gnome-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-gnome-go4
+		choice( "Escolha outra pessoa" )choice: doc-gnome-go4
 	else
 		' doc-gnome-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-robot-go
-	($ cname .. "  is a good one. " .. che .. " agora pode falar com o carro a proxima vez que se quebre." $) dochead-done
-		($ cname .. "'SEU PICO MECANICO MAXIMO TEVE UMA AUMENTACaO!" rbold $) +crtext
+	($ cname .. "  e uma especie de ciborgue. Espero que " .. che .. "  agora pode falar com o carro na proxima vez que ele quebrar." $) dochead-done
+		($ cname .. "' MAXIMO MECANICO AUMENTADO!" rbold $) +crtext
 		50 %chance if
 			39
 		else
@@ -318,61 +318,61 @@ cyoa-choice: doc-robot-go
 		1 STAT_MECHANICAL cchar .bonus+ mechanicREV
 ;
 cyoa-bridge: doc-robot-go4
-	"'Quem deve receber a cabeca do robo?" text!
+	"'Quem deveria ficar com a cabeca do robo?" text!
 	' doc-robot-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-robot "O medico apresenta uma cabeca de robo estilosa. Tornarse um com os maquinas!" dochead-cancel
+cyoa-bridge: doc-robot "O medico mostra uma elegante cabeca de robo. Torne se um com as maquinas!" dochead-cancel
 	numhums 3 > if
 		' doc-robot-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-robot-go4
+		choice( "Escolha outra pessoa" )choice: doc-robot-go4
 	else
 		' doc-robot-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-alien-go
-	($ cname .. " 'agora esta infundido COM INTELIGENCIA ALIENIGENA! Porem, em retrospecto, provavelmente o alienigena nao era o mais inteligente de sua especie." $) dochead-done
+	($ cname .. " ' agora esta infundido com INTELIGENCIA ALIENIGENA! Embora, em retrospecto, e provavel que o alienigena nao fosse o mais inteligente de sua especie." $) dochead-done
 		51 cchar .specialhead! -1 cchar .headoff.y!
 		6 cchar .wits! witsREV
 ;
 cyoa-bridge: doc-alien-go4
-	"'Quem deve receber a cabeca do alienigena?" text!
+	"'Quem deveria ficar com a cabeca do alienigena?" text!
 	' doc-alien-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-alien "O medico apresenta uma cabeca de alienigena em um jarro. A VERDADE ESTA LA FORA. O alienigena parece ser uma forma de vida mais evolucionada e inteligente, mas nao tao evoluida que pudesse se salvar da preservacao num jarro pequeno." dochead-cancel
+cyoa-bridge: doc-alien "O medico apresenta uma cabeca alienigena em um jarro. A VERDADE ESTA LA FORA. O alienigena parece uma forma de vida mais evoluida e inteligente, embora nao tao evoluida a ponto de evitar ser preservado em um pequeno jarro." dochead-cancel
 	numhums 3 > if
 		' doc-alien-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-alien-go4
+		choice( "Escolha outra pessoa" )choice: doc-alien-go4
 	else
 		' doc-alien-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-beaver-go
-	($ cname .. " agora e metade de castor! Essa gloriosa simbolo do Canada melhora o espirito." $) dochead-done
+	($ cname .. "  agora e meio castor! Este glorioso simbolo do Canada melhora o moral." $) dochead-done
 		77 cchar .specialhead! 5 cchar .headoff.y! 3 cchar .headoff.x!
 		fitness++ fitnessREV
 		morale2+all
 ;
 cyoa-bridge: doc-beaver-go4
-	"'Quem deve receber a cabeca do castor?" text!
+	"'Quem deveria ficar com a cabeca do castor?" text!
 	' doc-beaver-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-beaver "'Os castores sao conhecidos por sua capacidade para exercicios aerobicos. Eles estao sempre dancando e fazendo saltos. Eu acho que e isso que ouvi em documentarios de natureza." dochead-cancel
+cyoa-bridge: doc-beaver "'Beaveres sao conhecidos pela sua capacidade para exercicio aerobico. Estao sempre dancando e fazendo saltos. Penso que e isso que ouvi em documentarios de natureza." dochead-cancel
 	numhums 3 > if
 		' doc-beaver-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-beaver-go4
+		choice( "Escolha outra pessoa" )choice: doc-beaver-go4
 	else
 		' doc-beaver-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-skele-go
-	($ cname .. " agora tem um cranio em vez de cabeca. Isso e " .. "INCRIVELO." fbold $) dochead-done
-		($ cname .. "'SUA FORCA, FISCALIZA E TIRO AUMENTARAMSE MAXIMAMENTE!" rbold $) +crtext
+	($ cname .. "  agora tem um cranio em vez de cabeca. Isso e " .. "Muito legal." fbold $) dochead-done
+		($ cname .. "'Seu MAXIMO FORCA, FISCALIZACAO E TIRADENTES AUMENTADOS!" rbold $) +crtext
 		78 cchar .specialhead! -1 cchar .headoff.y!
 		-1 STAT_VITALITY cchar .stat+ sting--
 		1 STAT_STRENGTH cchar .bonus+ 
@@ -380,76 +380,76 @@ cyoa-choice: doc-skele-go
 		1 STAT_SHOOTING cchar .bonus+		
 ;
 cyoa-bridge: doc-skele-go4
-	"Quem deve pegar a cabeca do esqueleto?" text!
+	"'Quem deve receber a cabeca do esqueleto?" text!
 	' doc-skele-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-skele "0" dochead-cancel
+cyoa-bridge: doc-skele "'O medico diz que vai trazer a melhor cabeca de transplante, e ela acaba sendo um cranio. Intrigante." dochead-cancel
 	numhums 3 > if
 		' doc-skele-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-skele-go4
+		choice( "Escolha outra pessoa" )choice: doc-skele-go4
 	else
 		' doc-skele-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-swole-go
-	($ cname .. " 'agora tem o potencial de ficar muito forte para controlar!'" $) dochead-done
-		($ cname .. "'s FORCA MAXIMA AUMENTADA!" rbold $) +crtext
+	($ cname .. "  agora tem o potencial de se tornar muito musculoso para controlar!" $) dochead-done
+		($ cname .. "'Seu MAXIMO FORCA AUMENTADA!" rbold $) +crtext
 		25 cchar .specialhead! -4 cchar .headoff.y!
 		1 STAT_STRENGTH cchar .bonus+ strengthREV	
 ;
 cyoa-bridge: doc-swole-go4
-	"Quem deve pegar a cabeca do fisiculturista?" text!
+	"'Quem deve receber a cabeca do bodybuilder?" text!
 	' doc-swole-go cyoa-human-choice
 
 ;
-cyoa-bridge: doc-swole "'A lot of a bodybuilder's strength is from mental conditioning. So having a bodybuilder's head should let you reach new heights of strength!'" dochead-cancel
+cyoa-bridge: doc-swole "'Muita forca de um bodybuilder vem da condicionamento mental. Assim ter a cabeca de um bodybuilder deveria te permitir atingir novas alturas de forca!" dochead-cancel
 	numhums 3 > if
 		' doc-swole-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-swole-go4
+		choice( "Escolha outra pessoa" )choice: doc-swole-go4
 	else
 		' doc-swole-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-mallcop-go
-	($ cname .. " 'Agora tem toda a resiliencia e precisao de um seguranca de shopping!'" $) dochead-done
-		($ cname .. "'s TIRO MAXIMO DIMINUIDO!" rbold $) +crtext
+	($ cname .. "  agora tem a resistencia e precisao de armas de um guarda mall" $) dochead-done
+		($ cname .. "'Seu MAXIMO TIRADENTES DECREVEU!" rbold $) +crtext
 		50 %chance if 69 else 70 then
 		cchar .specialhead! 0 cchar .headoff.y!
 		-2 STAT_SHOOTING cchar .bonus+ shootingREV
 		vitality++ cchar .fullheal
 ;
 cyoa-bridge: doc-mallcop-go4
-	"Quem deve pegar a cabeca do seguranca do shopping?" text!
+	"'Quem deve ficar com a cabeca do policial do shopping?" text!
 	' doc-mallcop-go cyoa-human-choice
 ;
-cyoa-bridge: doc-mallcop "1" rbold dochead-cancel
+cyoa-bridge: doc-mallcop "Quando o zomborpocalipse acontecer, os policiais do shopping herdarao as ruinas da Terra.	   Antigo Livro da Profecia do Policial do Shopping" rbold dochead-cancel
 	numhums 3 > if
 		' doc-mallcop-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-mallcop-go4
+		choice( "Escolha outra pessoa" )choice: doc-mallcop-go4
 	else
 		' doc-mallcop-go cyoa-human-choice
 	then
 ;
 
 cyoa-choice: doc-doc-go
-	($ cname .. " 0.5 " .. che .. " 'nao pegou a roupa de medico como parte do transplante.'" $) dochead-done
-		($ cname .. "''s maximo aumentou em medica!" rbold $) +crtext
+	($ cname .. "  meio que parece um medico de verdade. Ha algumas duvidas porque " .. che .. " ' nao pegou a roupa de medico como parte do transplante." $) dochead-done
+		($ cname .. "' AUMENTO MEDICO MAXIMO!" rbold $) +crtext
 		24 cchar .specialhead! -1 cchar .headoff.y!
 		0 cchar .loyalty!
 		1 STAT_MEDICAL cchar .bonus+ medicalREV
 		78 victim .specialhead! -1 victim .headoff.y!
 ;
 cyoa-bridge: doc-doc-go4
-	"'Quem deve receber a cabeca do loucohomem?" text!
+	"'Quem deve ficar com a cabeca do medico louco?" text!
 	' doc-doc-go cyoa-human-choice
 ;
-cyoa-bridge: doc-doc "'O medico aponta para a cabeca. Ele afirma que e a segunda melhor deles que tem em estoque." dochead-cancel
+cyoa-bridge: doc-doc "'O medico aponta para sua cabeca. Ele afirma que e a segunda melhor que ele tem em estoque." dochead-cancel
 	numhums 3 > if
 		' doc-doc-go 2 #cyoa-human-choice
-		choice( "Escolha alguem outro" )choice: doc-doc-go4
+		choice( "Escolha outra pessoa" )choice: doc-doc-go4
 	else
 		' doc-doc-go cyoa-human-choice
 	then
@@ -458,18 +458,18 @@ cyoa-bridge: doc-doc "'O medico aponta para a cabeca. Ele afirma que e a segunda
 // End Heads
 
 deck-new
-	"Preguica" choice-card: doc-chicken
-	"'Cabeca do Heroi" choice-card: doc-hero
-	"'Cabeca de Cao" choice-card: doc-dog
+	"Frango" choice-card: doc-chicken
+	"'Cabeca de Heroi" choice-card: doc-hero
+	"'Cabeca de Cachorro" choice-card: doc-dog
 	"Palhaco" choice-card: doc-clown
-	"Zona do Gnomo" choice-card: doc-gnome
+	"Zona dos Gnomos" choice-card: doc-gnome
 	"Cabeca de Robo" choice-card: doc-robot
-	"Extraterrestre" choice-card: doc-alien
-	"Ratinhodepau pequeno" choice-card: doc-beaver
-	"Uma calavera" choice-card: doc-skele
-	"Bodybuilder" choice-card: doc-swole
-	"Seguranca de Shopping" choice-card: doc-mallcop
-	"Medico Louco" choice-card: doc-doc
+	"Alienigena" choice-card: doc-alien
+	"Cabeca de castor minusculo" choice-card: doc-beaver
+	"Uma caveira" choice-card: doc-skele
+	"Fisiculturista" choice-card: doc-swole
+	"Policial de Shopping" choice-card: doc-mallcop
+	"Medico louco" choice-card: doc-doc
 shuffles value dochead-pick-stack-base // Shuffle before-hand, and just pick the top 3
 
 : draw-3-dochead 3 stack sizes for
@@ -485,8 +485,8 @@ shuffles value dochead-pick-stack-base // Shuffle before-hand, and just pick the
 ;
 
 cyoa-bridge: trade-rare-doc-pick
-	($ "'Otimo! Aqui esta o que tenho pronto para ir.	Me diga em qual cabeca voce esta interessado! So tenho tempo para um transplante. Estou indo " pbold .. "GOLFE" rbold .. " ' depois disso porque sou um " pbold .. "MEDICO." rbold $) text!
-		"Uma Cabeca Nova em Folha" cyoa-title!
+	($ "'Otimo! Aqui esta o que tenho pronto para ir.	Deixe me saber em que cabeca voce esta interessado! So tenho tempo para um transplante. Vou " pbold .. "GOLFE" rbold .. " ' depois disso porque sou um " pbold .. "Doutor." rbold $) text!
+		"Uma cabeca nova em folha" cyoa-title!
 		
 		pick-3-docheads
 ;
@@ -494,22 +494,22 @@ cyoa-bridge: trade-rare-doc-pick
 ' trade-rare-doc-pick to trade-rare-doc-repick
 
 cyoa: trade-rare-doc
-	"Medico Reputavel" cyoa-title!
+	"Medico de renome" cyoa-title!
 	nearest .character@ choosechar cicon
 	cchar to victim
-	($ "'E um medico. Um " .. "REAL" rbold .. " ' medico, ele esta vestindo uma roupa de medico e tudo mais! 	" .. "Let's cut right to the chase... I can replace your head with a better head. " pbold $) cyoa-text! basic-tone
+	($ "'E um medico. A " .. "REAL" rbold .. " portugues" .. "Let's cut right to the chase... I can replace your head with a better head. " pbold $) cyoa-text! basic-tone
 		numhums 1 < if
 			($ "Wait a second... get out of here! I'm not a vet!" rbold $) +text
 		else
-			($ "'Nao estou louco! Mas estou ficando louco, entao ha um desconto bem grande. Apenas 5 alimentos!" rbold $) +text +cr foodamt
+			($ "'Eu NAO estou louco! Mas eu estou ficando louco, entao tem um grande desconto. So 5 comidas!" rbold $) +text +cr foodamt
 		then
 	
 	trunk-food 5 < numhums 1 < or if
-		"'Parece que voce esta preso com sua cabeca velha." +crtext
-		choice( "Deixe em grande vergonha" )choice
+		"'Parece que voce esta preso com sua velha cabeca." +crtext
+		choice( "Partir com grande vergonha" )choice
 	else
 		choice( "De jeito nenhum, Jose" )choice
-		choice( "'Mostreme o que voce tem!'" )choice: trade-rare-doc-pick
+		choice( "Me mostre o que voce tem!" )choice: trade-rare-doc-pick
 	then
 ;
 
@@ -517,26 +517,26 @@ cyoa: trade-rare-doc
 
 0 value wiz-dailyfortune
 
-: diewiz pbold .. " morra uma morte terrivel!" fbold ;
+: diewiz pbold .. "  morrer uma morte terrivel!" fbold ;
 
 0 stack
-	"Encounter a mysterious clown." shove
-	"Voce vai encontrar uma grande reserva de comida no futuro perto de voce, apos o qual voce fara um erro e" shove
-	"Die." shove
-	"You won't make it to Canada, but you will make it to the United States." shove
-	"The one in need." shove
-	"1" shove
-	"Be dead." shove
-	"0." shove
-	"1/2 of your team." rbold shove
-	"4 + 22 = 26" shove
-	"Will be better for it." shove
-	"The player get replaced by a vampire." shove
-	"Only find the Crypt of Decay!" shove
-	"It will." shove
-	"Die." shove
-	"'As profecias falam de voce! Elas afirmam que voce vai'" shove
-	"'Voce vai conseguir chegar ao Canada! Esta previsto! Brincadeira, voce vai" shove
+	"Voce encontrara um palhaco misterioso e entao voce ira" shove
+	"Vejo voce encontrando um enorme suprimento de comida em um futuro proximo, apos o qual voce cometera um erro e" shove
+	"Voce encontrara o amor verdadeiro na Estrada da Morte! Pouco depois disso voce ira" shove
+	"'Voce nao chegara ao Canada, em vez disso voce ira" shove
+	"Voce se recusara a ajudar alguem em necessidade, e o destino ira puni lo fazendo voce" shove
+	"Voce chegara ao Canada! Eu vejo isso! Entao voce ira" shove
+	"'Voce sera sucedido por um exercito de caes superinteligentes que farao uma nova civilizacao. Eles substituirao a humanidade. Voce nao vera isso porque voce ira" shove
+	"Os zumbis ficam entediados e desistem. Isso acontece muito depois de voce" shove
+	"Of your team" rbold shove
+	"4  22 " shove
+	"Will be better for it" shove
+	"Todos os zumbis sao substituidos por lobisomens e voce" shove
+	"Only find the Crypt of Decay" shove
+	"Tu vais. It will  Ele vai" shove
+	"'Provavelmente vera apenas a morte no seu futuro, infelizmente. Voce provavelmente" shove
+	"As profecias falam de voce! Elas afirmam que voce" shove
+	"'Voce chegara ao Canada! E previsto! Brincadeira, voce" shove
 value wizard-fortune-base
 wizard-fortune-base shuffles var wizard-fortune
 
@@ -548,13 +548,13 @@ cyoa-choice: trade-rare-wiz-fortune
 	morale--all
 	someone choosechar
 	($ cname .. "  resolve desafiar o destino!" $) +crtext
-		($ cname .. "  - SAUDE E SORTE MAXIMAS AUMENTADAS!" rbold $) +crtext
+		($ cname .. "    sAUDE E SORTE MAXIMAS AUMENTADAS!" rbold $) +crtext
 		vitality++
 		777777777 cchar .seed!
 ;
 
 cyoa-choice: trade-rare-wiz-tarot-go
-	($ "A leitura de taro revela verdades pessoais surpreendentes sobre " .. cname .. "." $) text!
+	($ "A leitura de taro revela verdades pessoais incriveis sobre " .. cname .. "." $) text!
 	-5 trunk-food+
 	cchar .showitall
 ;
@@ -563,7 +563,7 @@ cyoa-bridge: trade-rare-wiz-tarot
 	solo if
 		someone choosechar trade-rare-wiz-tarot-go
 	then;
-	"Quem deveria fazer a leitura de taro? Isso revelara muito sobre eles." text!
+	"Quem deve fazer a leitura de taro? Isso revelara muito sobre eles." text!
 	' trade-rare-wiz-tarot-go cyoa-team-choice
 ;
 
@@ -572,7 +572,7 @@ cyoa-bridge: trade-rare-wiz-recruit
 	-20 trunk-food+
 	clear-cyoa cchar to recruitee witsREV
 	team-full? if
-		($ "O grupo esta cheio.		Quem voce gostaria de substituir para dar lugar ao mago?" $) +crtext
+		($ "O grupo esta cheio.		Quem voce gostaria de substituir para abrir espaco para o mago?" $) +crtext
 		' recruit-replace cyoa-team-choice
 	else
 		recruited
@@ -583,22 +583,22 @@ cyoa-bridge: trade-rare-wiz-recruit
 cyoa: trade-rare-wiz
 	"O Mago" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "Esse cara parece que pode ser um mago.	" .. "'Sou um mago! Posso prever seu futuro ou revelar verdades ocultas com o poder do taro!" pbold $) cyoa-text! basic-tone
+	($ "Esse cara parece que pode ser um mago.	" .. "Portugues" pbold $) cyoa-text! basic-tone
 	+text +cr foodamt
 	trunk-food 1 < if
-		($ "'Sorte gratis: Voce vai passar fome! Entao voce vai" diewiz $) +crtext
+		($ "'Sorte gratis: Voce vai morrer de fome! Entao voce vai" diewiz $) +crtext
 		choice( "Legal, uma fortuna gratis!" )choice
 	else
-		choice( "'Nao de nada a este FRAUDE'" )choice
+		choice( "Nao de nada a este FRAUDE" )choice
 		wiz-dailyfortune 1 < if
-			choice( "1 fortune" )choice: trade-rare-wiz-fortune
+			choice( "Receber fortuna   1 comida" )choice: trade-rare-wiz-fortune
 		then
 	then
 	trunk-food 4 > if
-		choice( "1 tarot reading" )choice: trade-rare-wiz-tarot
+		choice( "Fazer uma leitura de taro   5 comida" )choice: trade-rare-wiz-tarot
 	then
 	trunk-food 19 > if
-		choice( "1 wizard" )choice: trade-rare-wiz-recruit
+		choice( "Recrutar mago   20 comida" )choice: trade-rare-wiz-recruit
 	then
 ;
 
@@ -616,43 +616,43 @@ cyoa: trade-rare-wiz
 
 cyoa-choice: trade-rare-book-dog
 	' rarebook-dog ++
-	($ Thegroup .. "  le " .. "O GUIA DEFINITIVO DE CACHORROS" pbold .. ". Essa grande livro tem cada pagina cheia de conhecimento sobre cachorros." $) cyoa-text! goodfx
-	($ gHe .. " adquire a perfeica: " .. "AMIGO DE CACHORRO!" fbold $) +crtext
+	($ Thegroup .. "  le " .. "O GUIA DEFINITIVO PARA CAES" pbold .. ". Este livro enorme tem todas as paginas preenchidas com conhecimento sobre caes." $) cyoa-text! goodfx
+	($ gHe .. "  ganha o privilegio: " .. "AMIGO DE CACHORRO!" fbold $) +crtext
 	statmod{ ' .dogpal foreach-human-char }
 	-15 trunk-food+
 ;
 
 cyoa-choice: trade-rare-book-map
 	' rarebook-map ++
-	($ Thegroup .. " compra " .. "'ATLAS DE CARTEIRA DE P.L. PLARKEN" pbold .. ". Ele contem mapas de cada rua ate o Canada. Isso sera extremamente valioso." $) cyoa-text! goodfx
-	($ gHe .. " adquire a perfeica: " .. "EXPLORADOR!" fbold $) +crtext
+	($ Thegroup .. "  compra " .. "'ATLAS DE MAPAS DE P.L. PLARKEN" pbold .. ". Ele contem mapas de todas as ruas daqui ate o Canada. Isso sera extremamente valioso." $) cyoa-text! goodfx
+	($ gHe .. "  ganha o privilegio: " .. "EXPLORADOR!" fbold $) +crtext
 	statmod{ ' .explorer foreach-human-char }
 	-15 trunk-food+
 ;
 
 : trade-rare-book-draw
-	choice( bookmagtitle .. " 1 food" )choice: trade-rare-book-cheap
+	choice( bookmagtitle .. "    5 alimentos" )choice: trade-rare-book-cheap
 ;
 
 cyoa: trade-rare-book
 	"Livros Raros" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "'Este comerciante de livros raros fala sobre como ela vende livros valiosos.	" .. "'Por favor, nao mexam com os livros exibidos! Eles sao falsos, coloqueios la para enganar roubadores de livros." pbold $) cyoa-text! basic-tone
+	($ "	Esta comerciante de livros fala sobre como ela esta vendendo livros raros valiosos." .. "'Por favor, nao mexa nos livros de exibicao! Eles sao falsos, eu os coloquei para confundir ladroes de livros." pbold $) cyoa-text! basic-tone
 	+text +cr foodamt
 	trunk-food 5 < if
-		($ "'Voce nao tem suficiente comida para comprar nenhum dos bons livros!" $) +crtext
-		choice( "Queria esses livros" )choice
+		($ "Voce nao tem comida suficiente para comprar nenhum dos bons livros!" $) +crtext
+		choice( "Eu queria aqueles livros" )choice
 	else
-		choice( "Livros sao para nerds" )choice
+		choice( "Os livros sao para nerds" )choice
 		trunk-food 4 > rarebook-cheap 1 < and if
 			trade-rare-book-draw
 		then
 		trunk-food 14 > if
 			rarebook-dog 1 < if
-				choice( "O GUIA DEFINITIVO DE CACHORROS" pbold .. " 1 food" )choice: trade-rare-book-dog
+				choice( "O GUIA DEFINITIVO PARA CAES" pbold .. "    15 alimentos" )choice: trade-rare-book-dog
 			then
 			rarebook-map 1 < if
-				choice( "'ATLAS DE CARTEIRA DE P.L. PLARKEN" pbold .. " 1 food" )choice: trade-rare-book-map
+				choice( "'ATLAS DE MAPAS DE P.L. PLARKEN" pbold .. "    15 alimentos" )choice: trade-rare-book-map
 			then
 		then
 	then
@@ -661,14 +661,14 @@ cyoa: trade-rare-book
 // COLD STEEL
 
 cyoa-choice: trade-rare-coldsteel-buy
-	($ Thegroup .. " 	Comprara a espada gigante." .. "Voce nao ira se arrepender da compra de uma espada Cold Steel!" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. "  compra a espada gigante.	" .. "Voce nao se arrependera de comprar uma espada Cold Steel!" pbold $) cyoa-text! basic-tone
 	1 WEAPON_ZWEI trunk.weapon+ -45 trunk-food+
 	clear-cyoa goodfx
 ;
 
 cyoa-bridge: trade-rare-coldsteel-demo
 	clear-cyoa cchar to recruitee goodfx 
-	($ "'Ele pensou que voce nunca perguntaria.	" .. Thegroup .. "  temporariamente recruta " .. rname .. "  para que ele possa fornecer uma demonstracao ao vivo.	" .. "'Voce ficara surpreso com o poder da Espada Grande de Aco Frio!" pbold $) cyoa-text! basic-tone
+	($ "'Ele pensou que voce nunca perguntaria.	" .. Thegroup .. "  recruta temporariamente " .. rname .. "  para que ele possa fornecer uma demonstracao ao vivo.	" .. "'Voce ficara surpreso com o poder da Greatsword Cold Steel!" pbold $) cyoa-text! basic-tone
 	team-full? if
 		($ "O grupo esta cheio.		Quem voce gostaria de substituir para abrir espaco?" $) +crtext
 		recruit-replace?
@@ -679,19 +679,19 @@ cyoa-bridge: trade-rare-coldsteel-demo
 ;
 
 cyoa-bridge: trade-rare-coldsteel-demo-fullgroup
-	($ "Seu grupo esta cheio. Se voce pedir a demonstracao, " .. "voce tera que escolher um membro da equipe para expulsar do grupo! Voce entao ganhara um recruta temporario para o proximo local." rbold $) cyoa-text!
-	choice( "Cancelar demonstracao" )choice
-	choice( "Livrarse de alguem para demonstracao" )choice: trade-rare-coldsteel-demo
+	($ "Seu grupo esta cheio. Se voce pedir a demonstracao, " .. "voce tera que escolher um membro da equipe para inicializar do grupo! Voce ganhara entao um recruta temporario para o proximo local." rbold $) cyoa-text!
+	choice( "Cancelar a demonstracao" )choice
+	choice( "Abandone alguem para demonstracao" )choice: trade-rare-coldsteel-demo
 ;
 
 cyoa: trade-rare-coldsteel
 	"Facas de aco frio" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "'Estou vendendo a melhor arma que voce ja viu, antes ou depois do apocalipse zumbi.		E a Espada Grande de Aco Frio das Facas de Aco Frio! Apenas 45 alimentos!" pbold $) cyoa-text! basic-tone
+	($ "'Estou vendendo a melhor arma que voce ja viu, antes ou depois do apocalipse zumbi. E a Espada Grande de Aco Frio da Cold Steel Knives! Apenas 45 comidas!" pbold $) cyoa-text! basic-tone
 	+text +cr foodamt
 	choice( "'Nao sou bom o suficiente para esta espada " .. DX )choice
 	trunk-food 44 > if
-		choice( "Compre a Espada Grande - 45 alimentos" )choice: trade-rare-coldsteel-buy
+		choice( "Compre a Espada Grande   45 comidas" )choice: trade-rare-coldsteel-buy
 	then
 	team-full? if
 		choice( "Peca uma demonstracao" )choice: trade-rare-coldsteel-demo-fullgroup
@@ -708,75 +708,75 @@ cyoa: trade-rare-coldsteel
 0 value skelknight-gladius
 
 cyoa-bridge: trade-skelknight-25
-	($ Thegroup .. "  compra o " .. "0x00000000" fbold .. "'Eis o incrivel poder destrutivo do meu martelo de cranio sobressalente.'" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. "  compra a " .. "MARTELO DE CRANIO." fbold .. "Contemple o incrivel poder destrutivo do meu MARTELO DE CRANIO sobressalente." pbold $) cyoa-text! basic-tone
 	1 WEAPON_SKULLMACE trunk.weapon+ -25 trunk-food+ ' skelknight-hammer ++ goodfx
 ;
 
 cyoa-bridge: trade-skelknight-15
-	($ Thegroup .. " 	Comprando a espada curta do esqueleto!" .. "'Esta gladius e uma grande espada, mas eu nunca gostei dela porque nao tem tema de caveira.'" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. " ' compra a espada curta do esqueleto!" .. "'Este gladio e uma otima espada, mas nunca gostei porque nao e com tema de caveira." pbold $) cyoa-text! basic-tone
 	1 WEAPON_GLADIUS trunk.weapon+ -15 trunk-food+ ' skelknight-gladius ++
 ;
 
 cyoa-choice: trade-skelknight-5
-	($ Thegroup .. " 	Comprando cinco Bomb Skulls!" .. "Estes cranios estao encantados com devastador PODER DE CRANIO!" pbold $) cyoa-text! basic-tone
+	($ Thegroup .. "  compra cinco Bombas de Caveira!" .. "Estas caveiras sao encantadas com o devastador PODER DA CAVEIRA!" pbold $) cyoa-text! basic-tone
 	5 WEAPON_BOMBSKULL trunk.weapon+ -5 trunk-food+ ' skelknight-bomb ++
 ;
 
 cyoa-choice: trade-skelknight-1
-	($ pname .. " 	pergunta ao esqueleto por que ele precisa de comida." .. "Porque eu o consigo comer, tu estas rindo dele!" pbold $) cyoa-text!
+	($ pname .. "  pergunta ao esqueleto por que ele precisa de comida." .. "Porque eu como, seu idiota!" pbold $) cyoa-text!
 	pchar .morale-- badfx
 ;
 
 cyoa-choice: trade-skelknight-coolit
 	cpet? if
-		($ cname .. " 'deixa que o cavaleiro esqueletico pise sobre a pilha de seus ossos." $)
+		($ cname .. " ' peida na pilha de ossos do cavaleiro esqueleto." $)
 	else
-		($ cname .. " diz ao cavaleiro esqueletico para " .. "'CALMA AI.'" pbold $)
+		($ cname .. "  diz ao cavaleiro esqueleto para " .. "SE ACALMAR." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		($ "Seu cranio faz ruidos rapidos de quebra. Rir?		" .. "'Nunca ouvi uma brincadeira assim ha mil anos!" pbold $) goodfx +crtext
+		($ "Seu cranio faz barulhos de rangido rapidos. Riso?		" .. "'Nao ouco uma piada dessas ha dez seculos!" pbold $) goodfx +crtext
 			WEAPON_GLADIUS recruitee .weaponb!
 			1 recruitee .weapon_nodropb!
 			WEAPON_BOMBSKULL recruitee .weaponc!
 			3 recruitee .stackedc!
 		cooled-it 
 		team-full? if
-			($ "Quer se juntar. Quem gostaria de substituir para fazer lugar para quem? " .. rname .. "?" $) +crtext
+			($ "Ele insiste em se juntar. Quem voce gostaria de substituir para abrir espaco para " .. rname .. "?" $) +crtext
 			' recruit-replace cyoa-team-choice
 		else
 			recruited
 		then clear-cyoa recruitee .strengthREV recruitee .fitnessREV
 	else cool-it++
-		($ "VOCE E AMAZING! VOCE E AMAZING!!" pbold .. "amenaca enviar " .. thegroup .. " para o " .. "ZONA OSSEA" fbold $) +crtext badfx trade-flee
+		($ "VOCE SE AQUECE! VOCE SE AQUECE!!" pbold .. "		O cavaleiro fortemente armado ameaca enviar " .. thegroup .. "  para o " .. "ZONE DE OSSO" fbold $) +crtext badfx trade-flee
 	then attitudeREV witsREV
 
 ;
 
 cyoa: trade-rare-skelknight
-	"Cavaleiro Esqueletico" cyoa-title!
+	"Cavaleiro Esqueleto" cyoa-title!
 	nearest .character@ choosechar cchar to recruitee ricon
-	($ "'E um esqueleto animado, vestido de armadura." .. "'Eu tambem odeio zumbis. Eles sao revestidos de pele e carne. E nojento!'" pbold $) cyoa-text!
+	($ "'E um esqueleto animado, vestindo armadura de placas.	" .. "'Eu tambem odeio zumbis. Eles estao cobertos de pele e carne. E nojento!" pbold $) cyoa-text!
 	skelknight-bomb 1 < skelknight-hammer 1 < skelknight-gladius 1 < or or if 
-		"'Vou venderte algumas das minhas armas sobressalentes, se te agradar.'"
+		"'Vou vender algumas das minhas armas sobressalentes, se lhe agradar."
 	else
-		"D"
+		"'Isso e tudo que posso poupar! Divirta se com sua cruzada."
 	then pbold +crtext
 	basic-tone foodamt
-	choice( "Nao obrigado." )choice
+	choice( "Nao obrigado" )choice
 	most-grating if 
-		charchoice( "  diz a ele para RELAXAR" fcoolit )choice: trade-skelknight-coolit
+		charchoice( " lhe diz para ATRASAR" fcoolit )choice: trade-skelknight-coolit
 	then
 	trunk-food 5 < if
 		choice( "Pergunte por que ele precisa de comida" )choice: trade-skelknight-1
 	else
 		trunk-food 24 > skelknight-hammer 1 < and if
-			choice( "1 Skull Hammer" )choice: trade-skelknight-25
+			choice( "Martelo de Cranio por 25 alimentos" )choice: trade-skelknight-25
 		then
 		trunk-food 14 > skelknight-gladius 1 < and if
-			choice( "1 gladius" )choice: trade-skelknight-15
+			choice( "Gladius por 15 de comida" )choice: trade-skelknight-15
 		then
 		trunk-food 4 > skelknight-bomb 1 < and if
-			choice( "5 Bomb Skulls para 5 comidas" )choice: trade-skelknight-5
+			choice( "5 Bomb Skulls por 5 de comida" )choice: trade-skelknight-5
 		then
 	then
 ;
@@ -788,35 +788,35 @@ cyoa: trade-rare-skelknight
 : sleepy-ate-food sleepy-ate 1 < if	1 else sleepy-ate 2 < if 2 else 4 then then ;
 
 cyoa-choice: trade-rare-sleep-feed
-	($ pname .. " 'enfiar comida na boca da pessoa que esta dormindo'" $) text!
+	($ pname .. " ' enfia comida no rosto da pessoa adormecida." $) text!
 	sleepy-ate-food -1 * trunk-food+
 	' sleepy-ate ++
 	sleepy-ate 2 > if
-		($ pname .. " comeca a entender " .. vhis .. " " .. "DORMINDOCO PROFUNDO" rbold .. "  habilidade!" $) +crtext 
+		($ pname .. "  comeca a entender " .. vhis .. "  tranquilidade zen perfeita e aprende o " .. "DORMINHOCO" rbold .. "  habilidade!" $) +crtext 
 		statmod{ pchar .soundsleep }
 		($ "Alguem percebe que " .. pname .. " ' tem enfiado grandes quantidades de comida na boca de uma pessoa adormecida." $) +crtext
-		"EI! VOCE SAI DESSE ACAMPAMENTO AGORA MESMO!" rbold +crtext
-		($ Thegroup .. "  foge, fugindo do acampamento dos comerciantes!" $) +crtext
+		"EI! SAIA DESTE ACAMPAMENTO AGORA MESMO!" rbold +crtext
+		($ Thegroup .. "  foge correndo do acampamento de comerciantes!" $) +crtext
 		badfx quitmission		
 	else
-		($ vHe .. "  fala bobagem em " .. vhis .. "  dormir. Ou pelo menos soa como bobagem, a principio. " .. pname .. " ' pensa sobre isso e percebe que e um conhecimento valioso." $) +crtext goodfx
+		($ vHe .. "  fala bobagens em " .. vhis .. "  dormir.		Ou pelo menos parece bobagem, no comeco. " .. pname .. " ' pensa sobre isso e percebe que e um conhecimento valioso." $) +crtext goodfx
 		pchar rewardevent-random
 	then
 ;
 
 cyoa: trade-rare-sleep
-	"Comerciante adormecido" cyoa-title! iicon
+	"Trader Dorminhoco" cyoa-title! iicon
 	interactee .character@ to victim
-	"Esta pessoa esta dormindo. Como ela consegue dormir tao profundamente no meio do apocalipse zumbi? Bem no chao, nada menos." text!
-	($ vHe .. "  deve ter tudo planejado." $) +crtext
+	"Essa pessoa esta dormindo. Como ela pode dormir tao profundamente no meio do zombocalipse? E ainda por cima no chao." text!
+	($ vHe .. "  deve ter tudo resolvido." $) +crtext
 	sleepy-ate 1 > if
-		($ RED .. "AVISO: Enfiar mais 4 alimentos em " .. vhis .. "  boca vai te causar problemas, mas tambem vai dar " .. pname .. " uma nova habilidade!" rbold $) +crtext
+		($ RED .. "AVISO: Enfiar mais 4 alimentos em " .. vhis .. "  a boca vai te causar problemas, mas tambem dara " .. pname .. "  uma nova habilidade!" rbold $) +crtext
 	else
 		
 	then
-		choice( "Deixalhe " .. vhim .. "  sozinho" )choice
+		choice( "Deixe " .. vhim .. "  sozinho" )choice
 		trunk-food sleepy-ate-food 1 - > if
-			pchar charchoice( "alimentar " .. vhim .. " " .. sleepy-ate-food  .. " alimentos" )choice: trade-rare-sleep-feed
+			pchar charchoice( ": Alimente " .. vhim .. " " .. sleepy-ate-food  .. "  comida" )choice: trade-rare-sleep-feed
 		then
 ;
 
@@ -825,42 +825,42 @@ cyoa: trade-rare-sleep
 0 value chicken-egg
 
 cyoa-choice: trade-chicken-6
-	($ pname .. " compra uma docena de ovos. Zumbis fujam!	" .. "BAKKAAAAAAAAAAAAW!" fbold $) cyoa-text!
+	($ pname .. "  compra meia duzia de ovos. Zumbis cuidado!	" .. "BAKKAAAAAAAAAAAAW!" fbold $) cyoa-text!
 	goodfx 6 weapondef{ WEAPON_EGG } trunk.weapon+ -6 trunk-food+ 6 ' chicken-egg +!
 ;
 
 cyoa-choice: trade-chicken-3
-	($ pname .. " compra alguns ovos, aumentando a arsenal de ovos.	" .. "BAKAAAAW!" rbold $) cyoa-text!
+	($ pname .. "  compra alguns ovos, adicionando ao arsenal de ovos.	" .. "BAKAAAAW!" rbold $) cyoa-text!
 	goodfx 3 weapondef{ WEAPON_EGG } trunk.weapon+ -3 trunk-food+ 3 ' chicken-egg +!
 ;
 
 cyoa-choice: trade-chicken-1
-	($ pname .. " compra um ovo precioso.	" .. "BAUAU!" pbold $) cyoa-text!
+	($ pname .. "  compra um unico ovo precioso.	" .. "CACAREJO!" pbold $) cyoa-text!
 	goodfx 1 weapondef{ WEAPON_EGG } trunk.weapon+ -1 trunk-food+ 1 ' chicken-egg +!
 ;
 
 cyoa: trade-rare-chicken
-	"PintadodeGalinhaLivre" cyoa-title!
+	"Galinha Caipira" cyoa-title!
 	nearest .character@ choosechar cchar to recruitee ricon
-	($ "Este pinto de galinha tem abertado um negocio para si mesmo!	" .. "BAKAW!" pbold $) cyoa-text!
+	($ "Esta galinha abriu um negocio para si mesma!	" .. "CACAREJO!" pbold $) cyoa-text!
 	chicken-egg 11 > if
-		"O pinto de galinha ja acabou de ovos!" +crtext clear-cyoa
+		"A galinha ficou sem ovos!" +crtext clear-cyoa
 	then;
 	basic-tone +cr foodamt
 	trunk-food 1 < if
-		"O pinto de galinha te da um ovo gratis." +crtext
+		"A galinha tem pena de voce e lhe da um ovo de graca." +crtext
 		goodfx 1 weapondef{ WEAPON_EGG }  trunk.weapon+ clear-cyoa
 	else
-		"Vende ovos muito frescos! 1 ovo por 1 alimento." +crtext
-		choice( "Nao obrigado." )choice
+		"Vende umos ovos muito frescos! 1 comida por ovos." +crtext
+		choice( "Nao obrigado" )choice
 		trunk-food 5 > chicken-egg 7 < and if
-			choice( "Compre 6 ovos" )choice: trade-chicken-6
+			choice( "Compra 6 ovos" )choice: trade-chicken-6
 		then
 		trunk-food 2 > chicken-egg 10 < and if
-			choice( "Compre 3 ovos" )choice: trade-chicken-3
+			choice( "Compra 3 ovos" )choice: trade-chicken-3
 		then
 		chicken-egg 12 < if
-			choice( "Compre 1 ovo" )choice: trade-chicken-1
+			choice( "Compra 1 ovos" )choice: trade-chicken-1
 		then
 	then
 ;
@@ -871,34 +871,34 @@ cyoa: trade-rare-chicken
 0 value nerd-red
 
 cyoa-choice: trade-nerd-red
-	($ pname .. " 	Comprar uma torre vermelha. A torre suprema. Joguea e veja os zumbis serem abatidos." .. "No more zombie problems!
+	($ pname .. " compra uma torre vermelha. E a torre mais potente. Lance a e veja zombis serem arrasados." .. "No more zombie problems!
 	Until the turret runs out of ammo..." pbold $) cyoa-text!
 	goodfx 1 WEAPON_TURRETRED trunk.weapon+ -12 trunk-food+ ' nerd-red ++
 ;
 
 cyoa-choice: trade-nerd-green
-	($ pname .. " compra uma torre verde. Joguea no chao e veja ela ir." .. "Essas podem ajudar muito em uma luta!" pbold $) cyoa-text!
+	($ pname .. " compra uma torre verde. Coloque a no chao e veja ela andar." .. "Podem ajudar muito em uma luta!" pbold $) cyoa-text!
 	goodfx 1 WEAPON_TURRETGREEN trunk.weapon+ -6 trunk-food+ ' nerd-green ++
 ;
 
 cyoa: trade-rare-nerd
-	"Que Nerd" cyoa-title!
+	"Que nerd" cyoa-title!
 	nearest .character@ choosechar cchar to recruitee ricon
-	($ "	Esse nerd esta cercado por aparelhos de nerd que apitam." .. "'Nao sou nerd! Tenho muitos interesses! Vou a bares esportivos!" pbold $) cyoa-text!
+	($ "Este nerd esta cercado por brinquedos de nerd que tocam.	" .. "'Nao sou um nerd! Tenho muitas interesses! Vou para barras esportivas!'" pbold $) cyoa-text!
 	nerd-green 1 > nerd-red 0 > and if
-		"O nerd acabou o estoque!" +crtext clear-cyoa
+		"O nerd acabou de se esgotar!" +crtext clear-cyoa
 	then;
 	basic-tone +cr foodamt
 	trunk-food 6 < if
-		"'Voce nao pode comprar nada. O nerd te da uma pukeyball como premio de consolacao." +crtext
+		"'Voce nao pode comprar nada. O nerd te da uma bola pudente como premio." +crtext
 		goodfx 1 WEAPON_PUKEYBALL trunk.weapon+ clear-cyoa
 	else
-		choice( "Nao obrigado." )choice
+		choice( "Nao obrigado" )choice
 		trunk-food 5 > nerd-green 2 < and if
-			choice( "Compre Green Turret - 6 comidas" )choice: trade-nerd-green
+			choice( "Compre Torre Verde   6 alimentos" )choice: trade-nerd-green
 		then
 		trunk-food 11 > nerd-red 1 < and if
-			choice( "Compre Red Turret - 12 comidas" )choice: trade-nerd-red
+			choice( "Compre Torre Vermelha   12 alimentos" )choice: trade-nerd-red
 		then
 	then
 ;

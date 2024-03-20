@@ -17,91 +17,91 @@ cyoa{
 ;
 
 : mghost-warn 
-	text! "Falar com um fantasma e EXTREMAMENTE assustador e com certeza vai ser um golpe na moral, alem de qualquer outra coisa que aconteca." rbold +crtext
-		choice( "Ignore o fantasma por enquanto" )choice
+	text! "Falar com um fantasma e EXTREMAMENTE assustador e com certeza vai ser um golpe na moral, alem de tudo o mais que acontecer." rbold +crtext
+		choice( "Ignorar o fantasma por enquanto" )choice
 		cheevo: ghostfound
 ;
 
 cyoa-choice: mghost-shy-talk
-	"O Fantasma foge! Com isso quero dizer que ele flutua para longe muito rapido." text!
+	"O fantasma foge! Com isso quero dizer que ele flutua para longe muito rapido." text!
 	($ pname .. "  se diverte que " .. phe .. "  assustou um fantasma." $) +crtext
 	morale++ goodfx deleteme
 ;
 
 cyoa-choice: mghost-shy-kiss
-	($ "O Fantasma emite vapor pelas laterais da cabeca por um segundo e entao " .. "EXPLODE!" fbold $) text!
-	($ pname .. "  fica ferido, mas a explosao infunde " .. phim .. " com coisas misteriosas " .. "ENERGIA FANTASMA!" rainbold $) +crtext
+	($ "O fantasma emite vapor pelas laterais de sua cabeca por um segundo e entao " .. "EXPLODE!" fbold $) text!
+	($ pname .. "  esta ferido, mas a explosao infunde " .. phim .. "  com misteriosa " .. "ENERGIA FANTASMA!" rainbold $) +crtext
 	morale3+ sting2- fitness++ bitefx deleteme
 	// Make character glow?
 ;
 
 cyoa-blank: mghost-shy
-	($ "'assustar' and trying to be friendly = 'ser amigavel'. " .. pname .. ", e sendo dominado pela timidez." $) mghost-warn
-		pchar charchoice( " fala com o fantasma sobre timidez" )choice: mghost-shy-talk
+	($ "Este fantasma alterna rapidamente entre tentar assustar " .. pname .. ", e ficar muito timido." $) mghost-warn
+		pchar charchoice( "  fala com o fantasma sobre timidez" )choice: mghost-shy-talk
 		pchar charchoice( " beija o fantasma" )choice: mghost-shy-kiss
 ;
 
 cyoa-choice: mghost-bite-go
 	"CHOMP CHOMP CHOMP O DIA TODO" rainbold text!
-	($ "O Fantasma mastiga " .. pname .. "  com seus dentes de fantasma! A dor paranormal endurece. " .. phim .. " " $) +crtext
+	($ "O fantasma mastiga " .. pname .. " com seus dentes fantasmas! A dor paranormal endurece " .. phim .. " para cima!" $) +crtext
 	sting-- vitality++ mghost-spooky bitefx
 ;
 
 cyoa-blank: mghost-bite
-	"'E um fantasma! Ele tem dentes bonitos.'" mghost-warn
+	"'E um fantasma! Tem belos dentes." mghost-warn
 		pchar charchoice( " fala com o fantasma sobre dentes" )choice: mghost-bite-go
 ;
 
 cyoa-choice: mghost-sass-sass
-	"'CLARO QUE ESTOU BATUCADA! VAI SE BATUCAR!" rainbold text!
-	($ "O Fantasma sassa " .. pname .. ", de grande forma!" $) +crtext
+	"'CLARO QUE ESTOU TE SASSANDO! FIQUE SASSADO!" rainbold text!
+	($ "O fantasma critica " .. pname .. ", grande momento!" $) +crtext
 	morale-- badfx
 ;
 
 cyoa-choice: mghost-sass-flex
-	"'CLARO QUE ESTOU FLEXANDO! ADORO SER FORTE!" rainbold text!
-	($ "O Fantasma maldiz " .. pname .. " ... with strength!" $) +crtext
+	"'CLARO QUE ESTOU FLEXIONANDO! EU AMO SER FORTE!" rainbold text!
+	($ "O fantasma amaldicoa " .. pname .. " ... with strength!" $) +crtext
 	strength++ mghost-spooky
 ;
 
 cyoa-blank: mghost-sass
 	"Maldicao da Sass" cyoa-title!
-	"'Este fantasma parece estar flexionando, ou talvez esteja fazendo uma gesto bastante sass. E dificil dizer devido ao fantasma carecer de forma corporal." mghost-warn
-		pchar charchoice( " 'pergunta se o fantasma esta flexionando" )choice: mghost-sass-flex
-		pchar charchoice( " 'pergunta se ele esta sassando " .. phim )choice: mghost-sass-sass
+	"'Este fantasma parece que esta se flexionando, ou talvez esteja fazendo um gesto muito atrevido? E dificil dizer porque o fantasma nao tem uma forma corporea." mghost-warn
+		pchar charchoice( " ' pergunta ao fantasma se ele esta se exibindo" )choice: mghost-sass-flex
+		pchar charchoice( " ' pergunta se ele esta sendo atrevido " .. phim )choice: mghost-sass-sass
 ;
 
 cyoa-choice: mghost-lick-coolit
 	cpet? if
 		($ cname .. "  peida no fantasma." $)
 	else
-		($ cname .. "  manda o fantasma" .. " CALA SEU BICHO." pbold $)
+		($ cname .. "  diz ao fantasma para" .. "  CALMA." pbold $)
 	then cyoa-text!
 	cool-it-7 if
-		char-gen to recruitee "Fantasma Chato" recruitee .name!
-		"NUNCA OUVI TANTA PERFEICaO!		VOCE QUEBROU MINHA MALDICaO FANTASMAGORICA! AGORA ESCOLHA UMA RECOMPENSA FANTASMAGORICA!" rainbold +crtext
+		char-gen to recruitee "Fantasma irritante" recruitee .name!
+		"EU NUNCA OUVI TAL PERFEICAO! VOCE LEVOU A MINHA MALDICAO FANTASMA! AGORA ESCOLHA UMA RECOMPENSA FANTASMAGORICA!" rainbold +crtext
 		morale3+all rescue-trainitem cooled-it goodfx
 	else cool-it++
 		"WHAT? YOU CAN'T TELL ME TO COOL IT!
 		Y... YOU'RE A NERD!" rainbold +crtext
-		($ "O fantasma desaparece em uma pequena e furiosa nuvem de fumaca fantasmagorica. " .. cname .. "  se sente muito satisfeito com isso." $) +crtext
+		($ "O fantasma desaparece em uma pequena e furiosa nuvem de fumaca fantasmagorica " .. cname .. "  se sente muito presuncoso sobre isso." $) +crtext
 		goodfx morale2+
 	then witsattREV deleteme
 ;
 
 cyoa-choice: mghost-lick-go
 	"UH, TALVEZ VOCE DEVA SE ACALMAR" rainbold text!
-	($ "O Fantasma maldiz " .. pname .. "  com o " .. "Maldicao do Calma Ai!" fbold $) +crtext
-	($ pname .. "' a personalidade se torna muito chata!" $) +crtext
+	($ "O fantasma amaldicoa " .. pname .. "  com a " .. "Maldicao do Acalme se!" fbold $) +crtext
+	($ pname .. "'a personalidade se torna muito irritante!" $) +crtext
 	0 pchar .wits! 0 pchar .attitude! witsattREV mghost-spooky cool-it++
 ;
 
 cyoa-blank: mghost-lick
-	"O fantasma continua balancando a lingua. Parece um ser chato." mghost-warn
+	"O fantasma continua balancando a lingua. Ele ja parece um ser irritante." mghost-warn
 		pchar grating? if
-			pchar charchoice( " ' manda o fantasma 'Calma Ai'" fcoolit )choice: mghost-lick-coolit
+			pchar charchoice( " ' diz ao fantasma para se acalmar" fcoolit )choice: mghost-lick-coolit
 		else
-			pchar charchoice( "  grita com o fantasma" )choice: mghost-lick-go
+			pchar charchoice( " grita com fantasma" )choice: mghost-lick-go
 		then
 ;
 
@@ -176,16 +176,16 @@ ghost-cyoa-picker-base shuffles var ghost-cyoa-picker
 
 0 stack
 	"banheiro" shove
-	"portugues" shove	
-	"portugues" shove
-	"portugues" shove
-	"vivo dead = morto" shove
+	"open1" shove	
+	"open1" shove
+	"open1" shove
+	"viva" shove
 	"cozinha" shove
-	"pantrydaquecasa" shove
+	"copa da mansao" shove
 value mansionhall-doors-base
 mansionhall-doors-base shuffles var mansionhall-doors
 
-: mansionhall-doors-pick mansionhall-doors depths 0= if drop "portugues" then; pops nip ;
+: mansionhall-doors-pick mansionhall-doors depths 0= if drop "open1" then; pops nip ;
 
 : mansionhalldoors
 	2 for random-door mansionhall-doors-pick only-with-door next
@@ -198,14 +198,14 @@ mansionhall-doors-base shuffles var mansionhall-doors
 
 0 stack
 	"banheiro" shove
-	"quarto" shove
-	"quarto" shove
-	"quarto" shove
-	"quarto" shove
-	"quarto" shove
-	"quarto" shove
-	"fimdacasamansao" shove
-	"quarto" shove
+	"qUARTIRIO" shove
+	"qUARTIRIO" shove
+	"qUARTIRIO" shove
+	"qUARTIRIO" shove
+	"qUARTIRIO" shove
+	"qUARTIRIO" shove
+	"final da mansao" shove
+	"qUARTIRIO" shove
 value mansionend-doors-base
 mansionend-doors-base shuffles var mansionend-doors
 
@@ -249,15 +249,15 @@ location: darkmansion
 		// post-script: toodark
 		
 		: mansionopendoors
-			random-door "saladocasamansao" only-with-door
+			random-door "hall da mansao" only-with-door
 			// random-door mansionhall-doors-pick only-with-door
 			random-door "banheiro" only-with-door
-			random-door "quarto" only-with-door			
+			random-door "qUARTIRIO" only-with-door			
 		;
 		
 		: mansionstartdoors
 			2 for random-door "corredor" only-with-door next
-			random-door "vivo dead = morto" only-with-door
+			random-door "viva" only-with-door
 		;
 						
 		room-choice: open1

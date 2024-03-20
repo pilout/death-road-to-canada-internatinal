@@ -9,21 +9,21 @@
 // : .statup
 
 // 50% chance if skill = skillcheck... Ex: Character with 2 Strength, cchar .strength@ 2 skillcheck? ... Skill one lower means 33%, higher means 60%, 66%, etc.
-// Search for "roletaestatistica" below for a bunch of convenience words.
+// Search for "teste de status" below for a bunch of convenience words.
 
 : skillcheck? ( amt checkamt -- true|false )
 
 	0 max swap 0 max swap
 
 	DEBUG if
-		2dup swap "HABILIDADE " type type " cONTRA VERIFICACaO " type type " (" type
+		2dup swap "HABILIDADE " type type "  vs CHECAR " type type " (" type
 	then
 
 	// Ratio
 	over + /
 
 	DEBUG if
-		dup type " cONTRA ROLAMENTO DE " type
+		dup type "  vs rolagem de " type
 	then
 
 	// Roll
@@ -365,15 +365,15 @@ defer stat-heal
 
 : shieldofhopeblurb args( chara )
 	<- chara .morale 3 > if
-		" 'esta muito ANIMADO para ser morto!'"
+		"  esta muito BOMBADO para ser morto!"
 	else
 		<- chara .morale 1 < if
-			" 'Vive, mas entra em desespero!'"
+			"  vive, mas entra em desespero!"
 		else
 			<- chara .morale 2 < if
-				" resiste a morte, mas a moral vacila!"
+				"  resiste a morte, mas o moral vacila!"
 			else
-				" recusase a morrer!"
+				"  se recusa a morrer!"
 			then
 		then
 	then
@@ -416,14 +416,14 @@ defer stat-heal
  defer unfireproofer
  
  : .phoenixify args( chara )
-	"Fenix Renascida!" <- chara .trait!
+	"Fenix Ressuscitada!" <- chara .trait!
 	<- chara .fullheal
 	<- chara .specialbody@ 78 = not if
 		78 <- chara .specialbody!
-		($ "'Agora e um MEIO-HUMANO, MEIO-ESQUELETO, MEIO-FENIX, de volta para a vinganca!'" $) <- chara .job!
+		($ "agora e MEIO HUMANO, MEIO ESQUELETO, MEIO FENIX, de volta para vinganca!" $) <- chara .job!
 	else
 		78 <- chara .specialhead!
-		($ "'Agora e um MEIO-ESQUELETO, MEIO-FENIX, depois de uma serie de erros graves.'" $) <- chara .job!
+		($ "agora e MEIO ESQUELETO, MEIO FENIX, depois de uma serie de grandes erros." $) <- chara .job!
 	then
 	<- chara .perk@ "Piromaniaco" $= if then;
 	<- chara unfireproofer
@@ -435,7 +435,7 @@ defer stat-heal
 : .death-shared args( chara )
 	<- chara herotype-except? if 
 		someherotype			
-		($ ICON_UP textclr$ .. <- chara .name@ .. " e heroicamente salvo por " .. hero-picked .name@ .. "!" ..
+		($ ICON_UP textclr$ .. <- chara .name@ .. "  e heroicamente salvo por " .. hero-picked .name@ .. "!" ..
 		0 textclr$ $) blurbevent ICON_UP blurbicon
 		<- chara .fullheal
 		<- chara .health@ 2 > if
@@ -443,8 +443,8 @@ defer stat-heal
 		then
 		hero-usedup
 	else
-		<- chara .trait@ "Phoenix" $= if
-			($ ICON_SKULL textclr$ .. <- chara .name@ .. "  ressuscita do tumulo!" .. 0 textclr$ $) blurbevent ICON_UP blurbicon
+		<- chara .trait@ "Fenix" $= if
+			($ ICON_SKULL textclr$ .. <- chara .name@ .. "  ressurge da sepultura!" .. 0 textclr$ $) blurbevent ICON_UP blurbicon
 			<- chara .phoenixify
 		else
 			($ ICON_SKULL textclr$ .. <- chara .name@ .. "  e MORTO!" .. 0 textclr$ $)
@@ -577,7 +577,7 @@ defer stat-heal
 : food-required 0 0 args( chow chara )
 	team-stack depths for
 		pops -> chara 
-		<- chara .pet@ <- chara .trait@ "Ratinho Enxequete" $= or if
+		<- chara .pet@ <- chara .trait@ "Comilaozinho" $= or if
 			<- chara .trait@ "Gourmand" $= if
 				2 
 			else

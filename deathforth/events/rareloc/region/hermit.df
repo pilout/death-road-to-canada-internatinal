@@ -6,28 +6,28 @@ cyoa{
 
 cyoa-choice: cabin1-hermitchat-wisdom
 	ricon
-	($ "O eremita ensina " .. pname .. " algumas dicas de tiro certeiro e tambem revela os segredos de " .. "A RESISTENCIA DO EREMITA GRISALHO!" rbold .. "	AGORA SAIA E NUNCA MAIS VOLTE!" pbold $) cyoa-text! goodfx
+	($ "O eremita ensina " .. pname .. "  algumas dicas de tiro doce e tambem revela os segredos de " .. "RESISTENCIA DO EREMITA RAIVOSO!" rbold .. "	AGORA SAIA E NUNCA MAIS VOLTE!" pbold $) cyoa-text! goodfx
 		pchar .vitality++ pchar .shooting++
 ;
 
 cyoa-choice: cabin1-hermitchat-recruit
 	ricon
 	pchar charming? if
-		($ "O eremita e influenciado pelo " .. pname .. "'charme de" .. "'Bem, eu sou um eremita, mas voce sabe? Voce e legal!" pbold $) cyoa-text! goodfx
+		($ "O eremita e influenciado pelos " .. pname .. "' encantos de !		" .. "'Bem, eu sou um eremita, mas voce sabe de uma coisa? Voce esta bem!" pbold $) cyoa-text! goodfx
 		recruit-yesno
 	else
-		($ "'Claro que nao vou me juntar a voces! Eu estava bem antes de voces trazerem essa horda com voces!" pbold .. "'		O eremita nao e influenciado pelo " .. pname .. "'charme de" $) cyoa-text! badfx
+		($ "'Claro que nao vou me juntar a voce! Eu estava bem antes de voce trazer a horda com voce!" pbold .. "'		O eremita nao e influenciado por " .. pname .. "''s encantos." $) cyoa-text! badfx
 	then
 ;
 
 cyoa-bridge: cabin1-hermitchat-coolit
 	ricon
 	cool-it-7 if
-		($ "O eremita se acalma imediatamente! Ele compartilha seu estoque de cartuchos de espingarda com voce, junto com seu conhecimento de eremita. Ele tambem se oferece para se juntar a equipe!		" .. pname .. "  ficou surpreso que isso funcionou!" $) cyoa-text!
+		($ "O eremita esfria imediatamente! Ele compartilha seu estoque de cartuchos de espingarda com voce, junto com seu conhecimento de eremita. Ele tambem se oferece para se juntar a equipe!		" .. pname .. "  ficou surpreso que isso funcionou!" $) cyoa-text!
 		pchar .morale2+ goodfx cooled-it 40 add-shell pchar .shooting++ pchar .vitality++
 		recruit-yesno
 	else cool-it++
-		($ "0x0000000000000000000000000000000000000000000000000000000000000000," .. pname .. "'s sensibilities are offended!" $) cyoa-text!
+		($ "O eremita nao esfria. Em vez disso, ele solta uma serie de palavroes.		" .. pname .. "''s sensibilidades sao ofendidas!" $) cyoa-text!
 		pchar .morale2- badfx
 	then
 ;
@@ -35,15 +35,15 @@ cyoa-bridge: cabin1-hermitchat-coolit
 cyoa: cabin1-hermitchat
 	ricon 1 nearest .character@ .party!
 	image-angry-hermit
-	"O Ermitao Mais Zangado" cyoa-title!
+	"O Eremita Mais Irritado" cyoa-title!
 	region.zombie_basespawn@ 0 > if
-		($ "O eremita ja esta enfurecido." .. "0" pbold .. "talvez tente novamente quando houver menos zumbis." $) cyoa-text!
+		($ "O eremita ja esta enfurecido." .. "'		VOCE TROUXE TODOS ESSES ZUMBIS, NAO FOI?		SAIA DA MINHA CASA!" pbold .. "'		Talvez tente novamente quando houver menos zumbis." $) cyoa-text!
 	else
 		0 nearest .character@ .party!
-		($ "O eremita esta ligeiramente menos enfurecido agora, mas nao muito." .. "'Bem? O que e? Eu tenho muitas coisas importantes de eremita para fazer!'		Well? What is it?		I've got a lot of important hermit stuff to do! = 'Bem? O que e? Eu tenho muitas coisas importantes de eremita para fazer!'" pbold $) cyoa-text!
-		choice( "Pergunte pela sabedoria do ermitao" )choice: cabin1-hermitchat-wisdom
-		choice( "Pedem que ele se junte a voce" )choice: cabin1-hermitchat-recruit
-		choice( "'Diga a Ermitano para 'Acalmese'" fcoolit )choice: cabin1-hermitchat-coolit
+		($ "O eremita esta um pouco menos enfurecido agora, mas nao muito." .. "'		Bem? O que e isso?		Eu tenho muitas coisas importantes de eremita para fazer!" pbold $) cyoa-text!
+		choice( "Peca sabedoria de eremita" )choice: cabin1-hermitchat-wisdom
+		choice( "Peca para ele se juntar a voce" )choice: cabin1-hermitchat-recruit
+		choice( "'Diga ao Hermit para 'Relaxar'" fcoolit )choice: cabin1-hermitchat-coolit
 		clear-cyoa 
 	then
 ;
@@ -62,7 +62,7 @@ cyoa: cabin1-hermitchat
 	0 over .attitude!
 	0 over .composure!
 	0.88 over .ai.threat_threshold!
-	"foi surpreso de se ter juntado a equipe, sendo um eremita e tudo." over .job!
+	"ficou surpreso por ele ter entrado para o time, sendo um eremita e tudo mais." over .job!
 	WEAPON_SHOTGUN over .weapona!
 	WEAPON_FIRE over .weaponb!
 	40 LOOT_SHOTGUN_SHELL 2 pick .lootamt!
@@ -105,7 +105,7 @@ regiondef{
 		on-foot
 		
 		: make-a-cabin map{
-			"cabine-ermitao" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
+			"cabine hermit" $picklocid // Pick a cabin location definition if it exists ( tags -- locdefid )
 			addloc // Add a location using the resulting location definition  ( locdefid -- locid )
 			prefab{ 10 cabin } // Create a cabin of 5 width using the new location ( locid w -- <build cabin centered in upper part of map> )
 			}

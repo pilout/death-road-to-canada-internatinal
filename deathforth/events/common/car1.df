@@ -3,7 +3,7 @@ uses events/car/walkdecks/carfind1.df
 
 cyoa{ road{ 
 
-: usedlot-carget ($ Thegroup .. " compra um carro usado!" $) cyoa-text! goodfx ;
+: usedlot-carget ($ Thegroup .. " compra um carro usado novo!" $) cyoa-text! goodfx ;
 cyoa-choice: usedlot-SUV image-suv usedlot-carget carinfo-SUV CAR_SUV get-car ;
 cyoa-choice: usedlot-muscle image-sports-car usedlot-carget carinfo-muscle CAR_MUSCLE2 get-car ;
 cyoa-choice: usedlot-hybrid image-hybrid-battery usedlot-carget carinfo-hybrid CAR_HYBRID2 get-car ;
@@ -13,8 +13,8 @@ cyoa-choice: usedlot-grandpa image-car-lot usedlot-carget carinfo-grandpa CAR_GR
 cyoa-choice: usedlot-little image-car-lot usedlot-carget carinfo-little CAR_BUG get-car ;
 
 cyoa: car1-usedlot
-	"'Precos Tao Baixos Que Estao Gratis" cyoa-title!
-	($ Thegroup .. " encontra uma concessionaria de carros usados que parece imune ao tempo, ou pelo menos nao tocada por pilotos." .. gThey .. "  encontrar" .. g1s .. " um suprimento de gasolina e alguns carros funcionando!" $) cyoa-text!
+	"'Precos tao baixos que sao gratuitos" cyoa-title!
+	($ Thegroup .. "  encontra um terreno de carros usados que parece intocado pelo tempo, ou pelo menos nao tocado por saqueadores.	" .. gThey .. "  encontrar" .. g1s .. "  um suprimento de gasolina e alguns carros funcionando!" $) cyoa-text!
 		50 80 rnd trunk-gas+ image-car-lot
 		// Choices in events/car/walkdecks/carfind1.df
 		70 %chance if 		
@@ -23,39 +23,39 @@ cyoa: car1-usedlot
 			choice( "Trocar para Muscle Car" )choice: usedlot-muscle
 		then
 		70 %chance if 	
-			choice( "Trocar para Carro Pequeno" )choice: usedlot-little
+			choice( "Trocar para carro minusculo" )choice: usedlot-little
 		else
-			choice( "Trocar para Carro Classico" )choice: usedlot-grandpa
+			choice( "Trocar para carro classico" )choice: usedlot-grandpa
 		then
 		30 %chance if 
-			choice( "Trocar para Hibrido Eletrico" )choice: usedlot-hybrid
+			choice( "Trocar para hibrido eletrico" )choice: usedlot-hybrid
 		else
-			choice( "Trocar para Van Grande" )choice: usedlot-van
+			choice( "Trocar para van grande" )choice: usedlot-van
 		then
-		choice( "Manter carro, ir embora" )choice
+		choice( "Mantenha o carro, va embora" )choice
 ;	
 
 : mechanic-armor?
 	mechanic-silentrepair
 	mechanic-diff 1 > if
-		3 car-armor+ ($ "SUPER BLINDAGEM ATIVA!" fbold $)
+		3 car-armor+ ($ "SUPER ARMOR PARA CIMA!" fbold $)
 	else
 		mechanic-diff -1 > if
-			2 car-armor+ ($ "BLINDAGEM ATIVA!" rbold $)
+			2 car-armor+ ($ "ARMOR PARA CIMA!" rbold $)
 		else
-			1 car-armor+ ($ "BLINDAGEM meio ATIVA!" rbold $)
+			1 car-armor+ ($ "ARMOR meio que PARA CIMA!" rbold $)
 		then
 	then
 	+cr +text
 ;
 : mech-diff-1-morale mechanic-diff -1 > if morale2+all else morale++all then goodfx ;
 cyoa-choice: car1-garage-armor 
-	($ cname .. "  usa a sucata ao redor para criar uma armadura improvisada no carro. Leva alguns dias." $) cyoa-text!
+	($ cname .. "  usa a sucata espalhada para criar uma armadura improvisada no carro. Demora alguns dias." $) cyoa-text!
 	mechanic-diff 1 > if
 		($ cHe .. " faz um trabalho incrivel! O carro e praticamente um tanque agora!" $)
 	else
 		mechanic-diff -1 > if
-		($ cHe .. " funciona eficientemente. O carro parece formidavel!" $)
+		($ cHe .. " o carro parece formidavel!" $)
 		else
 		"Parece que a armadura esta prestes a cair do carro a qualquer momento."
 		then
@@ -66,49 +66,49 @@ cyoa-choice: car1-garage-armor
 
 : nocar-garage
 	30 50 rnd trunk-gas+ goodfx
-	"Nao ha muito o que fazer aqui sem um carro!" +crtext
+	"'Nao ha muito o que fazer aqui sem um carro!" +crtext
 ;
 
 cyoa: car1-garage
 	image-car-garage
 	"Garagem Blindada" cyoa-title!
-	($ Thegroup .. " 0.0" .. gThey .. "  encontrar" .. g1s .. " 'alguma gasolina e muito metal velho.'" $) cyoa-text!
+	($ Thegroup .. " ' encontra uma garagem profissional. A placa diz 'CAR PROZ'.	" .. gThey .. "  encontrar" .. g1s .. "  um pouco de gasolina e muito ferro velho." $) cyoa-text!
 		vehicle.which@ 0 = if nocar-garage then;
-		 " So preciso de tempo para mexer." +text
+		 "  So preciso de tempo para consertar." +text
 		30 50 rnd trunk-gas+
 		// garage-choices are in carlogic.df, and do the standard ones
 		garage-choices
 		// Every garage can have a different special choice
 		trunk-food team-count 4 * 1 - > if
-			choice( "2 days of repair and armor" )choice: car1-garage-armor 
+			choice( "Consertar e blindar o carro por 2 dias" )choice: car1-garage-armor 
 		then
 ;	
 
 : mechanic-megatune?
 	mechanic-silentrepair
 	mechanic-diff 1 > if
-		10 car-megatune+ ($ "ULTRA AJUSTE!" fbold $)
+		10 car-megatune+ ($ "SUPER REVISAO!" fbold $)
 		car-mpg 0.6 * to car-mpg
 	else
 		mechanic-diff -1 > if
-			6 car-megatune+ ($ "SUPER TUNADO!" rbold $)
+			6 car-megatune+ ($ "MEGA REVISAO!" rbold $)
 			car-mpg 0.8 * to car-mpg
 		else
-			2 car-megatune+ ($ "Esta ajustado?" rbold $)
+			2 car-megatune+ ($ "REVISADO?" rbold $)
 		then
 	then
 	+cr +text
 ;
 
 cyoa-choice: car1-garage-megatune 
-	($ cname .. " gasta alguns dias no garagem. " .. cHe .. " espera melhorar o carro ate de seus limites." $) cyoa-text!
+	($ cname .. "  passa alguns dias na garagem. " .. cHe .. "  espera melhorar o carro ao maximo." $) cyoa-text!
 	mechanic-diff 1 > if
-		($ cHe .. " faz trabalho incrivel! O carro esta funcionando MELHOR QUE NOVO!" $)
+		($ cHe .. "  faz um trabalho incrivel! O carro esta rodando MELHOR do que novo!" $)
 	else
 		mechanic-diff -1 > if
-		($ cHe .. " 'funciona eficazmente. A vida do carro e estendida, com melhor rendimento!" $)
+		($ cHe .. " ' trabalha com eficiencia. A vida util do carro e estendida, com melhor quilometragem!" $)
 		else
-		"'E dificil dizer se o carro mudou de alguma forma. Talvez tenha melhorado?"
+		"'E dificil dizer se o carro mudou alguma coisa. Talvez esteja melhor?"
 		then
 	then 
 	+cr +text mechanic-megatune? team-count -6 * trunk-food+ mechanicREV mechanic++ 3 calendar-day+
@@ -117,27 +117,27 @@ cyoa-choice: car1-garage-megatune
 
 cyoa: car1-tunegarage
 	image-car-garage
-	"Garagem So Solitaria" cyoa-title!
-	($ Thegroup .. " 0x3A3E3A3E" .. gThey .. "  encontrar" .. g1s .. " encontra um garagem cheia de combustivel e pecas em bom estado." $) cyoa-text!
+	"Garagem Solitaria" cyoa-title!
+	($ Thegroup .. " ' encontra uma garagem de carros isolada. A placa diz 'MASTER TUNERZ'.	" .. gThey .. "  encontrar" .. g1s .. "  um pouco de gasolina e muitas pecas de reposicao em bom estado." $) cyoa-text!
 		vehicle.which@ 0 = if nocar-garage then;
 		30 50 rnd trunk-gas+
 		garage-choices
 		trunk-food team-count 6 * 1 - > if
-			choice( "Repara e ajusta o carro durante tres dias." )choice: car1-garage-megatune
+			choice( "Repare e ajuste o carro por 3 dias" )choice: car1-garage-megatune
 		then
 ;	
 
 : mechanic-megaspeed?
 	mechanic-silentrepair
 		mechanic-diff -1 > if
-			1 ' car-speed +! ($ "INCREMENTO DE SPEED!" rbold $) +crtext
+			1 ' car-speed +! ($ "VELOCIDADE AUMENTADA!" rbold $) +crtext
 		then
 ;
 
 cyoa-choice: car1-garage-megaspeed
-	($ cname .. " gasta alguns dias no garagem. " .. cHe .. " tenta descobrir as pecas estranhas." $) cyoa-text!
+	($ cname .. "  passa alguns dias na garagem. " .. cHe .. "  tenta descobrir as pecas estranhas." $) cyoa-text!
 		mechanic-diff -1 > if
-		($ cHe .. " 'instalaos. Foi um FOGUETE!'" $)
+		($ cHe .. "  instala os. Era um PROPULSOR DE FOGUETE!" $)
 		else
 		"As pecas permanecem um misterio e sao deixadas para tras. O carro recebe alguns reparos."
 		then
@@ -148,101 +148,101 @@ cyoa-choice: car1-garage-megaspeed
 cyoa: car1-speedgarage
 	image-car-garage
 	"Garagem Brilhante" cyoa-title!
-	($ Thegroup .. " 0x3A3A3A3A" .. gThey .. "  encontrar" .. g1s .. " 'alguma gasolina e algumas pecas misteriosas de carro.'" $) cyoa-text!
+	($ Thegroup .. " ' encontra uma garagem de carros ainda brilhante. A placa diz 'CARLZ CUSTOMZ'.	" .. gThey .. "  encontrar" .. g1s .. "  um pouco de gasolina e algumas pecas misteriosas de carro." $) cyoa-text!
 		vehicle.which@ 0 = if nocar-garage then;
 		30 50 rnd trunk-gas+
 		garage-choices
 		trunk-food team-count 6 * 1 - > if
-			choice( "3 days of mod" )choice: car1-garage-megaspeed
+			choice( "Repare e tente mod por 3 dias" )choice: car1-garage-megaspeed
 		then
 ;	
 
 cyoa-choice: car1-floodroad-plow
-	($ Thegroup .. "  decide arriscar e passar com o carro pela estrada alagada." $) cyoa-text! car-plowthrough	
+	($ Thegroup .. "  decide arriscar e atropelar o carro pela estrada inundada." $) cyoa-text! car-plowthrough	
 ;
 cyoa-choice: car1-floodroad-jump
-	($ Thegroup .. "  ve uma rampa improvisada e tem a ideia espetacularmente perigosa de tentar pular a parte alagada da estrada." $) cyoa-text! car-jump
+	($ Thegroup .. "  avista uma rampa improvisada e tem a ideia espetacularmente perigosa de tentar saltar a parte inundada da estrada." $) cyoa-text! car-jump
 ;
 cyoa: car1-floodroad
 	image-water-driving
-	"Estrada Alagada" cyoa-title!
+	"Estrada lavada" cyoa-title!
 	vehicle.which@ 0 = if 
-		($ "A estrada a frente esta alagada. Sem carro, " .. thegroup .. "  tem que fazer um longo desvio a pe." $) text! 1 calendar-day+ +cr fullcamp
+		($ "A estrada a frente esta inundada. Sem carro, " .. thegroup .. "  tem que fazer um longo desvio a pe." $) text! 1 calendar-day+ +cr fullcamp
 	then;
-	($ "A estrada a frente foi alagada, mas parece que o carro ainda pode passar por ela." .. Thegroup .. "  decide:" $) cyoa-text!
+	($ "A estrada a frente foi inundada, mas parece que o carro ainda pode passar por ela.	" .. Thegroup .. "  decide:" $) cyoa-text!
 		// carlogic.df again
 		choice( "Fazer um desvio" )choice: car-detour
-		choice( "Passar direto" )choice: car1-floodroad-plow
+		choice( "Atropelar" )choice: car1-floodroad-plow
 		angriest choosechar chumany? if
-			cchar charchoice( "': VAMOS PULAR" )choice: car1-floodroad-jump
+			cchar charchoice( "': SALTAR EM CIMA DELE" )choice: car1-floodroad-jump
 		then
 ;	
 
 cyoa-choice: car1-fallentree-plow
-	($ Thegroup .. " ' acha que e apenas uma arvore, e o carro e feito de metal. Quao dificil pode ser passar por cima?" $) cyoa-text! car-plowthrough	
+	($ Thegroup .. " ' pensa que e apenas uma arvore, e o carro e feito de metal. Quao dificil pode ser atropela la?" $) cyoa-text! car-plowthrough	
 ;
 cyoa-choice: car1-fallentree-shoot
 	($ Thegroup .. "  decide sacar as armas e atirar na arvore morta." $) cyoa-text!
 	// car-shoot-check if
 	// Retooling this a bit later
-		"O plano de alguma forma funciona! A arvore e destruida." +cr +text goodfx
+		"O plano funciona de alguma forma! A arvore e explodida." +cr +text goodfx
 	(* else
-		($ "'Isso nao funcionou de jeito nenhum. " .. Thegroup .. "  entao tenta passar com o carro pela arvore cheia de balas." $) +cr +text car-plowthrough
+		($ "'Isso nao funcionou de jeito nenhum. " .. Thegroup .. "  entao tenta passar o carro pela arvore crivada de balas." $) +cr +text car-plowthrough
 	then *)
 	car-shoot
 ;
 : car1-fallentree-pop dup .morale-- 50 %chance if dup .strength-- else dup team-attacked then ;
 cyoa-choice: car1-fallentree-lift
 	choosehuman
-	($ Thegroup .. " 'decide tentar pegar a arvore.'" $) cyoa-text!
+	($ Thegroup .. "  decide tentar pegar a arvore." $) cyoa-text!
 	strength-total 10 > if
-		($ Thegroup .. " 'move a arvore para fora da estrada com pura forca!'" $) +cr +text goodfx
+		($ Thegroup .. "  tira a arvore da estrada com forca bruta!" $) +cr +text goodfx
 	else
 		strength-total 5 > if
 			($ Thegroup .. " moves the tree out of the road through extreme effort. 
-			" .. cname .. " estourar" $) +cr +text 
+			" .. cname .. " estourar algo no corpo" $) +cr +text 
 				cchar team-attacked morale-- strength-- badfx
 		else
-			($ Thegroup .. " 0.5 " .. ghim .. "pouco bom. " .. gThey .. " decide" .. g1s .. " tenta tentar atingir arvore com carro."  $) +cr +text
+			($ Thegroup .. " falha em mover a arvore, mas consegue ferir " .. ghim .. "eu me sinto muito mal " .. gThey .. " decidir" .. g1s .. "  para tentar bater na arvore com o carro."  $) +cr +text
 			car-plowthrough ' car1-fallentree-pop foreach-team-char
 		then
 	then
 ;
 cyoa: car1-fallentree
 	image-tree-in-road
-	"Arvore no Caminho" cyoa-title!
-	"O caminho a frente tem uma grande arvore que se encontra deitada nele. Parece que alguem a cortou para bloquear o caminho. Seria preciso um grupo forte de pessoas para movela com seguranca!" text!
+	"Arvore na Estrada" cyoa-title!
+	"O caminho a frente tem uma grande arvore caida sobre ele. Parece que alguem o cortou para bloquear a estrada. Seria necessario um grupo de pessoas fortes para move la com seguranca!" text!
 	vehicle.which@ 0 = if 
-		($ "Sem carro, " .. thegroup .. " apenas sube sobre a arvore caida." $) +crtext morale++all goodfx
+		($ "Sem carro, " .. thegroup .. "  apenas sobe na arvore derrubada." $) +crtext morale++all goodfx
 	then;
 	($ Thegroup .. "  decide:" $) +crtext
 		// carlogic.df again
 		choice( "Fazer um desvio" )choice: car-detour
-		choice( "Passar direto" )choice: car1-fallentree-plow
+		choice( "Atropelar" )choice: car1-fallentree-plow
 		choice( "Levante a arvore" )choice: car1-fallentree-lift
 		// Add an event for having a chainsaw?
 		car-shoot-check if
-			choice( "TIRAR DELE" )choice: car1-fallentree-shoot
+			choice( "ATIRE NELE" )choice: car1-fallentree-shoot
 		then
 ;	
 
 cyoa-choice: car1-dashcode-mech
-	($ cname .. " verifica o carro e encontra o problema.	Faltava apenas um gasolina firmemente." $) cyoa-text!
+	($ cname .. "  verifica o carro e encontra o problema. Era apenas uma tampa de gas solta. Facil de consertar!" $) cyoa-text!
 		cmechanic- if mechanic++ then
 		mechanicREV goodfx 2 4 rnd car-tune+
 ;
 cyoa-choice: car1-dashcode-punch
 	cpet? if
-		($ cname .. " mordida o carro, de maneira intensa." $)
+		($ cname .. "  morde o inferno do carro, grande momento." $)
 	else
-		($ cname .. " quebra o carro com " .. chis .. "  som." $)
+		($ cname .. "  esmaga o carro com " .. chis .. "  som." $)
 	then cyoa-text!	
-	"Alivia algum estresse e a luz de erro desliga!" +crtext
+	"Alivia um pouco o estresse e a luz de erro apaga!" +crtext
 		cchar .strength 4 < if strength++ then
 		morale++ strengthREV goodfx -1 car-chassis+
 ;
 cyoa-choice: car1-dashcode-kick
-	($ cname .. " 1 " .. chis .. " " $) cyoa-text!
+	($ cname .. "  sai do carro e apenas bate nele com " .. chis .. "  pes. Que treino! A luz de erro permanece acesa, no entanto." $) cyoa-text!
 		cchar .fitness 4 < if fitness++ then
 		morale++ fitnessREV goodfx -1 car-chassis+
 ;
@@ -253,13 +253,13 @@ cyoa: car1-dashcode
 	vehicle.which@ 0 = if 
 		image-zombie-hoard-1
 		"Caminhada para o Canada" cyoa-title!
-		($ Thegroup .. "  lacks the protection of a car as they get close to Canada. " .. gTheyare .. " atacado por uma grande horda em campo aberto. Nao ha lugar para se esconder e nem tempo para lutar." $) text! ouch--all bitefx
+		($ Thegroup .. "  nao tem a protecao de um carro quando se aproximam do Canada. " .. gTheyare .. "  atacado por uma grande horda em campo aberto. Nao ha onde se esconder e nem tempo para lutar." $) text! ouch--all bitefx
 	then;
 	image-check-engine
-	"MOTOR DE SERVICO EM BREVE" cyoa-title!
-	($ "O carro esta funcionando bem, mas um codigo de erro aparece no painel. " .. Thegroup .. " 0 " .. gthey .. "  puxa" .. g1s .. "  para ver o que esta acontecendo." $) cyoa-text!
-		choice( "Ignore isso" )choice
-		mechanicest charchoice( "  inspecionao cuidadosamente" )choice: car1-dashcode-mech
+	"SERVICO DE MOTOR EM BREVE" cyoa-title!
+	($ "O carro esta funcionando bem, mas um codigo de erro aparece no painel. " .. Thegroup .. " ' nao tem ideia do que esta errado, entao " .. gthey .. "  puxe" .. g1s .. "  para ver o que esta acontecendo." $) cyoa-text!
+		choice( "Ignore" )choice
+		mechanicest charchoice( "  inspeciona o cuidadosamente" )choice: car1-dashcode-mech
 		strongest choosechar cchar charchoice( " " .. car1-dashcode-dtext .. "  muito forte" )choice: car1-dashcode-punch
 		fittest charchoice( "  chuta muito" )choice: car1-dashcode-kick
 ;
