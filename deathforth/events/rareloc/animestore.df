@@ -1,108 +1,99 @@
 cyoa{
 
 cyoa-choice: anime-go
-	($ cname .. " takes an hour to read the anime." $) text!
+	($ cname .. "  impiega unora per leggere lanime." $) text!
 	deleteme clear-cyoa o'clock@ 1 + o'clock
-	cchar .trait@ "Anime Fan" $= if
-		($ cname .. " loves anime!!! Reading this bestows " .. "MYSTERIOUS ANIME POWERS!" rainbold $) +crtext
+	cchar .trait@ "Fan degli anime" $= if
+		($ cname .. " loves anime!!! Reading this bestows " .. "MISTERIOSI POTERI ANIME!" rainbold $) +crtext
 		goodfx morale2+
 		road{ animefan-checker }
 	then;
 	cwits+ if
-		($ cname .. " is an uncultured swine that lacks the refined tastes necessary to appreciate this work." $) +crtext
+		($ cname .. "  e un porco incolto che non ha i gusti raffinati necessari per apprezzare questopera." $) +crtext
 		badfx morale-- witsREV
 	else
-		($ cname .. " is a person of culture and taste and greatly appreciates this anime." $) +crtext
+		($ cname .. "  e una persona di cultura e gusto e apprezza molto questo anime." $) +crtext
 		goodfx morale++
 	then witsREV
 ;
 
 : animechoice
-	choice( "Leave it alone for now" )choice
-	cchar charchoice( " reads the anime" )choice: anime-go
+	choice( "Lascialo stare per ora" )choice
+	cchar charchoice( "  legge lanime" )choice: anime-go
 ;
 
 cyoa: anime1
-	"Anime Found" cyoa-title!
+	"Anime Trovato" cyoa-title!
 	picon!
-	($ cname .. " finds an anime titled " .. "SANDWICH-CHAN" pbold .. "
-	 It's a graphic novel about a magical anime girl who is also a sandwich that lives in a refrigerator. Or maybe it's a sandwich that is also a magical anime girl. 
-	 The plot is a little difficult to follow." $) text!
+	($ cname .. "  trova un anime intitolato " .. "SANDWICH CHAN" pbold .. "'E una graphic novel su una magica ragazza anime che e anche un panino che vive in un frigorifero. O forse e un panino che e anche una magica ragazza anime. La trama e un po' difficile da seguire." $) text!
 		animechoice
 ;
 
 cyoa: anime2
-	"Anime Found" cyoa-title!
+	"Anime Trovato" cyoa-title!
 	picon!
-	($ cname .. " finds an anime titled " .. "I CAN'T BELIEVE MY FIANCE IS SOME KIND OF FISH CREATURE!" pbold .. "
-	 It's a comic about a woman who has a dreary job in an office. Her life is brightened by getting a pet fish that has a human face and talks. 
-	 The plot involves them having to eventually get married due to a wizard's curse." $) text!
+	($ cname .. "  trova un anime intitolato " .. "'NON POSSO CREDERE CHE IL MIO FIDANZATO SIA UNA SPECIE DI CREATURA PESCE!" pbold .. "'E un fumetto su una donna che ha un lavoro deprimente in un ufficio. La sua vita e rallegrata dall'arrivo di un pesce domestico che ha un volto umano e parla. La trama prevede che alla fine debbano sposarsi a causa di una maledizione di un mago." $) text!
 		animechoice
 ;
 
 cyoa: anime3
-	"Anime Found" cyoa-title!
+	"Anime Trovato" cyoa-title!
 	picon!
-	($ cname .. " finds an anime titled " .. "BAG OF PISTACHIOS" pbold .. "
-	 It's an anime about a bag of pistachios. The protagonist is surprised to discover the pistachios are sentient. Every pistachio is a different anime girl.
-	 There doesn't really seem to be a plot." $) text!
+	($ cname .. "  trova un anime intitolato " .. "SACCHETTO DI PISTACCHI" pbold .. "'E un anime su un sacchetto di pistacchi. Il protagonista e sorpreso di scoprire che i pistacchi sono senzienti. Ogni pistacchio e una diversa ragazza anime. Non sembra esserci una trama vera e propria." $) text!
 		animechoice
 ;
 
 cyoa-choice: animebox-go
 	62 65 rnd cchar .specialhead!
-	($ cname .. " is now officially an anime girl! Nice!" $) text! goodfx
+	($ cname .. " e ora ufficialmente una ragazza anime! Bello!" $) text! goodfx
 ;
 
 cyoa: animebox
-	"Mysterious Anime Box" cyoa-title!
+	"Scatola misteriosa di anime" cyoa-title!
 	picon!
-	($ cname .. " finds a box of anime. It contains a bunch of anime girl masks." $) text!
-		choice( "Leave it alone for now" )choice
-		cchar charchoice( " puts the anime mask on" )choice: animebox-go	
+	($ cname .. " trova una scatola di anime. Contiene un mucchio di maschere da ragazza anime." $) text!
+		choice( "Lascialo stare per ora" )choice
+		cchar charchoice( " mette la maschera anime" )choice: animebox-go	
 ;
 
 : anime-recruit nearest .character@ choosechar cicon 1 cchar .party-familiar goodfx clear-cyoa ;
 
 : animegirl-anime-check
 	pchar anime? if
-		($ cname .. "'s mind is completely blown by the existence of " .. pname .. "!
-		" .. "ANIME IS REAL!" rainbold $) text!
+		($ cname .. "'la mente di ' e completamente sconvolta dall'esistenza di " .. pname .. "!
+		" .. "GLI ANIME SONO REALI!" rainbold $) text!
 		road{ anime-countdown } 50 < if
-			($ "The purity of " .. cname .. "'s love for anime halts the " .. "CURSE OF ANIME" rbold .. " that was placed on " .. pname .. "! Enjoy!" $) +crtext road{ 99 to anime-countdown }
+			($ "La purezza di " .. cname .. "'l'amore di ' per gli anime ferma la " .. "MALEDIZIONE DEGLI ANIME" rbold .. "  che e stato piazzato su " .. pname .. "! Divertiti!" $) +crtext road{ 99 to anime-countdown }
 		then
 	then
 ;
 
 cyoa: anime-mort
 	anime-recruit
-	"The Anime Club" cyoa-title!
-	($ cname .. " seems irritated by " .. pname .. "'s existence.
-	" .. "I guess we can help you out, but it's not because we like you or anything!" pbold $) text!
+	"Il club di anime" cyoa-title!
+	($ cname .. "  sembra irritato da " .. pname .. "' esistenza di" .. "'Credo che possiamo aiutarti, ma non perche tu ci piaccia o altro!" pbold $) text!
 	animegirl-anime-check
 ;
 
 cyoa: anime-mark
 	anime-recruit
-	"The Anime Club" cyoa-title!
-	($ cname .. " looks at " .. pname .. " with a quiet sense of superiority.
-	" .. "I guess we can help you out, but it's not because we like you or anything!" pbold $) text!
+	"Il club di anime" cyoa-title!
+	($ cname .. "  guarda " .. pname .. "  con un tranquillo senso di superiorita." .. "'Credo che possiamo aiutarti, ma non perche tu ci piaccia o altro!" pbold $) text!
 	animegirl-anime-check
 ;
 
 cyoa: anime-clyde
 	anime-recruit
-	"The Anime Club" cyoa-title!
-	($ cname .. " seems troubled and nervous. Not because of " .. pname .. ", just in general.
-	" .. "I guess we can help you out, but it's not because we like you or anything!" pbold $) text!
+	"Il club di anime" cyoa-title!
+	($ cname .. "  sembra preoccupato e nervoso. Non a causa di " .. pname .. ", solo in generale." .. "'Credo che possiamo aiutarti, ma non perche tu ci piaccia o altro!" pbold $) text!
 	animegirl-anime-check
 ;
 
 cyoa: anime-dave
 	anime-recruit
-	"The Anime Club" cyoa-title!
-	($ cname .. " doesn't say anything, but starts following " .. pname .. ".
-	" .. "I guess we can help you out, but it's not because we like you or anything!" pbold $) text!
+	"Il club di anime" cyoa-title!
+	($ cname .. " ' non dice nulla, ma inizia a seguire " .. pname .. ".
+	" .. "'Credo che possiamo aiutarti, ma non perche tu ci piaccia o altro!" pbold $) text!
 	animegirl-anime-check
 ;
 

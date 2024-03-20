@@ -3,12 +3,12 @@ cyoa{
 
 // Unused
 : npc-panda-go 
-	($ cname .. " starts following " .. pname .. " for awhile!" $) +crtext ccharget
+	($ cname .. "  inizia a seguire " .. pname .. "  per un po!" $) +crtext ccharget
 ;
 
 : npc-panda-recruit
 	cchar to recruitee goodfx clear-cyoa
-	($ "The panda seems to want to follow " .. pname .. "!" $) +crtext
+	($ "Il panda sembra voler seguire " .. pname .. "!" $) +crtext
 	pchar .morale3+ pchar .loyaltyREV pchar .attitudeREV
 	recruitee .strengthREV recruitee .fitnessREV
 	0.25 cchar .ai.wander_chance! 0 nearest .unseen!
@@ -16,21 +16,21 @@ cyoa{
 ;
 
 : npc-panda-attack
-	($ "The panda " .. "lashes out!" rbold $) +crtext pchar .ouch-- bitefx
+	($ "Il panda " .. "si lancia!" rbold $) +crtext pchar .ouch-- bitefx
 ;
 
 cyoa-bridge: npc-panda-food
-	($ pname .. " offers the panda some food." $) text!
+	($ pname .. "  offre del cibo al panda." $) text!
 	50 %chance if 
 		npc-panda-recruit
 	else
-		($ "The panda chomps on the food and then spits it out. Pandas are picky eaters, but you can keep trying with more food." $) +crtext badfx
+		($ "Il panda mastica il cibo e poi lo sputa. I panda sono schizzinosi, ma puoi continuare a provare con altro cibo." $) +crtext badfx
 	then	
 	-1 add-food
 ;
 
 cyoa-bridge: npc-panda-pull
-	($ pname .. " pulls the panda towards " .. phim .. " in hopes that the animal follows. It seems like it's worth a shot." $) text!
+	($ pname .. "  tira il panda verso " .. phim .. " ' nella speranza che l'animale lo segua. Sembra che valga la pena provare." $) text!
 	50 %chance if 
 		npc-panda-recruit
 	else
@@ -41,14 +41,14 @@ cyoa-bridge: npc-panda-pull
 
 cyoa-bridge: npc-panda-charm
 	pchar isdogpal? if
-		($ pname .. " uses " .. phis .. " DOG PSYCHOLOGY on the panda, which is a type of dog." $) text!
+		($ pname .. "  usa " .. phis .. "  PSICOLOGIA DEL CANE sul panda, che e un tipo di cane." $) text!
 		npc-panda-recruit
 	else
 		pchar charming? if 
-			($ pname .. " uses " .. phis .. " natural charm to coax the panda to follow." $) text!
+			($ pname .. "  usa " .. phis .. "  fascino naturale per convincere il panda a seguirlo." $) text!
 			npc-panda-recruit
 		else
-			($ "The panda just seems irritated by " .. pname .. "." $) text!
+			($ "Il panda sembra solo irritato da " .. pname .. "." $) text!
 			npc-panda-attack
 		then
 	then
@@ -57,16 +57,16 @@ cyoa-bridge: npc-panda-charm
 // pchar .nonfatal if then
 
 cyoa: npc-panda
-	"Panda Panic" cyoa-title!
+	"Paura del panda" cyoa-title!
 	nearest .character@ choosechar cicon
-	($ "It's a panda, standing around the trashed building. It stares at " .. pname .. " with a blank expression. It may be possible to get it to follow you..." $) text!
-	"WARNING: Will probably kill you unless you're offering it food. Is a dingus with 50% chance to waste your food." rbold +crtext
-		choice( "Leave it alone" )choice
-		choice( "Pull the panda along" )choice: npc-panda-pull
+	($ "'E un panda, in piedi intorno all'edificio distrutto. Fissa " .. pname .. " with a blank expression. It may be possible to get it to follow you..." $) text!
+	"'ATTENZIONE: probabilmente ti uccidera a meno che tu non gli offra del cibo. E uno stupido con il 50% di possibilita di sprecare il tuo cibo." rbold +crtext
+		choice( "Lascialo stare" )choice
+		choice( "Tira il panda" )choice: npc-panda-pull
 		LOOT_FOOD pchar .lootamt@ 0 > if
-			choice( "Lure it with food" )choice: npc-panda-food
+			choice( "Attirarlo con il cibo" )choice: npc-panda-food
 		then
-		choice( "Coax it with charm" )choice: npc-panda-charm	
+		choice( "Attirarlo con il fascino" )choice: npc-panda-charm	
 ;
 
 }
@@ -80,7 +80,7 @@ cyoa: npc-panda
 	6 <- char .fitness!
 	1 <- char .female!
 	1 <- char .carrying.slot_count!
-	"is a panda. Real cute unless angered." <- char .job!
+	"e un panda. Davvero carino a meno che non sia arrabbiato." <- char .job!
 	<- char cyoa{ ' npc-panda cyoa! }
 	drop
 ;
