@@ -20,26 +20,21 @@ cyoa{ road{
 	>int ;	// Convert the result to an integer, thus truncating
 			// decimal part
 cyoa: healthcheck
-	"HEALTH STATUS" cyoa-title!
+	"ETAT DE SANTE" cyoa-title!
 	someicon
-	($ cname .. " is a dinkus with " .. cchar .vitality@ .. " max health.
-	" .. cname .. " currently has " .. cchar .health@ .. " health.
-	" .. cHe .. " has " .. cchar damage .. " damage.
-	" .. cHe .. " has " .. healerskill .. " medical skill and could heal for " .. healformula .. " health. 
-	Total team health is " .. team-health .. "
-	Total team damage is " .. team-damage $) cyoa-text! basic-tone
+	($ cname .. " em " .. cchar .vitality@ .. " 	Maximal de sante." .. cname .. " actuellement a " .. cchar .health@ .. " " .. cHe .. "  a " .. cchar damage .. "  degats.	" .. cHe .. "  a " .. healerskill .. "  de competences medicales et pourrait soigner pour " .. healformula .. "  sante.	La sante totale de lequipe est " .. team-health .. "	Les degats totaux de lequipe sont " .. team-damage $) cyoa-text! basic-tone
 ;
 : maxhealcost healerskill 5 > if -1 else -2 then ;
 : maxhealreq healerskill 5 > if 0 else 1 then ;
 : donomedskill
-	+cr ($ cname .. " is really terrible at this! " $) +text badfx
+	+cr ($ cname .. "  est vraiment terrible a ca ! " $) +text badfx
 
 	10 %chance if    
-		($ cHe .. " ends up making things worse!" $) +text bitefx
+		($ cHe .. "  finit par empirer les choses !" $) +text bitefx
 		most-hurt team-attacked
 	else
 		40 %chance LOOT_MEDICAL trunk.loot@ 1 > and if
-			($ "Still, " .. che .. " starts to figure it out." $) +text	
+			($ " Pourtant, " .. che .. "  commence a comprendre." $) +text	
 			medical++
 			-2 LOOT_MEDICAL trunk.loot+
 		then
@@ -61,7 +56,7 @@ cyoa: healthcheck
 ;
 
 // pchar .boganify 1 #teamchar .ouch-- 1 #teamchar .ouch-- road{ 3 to road-trip-days
-: isregen? .trait@ "Gnome Regen" $= ;
+: isregen? .trait@ "Regen Gnome" $= ;
 : regencheck checkchar isregen? ;
 : regen-hurt ' regencheck pick-team-char ;
 
@@ -73,23 +68,23 @@ cyoa: healthcheck
 
 // The old healing CYOA method, still used for some things like CYOA resting and walking end of day
 cyoa: dailyhealing
-	"Heal Up!" cyoa-title!
+	" Soigne toi !" cyoa-title!
 	medicalest choosechar cicon
 	cchar to teamnurse
 	
-	($ cname .. " rolls up " .. chis .. " sleeves and starts tending to " .. ghis .. " wounds." $) cyoa-text!
+	($ cname .. "  retrousse " .. chis .. "  ses manches et commence a soigner " .. ghis .. "  blessures." $) cyoa-text!
 
 	// healerskill 0= if donomedskill then;
 
 	LOOT_MEDICAL trunk.loot@ 1 < nurseskill 5 > and if
-		+cr ($ cname .. " lacks enough medical supplies, but manages to improvise some expert medical care." $) +text goodfx
+		+cr ($ cname .. "  manque de fournitures medicales, mais parvient a improviser des soins medicaux experts." $) +text goodfx
 		most-hurt damage 0 > if
 				most-hurt .health++ 
 		then	
 	then;
 	
 	LOOT_MEDICAL trunk.loot@ nursehealreq < if
-		+cr ($ cname .. " tries to help, but lacks enough medical supplies." $) +text badfx
+		+cr ($ cname .. "  essaie daider, mais manque de fournitures medicales." $) +text badfx
 	then;
 
 	nurseskill 4 < if 1 else 
@@ -107,13 +102,13 @@ cyoa: dailyhealing
 	+cr
 
 	team-damage 1 < if 
-		($ cname .. " treats all of " .. ghis .. " wounds! " $) 
+		($ cname .. " traite tous les de " .. ghis .. " blessures! " $) 
 		else
-		($ cname .. " treats some of " .. ghis .. " wounds! " $)
+		($ cname .. "  traite certains " .. ghis .. " blessures! " $)
 	then +text
 
 	LOOT_MEDICAL trunk.loot@ nursehealreq < < if
-		($ cHe .. " runs low on medical supplies." $) +text // THE GROUP RUNS LOW?
+		($ cHe .. "  manque de fournitures medicales." $) +text // THE GROUP RUNS LOW?
 	then
 	
 	medicalREV 
@@ -129,10 +124,10 @@ cyoa: dailyhealing
 : blurb-heal args( chara )
 	<- chara .health++
 	<- chara damage 0 = if 
-		($ ICON_UP textclr$ .. <- chara .name@ .. " is fully healed by " .. nursename .. "!" ..	0 textclr$ $) 
+		($ ICON_UP textclr$ .. <- chara .name@ .. "  est completement gueri par " .. nursename .. "!" ..	0 textclr$ $) 
 	then
 	<- chara damage 0 > if 
-		($ ICON_UP textclr$ .. <- chara .name@ .. " is healed a bit by " .. nursename .. "!" .. 0 textclr$ $) 
+		($ ICON_UP textclr$ .. <- chara .name@ .. "  est un peu gueri par " .. nursename .. "!" .. 0 textclr$ $) 
 	then	
 		blurbevent ICON_UP blurbicon <- chara character# charid blurb-last-to-cyoa
 	teamnurse .medicalREV 
@@ -151,11 +146,11 @@ cyoa: dailyhealing
 : regen-heals args( chara )
 	<- chara damage 0 > <- chara isregen? and if
 		<- chara .health++
-		($ ICON_UP textclr$ .. <- chara .name@ .. " heals via Gnomish Regeneration!" ..	0 textclr$ $) blurbevent ICON_UP blurbicon <- chara character# charid blurb-last-to-cyoa
+		($ ICON_UP textclr$ .. <- chara .name@ .. "  guerit via la regeneration gnome!" ..	0 textclr$ $) blurbevent ICON_UP blurbicon <- chara character# charid blurb-last-to-cyoa
 	then
 ;
 
-// The newer "heal on road during blurbs" method
+// The newer "guerit sur la route pendant les annonces" method
 : blurbhealing
 	// cyoa version: 0 med was 40% chance to get better while wasting 2 medical, 10% chance to injure.  1 heal base, 1 extra heal per every 2 medical skill. 2 meds to heal normally, 1 if at maxed skill. Maxed skill also gave one free heal per event if you had no supplies. Maxed skill could do 4 heals every camp or rest event. Changed to be like the blurb version during EYEBALL update.
 	// blurb version: 0 med uses 4 medical, has 40% chance to give a medical skill. 1 uses 3 medical. 10% chance to get better if under 3 medical. 2-4 uses 2 medical. 5-6 reduces costs to 1, and 6 lets you heal once if out of medical. 4-5 heals twice per tick instead of once, and 6 heals for 3 ticks.
@@ -167,7 +162,7 @@ cyoa: dailyhealing
 	then
 	
 	LOOT_MEDICAL trunk.loot@ 1 < nurseskill 5 > and if
-		+cr ($ nursename .. " lacks enough medical supplies, but manages to improvise." $) blurbevent ICON_UP nurseblurb
+		+cr ($ nursename .. "  manque de fournitures medicales, mais parvient a improviser." $) blurbevent ICON_UP nurseblurb
 		most-hurt damage 0 > if
 				most-hurt blurb-heal
 		then	
@@ -176,7 +171,7 @@ cyoa: dailyhealing
 	
 	LOOT_MEDICAL trunk.loot@ nursehealreq < if
 		outofmedsblurb 1 < if
-			+cr ($ nursename .. " tries to help, but lacks enough medical supplies." $) blurbevent ICON_DOWN nurseblurb
+			+cr ($ nursename .. "  essaie daider, mais manque de fournitures medicales." $) blurbevent ICON_DOWN nurseblurb
 			6 road-delay
 			1 to outofmedsblurb
 		then
@@ -194,13 +189,13 @@ cyoa: dailyhealing
 	+cr
 
 	team-damage 1 < if 
-		($ nursename .. " treats all of " .. ghis .. " wounds! " $) 
+		($ nursename .. " traite tous les de " .. ghis .. " blessures! " $) 
 		else
-		($ nursename .. " treats some of " .. ghis .. " wounds! " $)
+		($ nursename .. "  traite certains " .. ghis .. " blessures! " $)
 	then blurbevent ICON_UP nurseblurb
 
 	LOOT_MEDICAL trunk.loot@ nursehealreq < if
-		($ nursename .. " runs low on medical supplies." $) blurbevent ICON_DOWN nurseblurb
+		($ nursename .. "  manque de fournitures medicales." $) blurbevent ICON_DOWN nurseblurb
 	then 
 	
 	6 road-delay

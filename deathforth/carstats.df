@@ -110,7 +110,7 @@ CAR_STARTER value starting-car
 	mission.vehicle@ 0= if then;
 	mission.vehicle@ .id@ 0= if 0 vehicle.which! then;
 
-	mission.vehicle@ .hitpoints@ CAR_HEALTH_SCALAR / "CAR HEALTH: " type dup print to car-chassis
+	mission.vehicle@ .hitpoints@ CAR_HEALTH_SCALAR / "SANTE DE LA Voiture : " type dup print to car-chassis
 	car-update-display
 ;
 
@@ -583,16 +583,16 @@ DOT1 value DOT
 
 // TODO: Maybe put different text in here depending on bar values
 : +repairstatus +purple "chassis" +text +white ;
-: +wearstatus +purple "engine" +text +white ;
-: +armourstatus +purple "armour" +text +white ;
+: +wearstatus +purple "moteur" +text +white ;
+: +armourstatus +purple "blindage" +text +white ;
 : +carspeed 
 	car-speed 2 < if 
-		+red "Slow"
+		+red "Lentement"
 	else
 		car-speed 2 = if
-		+blue "Average"
+		+blue "Moyen"
 		else
-		+green "Fast"
+		+green "Rapide"
 		then
 	then +text +white 
 ;
@@ -600,30 +600,30 @@ DOT1 value DOT
 // TODO: Days left to CANADA
 : +canadadays +red road{ nearcanada-day 1 + road-trip-days - } +text +white ;
 
-: zombop-cr "Zombo Points: " pbold +text gstats{ zombo-point } +text " / " +text gstats{ ZOMBOP_CAP } +text +cr ;
+: zombop-cr "Points Zombo : " pbold +text gstats{ zombo-point } +text " / " +text gstats{ ZOMBOP_CAP } +text +cr ;
 
 : vehicle-tab-text
 
-	"Game Mode: " pbold +text 
+	"Mode de jeu : " pbold +text 
 
-	"NO GAME MODE" // Default case
+	"MODE DE JEU NULLE" // Default case
 	gamedef{ ' defaultmode gamemode? } if drop "Death Road Normal" then
-	gamedef{ ' longroad gamemode? } if drop "Long Winding Road" then
-	gamedef{ ' specialchars gamemode? } if drop "Rare Characters" then
-	gamedef{ ' familiarchars gamemode? } if	drop "Familiar Characters" then
-	gamedef{ ' specialcharsEX gamemode? } if drop "Rare Characters EXTREME" rainbold then
-	gamedef{ ' familiarcharsEX gamemode? } if drop "Familiar Characters EXTREME" rainbold then
-	gamedef{ ' kepamode gamemode? } if drop "K*E*P*A" fbold then
-	gamedef{ ' shortroad gamemode? } if drop "Short Trip to Heck" then
+	gamedef{ ' longroad gamemode? } if drop "Route Sinueuse" then
+	gamedef{ ' specialchars gamemode? } if drop "Personnages Rares" then
+	gamedef{ ' familiarchars gamemode? } if	drop "Personnages Familiers" then
+	gamedef{ ' specialcharsEX gamemode? } if drop "Personnages Rares EXTREME" rainbold then
+	gamedef{ ' familiarcharsEX gamemode? } if drop "FAMILIARES EXTREMEMENTS" rainbold then
+	gamedef{ ' kepamode gamemode? } if drop "Six cent quarante quatre" fbold then
+	gamedef{ ' shortroad gamemode? } if drop "Court Sejour en Enfer" then
 	gamedef{ ' marathonmode gamemode? } if drop "Marathon" fbold then
-	gamedef{ ' endlessmode gamemode? } if drop "Endless Mode" fbold then
-	gamedef{ ' deadlier gamemode? } if drop "Deadlier Road" then
-	gamedef{ ' OPPmode gamemode? } if drop "O*P*P Mode" fbold then
-	gamedef{ ' quicknightmare gamemode? } if drop "Quick Death Mode" fbold then
-	gamedef{ ' 4jerksmode gamemode? } if drop "Four Jerks Mode" then
-	gamedef{ ' 4jerksmodeEX gamemode? } if drop "Four Jerks Mode EXTREME" rainbold then
+	gamedef{ ' endlessmode gamemode? } if drop "Mode Infini" fbold then
+	gamedef{ ' deadlier gamemode? } if drop "Route plus Dangereuse" then
+	gamedef{ ' OPPmode gamemode? } if drop "OPP Mode" fbold then
+	gamedef{ ' quicknightmare gamemode? } if drop "Mode Mort Subite" fbold then
+	gamedef{ ' 4jerksmode gamemode? } if drop "Mode des quatre abrutis" then
+	gamedef{ ' 4jerksmodeEX gamemode? } if drop "Jerks Mode EXTREME" rainbold then
 
-//	0 gamemode? not if drop "CUSTOM GAME MODE" then
+//	0 gamemode? not if drop "MODE DE JEU PERSONNALISE" then
 
 	+text +cr
 
@@ -651,34 +651,34 @@ DOT1 value DOT
 			+armourstatus +cr
 		then
 		
-		+purple 2 +gaps "Car Speed:" +text 2 +gaps +carspeed +cr
+		+purple 2 +gaps "Vitesse de la voiture:" +text 2 +gaps +carspeed +cr
 		
 		gamedef{ ' endlessmode gamemode? } if
 		
 			road{ road-trip-days } 2 < if 
-				+cr "Just started the Endless journey!" +text +cr
+				+cr "Viens de commencer le voyage sans fin!" +text +cr
 			then;
 			
 			road{ road-trip-days } 3 < if 
-				+cr "Survived the first day of Endless Mode!" +text +cr
+				+cr "Survecu au premier jour du mode sans fin!" +text +cr
 			then;
 		
-			+cr "Still alive after " +text +red road{ road-trip-days } 1 - +text +white " days on the road!!!" +text +cr
+			+cr "Encore en vie apres " +text +red road{ road-trip-days } 1 - +text +white " days on the road!!!" +text +cr
 				
 		then;
 		
-		+cr "Only " +text +canadadays " driving days until CANADA!!!" +text +cr
+		+cr "Seulement " +text +canadadays " driving days until CANADA!!!" +text +cr
 		
 	then;
 
 	road{ road-trip-days nearcanada-day < } if
 	
-	"Only " +text +canadadays " driving days until CANADA..." +text +cr
+	"Seulement " +text +canadadays " driving days until CANADA..." +text +cr
 	+cr "...IF WE HAD A CAR " +text DX +text +cr
 	
 	then;
 	
-	"Only " +text +canadadays " days until CANADA!!!" +text +cr	
+	"Seulement " +text +canadadays " days until CANADA!!!" +text +cr	
 	
 ;
 
@@ -690,11 +690,11 @@ last to textfill-vehicle-tab
 : mv! mission.vehicle! ;
 
 : car-motor-dump
-	"CAR MOTOR:" print
-	"  freq1 " type vehicle.motor.freq1@ print
-	"  freq2 " type vehicle.motor.freq2@ print
-	"  duty1 " type vehicle.motor.duty1@ print
-	"  duty2 " type vehicle.motor.duty2@ print
+	"MOTEUR DE VOITURE" print
+	" " type vehicle.motor.freq1@ print
+	"  frequence2 " type vehicle.motor.freq2@ print
+	"  devoir1 " type vehicle.motor.duty1@ print
+	"  devoir2 " type vehicle.motor.duty2@ print
 	"  filt_low " type vehicle.motor.filt_low@ print
 	"  filt_high " type vehicle.motor.filt_high@ print
 	"  q " type vehicle.motor.q@ print

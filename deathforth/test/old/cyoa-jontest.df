@@ -9,24 +9,24 @@ cyoa{ road{
 
 // Slightly changed the structure of all below to the new stuff. There's cyoa-choice: to start a choice instead of just doing : , and cyoa: for starting off a cyoa. Both do a lot of little shortcut things, like you no longer need to necessarily use cicon more than once, and you no longer need to use cyoa-start.
 
-// Note that words you make to check things or add optional text to the main text of a new window do not use cyoa-choice. Use one cyoa-choice per "window".
+// Note that words you make to check things or add optional text to the main text of a new window do not use cyoa-choice. Use one cyoa-choice per "fenetre".
 
-// Also there's words for pronouns that change based on the correct grammar of the situation. che - picks the chosen character and then uses "he" or "she", depending. 
+// Also there's words for pronouns that change based on the correct grammar of the situation. che - picks the chosen character and then uses "il" or "elle", depending. 
 // Search for "xhis" in cyoa.df for a list
 
 
 : cardJ4-mcheck 
 	medicalroll if
-		($ cname .. " really did know what they were doing. Using the tools and medical supplies available, " .. che .. " is able to pull the tooth out cleanly and with relatively little pain. " $) cyoa-text! goodfx
+		($ cname .. " connaissait vraiment ce quil faisait. En utilisant les outils et les fournitures medicales disponibles, " .. che .. " a pu tirer la molaire de maniere propre et avec relativement peu de douleur " $) cyoa-text! goodfx
 		medical++ 
 	then;
 	
-		($ cname .. " ended up having a lot of trouble. The tooth extraction was messy, clumsy, and painful. To make it worse, " .. che .. " pulled the wrong tooth and had to do it again.  " $) cyoa-text! bitefx ouch--
+		($ cname .. " avait beaucoup de mal. Lextraction dentaire etait sale, maladroite et douloureuse. De plus, " .. che .. " a tire la mauvaise molaire et a du le faire a nouveau. " $) cyoa-text! bitefx ouch--
 		
 	// Added an extra line below for dying from tooth extraction.
 
 	dead? if
-		+cr ($ "After pulling the second tooth " .. cname .. " was heard to exclaim " .. "YEAH SCREW THIS NOISE" pbold .. " and then " .. che .. " spontaneously died." $) +text
+		+cr ($ "Apres avoir tire la deuxieme molaire " .. cname .. " on entendit dire " .. "OUAI MERDE CET APPORT DE Bruit" pbold .. " et ensuite " .. che .. "  est mort spontanement." $) +text
 	then
 	
 ;
@@ -37,41 +37,41 @@ cyoa-choice: cardJ4-dentist cardJ4-mcheck medicalREV ;
 
 : cardJ4-mecheck 
 	mechanicroll if
-		 ($ "Using the added leverage, " .. che .. " slams the car door, cleanly pulling the tooth out." $) +text goodfx
+		 ($ "Utilisant leffet de levier ajoute, " .. che .. "  claque la portiere de la voiture, arrachant proprement la dent." $) +text goodfx
 		mechanic++ 
 	then;
 	
-		($ "Unprepared for the sudden force of slamming the door, " .. che .. " is pulled towards the car and hits " .. chis .. " head on the door. " $) +text bitefx ouch--
+		($ "Mal prepare a la force soudaine du claquement de la portiere, " .. che .. "  est tire vers la voiture et heurte " .. chis .. "  la tete contre la portiere. " $) +text bitefx ouch--
 
 // Death flavor text added.
 		
 	dead? if
-		+cr ($ "This exact scenario was actually a pretty common way to die before the zombie apocalypse. These accidents got kept out of the news due to " .. "BIG AUTO CORPORATIONS" rbold .. "." $) +text
+		+cr ($ "Ce scenario exact etait en fait un moyen assez courant de mourir avant lapocalypse zombie. Ces accidents ont ete tenus a lecart des nouvelles en raison de " .. "GRANDES ENTREPRISES AUTOMOBILES" rbold .. "." $) +text
 	then
 ;
 
 cyoa-choice: cardJ4-mechanical
-	($ cname .. ", using old cartoon shows as inspiration, decides to tie " .. chis .. " tooth to the car door." $) cyoa-text! 
+	($ cname .. ", sinspirant de vieilles emissions de dessins animes, decide dattacher " .. chis .. "  dent a la portiere de la voiture." $) cyoa-text! 
 		+cr cardJ4-mecheck mechanicREV
 ;
 
 : cardJ4-scheck 
 	cpet? if
-		($ cname .. " tries to get rid of the busted tooth by chomping down on a rock. A few teeth fall out, and the pain is excrutiating. But at least the bad tooth fell out, too." $) cyoa-text! badfx
+		($ cname .. "  essaie de se debarrasser de la dent cassee en mordant une pierre. Quelques dents tombent et la douleur est atroce. Mais au moins la mauvaise dent est tombee aussi." $) cyoa-text! badfx
 		nonfatal if
 			ouch--
 		then morale3- attitude--
 	then;
 	strengthroll if
-		($ cname .. " grabs a pair of pliers and goes to town, pulling the tooth as hard as possible. Using nothing but will to fight through the pain, " .. che .. " gets the tooth out quickly and with surprisingly little trouble." $) cyoa-text! goodfx
+		($ cname .. "  attrape une paire de pinces et se met au travail, tirant la dent aussi fort que possible. En utilisant uniquement sa volonte pour lutter contre la douleur, " .. che .. "  enleve la dent rapidement et avec etonnamment peu de problemes." $) cyoa-text! goodfx
 		strength++ 
 	then;
-		($ cname .. " grabs a pair of pliers and goes to town. The extraction doesn't go well. After a lot of pain and blood the tooth eventually comes out." $) cyoa-text! bitefx ouch2-
+		($ cname .. " ' attrape une paire de pinces et se met au travail. L'extraction ne se passe pas bien. Apres beaucoup de douleur et de sang la dent finit par sortir." $) cyoa-text! bitefx ouch2-
 
 // Added extra commentary from dying from plier surgery.		
 		
 		dead? if
-			+cr ($ "Somehow " .. cname .. " dies from this." $) +text
+			+cr ($ "Certainement " .. cname .. " moult souffre de cela." $) +text
 		then
 		
 ;
@@ -81,12 +81,12 @@ cyoa-choice: cardJ4-force cardJ4-scheck strengthREV ;
 cyoa: cardJ4-test
 	"Ma Hooth" cyoa-title!
 	choosehuman cicon
-	($ cname .. " is having near crippling tooth pain. Without access to the precision tools needed the only option it to pull the tooth out. " .. cHe .. " weighs the current options." $) cyoa-text! basic-tone
+	($ cname .. "  a une douleur dentaire presque handicapante. Sans acces aux outils de precision necessaires la seule option est de tirer la dents " .. cHe .. " pese les options actuelles." $) cyoa-text! basic-tone
 	
-		choice( "Force it out!" )choice: cardJ4-force
+		choice( "Faire sortir !" )choice: cardJ4-force
 		cnotpet? if
-			choice( "I used to be a dentist!" )choice: cardJ4-dentist
-			choice( "I saw this once in a cartoon!" )choice: cardJ4-mechanical
+			choice( "Jetais autrefois un dentiste!" )choice: cardJ4-dentist
+			choice( "Jai vu cela une fois dans un dessin anime!" )choice: cardJ4-mechanical
 		then
 ;
 
@@ -96,15 +96,15 @@ cyoa: cardJ4-test
 
 // Not many changes here except cleaning up the words. cyoa-text-cr replaced with +cr, cyoa-text-append replaced with +text, cyoa: added and the words it makes obsolete taken out.
 
-// someone .colourname was also replaced with "somename" and soloer .colourname was replaced with "soloname", search for either in cyoa.df
+// someone .colourname was also replaced with "nomdedepersonne" and soloer .colourname was replaced with "nomsoloname", search for either in cyoa.df
 
-: cardJ2-jerk ($ cname .. " Removes the CD player and throws it out the window." $) +text
+: cardJ2-jerk ($ cname .. " Retire le lecteur CD et le jette par la fenetre." $) +text
 	temperREV morale++
 ;
-: cardJ2-pumped ($ cname .. " Punches the CD player, stopping the music." $) +text
+: cardJ2-pumped ($ cname .. " Caine des disques, arretant la musique." $) +text
 	strengthREV	strength++ morale++
 ;
-cyoa: cardJ2-test ($ someone .colourname .. " gets frustrated when the CD player in the car gets jammed, playing the same song over and over again." $) cyoa-text! +cr 1 cyoa-image-icon! 4 500 tone 
+cyoa: cardJ2-test ($ someone .colourname .. " senerve quand le lecteur CD de la voiture se bloque, jouant la meme chanson encore et encore." $) cyoa-text! +cr 1 cyoa-image-icon! 4 500 tone 
 
 	strongest-pass
 	if strongest choosechar cardJ2-pumped then;
@@ -112,9 +112,9 @@ cyoa: cardJ2-test ($ someone .colourname .. " gets frustrated when the CD player
 	most-ahole
 	if choosechar cardJ2-jerk then;
 
-	solo if ($ soloname .. " turns off the volume." $) +text then;
+	solo if ($ soloname .. " " $) +text then;
 
-	"The group decides to turn it off for now then try to fix it later." +text
+	"Le groupe decide de leteindre pour le moment puis essayer de la reparer plus tard." +text
 ;
 
 // END Radio Repair
@@ -123,21 +123,21 @@ cyoa: cardJ2-test ($ someone .colourname .. " gets frustrated when the CD player
 
 // The usual cleanups from the above two, see if you can spot the difference.
 
- cyoa-choice: cardJ1-search ($ Thegroup .. " finds a small amount of ammunition." $) cyoa-text! ammosearch1 goodfx ;
+ cyoa-choice: cardJ1-search ($ Thegroup .. "  trouve une petite quantite de munitions." $) cyoa-text! ammosearch1 goodfx ;
 
 // Below is still a cyoa-choice because it's a result with its own window. cicon isn't necessary because it's built into cyoa-choice: if a character was picked before. If no character is picked by your button press, it usually shows cyoaicon.
 
 cyoa-choice: cardJ1-picked
-	"Reading Rainbow" cyoa-title!
+	"Lecture Pluie Arc en ciel" cyoa-title!
 	
-	($ cname .. " finds and reads some old gun magazines. This somehow makes them a better shooter, you don't question it. "  $) cyoa-text! goodfx
+	($ cname .. " "  $) cyoa-text! goodfx
 
 	shootingREV shooting++
 ;
 
 // The old method involving 3 words to do this was replaced with a way more efficient thing... ' <cyoa-choice> cyoa-team-choice .. search for cyoa-team-choice in cyoa.df
 
-cyoa-choice: cardJ1-one "Who should you bring?" cyoa-text! 
+cyoa-choice: cardJ1-one "Qui devrais je apporter?" cyoa-text! 
 	' cardJ1-picked cyoa-team-choice 
 ;
 
@@ -145,7 +145,7 @@ cyoa-choice: cardJ1-one "Who should you bring?" cyoa-text!
 
 // cyoa-bad-dialog and $cyoa-ok-dialog are pretty much obsolete now, just use cyoa-text! most of the time along with badfx, goodfx, bitefx, whatever else we add.
 
-cyoa-choice: cardJ1-group "Someone from the group mistakes a mannequin for a zombie and opens fire. During the confusion the whole party opens fire. It was completely chaotic. In the end there were no mannequins left standing. " cyoa-text! badfx
+cyoa-choice: cardJ1-group "Un membre du groupe prend un mannequin pour un zombie et tire dessus. Pendant le tumultueux tout le groupe tire. Cetait completement chaotique. A la fin aucun mannequin ne restait debout. " cyoa-text! badfx
 	
 	// Note syntax: ' <single word, make shortcut if more> foreach-team-char
 	
@@ -154,19 +154,19 @@ cyoa-choice: cardJ1-group "Someone from the group mistakes a mannequin for a zom
 ;
 
 cyoa: cardJ1-test
-	"Shop Smart" cyoa-title!
+	"Magasiner Intelligemment" cyoa-title!
 	0 to cyoaicon cyoaicon
-	"You find a sporting goods store. It looks to have been already ransacked but there's still a chance something was missed." cyoa-text! basic-tone
+	"'Vous trouvez une boutique de loisirs sportifs. Elle semble avoir ete deja pillee mais il y a encore une chance qu'on ait laisse quelque chose." cyoa-text! basic-tone
 		
-	choice( "Quickly look for ammo" )choice: cardJ1-search
+	choice( "Regardez rapidement chercher des munitions" )choice: cardJ1-search
 	
 // Changed choice( below to charchoice( , which shows a picture of their face and has the choosechar stuff after built in. Compare to your old version. Also, with charchoice showing their name is automatic, any text you put in the "" is added after.
 	
 	solo if
-		soloer charchoice( " solo scavenge" )choice: cardJ1-picked
+		soloer charchoice( " " )choice: cardJ1-picked
 	then;
-	choice( "Take everyone" )choice: cardJ1-group
-	choice( "Take one other person" )choice: cardJ1-one
+	choice( "Prenez tout le monde" )choice: cardJ1-group
+	choice( "Prenez une autre personne" )choice: cardJ1-one
 ;
 
 // END Shop Smart

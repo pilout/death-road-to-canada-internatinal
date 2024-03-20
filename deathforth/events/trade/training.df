@@ -20,22 +20,21 @@ cyoa{ regiondef{
 
 cyoa-choice: trade-shoot-charm 
 	charmroll if
-		($ cname .. " gets FREE training with firearms! " .. cHe .. " already feels like a steadier shot." $) cyoa-text! 
+		($ cname .. " obtient une formation GRATUITE avec des armes a feu! " .. cHe .. "  semble deja etre un tir plus stable." $) cyoa-text! 
 		cchar .shooting@ 5 > if 
-			($ "It didn't actually help " .. chis .. " shooting, but it was FREE!" $) +crtext
+			($ "' Cela n'a pas vraiment aide " .. chis .. "  tir, mais cetait GRATUIT !" $) +crtext
 		then 
 		shootingREV shooting++ ' camp-charm ++ goodfx
 	else
-		($ cname .. " accidentally just comes off as creepy. 
-		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
+		($ cname .. "  accidentellement vient juste comme effrayant. 		" .. gHe .. "  est invite a partir." $) cyoa-text! badfx
 	then clear-cyoa
 ;
 
 cyoa-choice: trade-shoot-train
 	cchar .shooting@ 6 < if
-		($ cname .. " learns some new tricks with firearms! Zombies beware." $) goodfx
+		($ cname .. "  apprend de nouveaux trucs avec des armes a feu ! Les zombies attention." $) goodfx
 	else
-		($ cname .. " didn't really learn anything new. " .. cHe .. " had already picked up these tricks on " .. chis .. " own." $) badfx
+		($ cname .. " ' n'a pas vraiment appris quelque chose de nouveau. " .. cHe .. "  avait deja repris ces trucs sur " .. chis .. "  maintenant." $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	shootingREV shooting++
@@ -43,7 +42,7 @@ cyoa-choice: trade-shoot-train
 ;
 
 cyoa-choice: trade-shoot-group
-	($ "The entire group gets firearms training!" $) cyoa-text! goodfx
+	($ "Le groupe entier recoit une formation sur les armes a feu !" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-shoot-group! foreach-human-char
 	clear-cyoa
@@ -53,98 +52,89 @@ cyoa: trade-shoot-give
 	solohuman if
 		choosehuman trade-shoot-train
 	then;
-	"Who should get the training in firearms handling?" cyoa-text!
+	"Qui devrait recevoir la formation en matiere de manipulation des armes a feu ?" cyoa-text!
 	' trade-shoot-train cyoa-human-choice
 ;
 
 cyoa-choice: trade-shoot-coolit
 	cpet? if
-		($ cname .. " farts really loudly at the firearms coach, and then rolls around." $)
+		($ cname .. "  pete vraiment fort sur lentraineur darmes a feu, puis roule." $)
 	else
-		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the firearms coach." $) 
+		($ cname .. "  plaisante " .. "'DIS LE NE LE PULVERISE PAS" pbold .. "  a lentraineur darmes a feu." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "A miracle happens: she decides to not shoot!
-		" .. "You seem like you need all the help you can get..." pbold .. "
-		She teaches her secret gun tricks to " .. cname .. "!" $) +crtext goodfx
+		($ "Un miracle se produit : elle decide de ne pas tirer !" .. "You seem like you need all the help you can get..." pbold .. "elle enseigne ses astuces secretes de pistolet a " .. cname .. "!" $) +crtext goodfx
 		3 for shooting++ next cooled-it clear-cyoa
 	else cool-it++
-		($ "Her reaction is brief disgust." .. "
-		Oh. Yeah, ok. You're one of those types, huh?" pbold .. "
-		She alerts the rest of the camp that " .. cname .. " is a huge dingus, and " .. ghe .. " is forced to leave." $) +crtext badfx quitmission
+		($ "Sa reaction est un bref degout." .. "oh. Ouais, ok. T'es un de ces types, hein?" pbold .. "elle alerte le reste du camp que " .. cname .. " is a huge dingus " .. ghe .. "  est force de partir." $) +crtext badfx quitmission
 	then shootingREV
 ;
 
 cyoa: trade-shoot
-	"Firearms Coach" cyoa-title!
-	($ "This rifle-wielding woman claims she used to train others in competitive shooting. 
-	She is selling tips for keeping your aim steady and multiple target trick shots. " .. "Zombies are slow moving targets. It's real easy!" pbold $) cyoa-text! basic-tone foodamt
-	choice( "Leave for now" )choice
+	"Entraineur en armes a feu" cyoa-title!
+	($ "Cette femme armee dun fusil pretend quelle entrainait autrefois dautres personnes au tir de competition. Elle vend des conseils pour garder votre objectif stable et plusieurs tirs au but. " .. "Zombies are slow moving targets. It's real easy!" pbold $) cyoa-text! basic-tone foodamt
+	choice( "Partir pour linstant" )choice
 	trunk-food 6 < if  
-		($ "This isn't enough food to buy training." $) +cr +text
+		($ "'Ce n'est pas assez de nourriture pour acheter une formation." $) +cr +text
 	else
-		choice( "Give 6 food for training" )choice: trade-shoot-give
+		choice( "Donne 6 aliments pour lentrainement" )choice: trade-shoot-give
 		trade-train-pay? if
-			choice( "Give " .. trade-train-amt .. " food for group training" )choice: trade-shoot-group
+			choice( "Donne " .. trade-train-amt .. "  nourriture pour lentrainement de groupe" )choice: trade-shoot-group
 		then
 	then
 		most-charming camp-charm 1 < and if
-			charchoice( " uses charm" )choice: trade-shoot-charm
+			charchoice( "  utilise son charme" )choice: trade-shoot-charm
 		then
 		most-grating if 
-			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-shoot-coolit
+			charchoice( "': DIS LE NE LE PULVERISE PAS" fcoolit )choice: trade-shoot-coolit
 		then
 ;
 
 // Strength - Made this one a little different for Jon's request
-// Can adjust it to cut out different things if you have all options available, currently you lose the option to just "Drive Away" in that case.
+// Can adjust it to cut out different things if you have all options available, currently you lose the option to just "Fuis" in that case.
 
 cyoa-choice: trade-strength-pose 
 	cchar .strength 6 > if
-		($ cname .. " flexes once, using only half effort. But the contest is already decided.
-		" .. "IMPOSSIBLE! THIS IS IMPOSSIBLE!" fbold .. " shrieks the Strength Trainer, in a strangely high-pitched voice.
-		" .. "ARE YOU 'THE SWOLE THAT WAS PROMISED'?" fbold .. " and then he turns into stone and, moments later, shatters into a million fragments." $) cyoa-text! goodfx clear-cyoa deleteme
+		($ cname .. "  flechit une fois, en nutilisant que la moitie de son effort. Mais le concours est deja joue.		" .. "IMPOSSIBLE ! CEST IMPOSSIBLE !" fbold .. "  hurle le preparateur physique, dune voix etrangement aigue.		" .. "'ES TU LE SWOLE QUI A ETE PROMIS ?" fbold .. "  puis il se transforme en pierre et, quelques instants plus tard, se brise en un million de fragments." $) cyoa-text! goodfx clear-cyoa deleteme
 		morale2+
 	then;
 	strengthroll if
-		($ cname .. " wins the pose-off!" $) cyoa-text! goodfx
+		($ cname .. "  remporte le concours de poses !" $) cyoa-text! goodfx
 		cpet? if
-			"It was pretty hard to win a flexing competition as an animal!" +crtext
+			"Cetait assez difficile de gagner un concours de flexions en tant quanimal !" +crtext
 		then
 		strengthREV strength++ morale++
 	else
-		($ cname .. " loses the pose-off. 
-		" .. cHe .. " feels " .. "GREAT SHAME." rbold $) cyoa-text! badfx
+		($ cname .. " perd le face off. 		" .. cHe .. " eprouve " .. "GRANDE SERIEUSE." rbold $) cyoa-text! badfx
 		morale2-
 	then clear-cyoa
 ;
 
 cyoa-choice: trade-strength-charm 
 	charmroll if
-		($ cname .. " gets FREE strength training! " .. cHe .. " already clearly feels a 'pump', as the bodybuilders used to say before they were all wiped out." $) cyoa-text!
+		($ cname .. " gagne une formation de force GRATUITE ! " .. cHe .. " 'a deja clairement ressentir un 'pump', comme disaient les bodybuilders avant d'etre tous balayes." $) cyoa-text!
 		cchar .strength@ 5 > if 
-		($ "It didn't actually improve " .. chis .. " strength, but it was FREE!" $) +crtext
+		($ "'n'a pas ameliore reellement sa force mais c'etait GRATUIT " .. chis .. " force, mais cetait GRATUIT !" $) +crtext
 		then
 		strengthREV strength++ ' camp-charm ++ goodfx
 		
 	else
-		($ cname .. " accidentally just comes off as creepy. 
-		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
+		($ cname .. "  accidentellement vient juste comme effrayant. 		" .. gHe .. "  est invite a partir." $) cyoa-text! badfx
 	then clear-cyoa
 ;
 
 cyoa-choice: trade-strength-train
 	cchar .strength@ 6 < if
-		($ cname .. " gets all pumped up from the strength training regiment!" $) goodfx
+		($ cname .. " se sent tout rempli de force a partir du regime dentrainement!" $) goodfx
 	else
-		($ cname .. " was not impressed with that dinky little workout. " .. cHe .. " needs to find a better routine!" $) badfx
+		($ cname .. " netait pas impressionne par ce petit travail dentrainement. " .. cHe .. " doit trouver une meilleure routine!" $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	strengthREV strength++ clear-cyoa
 ;
 
 cyoa-choice: trade-strength-group
-	($ "The entire group gets strength training!" $) cyoa-text! goodfx
+	($ "Le groupe entier beneficie de la formation de force!" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-strength-group! foreach-human-char clear-cyoa
 ;
@@ -153,47 +143,43 @@ cyoa: trade-strength-give
 	solohuman if
 		choosehuman trade-strength-train
 	then;
-	"Who should get this INTENSE strength workout?" cyoa-text!
+	"Qui devrait faire cet entrainement de force INTENSE?" cyoa-text!
 	' trade-strength-train cyoa-human-choice
 ;
 
 cyoa-choice: trade-strength-coolit
 	cpet? if
-		($ cname .. " farts really loudly at the strength trainer." $)
+		($ cname .. " pete vraiment fort devant le coach sportif." $)
 	else
-		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the strength trainer." $) 
+		($ cname .. "  plaisante " .. "'DIS LE NE LE PULVERISE PAS" pbold .. " au coach sportif." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "YEAH! THAT'S THE ATTITUDE YOU NEED TO MAKE IT AS A TOP BODYBUILDER! WE WILL REBUILD THE SPORT! YEAH!" fbold .. "
-		He takes " .. cname .. " on as his top student, to get HUGE at a mind destroying pace!" $) +crtext  goodfx 3 for strength++ next cooled-it clear-cyoa
+		($ "OUAIS! C'EST L'ATTITUDE QUE TU DOIS AVOIR POUR DEVENIR UN BODYBUILDER DE HAUT NIVEAU! NOUS ALLONS RECONSTRUIRE LE SPORT! OUAIS!" fbold .. "		Il prend " .. cname .. "  en tant que son meilleur eleve, pour devenir ENORME a un rythme destructeur !" $) +crtext  goodfx 3 for strength++ next cooled-it clear-cyoa
 	else cool-it++
-		($ "He doesn't take this well." .. "
-		GET OUT OF HERE YOU DWEEBUS! YOU DON'T DESERVE TO GET HUGE!" fbold .. "
-		He continues yelling until " .. thegroup .. " leave the trading camp." $) +crtext badfx quitmission
+		($ "'Il ne prend pas cela bien." .. "'		SORS D'ICI DINGUE! TU NE MERITES PAS DE DEVENIR ENORME!" fbold .. "		Il continue de crier jusqua " .. thegroup .. "  quitter le camp dentrainement." $) +crtext badfx quitmission
 	then strengthREV
 ;
 
 cyoa: trade-strength
-	"Strength Trainer" cyoa-title!
-	($ "It's an old but fit man in matching gray sweatpants and sweatshirt. He screams something about " .. "BUILDING MASS AND BULK" fbold .. " with an " .. "INTENSE STRENGTH ROUTINE!" fbold .. "
-	He flails towards some heavy objects lying around." $) cyoa-text! basic-tone foodamt
-	choice( "Leave for now" )choice
+	"Entraineur de force" cyoa-title!
+	($ "'C'est un vieil homme en forme en survetement et sweat shirt gris assortis. Il crie quelque chose a propos de " .. "PRENDRE DE LA MASSE ET DU VOLUME" fbold .. "  avec une " .. "ROUTINE DE FORCE INTENSE!" fbold .. "	Il sagite vers des objets lourds qui trainent." $) cyoa-text! basic-tone foodamt
+	choice( "Partir pour linstant" )choice
 	trunk-food 6 < if
-		($ "Sadly, this isn't enough food to get huge." $) +cr +text
+		($ "'Malheureusement, ce n'est pas assez de nourriture pour devenir enorme." $) +cr +text
 	else
-		choice( "Give 6 food for training" )choice: trade-strength-give
+		choice( "Donne 6 aliments pour lentrainement" )choice: trade-strength-give
 		trade-train-pay? if
-			choice( "Give " .. trade-train-amt .. " food for group training" )choice: trade-strength-group
+			choice( "Donne " .. trade-train-amt .. "  nourriture pour lentrainement de groupe" )choice: trade-strength-group
 		then
 	then
 		most-charming camp-charm 1 < and if
-			charchoice( " uses charm" )choice: trade-strength-charm
+			charchoice( "  utilise son charme" )choice: trade-strength-charm
 		then
 		most-grating if 
-			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-strength-coolit
+			charchoice( "': DIS LE NE LE PULVERISE PAS" fcoolit )choice: trade-strength-coolit
 		then
 		strongest .strength 3 > if
-			strongest charchoice( " declares a pose off!" )choice: trade-strength-pose
+			strongest charchoice( "  declare une pose!" )choice: trade-strength-pose
 		then
 ;
 
@@ -201,29 +187,28 @@ cyoa: trade-strength
 
 cyoa-choice: trade-fitness-charm 
 	charmroll if
-		($ cname .. " gets FREE fitness training! " .. cHe .. " sweats from the intense exercise!" $) cyoa-text! 
+		($ cname .. "  beneficie dun entrainement gratuit! " .. cHe .. " sueur de lexercice intense" $) cyoa-text! 
 		cchar .fitness@ 5 > if 
-			($ "It didn't actually improve " .. chis .. " fitness, but it was FREE!" $) +crtext
+			($ "'n'a pas ameliore reellement sa force mais c'etait GRATUIT " .. chis .. " gratuit" $) +crtext
 		then
 		goodfx fitnessREV fitness++ ' camp-charm ++
 	else
-		($ cname .. " accidentally just comes off as creepy. 
-		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
+		($ cname .. "  accidentellement vient juste comme effrayant. 		" .. gHe .. "  est invite a partir." $) cyoa-text! badfx
 	then clear-cyoa
 ;
 
 cyoa-choice: trade-fitness-train
 	cchar .fitness@ 6 < if
-		($ cname .. " works up a huge sweat from the fitness routine!" $) goodfx
+		($ cname .. " se donne a fond dans sa routine de fitness" $) goodfx
 	else
-		($ cname .. " didn't even break a sweat! The Fitness Instructor is confused, even she got a little tired." $) badfx
+		($ cname .. " meme pas essouffle! L'entraineuse est confuse, meme elle a un peu transpire." $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	fitnessREV fitness++ clear-cyoa
 ;
 
 cyoa-choice: trade-fitness-group
-	($ "The entire group gets fitness training!" $) cyoa-text! goodfx
+	($ "Tout le groupe recoit un entrainement de fitness!" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-fitness-group! foreach-human-char clear-cyoa
 ;
@@ -232,45 +217,40 @@ cyoa: trade-fitness-give
 	solohuman if
 		choosehuman trade-fitness-train
 	then;
-	"Who wants strenuous exercise for the sake of fitness?" cyoa-text!
+	"Qui veut un exercice penible pour la forme?" cyoa-text!
 	' trade-fitness-train cyoa-human-choice
 ;
 
 cyoa-choice: trade-fitness-coolit
 	cpet? if
-		($ cname .. " farts in a high pitch at the fitness instructor." $)
+		($ cname .. " pete dans un aigu a lentraineur de fitness." $)
 	else
-		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the fitness instructor." $) 
+		($ cname .. "  plaisante " .. "'DIS LE NE LE PULVERISE PAS" pbold .. " au moniteur de fitness." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "That's what I like to hear! You're ready for the MIRACLE FITNESS ROUTINE!" pbold .. "
-		It's likely that she just heard " .. cname .. " wrong. An incredible, cutting edge series of calisthenics follows." $) +crtext goodfx 3 for fitness++ next cooled-it clear-cyoa
+		($ "'C'est ce que j'aime entendre ! Vous etes pret pour la ROUTINE DE FITNESS MIRACLE !" pbold .. "'		Il est probable qu'elle vienne d'entendre " .. cname .. "  tort. Une serie incroyable et avant gardiste de callisthenie suit." $) +crtext goodfx 3 for fitness++ next cooled-it clear-cyoa
 	else cool-it++
-		($ "Her reaction is mostly disappointment." .. "
-		Yeah, well, have fun getting eaten by zombies." pbold .. "
-		She jogs backwards until she's out of sight. " .. Thegroup .. " is so embarassed by this that " .. gtheyare .. " forced to leave the camp." $) +crtext badfx quitmission
+		($ "Sa reaction est principalement la deception." .. "		Ouais, eh bien, amusez vous bien a vous faire manger par des zombies." pbold .. "'		Elle fait du jogging a reculons jusqu'a ce qu'elle soit hors de vue. " .. Thegroup .. "  est tellement embarrassee par cela que " .. gtheyare .. "  force de quitter le camp." $) +crtext badfx quitmission
 	then fitnessREV
 ;
 
 cyoa: trade-fitness
-	"Fitness Instructor" cyoa-title!
-	($ "This woman is decked out in sweat bands, limb warmers, and garish exercise clothes.
-	" .. "Only the fittest will survive in this zombie filled world! I can help you get fit, fast!" pbold .. "
-	She's been continuously running in place this whole time." $) cyoa-text! basic-tone foodamt
-	choice( "Leave for now" )choice
+	"Moniteur de fitness" cyoa-title!
+	($ "Cette femme est vetue de bandeaux anti transpiration, de chauffe bras et de vetements dexercice criards." .. "Seuls les plus aptes survivront dans ce monde rempli de zombies ! Je peux vous aider a vous mettre en forme, rapidement !" pbold .. "'	Elle court continuellement sur place pendant tout ce temps." $) cyoa-text! basic-tone foodamt
+	choice( "Partir pour linstant" )choice
 	trunk-food 6 < if
-		($ "Sadly, this isn't enough food for fitness." $) +cr +text
+		($ "'Malheureusement, ce n'est pas assez de nourriture pour le fitness." $) +cr +text
 	else
-		choice( "Give 6 food for training" )choice: trade-fitness-give
+		choice( "Donne 6 aliments pour lentrainement" )choice: trade-fitness-give
 		trade-train-pay? if
-			choice( "Give " .. trade-train-amt .. " food for group training" )choice:  trade-fitness-group
+			choice( "Donne " .. trade-train-amt .. "  nourriture pour lentrainement de groupe" )choice:  trade-fitness-group
 		then
 	then
 		most-charming camp-charm 1 < and if
-			charchoice( " uses charm" )choice: trade-fitness-charm
+			charchoice( "  utilise son charme" )choice: trade-fitness-charm
 		then
 		most-grating if 
-			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-fitness-coolit
+			charchoice( "': DIS LE NE LE PULVERISE PAS" fcoolit )choice: trade-fitness-coolit
 		then
 ;
 
@@ -278,29 +258,28 @@ cyoa: trade-fitness
 
 cyoa-choice: trade-medical-charm 
 	charmroll if
-		($ cname .. " gets FREE medical training!" $) cyoa-text! 
+		($ cname .. "  obtient une formation medicale GRATUITE !" $) cyoa-text! 
 		cchar .medical@ 5 > if 
-			($ "It didn't actually improve " .. chis .. " medical knowledge, but it was FREE!" $) +crtext
+			($ "'n'a pas ameliore reellement sa force mais c'etait GRATUIT " .. chis .. "  connaissances medicales, mais cetait GRATUIT !" $) +crtext
 		then		
 		goodfx medicalREV medical++ ' camp-charm ++
 	else
-		($ cname .. " accidentally just comes off as creepy, even by the standards of the EZ Medical College: Creepy Murder Van Campus. 
-		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
+		($ cname .. "  vient accidentellement detre bizarre, meme selon les normes du EZ Medical College : Creepy Murder Van Campus. 		" .. gHe .. "  est invite a partir." $) cyoa-text! badfx
 	then clear-cyoa
 ;
 
 cyoa-choice: trade-medical-train
 	cchar .medical@ 6 < if
-		($ cname .. " learns new things about emergency medical care from the knowledgeable filth-man." $) goodfx
+		($ cname .. "  apprend de nouvelles choses sur les soins medicaux durgence aupres de lhomme a la salete bien informe." $) goodfx
 	else
-		($ "Although the filthy professor was a great teacher, " .. cname .. " didn't learn anything new." $) badfx
+		($ "Bien que le professeur sale fut un excellent professeur, " .. cname .. " ' n'a rien appris de nouveau." $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	medicalREV medical++ clear-cyoa
 ;
 
 cyoa-choice: trade-medical-group
-	($ "The entire group gets medical training!" $) cyoa-text! goodfx
+	($ "Le groupe entier recoit une formation medicale !" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-medical-group! foreach-human-char clear-cyoa
 ;
@@ -309,42 +288,40 @@ cyoa: trade-medical-give
 	solohuman if
 		choosehuman trade-medical-train
 	then;
-	"Who should get the medical training?" cyoa-text!
+	"Qui devrait recevoir la formation medicale ?" cyoa-text!
 	' trade-medical-train cyoa-human-choice
 ;
 
 cyoa-choice: trade-medical-coolit
 	cpet? if
-		($ cname .. " somehow manages to say something like SAY IT DON'T SPRAY IT in a weird animal voice." $)
+		($ cname .. " ' parvient d'une maniere ou d'une autre a dire quelque chose comme DITES LE NE LE PULVERISEZ PAS d'une voix d'animal etrange." $)
 	else
-		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the overalls man." $) 
+		($ cname .. "  plaisante " .. "'DIS LE NE LE PULVERISE PAS" pbold .. "  a lhomme en salopette." $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "He nods with sage wisdom. Maybe he misheard " .. chim .. "? He proceeds to teach incredible zombie survival medical techniques the likes of which have never been seen." $) +crtext goodfx 3 for medical++ next cooled-it clear-cyoa
+		($ "Il hoche la tete avec une sagesse de sage. Peut etre quil a mal entendu " .. chim .. "? Il se met a enseigner dincroyables techniques medicales de survie aux zombies du genre jamais vues." $) +crtext goodfx 3 for medical++ next cooled-it clear-cyoa
 	else cool-it++
-		($ "*YOU* DON'T SAY IT OR SPRAY IT! AAAAAAAARGH!" rbold .. "
-		He is infuriated! " .. thegroup .. " is forced to leave the camp." $) +crtext badfx quitmission
+		($ "*YOU* DON'T SAY IT OR SPRAY IT! AAAAAAAARGH!" rbold .. "		Il est furieux ! " .. thegroup .. "  est force de quitter le camp." $) +crtext badfx quitmission
 	then medicalREV
 ;
 
 cyoa: trade-medicalt
-	"EZ Medical College" cyoa-title!
-	($ Thegroup .. " discovers an unsettling and filthy van. It has a sign that says " .. "EZ MEDICAL COLLEGE" rbold .. " hanging crookedly on the back door.
-	Inside is an unsettling and filthy dude in overalls. " .. "WELL? WHO WANTS TO LEARN ABOUT SURGERY?" pbold $) cyoa-text! basic-tone foodamt
-	choice( "Leave for now" )choice
+	"Ecole de medecine facile" cyoa-title!
+	($ Thegroup .. "  decouvre une camionnette inquietante et sale. Il y a un panneau qui dit " .. "EZ MEDICAL COLLEGE" rbold .. "  accroche de travers a la porte arriere.	A linterieur se trouve un type inquietant et sale en salopette. " .. "BIEN? QUI VEUT APPRENDRE LA CHIRURGIE?" pbold $) cyoa-text! basic-tone foodamt
+	choice( "Partir pour linstant" )choice
 	trunk-food 6 < if
-		($ "This isn't enough food to learn about surgery." $) +cr +text
+		($ "'Ce n'est pas assez de nourriture pour apprendre la chirurgie." $) +cr +text
 	else
-		choice( "Give 6 food for training" )choice: trade-medical-give
+		choice( "Donne 6 aliments pour lentrainement" )choice: trade-medical-give
 		trade-train-pay? if
-			choice( "Give " .. trade-train-amt .. " food for group training" )choice:  trade-medical-group
+			choice( "Donne " .. trade-train-amt .. "  nourriture pour lentrainement de groupe" )choice:  trade-medical-group
 		then
 	then
 		most-charming camp-charm 1 < and if
-			charchoice( " uses charm" )choice: trade-medical-charm
+			charchoice( "  utilise son charme" )choice: trade-medical-charm
 		then
 		most-grating if 
-			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-medical-coolit
+			charchoice( "': DIS LE NE LE PULVERISE PAS" fcoolit )choice: trade-medical-coolit
 		then
 ;
 
@@ -352,43 +329,42 @@ cyoa: trade-medicalt
 
 cyoa-choice: trade-mechanic-charm 
 	charmroll if
-		($ cname .. " gets FREE training in the art and science of anti-zombie engineering!" $) cyoa-text! 
+		($ cname .. " " $) cyoa-text! 
 		cchar .mechanical@ 5 > if 
-			($ "It didn't actually improve " .. chis .. " mechanical skill, but it was FREE!" $) +crtext
+			($ "'n'a pas ameliore reellement sa force mais c'etait GRATUIT " .. chis .. " " $) +crtext
 		then		
 		goodfx mechanicREV mechanic++ ' camp-charm ++
 	else
-		($ cname .. " accidentally just comes off as creepy. 
-		" .. gHe .. " is asked to leave." $) cyoa-text! badfx
+		($ cname .. "  accidentellement vient juste comme effrayant. 		" .. gHe .. "  est invite a partir." $) cyoa-text! badfx
 	then clear-cyoa
 ;
 
 cyoa-choice: trade-mechanic-train
 	cchar .mechanical@ 6 < if
-		($ cname .. " gets a crash course in repair, effective barricades, and other anti-zombie engineering!" $) goodfx
+		($ cname .. " " $) goodfx
 	else
-		($ cname .. " didn't learn anything new. " .. cHe .. " was already aware of all the stuff the mechanic could teach." $) badfx
+		($ cname .. " " .. cHe .. " " $) badfx
 	then cyoa-text!
 	-6 trunk-food+
 	mechanicREV mechanic++ clear-cyoa
 ;
 
 cyoa-choice: trade-mechanic-group
-	($ "The entire group gets mechanic training!" $) cyoa-text! goodfx
+	($ "Toute la troupe recoit une formation de mecanicien !" $) cyoa-text! goodfx
 	trade-train-pay someicon
 	' trade-mechanic-group! foreach-human-char clear-cyoa
 ;
 
 cyoa-choice: trade-mechanic-coolit
 	cpet? if
-		($ cname .. " farts really loudly at the mechanic, in a low pitch." $)
+		($ cname .. " " $)
 	else
-		($ cname .. " quips " .. "SAY IT DON'T SPRAY IT" pbold .. " to the mechanic." $) 
+		($ cname .. "  plaisante " .. "'DIS LE NE LE PULVERISE PAS" pbold .. " " $) 
 	then cyoa-text!
 	cool-it-7 if
-		($ "She finds this hilarious! Delighted, the mechanic pledges to give " .. cname .. " an intense crash course in absolutely everything she knows." $) +crtext 3 for mechanic++ next cooled-it clear-cyoa goodfx
+		($ "Elle trouve ca hilarant ! Ravi, le mecanicien promet de donner " .. cname .. " un cours intensif sur tout ce quelle sait." $) +crtext 3 for mechanic++ next cooled-it clear-cyoa goodfx
 	else cool-it++
-		($ "She responds to this by digging into her pockets for a bolt, then throwing it at " .. cname .. ". She continues doing this, not saying a word, until " .. thegroup .. " is forced to leave the camp." $) +crtext badfx quitmission
+		($ "Elle repond a cela en fouillant dans ses poches pour trouver un boulon, puis en le jetant a " .. cname .. ". Elle continue de faire cela, sans dire un mot, jusqua ce que " .. thegroup .. "  est force de quitter le camp." $) +crtext badfx quitmission
 	then mechanicREV
 ;
 
@@ -396,29 +372,27 @@ cyoa: trade-mechanic-give
 	solohuman if
 		choosehuman trade-mechanic-train
 	then;
-	"Who should get the mechanic's training?" cyoa-text!
+	"'Qui devrait recevoir la formation de mecanicien ?" cyoa-text!
 	' trade-mechanic-train cyoa-human-choice
 ;
 
 cyoa: trade-mechanic
-	"Mechanic Savant" cyoa-title!
-	($ Thegroup .. " meets a woman wearing oil stained coveralls.
-	" .. "I can help you get better at repairing stuff. It's a real handy skill. Might save your life." pbold .. "
-	A high mechanic skill lets you fix your car." $) cyoa-text! basic-tone foodamt
-	choice( "Leave for now" )choice
+	"Mecanicien savant" cyoa-title!
+	($ Thegroup .. "  rencontre une femme portant une salopette tachee dhuile.	" .. "'Je peux vous aider a vous ameliorer dans la reparation des trucs. C'est une competence tres pratique. Cela pourrait vous sauver la vie." pbold .. "	Une competence de mecanicien elevee vous permet de reparer votre voiture." $) cyoa-text! basic-tone foodamt
+	choice( "Partir pour linstant" )choice
 	trunk-food 6 < if
-		($ "This isn't enough food to afford training." $) +cr +text
+		($ "'Ce n'est pas assez de nourriture pour se permettre une formation." $) +cr +text
 	else
-		choice( "Give 6 food for training" )choice: trade-mechanic-give
+		choice( "Donne 6 aliments pour lentrainement" )choice: trade-mechanic-give
 		trade-train-pay? if
-			choice( "Give " .. trade-train-amt .. " food for group training" )choice:  trade-mechanic-group
+			choice( "Donne " .. trade-train-amt .. "  nourriture pour lentrainement de groupe" )choice:  trade-mechanic-group
 		then
 	then
 		most-charming camp-charm 1 < and if
-			charchoice( " uses charm" )choice: trade-mechanic-charm
+			charchoice( "  utilise son charme" )choice: trade-mechanic-charm
 		then
 		most-grating if 
-			charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: trade-mechanic-coolit
+			charchoice( "': DIS LE NE LE PULVERISE PAS" fcoolit )choice: trade-mechanic-coolit
 		then
 ;
 

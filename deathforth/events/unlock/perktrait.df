@@ -93,17 +93,17 @@
 	ADJ-ZPCOST zp-buy!
 ;
 
-: trait-nowmake  "You can now use the Custom Characters screen to make people with the " ;
-: perk-line1 0 > if "You have upgraded the " else trait-nowmake then ;
-: zp-upgradenote? 0 > if "All characters you assign or have assigned this perk will get to enjoy the new effects!" +crtext then ;
+: trait-nowmake  "Tu peux maintenant utiliser lecran Personnages personnalises pour creer des gens avec le " ;
+: perk-line1 0 > if "Tu as ameliore le " else trait-nowmake then ;
+: zp-upgradenote? 0 > if "Tous les personnages que tu assignes ou as assignes a cet avantage pourront profiter des nouveaux effets !" +crtext then ;
 
-: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. " trait!" $) text!
+: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. "  trait !" $) text!
 <- name 0 shared-buy! goodfx ;
 
 : perk-buy! args( title name level ) 
-	($ <- level perk-line1 .. <- title pbold .. " perk!" $) text!
+	($ <- level perk-line1 .. <- title pbold .. "  avantage !" $) text!
 	<- level zp-upgradenote? 
-	<- level 1 > if "This perk has reached the maximum level!" rainbold +crtext then
+	<- level 1 > if "Cet avantage a atteint le niveau maximum !" rainbold +crtext then
 	<- name <- level shared-buy! goodfx 
 ;
 
@@ -117,23 +117,23 @@ defer gnomeback
 // Trait/Perk view and confirm
 // Type: 0 for trait unlock, 1 for perk unlock
 
-: unlockupgrade? 1 < if "Unlock " else "Upgrade " then ;
-: traitperk? 1 < if " Trait" else " Perk" then ;
+: unlockupgrade? 1 < if "Deverrouiller " else "Ameliorer " then ;
+: traitperk? 1 < if "  Trait" else "  Avantage" then ;
 : $traitperk 1 < if perkdef{ $trait } else perkdef{ $perk } then ;
 
 : shared-confirm! args( name level handler type exit )
 	<- name cyoa-title!
 	perkdef{ defperks <- name <- type $traitperk desc@ } text!
-	choice( "BACK" )choice <- exit cyoa-choice-handler!
+	choice( "RETROUVEZ" )choice <- exit cyoa-choice-handler!
 	// Could try splitting this zpcost section into own word if I do upgrading through CustChar menu
 	// Will have to include a zpcost calc
 	zpcost? if
-		choice( <- level unlockupgrade? .. <- name pbold .. <- type traitperk? .. "! - " .. ADJ-ZPCOST .. " ZP" pbold )choice <- handler cyoa-choice-handler!
+		choice( <- level unlockupgrade? .. <- name pbold .. <- type traitperk? .. "! - " .. ADJ-ZPCOST .. "  ZP" pbold )choice <- handler cyoa-choice-handler!
 	then 
 		<- level 1 < if 
-			($ "Costs " .. ADJ-ZPCOST .. " ZP to unlock!" $) 
+			($ "Coute " .. ADJ-ZPCOST .. "  ZP a deverrouiller !" $) 
 		else
-			($ " COST: " .. ADJ-ZPCOST .. " ZP" $) 
+			($ "  COUT : " .. ADJ-ZPCOST .. "  ZP" $) 
 		then +text +cr zptally
 ;
 
@@ -147,7 +147,7 @@ defer gnomeback
 
 // Shows the choice
 : perk-view! args( name cost handler )
-	choice( <- name $upper pbold .. " - " .. <- cost .. " ZP" pbold )choice <- handler cyoa-choice-handler!
+	choice( <- name $upper pbold .. " - " .. <- cost .. "  ZP" pbold )choice <- handler cyoa-choice-handler!
 ;
 	
 // END the prep logic
@@ -155,24 +155,22 @@ defer gnomeback
 // Temporary Dude	
 
 cyoa: perk-dingus gstats{
-	"Perks and Traits" cyoa-title!
+	"Avantages et Traits" cyoa-title!
 		
 	"I'm developing an amazing new product
 	I call them... unlocks. Or 'uncks' for short" text!
 	
 	zombo-point 3 < if
-		"You're going to need to get some Zombo Points to see what I mean! I also invented those just now."
+		"Vous allez devoir obtenir des points Zombo pour voir ce que je veux dire! Je viens de les inventer!"
 	else
-		"Witness the magic of 'cheevos'!
-		Wait, I meant to say 'unlocks'."
+		"P"
 	then +crtext +cr zptally
 	
-	choice( "Leave for now" )choice
+	choice( "Partir pour linstant" )choice
 	
 } ;
 
 ' perk-dingus to perkback
 
 	(* gstats{ trait-specialist } 0 > if
-		($ "You bought all my " .. "'uncks'" pbold .. " for now.
-		Check back next update! I'll have more!" $) text! *)
+		($ "Tu as achete tout mon " .. "'uncks'" pbold .. " " $) text! *)

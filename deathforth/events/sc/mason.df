@@ -6,30 +6,30 @@ uses road.df
 cyoa{ road{
 
 : mason-missing 1 5 rnd case
-	1 of " must have wandered off." endof
-	2 of " vanished off the face of the earth." endof
-	3 of " probably is fine." endof
-	4 of " most likely gave up." endof
-	5 of "'ll probably turn up." endof
+	1 of "  doit setre egare." endof
+	2 of "  sest volatilise de la surface de la terre." endof
+	3 of "  va probablement bien." endof
+	4 of " a probablement abandonne." endof
+	5 of "'va probablement se presenter." endof
 endcase ;
 
 : mason-sad
-	($ "Too sad to continue, he wanders off to the nearest abandoned summer park and sulks for years until more people show up." $) +cr +text badfx
+	($ "Trop triste pour continuer, il se dirige vers le parc dete abandonne le plus proche et boude pendant des annees jusqua ce que dautres personnes se presentent." $) +cr +text badfx
 		decruit-bad-silent
 ;
 : mason-kill
 	notcchar to victim
-	($ "Also, " .. vname .. " is missing. " .. victim xHe .. mason-missing .. "
-	" .. vname .. " has left the team!" $) +cr +text badfx
+	($ "Aussi, " .. vname .. "  est manquant. " .. victim xHe .. mason-missing .. "
+	" .. vname .. " a quitte lequipe !" $) +cr +text badfx
 		victim .weapons-to-trunk TEAM_STATUS_DIED victim .decruit morale2+ deadtally
 ;
 
 cyoa: mason-alive
 	char-gen to recruitee "???" recruitee .name! 4 recruitee .morale! recruitee .masonify
 	ricon 2 3 rnd to mason-countdown 1 to mason-curse someone choosechar
-		($ "Your friend is back, alive and well! You thought he was a goner, but no, he's right there in the car! You're so lucky!" $) text!
+		($ "'Votre ami est de retour, bien vivant ! Vous pensiez qu'il etait fichu, mais non, il est la dans la voiture ! Vous avez tellement de chance !" $) text!
 	team-count 0 > if
-		($ "Also, looks like " .. cname .. " is gone from the team. " .. cHe .. mason-missing $) +crtext
+		($ "Aussi, on dirait que " .. cname .. "  a quitte lequipe. " .. cHe .. mason-missing $) +crtext
 		cchar .kill
 	then
 		recruitee .strengthREV recruitee .fitnessREV recruited goodfx
@@ -37,22 +37,21 @@ cyoa: mason-alive
 
 cyoa: mason-camp
 	sc-camper choosechar cicon
-	"Memories of Camp Bloodkill" cyoa-title!
-	($ "While camping for the night, " .. cname .. " has a lot of fond memories about his last time at summer camp!" $) cyoa-text!
+	"Souvenirs de Camp Bloodkill" cyoa-title!
+	($ "En campant pour la nuit, " .. cname .. "  a beaucoup de bons souvenirs de sa derniere fois au camp dete !" $) cyoa-text!
 	mason-kill +cr fullcamp
 ;
 
 cyoa: mason-timeup
-	stpick-mason if choosechar cicon else ($ "Mason Snoorhes" pbold .. " was going to get up to some " .. "WACKY ANTICS" fbold .. " but it looks like he was the one to disappear, for a change." $) text! exit then
+	stpick-mason if choosechar cicon else ($ "Mason Snoorhes" pbold .. " allait se lancer dans des " .. "ANTICS FOU" fbold .. " mais il semble que ce soit lui qui ait disparu, pour une fois." $) text! exit then
 	solo if 
-		"The Ultimate Genki" cyoa-title!
-		($ cname .. " feels all alone in the world.
-		But he can't let it get him down! If he keeps on going, he knows that he'll meet new friends!" $) cyoa-text!
+		"Le Genki Ultime" cyoa-title!
+		($ cname .. " il se sent tout seul dans le monde. Mais il ne peut pas se laisser abattre! S'il continue d'avancer, il sait qu'il rencontrera de nouveaux amis!" $) cyoa-text!
 		morale++
 	else
 	notcchar to victim
-	"At least someone has a positive outlook" cyoa-title!
-	($ cname .. " suddenly seems to get a big boost in morale!" $) cyoa-text!
+	"Au moins quelquun a un regard positif" cyoa-title!
+	($ cname .. " soudain semble obtenir un grand coup de pouce dans le moral!" $) cyoa-text!
 		mason-kill
 	then
 	3 4 rnd to mason-countdown
@@ -62,12 +61,12 @@ cyoa: mason-despair
 	bully choosechar
 	cicon
 	solo if 
-		"Return to Camp Bloodkill 2: The Return" cyoa-title!
-		($ cname .. " feels really lonely without his friends." $) cyoa-text!
+		"Retour au Camp Bloodkill 2: Le Retour" cyoa-title!
+		($ cname .. " se sent vraiment seul sans ses amis." $) cyoa-text!
 		mason-sad
 	then;
-	"He's just really optimistic" cyoa-title!
-	($ cname .. " is feeling really down in the dumps but then suddenly feels better!" $) cyoa-text!
+	"Il est juste vraiment optimiste" cyoa-title!
+	($ cname .. "  se sent vraiment deprime mais se sent soudainement mieux !" $) cyoa-text!
 		mason-kill
 ;
 

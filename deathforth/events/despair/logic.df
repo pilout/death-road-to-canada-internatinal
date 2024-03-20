@@ -16,20 +16,20 @@ events{ road{
 cyoa{ road{
 
 cyoa-choice: card-UGH
-	"COME ON" cyoa-text! ;
+	"ALLONS Y" cyoa-text! ;
 
 cyoa-choice: bully-kick
-($ cname .. " gets kicked out of the group instead of " .. vname .. ".
+($ cname .. "  se fait expulser du groupe au lieu de " .. vname .. ".
 " $) cyoa-text!
 decruit-bad-silent-takeweapons 0.5 600 tone
 40 %chance if
-		($ vname .. " smiles a little." $) +text
+		($ vname .. "  sourit un peu." $) +text
 		victim .morale++
 else
 	30 %chance if
-		($ vname .. " shrugs." $) +text
+		($ vname .. "  hausse les epaules." $) +text
 	else
-		($ Thegroup .. " feels relieved that " .. bhe .. "'s gone." $) +text
+		($ Thegroup .. "  se sent soulage que " .. bhe .. "'' est parti." $) +text
 		bully ' .morale++ foreach-team-char-except
 	then
 then
@@ -37,92 +37,85 @@ then
 
 cyoa-choice: bully-all-kick
 team-count 2 = if	
-	($ notcname .. " recommends that " .. cname .. " leave, instead.
-	" $) cyoa-text!
+	($ notcname .. "  recommande que " .. cname .. "  parte, a la place.	" $) cyoa-text!
 else
-	($ Thegroup .. " kicks " .. cname .. " out for being a dingus.
-	" $) cyoa-text!
+	($ Thegroup .. "  expulse " .. cname .. "  pour avoir ete un dingus.	" $) cyoa-text!
 then
 70 %chance if
-	($ cname .. " storms off in a huff.
-	" $) +text 0.5 600 tone
+	($ cname .. "  sen va dans un acces de colere.	" $) +text 0.5 600 tone
 else
-	($ cname .. " says something along the lines of 'COME ON I WAS JUST JOKING HA HA'.
-	" .. cHe .. " still gets kicked out.
-	" $) +text 3 300 tone
+	($ cname .. " ' dit quelque chose comme VIENS JE PLAISANTAIS HA HA'.	" .. cHe .. "  se fait quand meme expulser.	" $) +text 3 300 tone
 then
 decruit-bad-silent-takeweapons 
 40 %chance if
-		($ notcname .. " smiles a little." $) +text
+		($ notcname .. "  sourit un peu." $) +text
 		notcchar .morale++
 else
 	30 %chance if
-		($ notcname .. " shrugs." $) +text
+		($ notcname .. "  hausse les epaules." $) +text
 	else
-		($ Thegroup .. " feels relieved that " .. bhe .. "'s gone." $) +text
+		($ Thegroup .. "  se sent soulage que " .. bhe .. "'' est parti." $) +text
 		bully ' .morale++ foreach-team-char-except
 	then
 then
 ;
 
 cyoa-choice: victim-kick
-($ cname .. " was kicked from the group due to " .. bname .. ".
+($ cname .. "  a ete expulse du groupe en raison de " .. bname .. ".
 " $) cyoa-text!
-($ bname .. " feels pretty smug about this." $)
+($ bname .. "  se sent plutot suffisant a ce sujet." $)
 +text bully .morale3+
 decruit-bad-silent-takeweapons 0.5 600 tone
 ;
 
 cyoa-choice: bully-charm
-	($ cname .. " tries to reason with " .. bname .. "." $) cyoa-text!
+	($ cname .. "  tente de raisonner avec " .. bname .. "." $) cyoa-text!
 	charmroll if
-		($ cname .. " convinces " .. bname .. " to calm down. They come to an understanding with each other, for now." $) cyoa-text! bully .morale++ morale++ goodfx
+		($ cname .. "  convainc " .. bname .. " pour se calmer les uns les autres. Ils arrivent a une entente, pour le moment." $) cyoa-text! bully .morale++ morale++ goodfx
 	else
-		($ bname .. " is infuriated by " .. cname .. "'s attempt to manipulate " .. bully xhim .. "! " .. bully xHe .. " throws a punch at " .. cname .. " and stomps off into the night." $)
+		($ bname .. "  est enrage par " .. cname .. "' tentative de manipuler " .. bully xhim .. "! " .. bully xHe .. "  jette un coup de poing a " .. cname .. "  et sen va dans la nuit." $)
 		+crtext sting-- bully .weapons-to-trunk TEAM_STATUS_BAD_LEFT bully .decruit bitefx
 	then
 ;
 
 cyoa-choice: bully-sprayit
-	($ cname .. " tells " .. bname .. " to" .. " SAY IT, DON'T SPRAY IT." pbold $) cyoa-text!
+	($ cname .. "  raconte " .. bname .. " vers" .. " ' DIRE CA, PAS LE SPRAYER.'," pbold $) cyoa-text!
 	cool-it-7 if
-		($ bname .. " takes this advice to heart. What if " .. bully xhe .. " was always held back by " .. bully xhis .. " habit of 'spraying it instead of saying it'? A tearful emotional breakthrough happens." $)
+		($ bname .. "  prend cela a coeur. Quest ce quil advient de " .. bully xhe .. "  si etait toujours retarde par son habitude de " .. bully xhis .. " ' de le faire plutot que de le dire'? Une brise emotionnelle survient.'" $)
 		+crtext bully .morale4+ morale4+ cooled-it goodfx
 	else cool-it++
-		($ bname .. " gets so angry about this that " .. bully xhe .. " can't even talk." $)
+		($ bname .. "  se fait si enrage a ce sujet que " .. bully xhe .. " ne peut meme pas parler." $)
 		+crtext bully .morale-- morale2+ badfx
 	then
 ;
 
 : bully-charm?
 	victim charming? if
-		victim charchoice( " talks " .. bname .. " down" )choice: bully-charm
+		victim charchoice( " parle " .. bname .. "  en bas" )choice: bully-charm
 	then
 ;
 
 : bully-sprayit?
 	victim grating? if
-		victim charchoice( ": SAY IT DON'T SPRAY IT" fcoolit )choice: bully-sprayit
+		victim charchoice( "': DIS LE NE LE PULVERISE PAS" fcoolit )choice: bully-sprayit
 	then
 ;
 
 : haze-siege
 	9 16 rnd 2 siegecast
 	"events/siege/region/midopen1.df" $load-region
-	choice( "Fight Army of Zombies" )choice: premission
+	choice( "Combattez larmee de zombies" )choice: premission
 ;
 
 cyoa: solo-haze-won
-	"Back on the Death Road!" cyoa-title! someicon
-	($	"How in the world did you survive that?
-		" .. cname .. " gets " .. "COMPLETELY PUMPED UP" fbold $) cyoa-text!
+	"Retour sur la route de la mort!" cyoa-title! someicon
+	($	"	Comment diable avez vous survecu a cela?" .. cname .. " obtenir " .. "TOTALEMENT GONFLE" fbold $) cyoa-text!
 			morale4+ goodfx
 ;
 
 cyoa: group-haze-won
-	"Back on the Death Road!" cyoa-title! someicon
-	($	"Maybe this team isn't so bad after all!
-		" .. Thegroup .. " gets " .. "COMPLETELY PUMPED UP" fbold $) cyoa-text!
+	"Retour sur la route de la mort!" cyoa-title! someicon
+	($	"	In french Peut etre que cette equipe n'est pas si mauvaise apres tout!" .. Thegroup .. " obtenir " .. "TOTALEMENT GONFLE" fbold $) cyoa-text!
 			morale4+all goodfx
 ;
 

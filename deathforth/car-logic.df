@@ -53,15 +53,15 @@ defer car-go
 : car-menu-setup args( me )
 	menustart
 	<- me .anim.state@ -2 = if
-		' car-get-out "LET'S BOOGIE" menuadd
+		' car-get-out "Faisons le danser" menuadd
 	then;
 	<- me .anim.state@ 0= if
-		' car-start "START THE CAR" menuadd
+		' car-start "DEMARRAGE DE LA Voiture" menuadd
 	else
-		' car-go rnd5050 if "FLOOR IT!" else "GIVE 'ER!" then menuadd
+		' car-go rnd5050 if "ACCELERE A FOND!" else "'Faites le sauter !" then menuadd
 	then
-	' car-honk "HONK" menuadd
-	' car-get-out "GET OUT" menuadd
+	' car-honk "Bougne" menuadd
+	' car-get-out "Sortez" menuadd
 ;
 
 : car-go_
@@ -194,7 +194,7 @@ last to car-go
 			<- me .adjust-vol
 		}
 
-		BLINKY "CAR START!" .. <- me .report
+		BLINKY "DEMARRAGE DE LA Voiture !" .. <- me .report
 
 		1 0.25 mission.vehicle@ .pos alertlcxy
 
@@ -280,7 +280,7 @@ last to car-start
 
 : .calc-hitpoints args( car )
 	car-chassis CAR_HEALTH_SCALAR * CAR_HEALTH_SCALAR 4 / + <- car .hitpoints!
-	"CAR HITPOINTS: " type <- car .hitpoints@ print
+	"POINTS DE VIE DE LA Voiture : " type <- car .hitpoints@ print
 ;
 
 : .from-road-car args( car )
@@ -387,28 +387,28 @@ mission{ cyoa{
 	cyoa-start
 
 	getcar
-	"OUTSIDE OF A CAR" cyoa-title!
-	"It's a car. WHAT NOW?" cyoa-text!
+	"A LEXTERIEUR DU CADILLAC" cyoa-title!
+	"'C'est une voiture. QUOI FAIRE ?" cyoa-text!
 
 	cyoa-add-choice
-		"Get in." cyoa-choice-text!
+		"Montez dedans." cyoa-choice-text!
 		' get-into-car cyoa-choice-handler!
 	
 	// Change this from soloer later
 	cyoa-add-choice
-		"Pick up the car." cyoa-choice-text!
+		"Prendre la voiture." cyoa-choice-text!
 		' lift-car cyoa-choice-handler!
 	
 	cyoa-add-choice
-		"Nevermind." cyoa-choice-text!
+		"Non merci." cyoa-choice-text!
 
 	cyoa-show
 ;
 
 
 cyoa: locked-car-hotwire
-	"Hotwired!" cyoa-title!
-	($ "It doesn't take long for " .. pname .. " to break into the car and get it running. No keys necessary!" $) cyoa-text!
+	"Pirate!" cyoa-title!
+	($ "Il ne faut pas longtemps pour " .. pname .. " voler une voiture" $) cyoa-text!
 		2 to carkey goodfx get-into-car
 	o'clock@ 1 + o'clock
 ;
@@ -417,32 +417,29 @@ cyoa: cyoa-locked-car
 	carkey 1 > if cyoa-car then;
 
 	carkey 0 > if
-	"Let's Roll!" cyoa-title!
-		($ "The keys fit perfectly!
-		" .. pname .. " unlocks the car door." $) cyoa-text!
+	"Allons y!" cyoa-title!
+		($ "Les cles sadaptent parfaitement!" .. pname .. " deverrouille la porte de la voiture." $) cyoa-text!
 			2 to carkey goodfx
-			choice( "Get in the car" )choice: get-into-car
-			choice( "Leave it be for now" )choice
+			choice( "Montez dans la voiture" )choice: get-into-car
+			choice( "Laisse tomber pour linstant" )choice
 			interactee .car-cyoa-default
 	else
-	"Locked Car" cyoa-title!
-		"This car looks like it's in really good condition. 
-		But where are the keys?" cyoa-text!
-		choice( "Leave it be for now" )choice
+	"Voiture Verrouillee" cyoa-title!
+		"Cette voiture a l'air en tres bon e?tat. Mais ou sont les cle?s?" cyoa-text!
+		choice( "Laisse tomber pour linstant" )choice
 		pchar .cmechanic+ if
-			pchar charchoice( " hotwires the car!" )choice: locked-car-hotwire
+			pchar charchoice( " demarre la voiture" )choice: locked-car-hotwire
 		then
 	then
 	STAT_STRENGTH cyoachar .effstat 99 > if
-		choice( "Pick up the car" )choice: lift-car
+		choice( "Prendre la voiture" )choice: lift-car
 	then
 
 ;
 
 cyoa: carkeyz
-	"Car Keys" cyoa-title!
-	($ "This is a set of keys, including some car keys.
-	" .. pname .. " picks it up." $) cyoa-text! goodfx
+	"Cles de voiture" cyoa-title!
+	($ "Ceci est une cle, y compris des cles de voiture." .. pname .. " le prend." $) cyoa-text! goodfx
 	1 to carkey deleteme
 ;
 
