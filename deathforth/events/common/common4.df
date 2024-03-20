@@ -1,7 +1,7 @@
 
 (*
 
-- ouija board event "Ouija"
+- ouija board event "Weegee"
 	- Pick a question to ask
 	- Different if solo
 		- AM I PRETTY? [yes] Morale Boost
@@ -15,74 +15,74 @@ cyoa{ road{
 
 // Not a Ouija Board
 
-: weegeetm .. "Tablero de Weegee [tm]" pbold .. ;
+: weegeetm .. "Tablero Weegee [tm]" pbold .. ;
 : weegeecurse args( char ) 13 <- char .seed! ;
 
 : weegee-end
-	($ Thegroup .. "  sign. " .. "Maldicion de Weegee!" rbold $) +crtext
+	($ Thegroup .. "  ahora se siente increiblemente desafortunado. Cuidado con " .. "Maldicion de Weegee!" rbold $) +crtext
 	"SUERTE MASIVAMENTE DISMINUIDA!" fbold +crtext
-	"En algun lugar a lo lejos, un goblin rie." pbold +crtext goblin-laugh
+	"En algun lugar a lo lejos, un duende se rie." pbold +crtext goblin-laugh
 	
 ;
 
 cyoa-choice: common4-weegee-pretty
 	choosehuman cicon
-	($ "El " weegeetm " ' escribe lo que " .. cname .. " ' es " .. "	ES VERY PRETTY" pbold $) text!
-	($ "Que bueno! " .. cname .. " 'No se siente maldito en absoluto por este encantador Weegee." $) +crtext
+	($ "El " weegeetm "  deletrea eso " .. cname .. "  es " .. "	MUY BONITO" pbold $) text!
+	($ "Bien! " .. cname .. " ' No se siente maldecido en absoluto por este encantador Weegee." $) +crtext
 	morale2+
 	"Somewhere in the distance, a goblin laughs, but in a nice way. As if to say 'hey.... what's up. have a nice day.'" pbold +crtext goblin-laugh
-	choice( "bueno" )choice
+	choice( "agradable" )choice
 ;
 
 cyoa-choice: common4-weegee-loot
-	($ "El " weegeetm " 'escribe el lugar de una cachaza oculta en la casa!" $) text!
+	($ "El " weegeetm "  deletrea la ubicacion de un alijo de botin escondido en la casa!" $) text!
 	homesearch1
 	weegee-end
 ;
 
 cyoa-choice: common4-weegee-check
 	weaselest choosechar cicon
-	($ "Cuando se le pregunta quien traicionara al grupo, el " weegeetm " 'escribe " $) text!
+	($ "Cuando se le pregunta quien traicionara al grupo, el " weegeetm "  deletrea " $) text!
 	weaselest-pass if
-		($ cname .. "nombre!" $) +text
+		($ cname .. "'nombre!" $) +text
 		loyaltyREV
 		weegee-end
 	else
-		"TU BOTTE" pbold +crtext
-		($ "Que podria significar esto? La grupo se vuelve inquieto, y la duda brota. Podria ser el " .. "Maldicion de Weegee?" rbold $) +crtext
+		"Y O U R B U T T" pbold +crtext
+		($ "Que podria significar esto? El grupo se inquieta y la duda se enciende. Podria ser esto el " .. "Maldicion de Weegee?" rbold $) +crtext
 		morale--all goblin-laugh
 	then
 ;
 
 cyoa-choice: common4-weegee-canada
-	($ "El " weegeetm " 'apunta hacia la palabra " .. "NO" pbold .. " 'con una velocidad asombrosa. Despues, apunta hacia " .. "NO" fbold .. " 'de nuevo, mientras inexplicablemente se prende en fire." $) text!
-	($ "Que mas da! Estas cosas siempre estan equivocadas, de todos modos! " .. cname .. " 'lanza el objeto en llamas por la habitacion. Esto hace que " weegeetm " 'tambien se incendie. " .. chim .. " 'a el le encanta ser resistente al fuego!" $) +crtext
+	($ "El " weegeetm "  apunta a la palabra " .. "NO" pbold .. "  con asombrosa velocidad. Luego apunta a " .. "NO" fbold .. "  de nuevo, mientras de alguna manera se prende fuego." $) text!
+	($ "Lo que sea! Estas cosas siempre estan mal, de todos modos! " .. cname .. "  lanza el " weegeetm "  en llamas al otro lado de la habitacion. Esto hace " .. chim .. "  tambien prenderse fuego." $) +crtext
 	cchar isfireproof? if 
-		($ cname .. " 'Fue un buen ejercicio, al menos." $) +crtext
+		($ cname .. "  ama ser ignifugo!" $) +crtext
 		morale++ goodfx
 	else
 		ouch-- alive? if bitefx then
 	then
 	alive? if
-		"Al menos fue un buen ejercicio." +crtext fitness++
+		"Fue un buen ejercicio, al menos." +crtext fitness++
 	else
-		($ "No se meta con el " .. "Maldicion de Weegee!" rbold $) +crtext goblin-laugh
+		($ "'No te metas con el " .. "Maldicion de Weegee!" rbold $) +crtext goblin-laugh
 	then
 	
 ;
 
 cyoa: common4-weegee
-	"Tablero de Weegee" cyoa-title! choosehuman cicon
-	($ Thegroup .. " 'esta revisando una casa abandonada y encuentra un " weegeetm " 'en la mesa de la cocina. Es un juego comun utilizado para comunicarse con " .. "FANTASMAS" fbold $) text!
-		choice( "Deja esta tonteria en paz" )choice
-		($ "Estas cosas se rumorea que son " .. "INCREIBLEMENTE MALDITO CON MALA SUERTE" rbold .. ", so beware! Still, it may be worth asking it a question..." $) +crtext
+	"Tablero Ouija" cyoa-title! choosehuman cicon
+	($ Thegroup .. "  esta hurgando en una casa abandonada y encuentra un " weegeetm " ' sobre la mesa de la cocina. Es un juego comun utilizado para comunicarse con " .. "FANTASMAS" fbold $) text!
+		choice( "Deja este SIN SENTIDO en paz" )choice
+		($ "Se rumorea que estas cosas son " .. "INCREIBLEMENTE MALDITO CON MALA SUERTE" rbold .. ", so beware! Still, it may be worth asking it a question..." $) +crtext
 		solohuman if
 			choice( "SOY BONITA?" )choice: common4-weegee-pretty
 		else
 			choice( "QUIEN TRAICIONARA AL EQUIPO?" )choice: common4-weegee-check
 		then
-			choice( "VOLUNTAD" .. I-or-WE .. "HACERLO HASTA CANADA?" )choice: common4-weegee-canada
-			choice( "DONDE ESTA EL Botin?" )choice: common4-weegee-loot
+			choice( "VOLUNTAD" .. I-or-WE .. "LLEGA A CANADA?" )choice: common4-weegee-canada
+			choice( "'DONDE ESTA EL BOTIN?" )choice: common4-weegee-loot
 ;
 
 // Dog Poop
@@ -91,55 +91,55 @@ cyoa: common4-weegee
 : common4-dogpoo-reward 16 trunk-food+ badfx ;
 
 cyoa-choice: common4-dogpoo-ignore
-	($ Thegroup .. " 'ignora la caja de suministros y todo lo que hay dentro de ella.	" .. gThey .. " 'encontrar" .. g1s .. " 'tomaba unos pocos lotes de comida mientras buscaba el resto de la casa, pero debio preguntarse que " .. gthey .. " 'se habia ido." $) text!
+	($ Thegroup .. "  ignora la caja de suministros y toda la comida que hay dentro.	" .. gThey .. "  encontrar" .. g1s .. "  un par de latas de comida mientras registra el resto de la casa, pero debe preguntarse que " .. gthey .. "  perdio." $) text!
 	2 trunk-food+ goodfx
 ;
 
 cyoa-choice: common4-dogpoo-pick
 
 	cdog? if
-		($ "El cadejo fecales misteriosamente desaparecen antes de " .. cname .. " 'abra la caja!		" .. cname .. " 'parecia muy culpable." $) text!
+		($ "La caca de perro desaparece misteriosamente antes de que " .. cname .. "  empuja la caja para abrirla!		" .. cname .. "  parece muy culpable." $) text!
 		morale--
 		common4-dogpoo-reward
 	then;
 	ccat? if
-		($ cname .. " 'parece especialmente enojado que tuvo que empujar el cadejo fecales fuera del camino para abrir la caja. " .. cHe .. " 'realmente se siente como si quisiera destrozar algo, mas que lo normal." $) text!
+		($ cname .. "  parece especialmente enojado por haber tenido que sacar la caca de perro del camino para abrir la caja. " .. cHe .. "  realmente tiene ganas de mutilar algo, mas de lo habitual." $) text!
 		morale4-
 		common4-dogpoo-reward
 	then;
 	cpet? if
-		($ cname .. " 'abre la caja de suministros con un pie. Como animal, " .. che .. " 'realmente no importa en nada los cadejos fecales, asi que no fue mucho obstaculo." $) text!
+		($ cname .. "  patea la caja de suministros para abrirla. Como animal, " .. che .. " ' realmente no le importa la caca de perro, por lo que no fue un gran obstaculo." $) text!
 		16 trunk-food+ goodfx
 	then;
 	dogpal? if
-		($ cname .. "  loves dogs, and is no stranger to picking up dog poop and putting it in a plastic bag.		In fact, doing so reminds " .. cname .. "  de la civilizacion. Sentir ese calor en tu mano, sentirse vivo!" $) text!
+		($ cname .. "  ama a los perros y no es ajeno a recoger caca de perro y ponerla en una bolsa de plastico.		De hecho, hacerlo le recuerda " .. cname .. "  de la civilizacion. Sentir ese calor en tu mano, sentirte vivo!" $) text!
 		morale2+ 16 trunk-food+ goodfx
 	then;
 	cchar oblivious? if
-	($ cname .. " 0x0000000000000000," .. cHe .. "  nunca note el caca de perro." $) text!
+	($ cname .. "  abre la caja de suministros. Cual era el problema?		" .. cHe .. " nunca note la caca de perro." $) text!
 		solo if
 			goodfx
 		else
-			($ Everyone .. " esta asqueado!" $) +crtext cchar morale2-all-except badfx
+			($ Everyone .. " se asquea!" $) +crtext cchar morale2-all-except badfx
 		then 16 trunk-food+
 	then;
-	($ cname .. "  intenta empujar la caca fuera de la caja con un pedazo de madera, pero sale TERRIBLEMENTE mal. " .. cHe .. " 'se horroriza bastante!" $) text!
+	($ cname .. " intenta empujar la caca fuera de la caja con un pedazo de madera, pero sale TERRIBLEMENTE mal. " .. cHe .. " se asquea bastante mal!" $) text!
 		cattitude+ if
 			badfx
-			($ cHe .. " 'intenta mantener una actitud positiva. Un dia, " .. cname .. " 'podra mirar esto y reirse. Pero no hoy." $)
+			($ cHe .. " day. " .. cname .. " podran ver esto y reirse. Pero no hoy." $)
 		else
-			($ "Esto, sin duda, es lo peor que le ha pasado a " .. cname .. " 'en el apocalipsis zombie. " .. cHe .. " 'nunca, nunca volvera a ser el mismo." $) +crtext
-			($ cname .. ":" pbold .. " 'PENALIZACION PERMANENTE DE MORAL!" fbold $)
+			($ "Esto es, por mucho, lo peor que le ha pasado a " .. cname .. " en el apocalipsis zombie " .. cHe .. " nunca, jamas sera igual." $) +crtext
+			($ cname .. ":" pbold .. " PENALIZACION DE MORAL PERMANENTE!" fbold $)
 			-1 STAT_MORALE cchar .bonus+ sfx{ creepy }
 		then +crtext morale2- 16 trunk-food+
 	
 ;
 
 cyoa-bridge: common4-dogpoo-stick
-	"GANASTE" cyoa-title! end-music
-	"Todo nino sabe que la unica forma segura de mover una caca de perro es utilizar un palo de una rama de arbol. Es la herramienta perfecta para quitar la caca. Has convocado tu sentido de capricho y maravilla infantil para superar esta situacion peligrosa." text!
-	"Felicidades!" rainbold +crtext
-	"HAS ENCONTRADO EL VERDADERO FINAL DE DEATH ROAD TO CANADA!" fbold +crtext
+	"GANAS" cyoa-title! end-music
+	"'Cada nino sabe que la unica forma segura de mover una merda de perro es usando un palo de un ramo de arbol. Es la herramienta perfecta para quitar la merda del pozo.	Utilizaste tu sensibilidad y el espiritu infantil para triunfar en esta situacion peligrosa." text!
+	"Felicitaciones!" rainbold +crtext
+	"'ENCONTRASTE EL FINAL VERDADERO DE DEATH ROAD A CANADA!" fbold +crtext
 	choice( "Lo hice!" )choice: common4-dogpoo-trueend
 ;
 
@@ -147,93 +147,93 @@ cyoa-bridge: common4-dogpoo-open
 	solo if
 		soloer choosechar common4-dogpoo-pick
 	then;
-	($ "Quien deberia abrir la caja?" .. "	ADVERTENCIA: ESTO ES REALMENTE AFILOSO		HAY UN CUCHILLO DE PERRO EN LA CESTA" rbold .. "	PUEDE SER UN GRAN PROBLEMA" fbold $) text!
+	($ "Quien deberia abrir la caja?" .. "		ADVERTENCIA: ESTO ES REALMENTE ASQUEROSO		HAY CACA DE PERRO EN LA CAJA" rbold .. "puede ser una gran cosa" fbold $) text!
 	' common4-dogpoo-pick cyoa-team-choice
 ;
 
 cyoa: common4-dogpoo
-	"VERDADERO DESesperanza" cyoa-title! picon!
-	($ "Como " .. thegroup .. " ' busca una casa abandonada, sucede un milagro. " .. gThey .. " 'encontrar" .. g1s .. " ' un cajon de raciones del gobierno, inedito." $) text!
-	($ "A " .. ghis .. " ' HORROR" rbold .. ", resulta que hay un " .. "cachorro" fbold .. " ' sentado " .. "EN EL MANOJO" rbold .. " ' del cajon de suministros." .. " No hay manera de abrirlo sin tocar la caca." rbold $) +crtext
+	"VERDADERA DESesperanza" cyoa-title! picon!
+	($ "Mientras " .. thegroup .. " busca una casa abandonada, sucede un milagro " .. gThey .. "  encontrar" .. g1s .. " una caja de raciones del gobierno, inedita." $) text!
+	($ "A " .. ghis .. " TERROR" rbold .. "in the middle of the string " .. "caca de perro" fbold .. "  sentado " .. "JUSTO EN EL ASA" rbold .. "  de la caja de suministros." .. "  No hay forma de abrirlo sin tocar la caca." rbold $) +crtext
 	WEAPON_TREEBRANCH roadtrip-has-weapon? not if
-		"Esto podria ser el desafio mas grande, hasta ahora!" +crtext
+		"Este podria ser el mayor desafio hasta ahora!" +crtext
 	then
-		choice( "No hay forma, asqueroso, ignoralo" )choice: common4-dogpoo-ignore
+		choice( "De ninguna manera, asqueroso, ignoralo" )choice: common4-dogpoo-ignore
 		solo if
-			soloer charchoice( " 'abre eso" )choice: common4-dogpoo-open
+			soloer charchoice( "  lo abre" )choice: common4-dogpoo-open
 		else
-			choice( "Haz que alguien abra eso" )choice: common4-dogpoo-open
+			choice( "Que alguien lo abra" )choice: common4-dogpoo-open
 		then
 		WEAPON_TREEBRANCH roadtrip-has-weapon? if
-			choice( "Usa una rama de arbol para abrirlo" )choice: common4-dogpoo-stick
+			choice( "Usar una rama de arbol para abrirlo" )choice: common4-dogpoo-stick
 		then
 ;
 
 // Losing a sneeze
 
 cyoa-choice: common4-sneeze-try
-	($ cname .. " ' no puede estornudar a voluntad. " .. cHe .. " 'perdio el estornudo, es muy molesto!" $) text!
+	($ cname .. " ' no puede estornudar a voluntad. " .. cHe .. " ' pierde el estornudo! Es muy molesto!" $) text!
 	morale--
 	cattitude- if
-		($ "Esto es lo " .. "peor cosa que le haya pasado a ALGUIEN" rbold .. " ' durante el apocalipsis zombie!" $) +crtext morale-- attitudeREV
+		($ "Esto es lo " .. "peor que le puede pasar a CUALQUIERA" rbold .. " en el zombocalipsis!" $) +crtext morale-- attitudeREV
 	then
 ;
 
 cyoa-choice: common4-sneeze-smash
 	bitefx
-	cchar .trait@ "ENLOQUECER!" $= if
-		($ cname .. " 'grita " .. "BERSERKEERRR!" fbold .. " 'y luego golpea " .. chim .. "a si mismo en la nariz, lo mas fuerte posible. No tiene instinto de preservacion!" $) text!
+	cchar .trait@ "LOCO!" $= if
+		($ cname .. " gritos " .. "BERSERKEERRR!" fbold .. " y luego golpea " .. chim .. "self harm." $) text!
 		ouch--
 	then;
-	($ cname .. "  aplasta " .. chis .. " to be stubborn" $) text!
+	($ cname .. " aplasta " .. chis .. " to be stubborn." $) text!
 	sting--
-	($ "Es un viejo truco! El dolor cegador hace " .. cname .. " olvidate del estornudo perdido." $) +crtext
+	($ "'Es un viejo truco! El dolor cegador hace " .. cname .. "  olvidar el estornudo perdido." $) +crtext
 ;
 
 cyoa-choice: common4-sneeze-animal
 	cchar to victim
 	somepet if choosechar then
-	($ vname .. "  rellena de verdad " .. vhis .. "  nariz en " .. cname .. " ' y afiliona una buena toser.	Esto desencadena una tos fuerte!" $) text! goodfx
+	($ vname .. "  realmente rellena " .. vhis .. "  la nariz en " .. cname .. "  y resopla. Esto provoca un buen estornudo!" $) text! goodfx
 ;
 
 cyoa-choice: common4-sneeze-spicy
-	($ cname .. " ' abre una bolsa de papas a las que les han agregado mucha pimienta. " .. cHe .. " ' toma un gran sorbo." $) text!
-	($ cname .. " ' suelta un tos accidentalmente en la bolsa! 	" .. cHe .. " ' tal vez deberia comer todo el saco de papas ahora." $) +crtext
+	($ cname .. "  abre una bolsa de papas fritas super picantes. " .. cHe .. "  toma una gran aspiracion." $) text!
+	($ cname .. "  accidentalmente estornuda en la bolsa!" .. cHe .. "  tambien podria comerse toda la bolsa de papas fritas ahora." $) +crtext
 	-2 trunk-food+
 	morale++
 ;
 
 cyoa: common4-sneeze
-	"EL SORPRESADO TOSE PERDIDO" cyoa-title! choosehuman cicon
-	($ cname .. " ' realmente se siente que " .. che .. " ' tiene que toser. Este sentimiento persiste, pero no hay tos.	Este podria convertirse en uno de esos momentos en que un tos se pierde! Unido a las presiones del apocalipsis zombi, esto podria romper " .. cname .. "la moral de" $) text!
-		choice( "Intente toser" )choice: common4-sneeze-try
-		choice( "Chocar el hueso del naso a si mismo" )choice: common4-sneeze-smash
-		numpets 0 > if choice( "Soplar polen animal" )choice: common4-sneeze-animal then
-		trunk-food 1 > if choice( "1 happiness" )choice: common4-sneeze-spicy then
+	"EL ESTORNUDO PERDIDO" cyoa-title! choosehuman cicon
+	($ cname .. "  realmente siente que " .. che .. " ' tiene que estornudar. Esta sensacion se prolonga, pero no hay estornudos. Esto puede convertirse en una de esas veces en que se pierde un estornudo! Combinado con las presiones del apocalipsis zombi, esto podria romper " .. cname .. "''s moral!" $) text!
+		choice( "Intenta estornudar" )choice: common4-sneeze-try
+		choice( "Romperse la nariz" )choice: common4-sneeze-smash
+		numpets 0 > if choice( "Aspirar caspa animal" )choice: common4-sneeze-animal then
+		trunk-food 1 > if choice( "Aspirar comida picante   Cuesta 2 comidas" )choice: common4-sneeze-spicy then
 ;
 
 // Game Bronus Entertainment System
 
 : common4-gamebro-ender
 	($ "Este juego es demasiado dificil! " .. "AAAAAAAAAARGH!" fbold $) +crtext
-	($ cname .. " lanza el GameBronus con fuerza, destruyendolo." $) +crtext
+	($ cname .. "  tira la GameBronus con fuerza, destruyendola." $) +crtext
 	cattitude- if morale3- attitudeREV else morale2- then badfx
 ;
 
 cyoa-choice: common4-gamebro-shoot
-	($ "Escuadron Drobnus" bbold .. " 1/5" $) text!
+	($ "Drobnus Squadron" bbold .. "  es un juego sobre Drobnus disparando a alienigenas con una ametralladora. La mayoria de las muertes ocurren debido a malos controles de salto combinados con pozos de muerte instantanea." $) text!
 	shooting++
 	common4-gamebro-ender
 ;
 
 cyoa-choice: common4-gamebro-med
-	($ "Dr. Drobnus de Lujo" bbold .. " 'Surgeon Simulator 2013' is a darkly humorous over-the-top operation sim game where players become Nigel Burke, a would-be surgeon taking life into his own shaky hands, performing life-saving surgical maneuvers on passive patients." $) text!
+	($ "Dr. Drobnus Deluxe" bbold .. "  es un simulador de cirugia demasiado detallado, renderizado en graficos de 8 bits. La mayoria de los jugadores pierden por no seguir el procedimiento correcto de guantes quirurgicos esteriles." $) text!
 	medical++
 	common4-gamebro-ender
 ;
 
 cyoa-choice: common4-gamebro-mech
-	($ "Drobnus Carta" bbold .. " 'es un juego de carreras que presenta al popular personaje Drobnus y a todos sus amigos. Aunque estes en la primera posicion, puedes ser golpeado por un Homing Bano y terminar en ultima posicion." $) text!
+	($ "Drobnus Kart" bbold .. " ' es un juego de carreras protagonizado por el popular personaje Drobnus y todos sus amigos. Incluso si estas en primer lugar, puedes ser golpeado por un Homing Toilet y terminar en ultimo lugar." $) text!
 	mechanic++
 	common4-gamebro-ender
 ;
@@ -242,8 +242,8 @@ cyoa-bridge: common4-gamebro-med-pick
 	solohuman if
 		choosehuman common4-gamebro-med
 	then;
-	($ "Quien deberia jugar " .. "Dr. Drobnus de Lujo" bbold .. "?" $) cyoa-text!
-	"ADVERTENCIA: Va a ser duro para la moral!" rbold +crtext
+	($ "Quien deberia jugar " .. "Dr. Drobnus Deluxe" bbold .. "?" $) cyoa-text!
+	"'ADVERTENCIA: Va a ser duro para la moral!" rbold +crtext
 	' common4-gamebro-med cyoa-human-choice
 ;
 
@@ -251,8 +251,8 @@ cyoa-bridge: common4-gamebro-mech-pick
 	solohuman if
 		choosehuman common4-gamebro-mech
 	then;
-	($ "Quien deberia jugar " .. "Drobnus Carta" bbold .. "?" $) cyoa-text!
-	"ADVERTENCIA: Va a ser duro para la moral!" rbold +crtext
+	($ "Quien deberia jugar " .. "Drobnus Kart" bbold .. "?" $) cyoa-text!
+	"'ADVERTENCIA: Va a ser duro para la moral!" rbold +crtext
 	' common4-gamebro-mech cyoa-human-choice
 ;
 
@@ -260,41 +260,41 @@ cyoa-bridge: common4-gamebro-shoot-pick
 	solohuman if
 		choosehuman common4-gamebro-shoot
 	then;
-	($ "Quien deberia jugar " .. "Escuadron Drobnus" bbold .. "?" $) cyoa-text!
-	"ADVERTENCIA: Va a ser duro para la moral!" rbold +crtext
+	($ "Quien deberia jugar " .. "Drobnus Squadron" bbold .. "?" $) cyoa-text!
+	"'ADVERTENCIA: Va a ser duro para la moral!" rbold +crtext
 	' common4-gamebro-shoot cyoa-human-choice
 ;
 
 cyoa: common4-gamebro
-	"Sistema de Entretenimiento GameBronus [TM]" cyoa-title! someicon
-	($ Thegroup .. " 'encontra una antigua " .. "GameBronus [TM]" bbold .. "	Es un sistema portatil de videojuegos que sobrevivio hasta ahora porque esta construido como una piedra.	Habia unos juegos con el, todos conocidos por su " .. "dificultad extremadamente frustrante:" rbold $) text!
-		choice( "Dejese atras el GameBronus" )choice
-		choice( "Dr. Drobnus de Lujo" )choice: common4-gamebro-med-pick
-		choice( "Drobnus Carta" )choice: common4-gamebro-mech-pick
-		choice( "Escuadron Drobnus" )choice: common4-gamebro-shoot-pick
+	"GameBronus Entertainment System" cyoa-title! someicon
+	($ Thegroup .. " encuentra un viejo " .. "Juego de bonificacion" bbold .. "'	Es un sistema de videojuegos portatil que sobrevivio tanto tiempo porque esta construido como un ladrillo.	Habia algunos juegos con el, todos conocidos por su " .. "dificultad extremadamente frustrante:" rbold $) text!
+		choice( "Dejar atras GameBronus" )choice
+		choice( "Dr. Drobnus Deluxe" )choice: common4-gamebro-med-pick
+		choice( "Drobnus Kart" )choice: common4-gamebro-mech-pick
+		choice( "Drobnus Squadron" )choice: common4-gamebro-shoot-pick
 ;
 
 // Baked Beans on Garbage Mountain
 
 : common4-beans-ender
 	sting--
-	($ "Se le ensuna la basura " .. cname .. "! Valio la pena! Valio todo por las judias!" $) +crtext
+	($ "La basura se esparce por " .. cname .. "! Valio la pena! Todo fue por los frijoles!" $) +crtext
 	morale2- 3 trunk-food+ badfx
 	
 ;
 
 cyoa-choice: common4-beans-eat
-	($ cname .. " 'come algo del monton de basura! Esto hace que el lata de frijoles en la parte superior se suelte, sin que todo el monton caiga sobre " .. chim .. ". Que solucion deliciosa!" $) text!
+	($ cname .. "  come algo de la pila de basura! Esto suelta la lata de frijoles en la parte superior, sin que toda la pila caiga sobre " .. chim .. ".	Que solucion tan deliciosa!" $) text!
 	morale2+ 3 trunk-food+ goodfx
 ;
 
 cyoa-choice: common4-beans-smash
-	($ cname .. " 'ahora mismo el monton de basura! Se derrumba justo encima de " .. chim .. "." $) text!
+	($ cname .. "  rompe la pila de basura! Se derrumba sobre " .. chim .. "." $) text!
 	strength++ common4-beans-ender
 ;
 
 cyoa-choice: common4-beans-climb
-	($ cname .. " 'sube por el monton de basura! Se derrumba con " .. chim .. " 'encima." $) text!
+	($ cname .. "  sube a la pila de basura! Se derrumba con " .. chim .. "  encima." $) text!
 	fitness++ common4-beans-ender
 ;
 
@@ -302,7 +302,7 @@ cyoa-bridge: common4-beans-smash-pick
 	solohuman if
 		choosehuman common4-beans-smash
 	then;
-	($ "Quien deberia luchar contra el monton de basura?" $) cyoa-text!
+	($ "Quien deberia pelear contra la pila de basura?" $) cyoa-text!
 	' common4-beans-smash cyoa-human-choice
 ;
 
@@ -310,7 +310,7 @@ cyoa-bridge: common4-beans-climb-pick
 	solo if
 		soloer choosechar common4-beans-climb
 	then;
-	($ "Quien deberia subir por el monton de basura?" $) cyoa-text!
+	($ "Quien deberia escalar la pila de basura?" $) cyoa-text!
 	' common4-beans-climb cyoa-team-choice
 ;
 
@@ -318,15 +318,15 @@ cyoa-bridge: common4-beans-eat-pick
 	solopet if
 		choosepet common4-beans-eat
 	then;
-	($ "Quien deberia comerse el monton de basura?" $) cyoa-text!
+	($ "Quien deberia comerse la pila de basura?" $) cyoa-text!
 	' common4-beans-eat cyoa-pet-choice
 ;
 
 cyoa: common4-beans
-	"La Batalla de la Montana de Basura" cyoa-title! someicon
-	($ Thegroup .. " 've un monton de basura extra alto cerca de algunos edificios. Mide mas de 12 pies de alto. La basura se acumulo mucho cerca del colapso de la civilizacion.	Un " .. "Lata Extra Grande de Frijoles Horneados" rbold .. " 'esta atascado cerca de la cima del monton. Brilla como una senal de esperanza." $) text!
-		choice( "Dejemoslo solo." )choice
-		choice( "Romper monton de basura" )choice: common4-beans-smash-pick
+	"La batalla de la montana de basura" cyoa-title! someicon
+	($ Thegroup .. " " .. "'Extra Large Can O' Baked Beans" rbold .. " esta atascado cerca de la parte superior de la pila. Brilla como un faro de esperanza." $) text!
+		choice( "Dejalo en paz" )choice
+		choice( "Romper pila de basura" )choice: common4-beans-smash-pick
 		choice( "Subir monton de basura" )choice: common4-beans-climb-pick
 		numpets 0 > if choice( "Comer basura" )choice: common4-beans-eat-pick then
 ;
@@ -335,7 +335,7 @@ cyoa: common4-beans
 
 : common4-vhs-end
 	morale++all
-	($ "La television se descompone despues de la pelicula, y se queda atras." +crtext
+	($ "La TV se descompone despues de la pelicula, y se queda atras." +crtext
 ;
 
 : sumo-vhs args( char )
@@ -346,71 +346,71 @@ cyoa: common4-beans
 		then
 	then;	
 	<- char .weapon_default@ WEAPON_SUMO = if
-		($ <- char .name@ .. " aprende tecnicas superiores de sumo!" $) +crtext
+		($ <- char .name@ .. " aprende tecnicas de sumo superiores!" $) +crtext
 		WEAPON_SUPERSUMO <- char .weapon_default!
 	else WEAPON_SUMO <- char .weapon_default! then
 ;
 
 cyoa-blank: common4-vhs-sumo
-	"Sumo Wrestling estaba en el top 5 de deportes en America antes del zombocalipsis. Esto llevo a muchas peliculas de sumo, dramas de sumo en la television, dibujos animados de sumo, y asi sucesivamente." text!
-	($ Thegroup .. " 'Aprende algunos movimientos de sumo viendo la pelicula!" $) +crtext
+	"Sumo Wrestling was in the top 5 sports in America before the zombocalypse. This lead to a lot of sumo movies, sumo TV dramas, sumo cartoons, so on and so forth." text!
+	($ Thegroup .. "  recoge algunos movimientos de sumo viendo la pelicula!" $) +crtext
 	' sumo-vhs foreach-team-char common4-vhs-end
 ;
 
 cyoa-blank: common4-vhs-shoot
-	($ "El videocasete es una adaptacion cinematografica del juego arcade " .. "DEATHSPLOSIONAL!" fbold .. " 'es mejor que no haya pelicula alguna." $) text!
+	($ "La cinta de video es una adaptacion cinematografica del juego arcade " .. " DEATHSPLOSIONAL!" fbold .. " ' Es mejor que ninguna pelicula." $) text!
 	
 	' .shooting++ foreach-team-char common4-vhs-end
 ;
 
 cyoa-blank: common4-vhs-fit
-	($ Thegroup .. " 'se sigue al instructor de fitness en el videocasete. Todos usan rebozos neon." $) text!
+	($ Thegroup .. " ' sigue al instructor de fitness en la cinta de video. Todo el mundo lleva cintas de sudor de neon." $) text!
 	
 	' .fitness++ foreach-team-char common4-vhs-end
 ;
 
 cyoa-blank: common4-vhs-morale
-	($ "La comedia cinematografica resulta ser terrible segun la mayoria de las normas, pero " .. thegroup .. " 'esta completamente absorbido por ella. Es muy raro ver una pelicula mas alguna." $) text!	morale3+all
-	"La television se apaga durante el medio de la segunda visualizacion, y nunca vuelve a encender." +crtext
+	($ "La pelicula de comedia resulta ser terrible para la mayoria de los estandares, pero " .. thegroup .. " ' esta completamente absorto en el. Es muy raro ver una pelicula mas." $) text!	morale3+all
+	"El televisor se apaga durante la mitad de la segunda visualizacion y nunca vuelve a encenderse." +crtext
 ;
 
 cyoa: common4-vhs-rare
-	"Reproductor de Videocasete" cyoa-title!
-	($ Thegroup .. " 'encontra un refugio abandonado en una casa tabada. Hay poco que quede aqui, excepto un pequeno televisor a pila electrica conectado a un reproductor de videocasetes antiguo.	Hay solo una pelicula en el reproductor de videocasete:" $) text!
-		choice( "Pelicula de Accion" )choice:  common4-vhs-shoot
-		choice( "Grabacion Fitness" )choice: common4-vhs-fit
-		choice( "Pelicula de Comedia" )choice: common4-vhs-morale
-		choice( "Pelicula de Sumo" )choice: common4-vhs-sumo
+	"Reproductor de cintas de video" cyoa-title!
+	($ Thegroup .. " ' encuentra el escondite abandonado de alguien en una casa tapiada. No queda mucho aqui, excepto un pequeno televisor a bateria conectado a un viejo reproductor de VHS. Solo hay una pelicula en el reproductor de cintas de video:" $) text!
+		choice( "Pelicula de accion" )choice:  common4-vhs-shoot
+		choice( "Cinta de fitness" )choice: common4-vhs-fit
+		choice( "Pelicula de comedia" )choice: common4-vhs-morale
+		choice( "Pelicula de sumo" )choice: common4-vhs-sumo
 ;
 
 // Spider attack based on a true story where I ate a spider
 
 cyoa-choice: common4-spider-run
-	($ Thegroup .. " 'salio corriendo de esa casa!	La arana continua caminando lentamente por las paredes de manera espeluznante y asquerosa." $) text!
+	($ Thegroup .. "  sale corriendo de esa casa!	La arana continua caminando lentamente por las paredes de una manera espeluznante y repugnante." $) text!
 	morale--all badfx
 ;
 
 cyoa-choice: common4-spider-smoosh
-	cchar .trait@ "ENLOQUECER!" $= if
-		($ cname .. " 'grita " .. "BERSERKEERRR!" fbold .. "  y luego " .. "ANIQUILA" fbold .. " 'la arana. Solamente queda un rastro de humo de ella." $) text!
+	cchar .trait@ "LOCO!" $= if
+		($ cname .. " gritos " .. "BERSERKEERRR!" fbold .. "  y luego " .. "OBLITERA" fbold .. "  la arana. Solo queda un hilo de humo de ella." $) text!
 		morale2+ goodfx
 	else
-		($ cname .. " 'aplasta la arana. Se oye un crujido particularmente asqueroso." $) text!
+		($ cname .. " ' aplasta a la arana. Se oye un ruido particularmente asqueroso." $) text!
 		cattitude+ if morale-- else morale2- then badfx
 	then
-		($ Thegroup .. " 'busca en la casa y encuentra algo de comida!" $) +crtext 2 5 rnd trunk-food+
+		($ Thegroup .. "  busca por la casa y encuentra algo de comida!" $) +crtext 2 5 rnd trunk-food+
 ;
 
 cyoa-bridge: common4-spider-smoosh-pick
 	solohuman if
 		choosehuman common4-spider-smoosh
 	then;
-	($ "Quien deberia aplastar la arana?" $) cyoa-text!
+	($ "Quien deberia aplastar a la arana?" $) cyoa-text!
 	' common4-spider-smoosh cyoa-human-choice
 ;
 
 // Gourmand logic below, also used in a bandit event but not enough to move and untangle dependencies
-: isgourmand? .trait@ "Gourmet" $= ;
+: isgourmand? .trait@ "Gourmand" $= ;
 : numgourmandfilt args( chara ) <- chara isgourmand? ;
 : numgourmands team-stack ' numgourmandfilt stack-filter nip ;
 
@@ -422,7 +422,7 @@ cyoa-bridge: common4-spider-smoosh-pick
 : cyoa-gourmand-choice team-stack gourmandfilt cyoa-char-stack-choice ;
 
 cyoa-choice: common4-spider-eat
-	($ cname .. " 'mira a su alrededor para asegurarse de que no hay nadie mirando, luego come rapidamente la arana.	Esta crujiente." $) text! goodfx
+	($ cname .. " ' mira alrededor para asegurarse de que nadie lo esta mirando, luego rapidamente se come a la arana. Es crujiente." $) text! goodfx
 	morale++
 	cchar isgourmand? if
 		($ "I was hungry..." pbold .. "
@@ -434,18 +434,18 @@ cyoa-bridge: common4-spider-eat-pick
 	solopet numgourmands 1 < and if
 		choosepet common4-spider-eat
 	then;
-	($ "Quien deberia comer la arana?" $) cyoa-text!
+	($ "Quien deberia comerse a la arana?" $) cyoa-text!
 	' common4-spider-eat cyoa-pet-choice
 	' common4-spider-eat cyoa-gourmand-choice
 ;
 
 cyoa: common4-spider
 	"Ataque de arana gigante" cyoa-title! someicon
-	($ Thegroup .. " 'trata de descansar en una casa pero es atacado por una " .. "arana gigante!" fbold $) text!
-	($ "Bueno, tal vez sea una arana normal pero se ve asquerosa. La arana esta drenando rapidamente " .. thegroup .. "la moral de" $) +crtext
-		choice( "Correr en asco" )choice: common4-spider-run
+	($ Thegroup .. "  intenta descansar en una casa pero es emboscado por una " .. "arana gigante!" fbold $) text!
+	($ "'Bueno tal vez sea una arana normal pero se ve asquerosa. La arana esta drenando rapidamente " .. thegroup .. "''s moral!" $) +crtext
+		choice( "Corre con disgusto" )choice: common4-spider-run
 		choice( "Aplastar arana" )choice: common4-spider-smoosh-pick
-		numpets 0 > numgourmands 0 > or if choice( "Comer Arana" )choice: common4-spider-eat-pick then
+		numpets 0 > numgourmands 0 > or if choice( "Comer arana" )choice: common4-spider-eat-pick then
 		// choosepet cchar charchoice( "comer Arana"
 ;
 
@@ -454,7 +454,7 @@ cyoa: common4-spider
 0 value common4-vending-num
 
 cyoa-choice: common4-vending-go
-	"Se tarda una eternidad en meter los billetes de dolar. La maquina expendedora no deja de escupirlos." text!
+	"Se tarda una eternidad en meter los billetes de dolar. La maquina expendedora sigue escupiendolos." text!
 	cattitude+ if morale-- attitudeREV else morale2- then goodfx
 	common4-vending-num case 
 	1 of 
@@ -466,28 +466,28 @@ cyoa-choice: common4-vending-go
 		1 WEAPON_RIFLE trunk.weapon+ 10 trunk-rifle-shell+
 	endof
 	3 of 
-		"Un revolver cargado de Dolt sale del dispensador!" +crtext
+		"Un revolver Dolt cargado sale de la maquina expendedora!" +crtext
 		1 WEAPON_DOLT trunk.weapon+ 6 trunk-bullet+
 	endof
 	4 of 
-		"Cae una bolsa de papas! No es el tamano habitual, es la familia extrana." +crtext 4 trunk-food+
+		"'Una bolsa de papas fritas cae! No es del tamano habitual de una maquina expendedora, es del enorme tamano familiar." +crtext 4 trunk-food+
 	endof
 	5 of 
-		"Salta un jerron de gasolina del dispensador!" +crtext 30 trunk-gas+
+		"Una lata de gasolina cae de la maquina expendedora!" +crtext 30 trunk-gas+
 	endof
 	6 of 
-		"Sale una caja grande de vendas medicadas del dispensador!" +crtext 3 trunk-medical+
+		"Una caja grande de vendajes medicinales sale de la maquina expendedora!" +crtext 3 trunk-medical+
 	endof 
 	7 of 
 		($ "The vending machine's shape changes! It transforms into an electric car!
-			" .. Thegroup .. " 'se mete." $) +crtext CAR_HYBRID2 get-car 30 trunk-gas+
+			" .. Thegroup .. "  entra." $) +crtext CAR_HYBRID2 get-car 30 trunk-gas+
 	endof
 	8 of 
-		"Salta un palo del dispensador! No estoy seguro de lo que estaba esperando, es un palo." +crtext
+		"'Un palo cae de la maquina expendedora! No estoy seguro de que esperabas, es un palo." +crtext
 		1 WEAPON_TREEBRANCH trunk.weapon+
 	endof
 	9 of 
-		($ "Un sombrero sale del dispensador!" .. cname .. " 'ponelo." $) +crtext
+		($ "Un sombrero sale de la maquina expendedora!" .. cname .. "  se lo pone." $) +crtext
 		1 27 rnd cchar .hattype! morale++
 	endof 
 	endcase
@@ -496,14 +496,14 @@ cyoa-choice: common4-vending-go
 cyoa-bridge: common4-vending-pick
 	solohuman if
 		choosehuman cicon
-		($ cname .. " 'Tendra que meter las monedas rotas y gastadas en la maquina. Esto sera molesto." $) text!
-		cchar charchoice( ": Introduce monedas" )choice: common4-vending-go
-		choice( "Dejemoslo solo." )choice
+		($ cname .. "  tendra que introducir los billetes rotos y arrugados en la maquina expendedora. Esto sera molesto." $) text!
+		cchar charchoice( ": Introduzca billetes" )choice: common4-vending-go
+		choice( "Dejalo en paz" )choice
 	then;
-	($ "Quien debe introducir las monedas casi roidas en la maquina?" $) cyoa-text!
-	"ADVERTENCIA: Este sera un proceso molesto" rbold +crtext
+	($ "Quien deberia introducir los billetes de un dolar en su mayoria podridos en la maquina?" $) cyoa-text!
+	"ADVERTENCIA: Este sera un proceso muy molesto" rbold +crtext
 	' common4-vending-go cyoa-human-choice
-	choice( "Dejalo asi al fin y al cabo" )choice
+	choice( "Dejalo en paz despues de todo" )choice
 ;
 
 : common4-vending-1 1 to common4-vending-num common4-vending-pick ;
@@ -517,27 +517,27 @@ cyoa-bridge: common4-vending-pick
 : common4-vending-9 9 to common4-vending-num common4-vending-pick ;
 
 cyoa: common4-vending
-	"Maquina Expendedora Rara" cyoa-title! someicon
-	($ Thegroup .. " 'se topa con una muy fuera de lugar maquina expendedora. Parece que alguien la fabrico con trozos de hierro derretido. Sus luces aun estan encendidas. Todo en la maquina cuesta $20, y " .. thegroup .. " 'tiene alrededor de esa cantidad en billetes arrugados y deshilachados." $) text!
-		choice( "Dejemoslo solo." )choice
+	"Maquina expendedora extrana" cyoa-title! someicon
+	($ Thegroup .. " .  20  " .. thegroup .. " tiene alrededor de eso en billetes arrugados y deshilachados." $) text!
+		choice( "Dejalo en paz" )choice
 		
 		33 %chance if
-			choice( "PAQUETE DE PISTOLA DE CALIBRE 12" )choice: common4-vending-1
+			choice( "PACK DE DIVERSION DE ESCOPETA" )choice: common4-vending-1
 		else
 			50 %chance if
-				choice( "ROOTEM TOOTEM RIFLE" )choice: common4-vending-2
+				choice( "ROOTIN TOOTIN SHOOTIN" )choice: common4-vending-2
 			else
-				choice( "SET DE REVOLVER REAL" )choice: common4-vending-3
+				choice( "REAL REVOLVER SET" )choice: common4-vending-3
 			then
 		then
 		
 		33 %chance if
-			choice( "BOLSA DE PAPAS" )choice: common4-vending-4
+			choice( "BOLSA DE PATATAS" )choice: common4-vending-4
 		else
 			50 %chance if
-				choice( "LATA DE GASOLINA" )choice: common4-vending-5
+				choice( "GARRAFA DE GASOLINA" )choice: common4-vending-5
 			else
-				choice( "CAJA DE VENDAJES" )choice: common4-vending-6
+				choice( "'CAJA DE VENDAS" )choice: common4-vending-6
 			then
 		then
 		
@@ -547,7 +547,7 @@ cyoa: common4-vending
 			50 %chance if
 				choice( "UN PALO" )choice: common4-vending-8
 			else
-				choice( "UN NUEVO SOMBRERO" )choice: common4-vending-9
+				choice( "UN SOMBRERO NUEVO" )choice: common4-vending-9
 			then
 		then		
 ;

@@ -93,17 +93,17 @@
 	ADJ-ZPCOST zp-buy!
 ;
 
-: trait-nowmake  "Puedes ahora utilizar la pantalla de Caracteres personalizados para hacer que las personas con este perk sean visibles. " ;
-: perk-line1 0 > if "Has subido el nivel del " else trait-nowmake then ;
-: zp-upgradenote? 0 > if "Todos los personajes a los que asignas o han sido asignados este perk disfrutaran de los nuevos efectos!" +crtext then ;
+: trait-nowmake  "Ahora puedes usar la pantalla de personajes personalizados para crear gente con el " ;
+: perk-line1 0 > if "Has mejorado el " else trait-nowmake then ;
+: zp-upgradenote? 0 > if "Todos los personajes a los que asignes o hayas asignado esta ventaja podran disfrutar de los nuevos efectos!" +crtext then ;
 
-: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. " ' atributo!" $) text!
+: trait-buy! args( title name ) ($ trait-nowmake .. <- title pbold .. "  rasgo!" $) text!
 <- name 0 shared-buy! goodfx ;
 
 : perk-buy! args( title name level ) 
-	($ <- level perk-line1 .. <- title pbold .. " ' perque!" $) text!
+	($ <- level perk-line1 .. <- title pbold .. "  ventaja!" $) text!
 	<- level zp-upgradenote? 
-	<- level 1 > if "Este perque ha alcanzado el nivel maximo!" rainbold +crtext then
+	<- level 1 > if "Esta ventaja ha alcanzado el nivel maximo!" rainbold +crtext then
 	<- name <- level shared-buy! goodfx 
 ;
 
@@ -117,23 +117,23 @@ defer gnomeback
 // Trait/Perk view and confirm
 // Type: 0 for trait unlock, 1 for perk unlock
 
-: unlockupgrade? 1 < if "Desbloquea " else "Subir nivel " then ;
-: traitperk? 1 < if " 'Atributo" else " ' Perque" then ;
+: unlockupgrade? 1 < if "Desbloquear " else "Mejora " then ;
+: traitperk? 1 < if "  Rasgo" else "  Ventaja" then ;
 : $traitperk 1 < if perkdef{ $trait } else perkdef{ $perk } then ;
 
 : shared-confirm! args( name level handler type exit )
 	<- name cyoa-title!
 	perkdef{ defperks <- name <- type $traitperk desc@ } text!
-	choice( "ATRAS" )choice <- exit cyoa-choice-handler!
+	choice( "VOLVER" )choice <- exit cyoa-choice-handler!
 	// Could try splitting this zpcost section into own word if I do upgrading through CustChar menu
 	// Will have to include a zpcost calc
 	zpcost? if
-		choice( <- level unlockupgrade? .. <- name pbold .. <- type traitperk? .. "! - " .. ADJ-ZPCOST .. " ' ZP" pbold )choice <- handler cyoa-choice-handler!
+		choice( <- level unlockupgrade? .. <- name pbold .. <- type traitperk? .. "! - " .. ADJ-ZPCOST .. " " pbold )choice <- handler cyoa-choice-handler!
 	then 
 		<- level 1 < if 
-			($ "Costa " .. ADJ-ZPCOST .. " ' ZP para desbloquear!" $) 
+			($ "Cuesta " .. ADJ-ZPCOST .. "  ZP para desbloquear!" $) 
 		else
-			($ " 'COSTA: " .. ADJ-ZPCOST .. " ' ZP" $) 
+			($ "  COSTE: " .. ADJ-ZPCOST .. " " $) 
 		then +text +cr zptally
 ;
 
@@ -147,7 +147,7 @@ defer gnomeback
 
 // Shows the choice
 : perk-view! args( name cost handler )
-	choice( <- name $upper pbold .. " - " .. <- cost .. " ' ZP" pbold )choice <- handler cyoa-choice-handler!
+	choice( <- name $upper pbold .. " - " .. <- cost .. " " pbold )choice <- handler cyoa-choice-handler!
 ;
 	
 // END the prep logic
@@ -155,22 +155,22 @@ defer gnomeback
 // Temporary Dude	
 
 cyoa: perk-dingus gstats{
-	"Perquisitos y Atributos" cyoa-title!
+	"Ventajas y rasgos" cyoa-title!
 		
 	"I'm developing an amazing new product
 	I call them... unlocks. Or 'uncks' for short" text!
 	
 	zombo-point 3 < if
-		"P"
+		"'Vas a necesitar conseguir algunos Zombo Points para ver a que me refiero! Tambien me los acabo de inventar."
 	else
-		"Contempla la magia de las 'cheevos'... espere, me referia a desbloquear."
+		"'Se testigo de la magia de los 'cheevos'!		Espera, queria decir 'desbloqueos'."
 	then +crtext +cr zptally
 	
-	choice( "Deja esto por ahora" )choice
+	choice( "Dejalo por ahora" )choice
 	
 } ;
 
 ' perk-dingus to perkback
 
 	(* gstats{ trait-specialist } 0 > if
-		($ "Has comprado todo lo mio " .. "'uncks" pbold .. " ' por ahora.		Revisa la proxima actualizacion! Vendre mas!" $) text! *)
+		($ "Compraste todos mis " .. "''uncks'" pbold .. " ' para el momento. 	Vuelva a visitarnos proximamente! Tendre mas!'" $) text! *)

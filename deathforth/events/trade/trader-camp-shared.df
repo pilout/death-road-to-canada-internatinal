@@ -30,7 +30,7 @@ map{ regiondef{
 ;
 
 : camping-road-start
-	"DIJAS QUE ERA UN BUEN SONO, Tal vez alguien se curo o no esta enfermo mas o tuvo un sueno raro o algo asi"
+	"DIJE QUE ERA UN BUEN SUENO, QUIZAS ALGUIEN SE CURO O YA NO ESTA ENFERMO O TUVO UN SUENO EXTRANO O ALGO ASI"
 	$cyoa-ok-dialog
 ;
 
@@ -49,8 +49,8 @@ map{ regiondef{
 ;
 
 : cyoa-chatter args( thing )
-	"HOLA, Tal vez alguien pueda tratar mis heridas o mi primo tiene una bodega oculta en los bosques o escuche una leyenda urbana"
-	" 'PARA INVESTIGAR COMO UNA MISSION LARGA O PODRIAMOS SOLO HABLAR DE COSAS" .. $cyoa-ok-dialog
+	"HEY QUIZAS ALGUIEN PUEDE CURAR MIS HERIDAS O MI PRIMO TIENE UN BUNKER OCULTO EN EL BOSQUE O ESCUCHE ALGUNA LEYENDA URBANA"
+	" PARA INVESTIGAR COMO UNA MISION SECUNDARIA PARA ALARGAR EL VIAJE O PODEMOS HABLAR DE OTRAS COSAS" .. $cyoa-ok-dialog
 	// TODO: ... And then a side quest could be QUEUED into the road event stack
 ;
 
@@ -75,25 +75,25 @@ map{ regiondef{
 cyoa{ regiondef{
 
 cyoa-choice: cyoa-fire-rest
-	someicon clear-cyoa "Pasa un dia en el campamento comercial." text!
+	someicon clear-cyoa "Un dia pasa en el campamento de comercio." text!
 	road{ dailyheal } basic-tone
-	($ Thegroup .. " 'puede obtener algun descanso necesario." $) +crtext
+	($ Thegroup .. "  puede conseguir algo de descanso muy necesario." $) +crtext
 	team-count -2 *  LOOT_FOOD trunk.loot+ road{ 1 calendar-day+ } sleep 
 	' .morale++ foreach-team-char o'clock@ 3 6 rnd + o'clock
 ;
 
 cyoa: cyoa-fire
-	"Fogon de comerciante" cyoa-title!
+	"'Fogata del comerciante" cyoa-title!
 	weather@ 0.25 < if
-		"La fogata es muy acogedora." text!
+		"El fuego es muy acogedor." text!
 	else
 		// TODO: Change camp options based on weather
-		"El clima en el campamento es desagradable." text!
+		"El clima en el campamento es miserable." text!
 	then
-	($ Thegroup .. " podria quedarme en este campamento un dia para descansar y revisar mis heridas, si puedes permitirte el tiempo y la comida." $) +crtext
+	($ Thegroup .. "  podria quedarse en este campamento un dia para descansar y revisar las heridas, si puede ahorrar tiempo y comida." $) +crtext
 	choice( "No hay tiempo para descansar" )choice
 	trunk-food team-count 2 * 1 - > if
-		choice( "Descansar un dia" )choice: cyoa-fire-rest
+		choice( "Descansa por un dia" )choice: cyoa-fire-rest
 	then
 ;
 } }
@@ -139,56 +139,56 @@ cyoa: cyoa-fire
 ;
 
 
-: himher if "suya" else "el" then ;
+: himher if "ella" else "le" then ;
 
 : gravename .thingseed@ dup 1 & seeded-name ;
 : gravehimher .thingseed@ 1 & himher ;
 
 : mourner-chat dup .followed args( me grave )
-	 ($ "Ay, pobre " .. <- grave gravename .. ". Te conoci " .. <- grave gravehimher .. ", " .. pchar .name@ .. "..." $)
+	 ($ "Pobre " .. <- grave gravename .. ". Yo sabia " .. <- grave gravehimher .. ", " .. pchar .name@ .. "..." $)
 	 <- me .sprayit
 ;
 
 0 stack
-	"Oi que algunas personas se van para Canada, jajaja " trollface .. shove
-	"Que tal esos zombies, que dolor de cabeza verdad?" shove
-	"Cuidado ahi fuera!" shove
+	"Escuche que algunas personas se van a Canada, jajaja " trollface .. shove
+	"Que hay de esos zombis, que fastidio soy, verdad?" shove
+	"Ten cuidado ahi fuera!" shove
 	"Heh, hang in there..." shove
 	"Cuidado con el payaso." shove
-	"Oye, hay un monstruo alli llamado El G*rf." shove
-	"Te lastimaras el ojo, nino!" shove
-	"Solo hay alimentos en latas viejas para comer!" shove
-	"Necesitaras una gran cantidad de fuego para llegar a Canada." shove
-	"No, TU calma!" rbold shove
-	"Supongo que Canada no existe! Es una conspiracion!" shove
-	"Siempre he sabido que la apocalipsis de los zombis sucederia!" shove
-	"Estoy bien con los zombis pero no puedo lidiar con fantasmas." shove
-	"La Fuente de los Deseos se esconde en la Cripta de la Decadencia." shove
-	"Fui una gran equipo una vez, pero todos fueron comidos." shove
+	"'Escuche que hay un monstruo ahi fuera llamado The G*rf." shove
+	"'Te sacaras el ojo, nino!" shove
+	"Nada mas que viejas latas de comida para comer!" shove
+	"'Necesitaras una potencia de fuego seria para llegar a Canada." shove
+	"No, tu calmate!" rbold shove
+	"'Apuesto a que Canada ni siquiera existe! Es una conspiracion!" shove
+	"Siempre supe que sucederia el apocalipsis zombie!" shove
+	"'Estoy bien con los zombis pero no puedo soportar los fantasmas" shove
+	"El Pozo de los Deseos se esconde en la Cripta de la Decadencia" shove
+	"Estuve en un equipo grande una vez pero todos fueron comidos." shove
 	"If I could only find a suit of plate armor..." shove
-	"Nunca me voy de este campamento!" shove
-	"Los gatos aun existen, pero han crecido mucho mas grande!" shove
-	"Estas haciendo esto!" shove
+	"Nunca me ire de este campamento!" shove
+	"Los gatos todavia existen, pero ahora son muy grandes!" shove
+	"Lo estas haciendo!" shove
 	"Buena suerte con Canada!" shove
-	"Sigue moviendote! Es la mejor manera de no ser mordido!" shove
-	"Solia tener un lanzallamas, pero un companero me lo robo" shove
-	"No intercambies demasiada comida, puede que la necesites despues" shove
-	"No guardes tu comida, intercambia antes de que los bandidos se apoderen de ella" shove
-	"La Carretera de la Muerte es realmente tan mala como sugiere el nombre?" shove
+	"Sigue moviendote! Esa es la mejor manera de no ser mordido!" shove
+	"Solia tener un lanzallamas pero un companero de equipo me lo robo" shove
+	"No cambies demasiada comida, podrias necesitarla mas tarde" shove
+	"'No acapares tu comida, cambiala antes de que los bandidos la obtengan!" shove
+	"Es realmente tan malo el Camino de la Muerte como su nombre lo indica?" shove
 	"What is this... Can-adoh you speak of?" shove
-	"Cual es tu tipo de comida enlatada favorito?" shove
-	"El gasolina puede echarse a perder?" shove
+	"'Cual es tu tipo favorito de comida enlatada?" shove
+	"Puede la gasolina echarse a perder?" shove
 	"Quien en su sano juicio se meteria en un tanque de gasolina?" shove
-	RAINBOW 0x dd $chr .. " 'TODOS LOS DIAS EN LA CARRETERA DE LA MUERTE! ES UN DIA PARA HACER AMIGOS! "  .. 0x de $chr .. shove
+	RAINBOW 0x dd $chr .. " TODOS LOS DIAS EN EL CAMINO DE LA MUERTE! ES UN DIA PARA HACER AMIGOS! "  .. 0x de $chr .. shove
 	RAINBOW 0x dd $chr .. " Every day on the Death Road is a new adventuuuure! " .. 0x de $chr .. shove
-	"Me tomo un pequeno descanso antes de volver a la Carretera de la Muerte" pbold shove
-	"Alguien deberia arreglar las carreteras! " rbold DX .. shove
-	"Solo toma las cosas un dia a la vez." pbold shove
-	"Cambiaria mi fortuna por un rollo de papel higienico de verdad" shove
-	"Consejo secreto: Los carritos de compra son el arma definitiva " ;) .. shove
-	"'Sigue muriendo? MEJORATE' " trollface .. shove
-	"Soy un error" shove
-	"Crees que puedes llegar a Canada? Eso es basura de caballo!" shove
+	"'Me tomare un pequeno descanso antes de volver al Camino de la Muerte" pbold shove
+	"Alguien necesita arreglar las carreteras! " rbold DX .. shove
+	"Solo toma las cosas dia a dia" pbold shove
+	"Cambiaria mi fortuna por un verdadero rollo de papel higienico" shove
+	"Consejo secreto: los carritos de compras son el arma definitiva " ;) .. shove
+	"Sigues muriendo? VETE A LO SEGURO " trollface .. shove
+	"SOY UN ERROR" shove
+	"'Crees que puedes llegar a Canada? Eso es basura de caballo!" shove
 	"Hola. Se amable con los animales." shove
 value random-sayings-base
 random-sayings-base shuffles var random-sayings
@@ -211,7 +211,7 @@ random-sayings-base shuffles var random-sayings
 : camper-chat camper-same-chat ; // Change to camper-unique-chat if you don't like this way
 
 // TODO: Make it so traders get angry if you loot their fridge etc.
-: getout-chat args( me ) "HOLA! SALID DE NUESTRA CASA!" <- me .sprayit  ;
+: getout-chat args( me ) "Eh! Sal de nuestra casa!" <- me .sprayit  ;
 
 : trader-event args( me eventid ) THING_EVENT_TIMER <- eventid <> if then;
 
@@ -482,7 +482,7 @@ random-sayings-base shuffles var random-sayings
 
 	<- me .anim.substate@ 5 >= if
 		0 <- me .anim.substate! 90 <- me .fatigue!
-		rnd5050 if "Siente esa CHORRONA!" else "NADA DE DOLEOR!" cr$ .. "NADA DE AVANCE!" .. then DEATH swap .. <- me .yellmsg
+		rnd5050 if "Siente ese PUMP!" else "NO DOLOR!" cr$ .. "NO HAY GANANCIA!" .. then DEATH swap .. <- me .yellmsg
 	then;
 	<- me .anim.substate@ 1+ <- me .anim.substate!
 

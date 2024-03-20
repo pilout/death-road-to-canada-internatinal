@@ -8,21 +8,21 @@ map{ regiondef{
 	// Pick random lot on specific row
 	: special-row-lot 1 maxrows clamp args( row )
 		<- row lotsperblock * dup lotsperblock 1- - ($
-			"CURBUILD " .. curbuild ..
-			" ' LOTMAX " .. lotmax ..
-			" ' LOTE ESPECIAL " .. special-lot ..
-			" ' CONSTRUCCION ESPECIAL " .. special-lot-build ..
-			"  PLOTS-LEFT  + 1 " .. plots-left
+			"CONSTRUIR " .. curbuild ..
+			"  MAXLOTES " .. lotmax ..
+			"  LOTESESPECIALES " .. special-lot ..
+			"  CONSTRUCCIONESESPECIALES " .. special-lot-build ..
+			"  LOTESRESTANTES " .. plots-left
 		$) print to special-lot
 	;
 	
 	: curbuildprinter
 		($
-			"CURBUILD " .. curbuild ..
-			" ' LOTMAX " .. lotmax ..
-			" ' LOTE ESPECIAL " .. special-lot ..
-			" ' CONSTRUCCION ESPECIAL " .. special-lot-build ..
-			"  PLOTS-LEFT  + 1 " .. plots-left
+			"CONSTRUIR " .. curbuild ..
+			"  MAXLOTES " .. lotmax ..
+			"  LOTESESPECIALES " .. special-lot ..
+			"  CONSTRUCCIONESESPECIALES " .. special-lot-build ..
+			"  LOTESRESTANTES " .. plots-left
 		$) print
 	;
 
@@ -53,7 +53,7 @@ map{ regiondef{
 
 	: example-lot-build args( locid )
 
-		"COMPRA Y VETE" sign-text!
+		"COMPRAR Y LLEVAR" sign-text!
 		0.0 0.5 1 sign-bg!
 		0.0 0.5 1 sign-border!
 		1 1 1 sign-fg!
@@ -67,7 +67,7 @@ map{ regiondef{
 
 	: example-special-lot-premission
 		standard-lot
-		"lo que sea" to special-lot-tags
+		"cualquier etiqueta" to special-lot-tags
 		' example-lot-build to special-lot-build
 
 		premission
@@ -80,7 +80,7 @@ map{ regiondef{
 		
 		"events/inner/shoploc.df" $load
 		
-		"bAR" to special-lot-tags
+		"barra" to special-lot-tags
 		' make-a-pub to special-lot-build premission
 	;
 	
@@ -89,7 +89,7 @@ map{ regiondef{
 
 		"events/inner/shoploc.df" $load	
 
-		"tIENDA DE ARMAS" to special-lot-tags
+		"armeria" to special-lot-tags
 		' make-a-gunshop to special-lot-build premission
 	;
 
@@ -98,7 +98,7 @@ map{ regiondef{
 		
 		"events/inner/shoploc.df" $load
 		
-		"tienda de comida" to special-lot-tags
+		"tienda de comestibles" to special-lot-tags
 		' make-a-foodshop to special-lot-build premission
 	;
 	
@@ -166,7 +166,7 @@ map{ regiondef{
 		
 		"events/inner/toughhouseloc.df" $load
 		
-		"apartamento de rescate" to special-lot-tags
+		"departamentoderescatado" to special-lot-tags
 		' make-a-rescueapt to special-lot-build premission
 	;
 	
@@ -175,7 +175,7 @@ map{ regiondef{
 		
 		"events/inner/toughhouseloc.df" $load
 		
-		"apartamento de perro de rescate" to special-lot-tags
+		"departamentoperrrescatado" to special-lot-tags
 		' make-a-barkapt to special-lot-build premission
 	;
 	
@@ -184,7 +184,7 @@ map{ regiondef{
 		
 		"events/inner/toughhouseloc.df" $load
 		
-		"casa infestada" to special-lot-tags
+		"casainfestada" to special-lot-tags
 		' make-a-infest to special-lot-build premission
 	;
 	
@@ -193,7 +193,7 @@ map{ regiondef{
 		
 		"events/inner/toughhouseloc.df" $load
 		
-		"casa publicitaria" to special-lot-tags
+		"casabanderas" to special-lot-tags
 		' make-a-banner to special-lot-build premission
 	;
 	
@@ -202,7 +202,7 @@ map{ regiondef{
 		
 		"events/inner/shoploc.df" $load
 		
-		"tienda deportiva" to special-lot-tags
+		"tiendadedeportes" to special-lot-tags
 		' make-a-sportshop to special-lot-build premission
 	;
 	
@@ -211,7 +211,7 @@ map{ regiondef{
 		
 		"events/inner/shoploc.df" $load
 		
-		"tienda de ropa deportiva" to special-lot-tags
+		"tiendadedeportistas" to special-lot-tags
 		' make-a-jockshop to special-lot-build premission
 	;
 	
@@ -220,7 +220,7 @@ map{ regiondef{
 		
 		"events/inner/shoploc.df" $load
 		
-		"tienda camping" to special-lot-tags
+		"tiendadecampamento" to special-lot-tags
 		' make-a-camping to special-lot-build premission
 	;
 	
@@ -238,7 +238,7 @@ map{ regiondef{
 		
 		"events/inner/shoploc.df" $load
 		
-		"tienda de paraguas" to special-lot-tags
+		"tiendadeparaguas" to special-lot-tags
 		' make-a-umbrella to special-lot-build premission
 	;
 	
@@ -247,7 +247,7 @@ map{ regiondef{
 		
 		"events/inner/shoploc.df" $load
 		
-		"drogueria" to special-lot-tags
+		"farmacia" to special-lot-tags
 		' make-a-drugshop to special-lot-build premission
 	;
 	
@@ -293,7 +293,7 @@ map{ regiondef{
 		
 		"events/inner/coffeeloc.df" $load
 		
-		"cafeteria" to special-lot-tags
+		"cafe" to special-lot-tags
 		' make-a-coffee to special-lot-build premission
 	;
 	
@@ -301,31 +301,31 @@ map{ regiondef{
 	
 	: bar choice( "BAR" )choice: bar-premission ;
 	: gunshop choice( "TIENDA DE ARMAS" )choice: gunshop-premission ;
-	: foodshop choice( "TIENDA DE COMestibles" )choice: foodshop-premission ;
-	: minimart choice( "MINIMART" )choice: minimart-premission ;
+	: foodshop choice( "TIENDA DE COMESTIBLES" )choice: foodshop-premission ;
+	: minimart choice( "TIENDA DE CONVENIENCIA" )choice: minimart-premission ;
 	: drugshop choice( "FARMACIA" )choice: drugshop-premission ;
-	: hardwareshop choice( "TIENDA DE HERRAMIENTAS" )choice: hardwareshop-premission ;
-	: police choice( "ESTACION DE POLICIA" )choice: police-premission ;
+	: hardwareshop choice( "FERRRETERIA" )choice: hardwareshop-premission ;
+	: police choice( "COMISARIA" )choice: police-premission ;
 	: clinic choice( "CLINICA MEDICA" )choice: clinic-premission ;
-	: campingshop choice( "TIENDA DE suministros para acampar" )choice: campingshop-premission ;
+	: campingshop choice( "TIENDA DE ARTICULOS DE CAMPAMENTO" )choice: campingshop-premission ;
 	: bannerhouse choice( "REFUGIO PERDIDO" )choice: bannerhouse-premission ;
-	: gym choice( "GIMNASIO FUERZA Y FISIOLOGIA" )choice: gym-premission ;
-	: rescueapt choice( "DEPOSITO CON BANNER DE AYUDA" )choice: rescueapt-premission ;
+	: gym choice( "GIMNASIO DE FUERZA Y FITNESS" )choice: gym-premission ;
+	: rescueapt choice( "'APARTAMENTO CON CARTEL DE AYUDA" )choice: rescueapt-premission ;
 	: office choice( "EDIFICIO DE OFICINAS" )choice: office-premission ;
-	: jockshop choice( "TIENDA DE DEPORTE" )choice: jockshop-premission ;
+	: jockshop choice( "TIENDA DE ARTICULOS DEPORTIVOS" )choice: jockshop-premission ;
 	: sporting choice( "TIENDA DE ARTICULOS DEPORTIVOS" )choice: sporting-premission ;
-	: infestedhouse choice( "FORTALEZA INFECTADA" )choice: infestedhouse-premission ;
+	: infestedhouse choice( "FORTALEZA INFESTADA" )choice: infestedhouse-premission ;
 	: umbrellashop choice( "TIENDA DE PARAGUAS" )choice: umbrellashop-premission ;
 	
 	: arcade choice( "ARCADE" )choice: arcade-premission ;
 	: restaurant choice( "RESTAURANTE" )choice: restaurant-premission ;
 	: bookstore choice( "LIBRERIA" )choice: bookstore-premission ;
-	: furnshop choice( "TIENDA DE MOBILIARIO" )choice: furnshop-premission ;
+	: furnshop choice( "TIENDA DE MUEBLES" )choice: furnshop-premission ;
 	: coffeeshop choice( "CAFETERIA" )choice: coffee-premission ;
 	
 	// Below were going to be rare, but cancelled the idea of rare special-lots
 	
-	: rescuedogapt choice( "DEPARTAMENTO CON PANCARTA DE 'LadrIDO" )choice: rescuedogapt-premission ;
+	: rescuedogapt choice( "'APARTAMENTO CON CARTEL DE LADRA" )choice: rescuedogapt-premission ;
 	: petshop choice( "TIENDA DE MASCOTAS" )choice: petshop-premission ;
 	
 	// fast food place
@@ -379,7 +379,7 @@ regiondef{
 		then
 		drawcard
 		special-lot-deck depths 0= if
-			choice( "Sale de alli" )choice
+			choice( "Alejarse" )choice
 		else
 			drawcard
 		then

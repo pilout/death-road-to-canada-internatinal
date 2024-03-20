@@ -18,7 +18,7 @@ gstats{
 ;
 
 : gnome-remaining
-	gnome-unlockcalc 0 > if ($ " ' DESBLOQUEA IZQUIERDA: " pbold .. gnome-unlockcalc $) +text then
+	gnome-unlockcalc 0 > if ($ " DESBLOQUEOS RESTANTES " pbold .. gnome-unlockcalc $) +text then
 ;
 
 : gnome-stockleft
@@ -28,7 +28,7 @@ gstats{
 }
 
 : gnome-buy! args( name cost ) 
-	($ "YA DESBLOQUEASTE: " .. <- name pbold $) text!
+	($ "DESBLOQUEASTE " .. <- name pbold $) text!
 	gstats{ ' ugnome-unlocks ++ }
 	<- cost zp-buy!	goodfx
 ;
@@ -36,11 +36,11 @@ gstats{
 : gnome-confirm! args( name cost handler exit )
 	<- name cyoa-title!
 	// ($ <- name .. ": " $) text!
-	choice( "ATRAS" )choice <- exit cyoa-choice-handler!
+	choice( "VOLVER" )choice <- exit cyoa-choice-handler!
 	gstats{ zombo-point } <- cost 1 - > if
-		choice( "Desbloquea " .. <- name pbold .. "! - " .. <- cost .. " ' ZP" pbold )choice <- handler cyoa-choice-handler!
+		choice( "Desbloquear " .. <- name pbold .. "! - " .. <- cost .. " " pbold )choice <- handler cyoa-choice-handler!
 	then 
-		($ "Costa " .. <- cost .. " ' ZP para desbloquear!" $) rbold +crtext zptally
+		($ "Cuesta " .. <- cost .. "  ZP para desbloquear!" $) rbold +crtext zptally
 ;
 
 (*
@@ -51,48 +51,48 @@ cyoa: ugnome--buy
 	"" +crtext ;
 cyoa-blank: ugnome--view
 	"" pbold text!
-	($ "Aumenta tu ZP maximo a 15!" .. "NOTA:" pbold .. " ' Puedes desbloquear esto de forma gratuita ganando el juego en cualquier modo." $) +crtext
+	($ "Aumenta tu ZP maximo a 15!	" .. "NOTA:" pbold .. "  Puedes desbloquear esto gratis ganando el juego en cualquier modo." $) +crtext
 	ugnome- ' ugnome--buy ' gnomeback gnome-confirm! ;
 *)
 
 : gnomewallet-say
-	"TE HICE UN CARTONCITO PARA TI	QUE TE PERMITIRA ALMACENAR MAS PUNTOS ZOMBO	ES MAS COMO UN MONEDERO" pbold text!
+	"' TE HICE UNA PEQUENA CARTERA QUE TE PERMITIRA TENER MAS PUNTOS ZOMBO ES MAS COMO UN MONEDERO" pbold text!
 ;
 : gnomewallet-buysay
-	"AUMENTO MAXIMO DE PUNTOS ZOMBO!" cyoa-title!
-	"Punto de Zombo Cap Aumentado!" +crtext
+	" INCREMENTO MAXIMO DE PUNTOS ZOMBO!" cyoa-title!
+	" Limite de puntos Zombo aumentado!" +crtext
 ;
 	
-: ugnome-max1 "Aumento Max ZP" GNOMECOST_1 ;
-: ugnome-max2 "Aumento Max ZP" 15 ;
-: ugnome-max3 "Aumento Maximo de ZP" GNOMECOST_2 ;
-: ugnome-max5 "Aumento de ZP Maximo" GNOMECOST_3 ;
-: ugnome-maxC "Logros para alcanzar el maximo de ZP" GNOMECOST_5 ;
-: ugnome-toilet1 "Actualizacion de inodoro I" GNOMECOST_1 ;
-: ugnome-toilet2 "Actualizacion de inodoro II" GNOMECOST_2 ;
+: ugnome-max1 "Aumento maximo de ZP" GNOMECOST_1 ;
+: ugnome-max2 "Aumento maximo de ZP" 15 ;
+: ugnome-max3 "Aumento maximo de ZP" GNOMECOST_2 ;
+: ugnome-max5 "Aumento maximo de ZP" GNOMECOST_3 ;
+: ugnome-maxC "Cheevos al maximo ZP" GNOMECOST_5 ;
+: ugnome-toilet1 "Mejora de inodoro I" GNOMECOST_1 ;
+: ugnome-toilet2 "Mejora de inodoro II" GNOMECOST_2 ;
 : ugnome-toilet3 "Toilet Upgrade III" GNOMECOST_3 ;
-: ugnome-toilet4 "Actualizacion de inodoro ULTIMATE" GNOMECOST_5 ;
-: ugnome-trader1 "Gnomo del campamento de comercio" GNOMECOST_1 ;
-: ugnome-trader2 "Actualizacion de gnomo comerciante" GNOMECOST_2 ;
-: ugnome-trader3 "Gnomo comerciante ULTIMATE" GNOMECOST_3 ;
-: ugnome-extraZP1 "ZP extra I" 5 ;
-: ugnome-extraZP2 "ZP extra II" GNOMECOST_1 ;
+: ugnome-toilet4 "Mejora de inodoro DEFINITIVA" GNOMECOST_5 ;
+: ugnome-trader1 "Gnomo del campamento de comerciantes" GNOMECOST_1 ;
+: ugnome-trader2 "Actualizacion del gnomo comerciante" GNOMECOST_2 ;
+: ugnome-trader3 "Gnomo comerciante MAXIMO" GNOMECOST_3 ;
+: ugnome-extraZP1 "ZP adicional I" 5 ;
+: ugnome-extraZP2 "ZP adicional II" GNOMECOST_1 ;
 : ugnome-extraZP3 "Extra ZP III" 15 ;
-: ugnome-extraZP4 "ZP extra ULTIMATE" GNOMECOST_2 ;
+: ugnome-extraZP4 "ZP adicional MAXIMO" GNOMECOST_2 ;
 : ugnome-raretrader1 "Mas comerciantes raros I" GNOMECOST_1 ;
 : ugnome-raretrader2 "Mas comerciantes raros II" GNOMECOST_2 ;
 : ugnome-raretrader3 "More Rare Traders III" GNOMECOST_3 ;
-: ugnome-raretrader4 "Mas Rare Traders MAX" GNOMECOST_5 ;
-: ugnome-rarelocs1 "Buscador Raro I" GNOMECOST_2 ;
-: ugnome-rarelocs2 "Buscador Raro II" GNOMECOST_3 ;
+: ugnome-raretrader4 "Mas comerciantes raros MAXIMO" GNOMECOST_5 ;
+: ugnome-rarelocs1 "Buscador de rarezas I" GNOMECOST_2 ;
+: ugnome-rarelocs2 "Buscador de rarezas II" GNOMECOST_3 ;
 : ugnome-rarelocs3 "Rare Finder III" GNOMECOST_5 ;
-: ugnome-rarelocs4 "Buscador Raro ULTIMATE" GNOMECOST_5 ;
-: ugnome-jerkstore1 "Casita del Desafio" GNOMECOST_3 ;
+: ugnome-rarelocs4 "Buscador de rarezas MAXIMO" GNOMECOST_5 ;
+: ugnome-jerkstore1 "Cabana de desafios" GNOMECOST_3 ;
 
-: ugnome-max6 "Aumenta tu ZP maxima" GNOMECOST_5 ;
-: ugnome-max7 "Aumenta tu ZP maxima" 75 ;
-: ugnome-tnomemax1 "DOBLE TNOMEY" 75 ;
-: ugnome-tnomemax2 "TRIPLE TNOMEY" 99 ;
+: ugnome-max6 "Aumento maximo de ZP" GNOMECOST_5 ;
+: ugnome-max7 "Aumento maximo de ZP" 75 ;
+: ugnome-tnomemax1 "TNOMEY DOBLE" 75 ;
+: ugnome-tnomemax2 "TNOMEY TRIPLE" 99 ;
 	
 cyoa: ugnome-ZPmax1-buy
 	gstats{ 15 to ZOMBOP_CAP }
@@ -100,7 +100,7 @@ cyoa: ugnome-ZPmax1-buy
 	gnomewallet-buysay ;
 cyoa-blank: ugnome-ZPmax1
 	gnomewallet-say
-	($ "Aumenta tu ZP maximo a 15!" .. "NOTA:" pbold .. " ' Puedes desbloquear esto de forma gratuita ganando el juego en cualquier modo." $) +crtext
+	($ "Aumenta tu ZP maximo a 15!	" .. "NOTA:" pbold .. "  Puedes desbloquear esto gratis ganando el juego en cualquier modo." $) +crtext
 	ugnome-max1 ' ugnome-ZPmax1-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-ZPmax2-buy
@@ -109,7 +109,7 @@ cyoa: ugnome-ZPmax2-buy
 	gnomewallet-buysay ;
 cyoa-blank: ugnome-ZPmax2
 	gnomewallet-say
-	($ "Te eleva tu ZP maxima a 20!" .. "NOTA:" pbold .. " 'Puedes desbloquearlo gratis al ganar el juego en modo Deadlier Road!" $) +crtext
+	($ "Aumenta tu maximo de ZP a 20!" .. "NOTA:" pbold .. " Puedes desbloquear esto gratis ganando el juego en el modo Deadlier Road!" $) +crtext
 	ugnome-max2 ' ugnome-ZPmax2-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-ZPmax3-buy
@@ -117,8 +117,8 @@ cyoa: ugnome-ZPmax3-buy
 	ugnome-max3 gnome-buy!
 	gnomewallet-buysay ;
 cyoa-blank: ugnome-ZPmax3
-	"TE HE DEJADO UN MONEDERO MAS GRANDE	QUE TE PERMITIRA ALMACENAR MAS PUNTOS ZOMBO" pbold text!
-	($ "Setenta y ocho millones de seiscientos ochenta y cinco mil ochocientos treinta y dos" $) +crtext
+	"'TE HICE UNA CARTERA MAS GRANDE QUE TE PERMITIRA GUARDAR MAS PUNTOS ZOMBO ES CASI UN BOLSO" pbold text!
+	($ "Aumenta tu maximo de ZP a 30! El rasgo o beneficio mas caro esta muy por debajo de los 30 puntos, pero Unomey atiende a una clientela mas exclusiva." $) +crtext
 	ugnome-max3 ' ugnome-ZPmax3-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-ZPmax5-buy
@@ -126,8 +126,8 @@ cyoa: ugnome-ZPmax5-buy
 	ugnome-max5 gnome-buy!
 	gnomewallet-buysay ;
 cyoa-blank: ugnome-ZPmax5
-	"Diecisiete millones de ciento ochenta y ocho mil setecientos treinta y siete" pbold text!
-	($ "Veintinueve millones de quinientos cincuenta y dos mil ocho" $) +crtext
+	"'PARECIO GUSTARTE EL ULTIMO BOLSO QUE TE HICE ASI QUE AQUI TIENES UN BOLSO MEJOR MUY DE MODA" pbold text!
+	($ "'Aumenta tu maximo de ZP a 50! Esto te permite comprar los desbloqueos mas caros de Unomey." $) +crtext
 	ugnome-max5 ' ugnome-ZPmax5-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-ZPmax6-buy
@@ -135,8 +135,8 @@ cyoa: ugnome-ZPmax6-buy
 	ugnome-max6 gnome-buy!
 	gnomewallet-buysay ;
 cyoa-blank: ugnome-ZPmax6
-	"Diecinueve millones de doscientos trece mil unocientos setenta y cinco" pbold text!
-	($ "Veinte millones de trescientos ochenta y cinco mil novecientos sesenta y seis" $) +crtext
+	"UN NUEVO AVANCE PERO ES REALMENTE POSIBLE EL BOLSO PERFECTO? TAL VEZ EN ALGUN FUTURO BRILLANTE" pbold text!
+	($ "Aumenta tu maximo de ZP a 75! Esto te permite acumular aun mas puntos!" $) +crtext
 	ugnome-max6 ' ugnome-ZPmax6-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-ZPmax7-buy
@@ -144,132 +144,132 @@ cyoa: ugnome-ZPmax7-buy
 	ugnome-max7 gnome-buy!
 	gnomewallet-buysay ;
 cyoa-blank: ugnome-ZPmax7
-	"Diecinueve millones de ochenta y cinco mil trescientos dosdos" pbold text!
-	($ "Once millones doscientos setenta y cinco mil ochocientos ochenta y tres" $) +crtext
+	"'DIJERON QUE NO SE PODIA HACER EL BOLSO DEFINITIVO ES UN BOLSO PEQUENO QUE VA EN EL ULTIMO" pbold text!
+	($ "Aumenta tu maximo de ZP a 99! La ultima actualizacion de ZP!" $) +crtext
 	ugnome-max7 ' ugnome-ZPmax7-buy ' gnomeback gnome-confirm! ;
 
 cyoa: ugnome-toilet1-buy
 	gstats{ 1 to ugnome-toilet }
 	ugnome-toilet1 gnome-buy!
-	"Mil doscientos setenta y ocho mil setenta y noventa y uno" cyoa-title!
-	"Veintisiete millones de ochocientos noventa mil cuatro" +crtext ;
+	"POTENCIA DEL INODORO AUMENTADA!" cyoa-title!
+	"Los inodoros ahora pueden tener 2 gases!" +crtext ;
 cyoa-blank: ugnome-toilet1-view
-	"Cuatro millones de setenta y nueve mil setenta y cuatro" pbold text!
-	($ "Unomey gives you a look of pure disgust.	Upgrades toilets. Now they'll have 2 gas instead of 1. Maybe it adds up?" $) +crtext
+	"OI DIJERON QUE LOS HOMBRES ESTABAN OBSESADOS CON LOS BANOS" pbold text!
+	($ "'Unomey te da una mirada de desprecio puro.	Actualiza banos. Ahora tendran 2 gasolina en lugar de 1. Tal vez se sumen." $) +crtext
 	ugnome-toilet1 ' ugnome-toilet1-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-toilet2-buy
 	gstats{ 2 to ugnome-toilet }
 	ugnome-toilet2 gnome-buy!
-	"ENVIRONMENTAL STORYTELLING" cyoa-title!
-	($ "Spanish " .. "narrativa ambiental de cuentos" pbold .. ".	Cada bano con balas en el cuenta una historia." $) +crtext ;
+	"NARRATIVA EN EL MEDIO AMBIENTE" cyoa-title!
+	($ "Los banos pueden contener ahora 2 balas!	El famoso disenador de juegos Ken Levine la llama " .. "narrativa en el medio ambiente" pbold .. ".	Cada bano con balas en el cuenta una historia." $) +crtext ;
 cyoa-blank: ugnome-toilet2-view
-	"WOW! Tu estas avanzando con tus actualizaciones de banos!" pbold text!
-	($ "Unomey arquea el hocico en una mirada de desprecio aun mas exagerada.	Los banos pueden contener hasta dos balas. Cada pequeno detalle ayuda." $) +crtext
+	"MIRA COMO TE DESENVOLVES CON LAS ACTUALIZACIONES DE BANOS" pbold text!
+	($ "Unomey arquea el hocico en un aspecto mas exagerado de desprecio.	Los banos pueden contener 2 balas. Cada pequeno detalle ayuda." $) +crtext
 	ugnome-toilet2 ' ugnome-toilet2-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-toilet3-buy
 	gstats{ 3 to ugnome-toilet }
 	ugnome-toilet3 gnome-buy!
 	"ESQUELETOS DE BANO" cyoa-title!
-	($ "Ahora los banos pueden tener botin raro e inusual!	Esto puede incluir esqueletos, lo que eleva la calidad de " .. "Narrativa ambiental de banos" pbold .. " ' aun mas.	Los banos tendran una probabilidad de botin mas alta!" $) +crtext ;
+	($ "Los banos pueden contener ahora botin raro e inusual!	Esto puede incluir esqueletos, lo que eleva la calidad de " .. "Narrativa ambiental basada en banos" pbold .. " los banos ahora tendran una probabilidad de botin mas alta!" $) +crtext ;
 cyoa-blank: ugnome-toilet3-view
 	"REPUGNANTE" pbold text!
-	($ "Unomey tiene una mirada de vacio y desprecio hacia ti en este momento.	Los banos pueden contener algo misterioso a veces. Ademas, los banos tendran un 30% de probabilidad de contener botin, en lugar del 20% por defecto." $) +crtext
+	($ "Unomey solo tiene una mirada de desprecio en blanco hacia ti en este punto. Los banos rara vez pueden contener algo misterioso. Los banos tambien tendran un 30% de posibilidades de contener botin de bano, por encima del 20% predeterminado" $) +crtext
 	ugnome-toilet3 ' ugnome-toilet3-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-toilet4-buy
 	gstats{ 4 to ugnome-toilet }
 	ugnome-toilet4 gnome-buy!
-	"BANO DE CIELOS: EL BANO SUPREMO" cyoa-title!
-	"Los banos han alcanzado su forma final!" fbold +crtext
-	($ "50 " .. "Ficcion Interactiva Basada en el Inodoro' = FIBI" pbold .. " Disfruta!" $) +crtext ;
+	"'BANO CELESTIAL: EL BANO DEFINITIVO" cyoa-title!
+	"Los banos han ascendido a su forma final!" fbold +crtext
+	($ "Ahora los genios del bano aparecen cada 50 banos abiertos! Death Road to Canada representa lo MEJOR en " .. "Ficcion interactiva basada en banos!" pbold .. "  Disfruta!" $) +crtext ;
 cyoa-blank: ugnome-toilet4-view
-	"Es que los humanos adoran a los inodoros o que, abrirlos es una ritual? Que te pasa?" pbold text!
-	($ "	Con esta ultima mejora del inodoro, solo necesitas abrir 50 inodoros para invocar al genio del inodoro, en lugar de 100!" .. "NOTA:" pbold .. " Estoy siendo serio." $) +crtext
+	"ENTONCES LOS HUMANOS ADORAN A LOS BANOS O QUE? ABRIRLOS ES UN RITUAL? QUE LES PASA" pbold text!
+	($ "Con esta actualizacion final del bano, solo necesitas abrir 50 banos para invocar al genio del bano, en lugar de 100!" .. "NOTA:" pbold .. " 'Hablo en serio." $) +crtext
 	ugnome-toilet4 ' ugnome-toilet4-buy ' gnomeback gnome-confirm! ;
 		
 cyoa: ugnome-trader1-buy
 	gstats{ 1 to ugnome-trader }
 	ugnome-trader1 gnome-buy!
-	"Desbloquea a Tnomey El Comerciante Gnomico" cyoa-title!
-	"Desbloquea 20 opciones de Zombo Puntos al actualizarlo!" +crtext ;
+	"GNOMO COMERCIANTE TNOMEY DESBLOQUEADO" cyoa-title!
+	"Desbloquea 20 opciones de Zombo Point mejorandolo!" +crtext ;
 cyoa-blank: ugnome-trader1-view
-	"Tu amigo mio Tnomey te ofrecera un buen trato	El comenzara a pararse alrededor de los campamentos de comerciantes!" pbold text!
-	($ "Te permite comprar un poco mas de suministros de Tnomey, El Comerciante Gnomico. Acepta ZP como moneda de cambio y puedes comprar una cosa de el por juego. Ademas de suministros, tambien puede vender una recluta adicional!" $) +crtext
+	"'MI AMIGO TNOMEY TE DARA UNA BUENA OFERTA EMPEZARA A MERODEAR POR LOS CAMPAMENTOS DE COMERCIANTES!" pbold text!
+	($ "Te permite comprar algunos suministros adicionales de Tnomey, el gnomo comerciante. Acepta ZP como moneda y puedes comprarle una cosa por partida. Ademas de suministros, tambien puede vender un recluta adicional!" $) +crtext
 	ugnome-trader1 ' ugnome-trader1-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-trader2-buy
 	gstats{ 2 to ugnome-trader }
 	ugnome-trader2 gnome-buy!
-	"Tnomey El Comerciante Gnomico ACTUALIZADO" cyoa-title!
-	"Desbloquea una opcion de 30 ZP en su ultima actualizacion!" +crtext ;
+	"GNOMO COMERCIANTE TNOMEY MEJORADO" cyoa-title!
+	"Desbloquea un nivel de objetos de 30 ZP en su mejora final!" +crtext ;
 cyoa-blank: ugnome-trader2-view
-	"Como vende esos roedores?	Los tiene todos metidos en un saco" pbold text!
-	($ "Este lo eleva al Trade Gnome para llevar articulos valuados en 20 ZP. Esto sera una opcion adicional en cada tienda, ademas de su articulo de 10 ZP. Puede vender armas baratas y ratones de batalla!" $) +crtext
+	"COMO VENDE ESTOS ROEDORES? LOS TIENE TODOS METIDOS EN UN SACO" pbold text!
+	($ "Este mejorara el Gnome Comerciante para llevar objetos por valor de 20 ZP. Esta sera una opcion adicional en cada tienda, ademas de su objeto de 10 ZP. Puede vender armas baratas y roedores de batalla!" $) +crtext
 	ugnome-trader2 ' ugnome-trader2-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-trader3-buy
 	gstats{ 3 to ugnome-trader }
 	ugnome-trader3 gnome-buy!
-	"ULTIMO Tnomey EL COMERCiante Gnomico DELUXE ULTRA" cyoa-title!
-	"Tnomey ha alcanzado su forma mas absoluta!" fbold +crtext ;
+	"ULTIMATE TRADE GNOME DELUXE ULTRA" cyoa-title!
+	"Tnomey ha alcanzado su forma definitiva!" fbold +crtext ;
 cyoa-blank: ugnome-trader3-view
 	"SOMEONE'S A BIG SPENDER
 	WITH A NOSE FOR GNOMISH DEALS
 	IT'S YOUUUUU" pbold text!
-	($ "Este lo eleva al Trade Gnome para llevar articulos valuados en 30 ZP. Puede vender algunas nuevas armas y personajes raros!" $) +crtext
+	($ "Esto mejorara el Trade Gnome para que tambien pueda llevar objetos por valor de 30 ZP. Puede vender algunas armas nuevas y personajes raros aleatorios!" $) +crtext
 	ugnome-trader3 ' ugnome-trader3-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-extraZP1-buy
 	gstats{ 1 to ugnome-extraZP }
 	ugnome-extraZP1 gnome-buy!
-	"Heroe DE LA ZOMBOCALIPSIA" cyoa-title!
+	"HEROE DEL ZOMBOCALIPSIS" cyoa-title!
 	"Ahora obtienes 1 ZP por cada rescate exitoso!" +crtext ;
 cyoa-blank: ugnome-extraZP1-view
-	"Cuando rescates a alguien, probablemente deberias sacudirlos para obtener sus dulces puntos zombo" pbold text!
-	($ "Obten 1 ZP cada vez que rescates a una persona o un perro!';" .. "NOTA:" pbold .. " Para rescates normales solamente, rescates raros no cuentan." $) +crtext
+	"CUANDO RESCATAS A ALGUIEN DEBERIAS SACUDIRLO PARA QUITARLE SUS PRECIOSOS PUNTOS ZOMBO" pbold text!
+	($ "Obten 1 ZP cada vez que rescates a una persona o perro!" .. "NOTA:" pbold .. " 'Solo para rescates normales, los rescates raros no cuentan." $) +crtext
 	ugnome-extraZP1 ' ugnome-extraZP1-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-extraZP2-buy
 	gstats{ 2 to ugnome-extraZP }
 	ugnome-extraZP2 gnome-buy!
 	"PROGRAMA DE RECOMPENSAS PARA COMPRADORES" cyoa-title!
-	"Ahora obtienes 1 ZP cada vez que vendas una mercancia a los compradores de armas!" +crtext ;
+	"Ahora obtienes 1 ZP por cada venta a los compradores de armas!" +crtext ;
 cyoa-blank: ugnome-extraZP2-view
-	"Tengo un acuerdo especial con los compradores de armas	de manera que ellos y Tnooney pueden robarte mejor	esto es lo que llaman gnomos una victoria en victorias" pbold text!
+	"TENGO UN TRATO ESPECIAL CON LOS COMPRADORES DE ARMAS PARA QUE ELLOS Y TNOMEY PUEDAN ESTAFARTE MEJOR ES LO QUE LOS GNOMOS LLAMAN GANAR GANAR" pbold text!
 	($ "Obten 1 ZP cada vez que vendas un articulo a los compradores de armas!" $) +crtext
 	ugnome-extraZP2 ' ugnome-extraZP2-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-extraZP3-buy
 	gstats{ 3 to ugnome-extraZP }
 	ugnome-extraZP3 gnome-buy!
-	"HACIENDO NUEVOS AMISTADES" cyoa-title!
-	"Ahora obtienes 1 ZP cada vez que obtienes una nueva recluta!" +crtext ;
+	"HACIENDO NUEVOS AMIGOS" cyoa-title!
+	"Ahora obtienes 1 ZP por cada vez que obtienes un nuevo recluta!" +crtext ;
 cyoa-blank: ugnome-extraZP3-view
-	"LOS PUNTOS ZOMBO CORRESPONDEN A TODA LA VIDA	SON EXACTAMENTE COMO LAS MIDI-CHLORIANAS	LOS GNOMES ADORAN LAS PELICULAS DE LA SAGA DE LA GUERRA DE LAS GALAXIAS" pbold text!
-	($ "Obten 1 ZP cada vez que obtienes una recluta o algo!" $) +crtext
+	"LOS PUNTOS ZOMBO FLUYES POR TODA LA VIDA SON EXACTAMENTE COMO LOS MIDI CLORIANOS LOS GNOMOS AMAN LAS PRECUELAS DE STAR WARS" pbold text!
+	($ "Obten 1 ZP cada vez que reclutes a alguien o algo!" $) +crtext
 	ugnome-extraZP3 ' ugnome-extraZP3-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-extraZP4-buy
 	gstats{ 4 to ugnome-extraZP }
 	ugnome-extraZP4 gnome-buy!
 	"HACIENDO NUEVOS ESQUELETOS" cyoa-title!
-	"Ahora obtienes 1 ZP cada vez que muere un aliado!" +crtext 
-	"EL GENERADOR DE PUNTOS ZOMBO MAS POTENTE" fbold +crtext ;
+	"Ahora obtienes 1 ZP por cada vez que muere un aliado!" +crtext 
+	"EL GENERADOR DE ZP DEFINITIVO" fbold +crtext ;
 cyoa-blank: ugnome-extraZP4-view
-	"PODRIA COMENZAR A TI DAR UN PUNTO ZOMBO	CUANDOALGUIEN EN TU EQUIPO MUERE	ESTE PARECE UNA BUENA IDEA" pbold text!
-	($ "Obten 1 ZP cada vez que un aliado muere!" $) +crtext
+	"PODRIA EMPEZAR A DARTE UN PUNTO ZOMBO CADA VEZ QUE ALGUIEN DE TU EQUIPO MUERA ESTO PARECE UNA IDEA BASTANTE BUENA" pbold text!
+	($ "Obten 1 ZP cada vez que muere un aliado!" $) +crtext
 	ugnome-extraZP4 ' ugnome-extraZP4-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-raretrader1-buy
 	gstats{ 1 to ugnome-raretrader }
 	ugnome-raretrader1 gnome-buy!
-	"COMERCIANTES MAS RAROS" cyoa-title!
+	"COMERCIANTES MAS EXTRANOS" cyoa-title!
 	"Rare Trader chance increased!
 	The chance has gone from 1/30 to 1/27!" +crtext ;
 cyoa-blank: ugnome-raretrader1-view
-	"EN LOS CAMPAMENTOS DE COMERCIANTES A VECES APARECE ALGUIEN REALMENTE EXTRANO	LOS COMERCIANTES RAROS TIENEN OFERTAS RARAS" pbold text!
+	"EN LOS CAMPAMENTOS DE COMERCIANTES A VECES PUEDE APARECER UN VERDADERO BICHO RARO LOS COMERCIANTES RAROS TIENEN OFERTAS RARAS" pbold text!
 	"Normal chance of a Rare Trader is 1/30
 	This will increase the chance to 1/27!" +crtext
 	ugnome-raretrader1 ' ugnome-raretrader1-buy ' gnomeback gnome-confirm! ;
@@ -281,53 +281,53 @@ cyoa: ugnome-raretrader2-buy
 	"Rare Trader chance increased!
 	The chance has gone from 1/27 to 1/24!" +crtext ;
 cyoa-blank: ugnome-raretrader2-view
-	"HAY MUCHOS COMERCIANTES RAROS	HE VISTO UNA BRUJA ONCE TAMBIEN UN MAGO	ALGUNOS PUEDEN SER RECLUTADOS POR UNA PROPINA" pbold text!
+	"HAY MUCHOS COMERCIANTES RAROS UNA VEZ VI UNA BRUJA TAMBIEN UN MAGO ALGUNOS PUEDEN SER RECLUTADOS POR UN SOBORNO" pbold text!
 	"Rare Traders chance will increase to 1/24!" +crtext
 	ugnome-raretrader2 ' ugnome-raretrader2-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-raretrader3-buy
 	gstats{ 3 to ugnome-raretrader }
 	ugnome-raretrader3 gnome-buy!
-	"COMERCIANTES AUN MAS EXTRANOS" cyoa-title!
+	"COMERCIANTES MAS EXTRANOS" cyoa-title!
 	"Rare Trader chance increased!
 	The chance has gone from 1/24 to 1/21!" +crtext ;
 cyoa-blank: ugnome-raretrader3-view
-	"ESTOY REPARTIENDO MONTONES DE FOLLETOS	LOS HE DIBUJADO CON LAPICES DE COLORES	ESTO ATRAERA A LOS MEJORES COMERCIANTES" pbold text!
+	"'ESTOY REPARTIENDO MUCHOS FOLLETOS LOS DIBUJE CON LAPICES DE COLORES ESTO TRAERA A LOS MEJORES COMERCIANTES" pbold text!
 	"Rare Traders chance will increase to 1/21!" +crtext
 	ugnome-raretrader3 ' ugnome-raretrader3-buy ' gnomeback gnome-confirm! ;
 
 cyoa: ugnome-raretrader4-buy
 	gstats{ 4 to ugnome-raretrader }
 	ugnome-raretrader4 gnome-buy!
-	"COMERCIANTES REALMENTE MUY EXTRANOS" cyoa-title!
+	"LOS COMERCIANTES MAS EXTRANOS" cyoa-title!
 	"Rare Trader chance increased!
 	The chance has gone from 1/21 to 1/18!" +crtext
-	"Ahora tienes una mayor posibilidad de encontrar mas de un Comerciante Raro por partida!" fbold +crtext ;
+	"Ahora tienes una mayor probabilidad de encontrar mas de un comerciante raro por partida!" fbold +crtext ;
 cyoa-blank: ugnome-raretrader4-view
-	"PUEDES Contratar a un Puntero Publicitario Enano	APARECERAN MAS COMERCIANTES EXTRANOS	MEJORA LA EXPERIENCIA DE COMPRA!" pbold text!
+	"PUEDO CONTRATAR A UN GNOMO GIRASIGNOS APARECERAN MUCHOS MAS COMERCIANTES EXTRANOS MEJORA LA EXPERIENCIA DE COMPRA!" pbold text!
 	"Rare Traders chance will increase to 1/18!" +crtext
 	ugnome-raretrader4 ' ugnome-raretrader4-buy ' gnomeback gnome-confirm! ;
 
 cyoa: ugnome-rarelocs1-buy
 	gstats{ 1 to ugnome-rarelocs }
 	ugnome-rarelocs1 gnome-buy!
-	"LOCALES EXOTICAS" cyoa-title!
+	"LUGARES EXOTICOS" cyoa-title!
 	"Chance of Rare Locations has increased from roughly 3/55 to 4/55!
 	You may also now find up to 4 Rare Locations in one game, up from 3!" +crtext ;
 cyoa-blank: ugnome-rarelocs1-view
-	"VENDO ESTOS MAPAS ESPECIALES	LOS HE DIBUJADO CON LAPICES DE COLORES" pbold text!
-	($ "La posibilidad de Lugares Raros aumentara ligeramente! Tambien puedes encontrar una ubicacion rara adicional en una partida!	" .. "NOTA:" pbold .. " 'Los Lugares Raros se pueden identificar por su texto parpadeante." $) +crtext
+	"'ESTO ESTA VENDIDO ESTAS ESPECIALES CARTAS	LAS DIBuje CON LAPICES DE COLOR" pbold text!
+	($ "Hay una oportunidad ligeramente mayor de encontrar localizaciones raras! Puedes encontrar hasta una localizacion adicional en un juego!" .. "NOTA:" pbold .. " LAS LOCALIZACIONES RARAS SE PUEDE RECONOCER POR SU TEXTO ASEMANTADO" $) +crtext
 	ugnome-rarelocs1 ' ugnome-rarelocs1-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-rarelocs2-buy
 	gstats{ 2 to ugnome-rarelocs }
 	ugnome-rarelocs2 gnome-buy!
-	"DIAS EXTRANOS EN LA CARRETERA DE LA MUERTE" cyoa-title!
+	"DIAS ESTRANGELOS EN LA CALLE DE LA MUERTE" cyoa-title!
 	"Chance of Rare Events has increased from roughly 2/55 to 3/55!
 	You may also now find up to 3 Rare Events in one game, up from 2!" +crtext ;
 cyoa-blank: ugnome-rarelocs2-view
-	"TODO TIPO DE COSAS SIN SENTIDO PUEDEN SUCEDER EN EL CAMINO, DEBERIAS SOLO RODAR CON ELLAS" pbold text!
-	($ "Aumentara ligeramente la posibilidad de eventos raros en la carretera tendras la oportunidad de encontrar un evento raro adicional en un juego!" $) +crtext
+	"SUCEDEN TODO TIPO DE COCHETES EN EL CAMINO	DEJATE LLEVARLO" pbold text!
+	($ "Hay una oportunidad ligeramente mayor de encontrar eventos de localizacion raros! Puedes encontrar hasta una localizacion adicional en un juego!" $) +crtext
 	ugnome-rarelocs2 ' ugnome-rarelocs2-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-rarelocs3-buy
@@ -337,8 +337,8 @@ cyoa: ugnome-rarelocs3-buy
 	"Chance of Rare Locations has increased from roughly 4/55 to 5/55!
 	You may also now find up to 5 Rare Locations in one game, up from 4!" +crtext ;
 cyoa-blank: ugnome-rarelocs3-view
-	"ESTOY VENDiendo guias de turismo deluxe ahora	SON LAS Viejas UNAS	PERO LE PONDO SIGLETAS POR ELLOS" pbold text!
-	($ "La probabilidad de localizaciones raras aumentara ligeramente! Puedes encontrar una localizacion adicional rara en un juego!" $) +crtext
+	"'VENDO AHORA GUIAS DE TOUR DE LUJO	SON LAS Viejas ONES	PERO LE PUSETENETAS" pbold text!
+	($ "Hay una oportunidad ligeramente mayor de encontrar localizaciones raras! Puedes encontrar hasta una localizacion adicional en un juego!" $) +crtext
 	ugnome-rarelocs3 ' ugnome-rarelocs3-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-rarelocs4-buy
@@ -348,50 +348,50 @@ cyoa: ugnome-rarelocs4-buy
 	"Chance of Rare Events has increased from roughly 3/55 to 4/55!
 	You may also now find up to 4 Rare Events in one game, up from 3!" +crtext ;
 cyoa-blank: ugnome-rarelocs4-view
-	"EVENTOS ATRAPANTES Y MAGNETICOS PUEDES OCURRIR	SI CREES EN EL PODER DE LA AMISTAD" pbold text!
-	($ "La probabilidad de eventos raros de carretera aumentara aun mas!	Puedes encontrar otro evento extra raro en un juego!" $) +crtext
+	"EVENTOS ESTRANGOS Y MAGNIFICOS PUEDE SUCEDER	SI CREES EN EL PODER DE LA AMAZONIA" pbold text!
+	($ "La oportunidad de encontrar eventos de localizacion raros aumenta aun mas! Puedes encontrar hasta dos eventos adicionales en un juego!" $) +crtext
 	ugnome-rarelocs4 ' ugnome-rarelocs4-buy ' gnomeback gnome-confirm! ;
 
 cyoa: ugnome-jerkstore1-buy
 	gstats{ 1 to ugnome-jerkstore }
 	ugnome-jerkstore1 gnome-buy!
-	"UN CABANETE DESAFIO" cyoa-title!
-	"Has desbloqueado una nueva estructura, donde puedes ver retos nuevos y desbloquear caracteristicas cosmeticas!" +crtext ;
+	"UNA CHOZA DESAFIANTE" cyoa-title!
+	"'Has desbloqueado un nuevo edificio donde puedes ver nuevos desafios y desbloquear funciones cosmeticas!" +crtext ;
 cyoa-blank: ugnome-jerkstore1-view
-	"UN CABANETE MAGNETICO DE DESAFIOS	TAMBIEN CONTIENE UNA TIENDA *MUY* ESPECIAL" pbold text!
-	($ "Desbloquea una nueva estructura donde puedes ver retos especiales!	Superar estos retos puede desbloquear nuevas caracteristicas cosmeticas!" $) +crtext
+	"UNA CHOZA MAGICA DE DESAFIOS TAMBIEN CONTIENE UNA TIENDA *MUY* ESPECIAL" pbold text!
+	($ "Desbloquea un nuevo edificio donde puedes ver desafios especiales! Superar estos desafios puede desbloquear nuevas funciones cosmeticas!" $) +crtext
 	ugnome-jerkstore1 ' ugnome-jerkstore1-buy ' gnomeback gnome-confirm! ;
 		
 cyoa: ugnome-tnomemax1-buy
 	gstats{ 1 to ugnome-tnomemax }
 	ugnome-tnomemax1 gnome-buy!
-	"DOBLE TNOMEY" cyoa-title!
-	"Ahora puedes comprar en Tnomey dos veces por juego!" fbold +crtext ;
+	"TNOMEY DOBLE" cyoa-title!
+	"Ahora puedes comprarle a Tnomey dos veces por partida!" fbold +crtext ;
 cyoa-blank: ugnome-tnomemax1-view
-	"SI TE AMOLES TAN MUCHO	POR QUE NO OBTIENES	DOS TNOMEYS?" pbold text!
-	($ "Compra a Tnomey el Gnomo Comerciante hasta dos veces por juego, en lugar de solo una vez!" $) +crtext
+	"'SI TANTO AMAS A TNOMEY POR QUE NO CONSIGUES EL DOBLE DE TNOMEYS?" pbold text!
+	($ "Compra a Tnomey el Gnomo Comerciante hasta dos veces por partida, en lugar de solo una!" $) +crtext
 	ugnome-tnomemax1 ' ugnome-tnomemax1-buy ' gnomeback gnome-confirm! ;
 	
 cyoa: ugnome-tnomemax2-buy
 	gstats{ 2 to ugnome-tnomemax }
 	ugnome-tnomemax2 gnome-buy!
-	"TRIPLE TNOMEY" cyoa-title!
-	"Puedes comprar a Tnomey hasta tres veces por juego!" fbold +crtext ;
+	"TNOMEY TRIPLE" cyoa-title!
+	"Puedes comprarle a Tnomey hasta tres veces por partida!" fbold +crtext ;
 cyoa-blank: ugnome-tnomemax2-view
-	"TRIPLE THE FUN" pbold text!
-	($ "Compra a Tnomey el Gnomo Comerciante hasta tres veces por juego! Quema ese ZP!" $) +crtext
+	"EL TRIPLE DE VALORES EL TRIPLE DE CAPRICHO SALUDABLE EL TRIPLE DE TNOMEYS" pbold text!
+	($ "Compra a Tnomey el Gnomo Comerciante hasta tres veces por partida! Quema ese ZP!" $) +crtext
 	ugnome-tnomemax2 ' ugnome-tnomemax2-buy ' gnomeback gnome-confirm! ;
 	
 		
 cyoa: unlockgnome gstats{
-	"UNOMEY EL GNOMO DESBLOQUEADOR" cyoa-title!
+	"GNOMO DESBLOQUEO UNOMEY" cyoa-title!
 	
 	ugnome-found 1 < if
 		1 to ugnome-found save
-		"HOLA! SOY UNOMEY, EL GNOMO DESBLOQUEADOR		ME HAS ENCONTRADO!		AHORA VENDO DESBLOQUEOS		DEJA DE INTRUSAR EN MI CASA, NERD!" text!
+		"'SOY UNOMEY, EL GNOMO DESBLOQUEO ME ENCONTRASTE! TE VENDERE DESBLOQUEOS DE AHORA EN ADELANTE SAL DE MI CASA, TONTO!" text!
 	else
 	
-		"HOLA, SOY UNOMEY		ACASO NO ME CONOCES?" text!
+		"'HOLA SOY UNOMEY NO ME CONOCES?" text!
 		
 		ugnome-unlocks 2 > if
 			"UNLOCKS ARE A BIG PART
@@ -443,7 +443,7 @@ cyoa: unlockgnome gstats{
 	// NERVE: Now 28
 	
 	+cr zptally gnome-remaining
-	choice( "Deja esto asi" )choice
+	choice( "Deja esta cosa en paz" )choice
 	
 	// Upgrade series for rare events and flashing locations
 	

@@ -4,10 +4,10 @@
 
 : bath-room 
 	blurbslot 0= if
-		"Necesito usar el bano." blurbsay
+		"Necesito ir al bano." blurbsay
 	else
 		blurbslot 2 < if
-			"Deberias haber ido cuando paramos la ultima vez!" blurbsay
+			"Debiste haber ido cuando paramos la ultima vez!" blurbsay
 			STAT_MORALE 1st-char .stat--
 		then
 	then
@@ -15,10 +15,10 @@
 
 : sing-along
 	blurbslot 0= if
-		"Alguien quiere hacer un karaoke?" blurbsay
+		"Alguien quiere hacer un canto?" blurbsay
 	else
 		blurbslot 2 < if
-			"Deberiamos hacer un shut-up-along." blurbsay
+			"Deberiamos hacer un callate largo." blurbsay
 			STAT_MORALE me .stat++
 			STAT_MORALE 1st-char .stat--
 		then
@@ -30,7 +30,7 @@
 		"Esto es una MIERDA." blurbsay
 	else
 		rnd5050 if
-			blurbslot 2 < if ($ "Estoy de acuerdo " .. 1st-char .name@ .. "." $) blurbsay
+			blurbslot 2 < if ($ "Estoy de acuerdo, " .. 1st-char .name@ .. "." $) blurbsay
 			then
 		else
 			STAT_MORALE me .stat--
@@ -43,7 +43,7 @@
 		"Maybe we should turn back..." blurbsay
 	else
 		blurbslot 2 < if
-			"Tal vez debas callar!" blurbsay
+			"Quizas deberias callarte!" blurbsay
 			STAT_MORALE me .stat++
 			STAT_MORALE 1st-char .stat--
 		then
@@ -52,32 +52,32 @@
 
 : legend-bodybuild
 	blurbslot 0= if
-		"Una vez vi a un bodybuilder tirar un coche a algunos zombies!" blurbsay
+		"Una vez vi a un culturista lanzar un auto a unos zombis!" blurbsay
 	else
 		blurbslot 2 < if
 			rnd5050 if
-				($ "Esto no tiene sentido, " .. 1st-char .name@ .. "." $) blurbsay
-				"Eres raro!" blurbsay
+				($ "Eso no tiene sentido, " .. 1st-char .name@ .. "." $) blurbsay
+				"'Eres un bicho raro!" blurbsay
 				STAT_MORALE 1st-char .stat--
 		else
-			"Que genial!" blurbsay
+			"Oh GENIAL!" blurbsay
 			STAT_MORALE me .stat++
 		then then
 	then
 ;
 
 : whinetopic 1 6 rnd case
-	1 of "zombis" endof
+	1 of "zombies" endof
 	2 of "estar sucio" endof
 	3 of "el clima" endof
-	4 of "insectos" endof
-	5 of "como todos son malos" endof
-	6 of ($ me .name@ .. "su papa" $) endof
+	4 of "bichos" endof
+	5 of "como todo el mundo es un idiota" endof
+	6 of ($ me .name@ .. "'el padre de" $) endof
 	endcase ;
 
 : whiner // Picks two other people, lowers their morale
 	blurbslot 0= if
-		qmsg ($ me .name@ .. " 'que llora incesantemente sobre " .. whinetopic .. "." $) txt
+		qmsg ($ me .name@ .. " se queja incesantemente de " .. whinetopic .. "." $) txt
 	else
 		blurbslot 3 < if
 			STAT_MORALE me .stat--
@@ -91,23 +91,23 @@
 	else
 		blurbslot 2 < if
 			rnd5050 if
-			qmsg ($ me .name@ .. " hace un gran gesto de eye roll" $) txt then
+			qmsg ($ me .name@ .. " pone los ojos en blanco." $) txt then
 		then
 	then
 ;
 
 : smalltopic 1 6 rnd case
-	1 of "una mascota antigua" endof
+	1 of "una vieja mascota" endof
 	2 of "Canada" endof
 	3 of "el clima" endof
 	4 of "dinosaurios" endof
-	5 of "el siguiente paso en el plan" endof
+	5 of "el siguiente paso del plan" endof
 	6 of "algo gracioso en el pasado" endof
 	endcase ;
 
 : smalltalk // small chance to raise morale for each member of group
 	blurbslot 0= if
-		qmsg ($ me .name@ .. " habla sobre " .. smalltopic .. "." $) txt
+		qmsg ($ me .name@ .. " habla de " .. smalltopic .. "." $) txt
 	else
 		15 %chance if
 			STAT_MORALE me .stat++
@@ -118,53 +118,53 @@
 : civnoun 1 11 rnd case
 	1 of "Twitter" endof
 	2 of "comida rapida" endof
-	3 of "correo electronico" endof
+	3 of "email" endof
 	4 of "selfies" endof
 	5 of "noticias de celebridades" endof
 	6 of "videos virales" endof
 	7 of "streamers de videojuegos" endof
-	8 of "la concepcion de la higiene" endof
-	9 of "fanficion amateur cruda ilustrada" endof
-	10 of "tablones de imagen" endof
+	8 of "el concepto de higiene" endof
+	9 of "fanfiction crudamente ilustrado" endof
+	10 of "tablones de imagenes" endof
 	11 of "creepypasta" endof
 	endcase ;
 
 	: one-line1 "Todo estara bien si puedo llegar a Canada." ;
-	: one-line2 "Los zombis no son un problema. Bien, quizas solo un pequeno problema." ;
+	: one-line2 "Los zombis no son problema. Bueno, tal vez un pequeno problema." ;
 	: one-line3 "Rooaaaad triiiiip." ;
-	: one-line4 "Cada cosa tiene un olor muy diferente a lo que solia antes de que el jabon fuera raro." ;
+	: one-line4 "Todo huele muy diferente a como lo hacia antes de que el jabon se volviera escaso." ;
 	: one-line5 "Hope I don't run into any more bandits..." ;
-	: one-line6 ($ "Con la civilizacion desaparecida, lo que mas me falta es " .. civnoun .. "." $) ;
+	: one-line6 ($ "Con la civilizacion desaparecida, sobre todo echo de menos " .. civnoun .. "." $) ;
 	: one-line7 "If only we knew about throwing chairs when the zombies first showed up..." ;
 	: one-line8 "I wonder if I could get strong enough to just throw the car at zombies..." ;
-	: one-line9 "Estamos alli ya?" ;
+	: one-line9 "Ya llegamos?" ;
 	: one-line10 "Let's hope the car doesn't break down..." ;
-	: one-line11 "Solo estoy contento de que no tenemos que lidiar con zombis rapidos." ;
-	: one-line12 "Es sorprendente cuanto tiempo toma un hamburguesa o una hot dog deshacerse." ;
-	: one-line13 "Este abrelatas ha visto dias mejores." ;
-	: one-line14 "No puedo esperar a salir de este coche y estirar las piernas." ;
-	: one-line15 "Me pregunto como estaran las cosas mas al norte." ;
-	: one-line16 "Quizas los Preppers estaban en lo cierto despues de todo! " ;
-	: one-line17 "En espanol: Son momentos como este que me hacen preguntarme si deberia haber sido un Prepper." ;
-	: one-line18 "Me pregunto que tan mal la tienen en la costa oeste?" ;
+	: one-line11 "'Me alegro de que no tengamos que lidiar con zombis rapidos." ;
+	: one-line12 "'Es sorprendente cuanto tiempo tarda una hamburguesa o un perrito caliente en ponerse malo." ;
+	: one-line13 "Este abrelatas ha visto mejores dias." ;
+	: one-line14 "'No puedo esperar para salir de este auto y estirar mis piernas." ;
+	: one-line15 "Me pregunto como estaran las cosas mas al norte?" ;
+	: one-line16 "Quizas los Preppers tenian razon despues de todo " ;
+	: one-line17 "'Son momentos como este los que me hacen preguntarme si deberia haber sido un Prepper." ;
+	: one-line18 "Me pregunto que tan mal lo estan pasando en la costa oeste?" ;
 	
-	: one-line19 "Olvidate de comprobar cada bano por botin de bano." ;
-	: one-line20 "Hockeys sticks son buenas armas, eso explica que Canada esta haciendo bien." ;
-	: one-line21 "Mantente atento por un coche mas dulce." ;
-	: one-line22 "Quiero encontrar un tanque para conducir alrededor." ;
-	: one-line23 "Ese camino es horrible. Los coches no duran mucho tiempo alli." ;
-	: one-line24 "Este coche no va a durar para siempre." ;
-	: one-line25 "Tengo que guardar mucha municion si quiero llegar." ;
+	: one-line19 "'No olvides revisar cada inodoro en busca de botin." ;
+	: one-line20 "Los palos de hockey son buenas armas, no es de extranar que a Canada le este yendo bien." ;
+	: one-line21 "Mantente atento a un auto mas dulce." ;
+	: one-line22 "Quiero encontrar un tanque para conducir." ;
+	: one-line23 "'Estas carreteras son horribles. Los autos no duran mucho en ellas." ;
+	: one-line24 "'Este auto no va a durar para siempre." ;
+	: one-line25 "'Necesito ahorrar mucha municion si voy a lograrlo." ;
 	: one-line26 "Cada dia me acerca un poco mas a Canada." ;
-	: one-line27 "Palos deportivos como bates y palos de golf son excelentes, hasta que se rompen." ;
-	: one-line28 "Toma una persona fuerte y en forma para usar bien un martillo de demolicion." ;
-	: one-line29 "Explosivos son geniales hasta que te haces explotar a ti mismo." ;
-	: one-line30 "Las latas de comida son la nueva moneda. El dinero no es tan nutritivo." ;
-	: one-line31 "Estoy seguro de que los extraterrestres son responsables de estos zombis." ;
-	: one-line32 "El mobiliario es el enemigo natural de los zombis." ;
-	: one-line33 "Cuando ocurre un asedio, hay que darlo todo!" ;
-	: one-line34 "Odio luchar por la noche. Lo mejor es irse temprano." ;
-	: one-line35 "Espero que no llueva. Parece irritar a los zombis." ;
+	: one-line27 "Los palos deportivos como los bates y los palos de golf son geniales, hasta que se rompen." ;
+	: one-line28 "Se necesita una persona realmente fuerte y en forma para usar bien un mazo." ;
+	: one-line29 "Los explosivos son geniales hasta que te vuelas por los aires." ;
+	: one-line30 "'Las latas de comida son el nuevo dinero. El efectivo no es tan nutritivo." ;
+	: one-line31 "Apuesto a que los extraterrestres son responsables de estos zombis." ;
+	: one-line32 "Los muebles son el enemigo natural del zombi." ;
+	: one-line33 "Cuando ocurre un asedio, tienes que darlo todo!" ;
+	: one-line34 "'Odio pelear de noche. Es mejor irse temprano." ;
+	: one-line35 "'Espero que no llueva. Parece irritar a los zombis." ;
 	
 	deck-new
 		card: one-line1

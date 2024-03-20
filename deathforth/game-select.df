@@ -16,8 +16,8 @@ cyoa{
 	;
 
 	: start-the-actual-game-here
-		"NUEVA GUARDAR" slot-info-name $swrite
-		"($ calavera .. calavera .. calavera .. calavera $) imprime" slot-data-name $swrite
+		"NUEVO GUARDADO" slot-info-name $swrite
+		"(($ craneo .. craneo .. craneo .. craneo $) imprime" slot-data-name $swrite
 		gogo
 		MAIN_EVENT_NEW main-post-event
 	;
@@ -35,16 +35,16 @@ cyoa{
 	cyoa-choice: cont-saveslot
 		choicenum saveslot!
 		cyoa-start
-		"- CONTINUAR JUEGO -" cyoa-title!
+		"  cONTINUAR JUEGO " cyoa-title!
 		"THE HORROR CONTINUES..." cyoa-text!
-		choice( "AIQUE" )choice: continue-the-saved-game-here
+		choice( "CARAY" )choice: continue-the-saved-game-here
 	;
 
 	defer select-new
 
 	cyoa-choice: delete-slot make-it-snappy
 		skull cyoa-title!
-		"BORRADO" cyoa-text!
+		"ELIMINADO" cyoa-text!
 		delete-the-game
 		sfx{ bite } 10 0.75 rumble-gui
 		choice( "OK" )choice: select-new
@@ -54,8 +54,8 @@ cyoa{
 	cyoa-choice: new-delete-game
 		choicenum saveslot!
 		cyoa-start make-it-snappy
-		"- ELIMINAR JUEGO -" cyoa-title!
-		($ "ELIMINAR antigua partida guardada" .. slotinfo saveslot peek nip .. "'?" $) cyoa-text!
+		"  eLIMINAR JUEGO " cyoa-title!
+		($ "'ELIMINAR viejo juego guardado '" .. slotinfo saveslot peek nip .. "'?" $) cyoa-text!
 		choice( "NO" )choice: select-new thumbdownicon
 		choice( "SI" )choice: delete-slot thumbupicon
 	;
@@ -91,19 +91,19 @@ cyoa{
 	defer select-start // forward reference
 
 	cyoa: select-new-game make-it-snappy
-		"- NUEVA PARTIDA -" cyoa-title!
-		"Elige espacio de juego:" cyoa-text!
+		"  nUEVO JUEGO " cyoa-title!
+		"Elija el espacio del juego:" cyoa-text!
 		slotchoices-new
-		choice( "ATRAS" )choice: select-start backicon cyoa-choice-esc-default
+		choice( "VOLVER" )choice: select-start backicon cyoa-choice-esc-default
 	;
 
 	last to select-new
 
 	cyoa: select-cont-game make-it-snappy
-		"- CONTINUAR JUEGO -" cyoa-title!
-		"Elige espacio de juego:" cyoa-text!
+		"  cONTINUAR JUEGO " cyoa-title!
+		"Elija el espacio del juego:" cyoa-text!
 		slotchoices-cont
-		choice( "ATRAS" )choice: select-start backicon cyoa-choice-esc-default
+		choice( "VOLVER" )choice: select-start backicon cyoa-choice-esc-default
 	;
 
 	cyoa-choice: select-create-char
@@ -121,26 +121,26 @@ cyoa{
 		// Make sure we can delete the game after zombotown or tutorial. Shouldn't really be done like this...
 		filesave{ ' delete-game } to delete-the-game
 
-		"- SELECCIONAR -" cyoa-title!
-		"Elige opcion de juego:" cyoa-text!
+		"  sELECCIONAR " cyoa-title!
+		"Elija la opcion de juego:" cyoa-text!
 		slotcount if
 			choice( "Continuar Juego" )choice: select-cont-game
 		then
-		choice( "Nuevo juego" )choice: select-new-game
+		choice( "Nuevo Juego" )choice: select-new-game
 
 		// TODO: unlock?
-		choice( "Personajes personalizados" )choice: do-char-maker
-		// choice( "Personajes personalizados" )choice: select-create-char
+		choice( "Personajes Personalizados" )choice: do-char-maker
+		// choice( "Personajes Personalizados" )choice: select-create-char
 
-		choice( "ATRAS" )choice backicon cyoa-choice-esc-default
+		choice( "VOLVER" )choice backicon cyoa-choice-esc-default
 	;
 
 	// TEMP: FOR QUICK GAME START
 (*
 	cyoa: quick-start-game
-		"- NUEVA PARTIDA -" cyoa-title!
+		"  nUEVO JUEGO " cyoa-title!
 		"THE HORROR BEGINS..." cyoa-text!
-		choice( "OH, DANG!" )choice: start-the-actual-game-here
+		choice( "OH, MALDITA SEA" )choice: start-the-actual-game-here
 	;
 *)
 	: select-boot

@@ -94,22 +94,22 @@ defer trade-camp-draw-instead
 ;
 
 : trade-draw
-	choice( "Visita el Campamento Comerciante" )choice: gototradecamp
-	choice( "Ignora a los Comerciantes" )choice
+	choice( "Visitar el campamento de comerciantes" )choice: gototradecamp
+	choice( "Ignorar a los comerciantes" )choice
 ;
 
-: trade-msg ($ Thegroup .. " 'se topa en un campamento de comercio!" $) ;
+: trade-msg ($ Thegroup .. "  se topa con un campamento de comerciantes!" $) ;
 
 : near-last-day-warn
 	road-trip-days 3 + nearcanada-day = if 
-	"Estamos acercandonos a Canada" cyoa-title!
-	"Canada esta cerca! Esto es la segunda oportunidad para comerciar!" else trade-msg then +crtext foodamt
+	"Acercandose a Canada" cyoa-title!
+	"Canada esta cerca! Esta es la penultima oportunidad para comerciar!" else trade-msg then +crtext foodamt
 ;
 
 : last-day-warn 
 	road-trip-days nearcanada-day = if
-	"Ultima Oportunidad de Comerciar antes de Canada" cyoa-title!
-	"Esta es la ultima oportunidad de comerciar! Buena suerte!" else trade-msg then +crtext foodamt
+	"Ultima tienda antes de Canada" cyoa-title!
+	"Esta es la ultima oportunidad para comerciar! Buena suerte!" else trade-msg then +crtext foodamt
 ;
 
 : end-trade-draw 
@@ -117,48 +117,48 @@ defer trade-camp-draw-instead
 ;
 
 cyoa: tradeevent
-	"Comerciando en la Carretera de la Muerte" cyoa-title!
+	"Comerciando en Death Road" cyoa-title!
 	road-trip-days 3 = if
-		"Fuera de Canada, la mayor parte de la sociedad y la civilizacion han sido destruidas. Aun puedes encontrar personas que participan en el comercio, con alimentos preservados siendo la nueva moneda." 
+		"Fuera de Canada, la mayor parte de la sociedad y la civilizacion han sido destruidas. Todavia puedes encontrar personas que comercian, con alimentos en conserva como nueva moneda." 
 		end-trade-draw
 	then;
 	road-trip-days 6 = if
-		($ Thegroup .. " 'siente un escalofrio de temor. Algo peligroso se acerca. La carretera parece cada vez mas congestionada con muertos vivientes, y se van alterando." $) cyoa-text!
+		($ Thegroup .. " ' siente una sensacion de pavor. Algo peligroso se acerca. El camino parece llenarse cada vez mas de muertos vivientes y se estan poniendo nerviosos." $) cyoa-text!
 		near-last-day-warn
 		trade-draw
 	then;
 	road-trip-days 9 = if
-		"El viaje a Canada solia tomar unos pocos dias, como mucho. El apocalipsis lleno las carreteras de escombros, hordas de zombis y un monton de coches varados. Ahora es un largo viaje." cyoa-text!
+		"'El viaje a Canada solia tardar unos dias, como maximo. El apocalipsis lleno las carreteras de escombros, hordas de zombis y muchos coches abandonados. Ahora es un viaje largo." cyoa-text!
 		last-day-warn
 		trade-draw
 	then;
 	road-trip-days 12 = if
-		($ "To warn us of the dangers ahead. We are now in the middle of the desert, and the heat is unbearable. We are running out of water, and the car is starting to overheat. We are in the middle of nowhere, and I am starting to feel desperate. I don't know how much longer we can last.// " .. thegroup .. " 'a fallar." $) cyoa-text!
+		($ "El viaje por carretera continua. El cielo comienza a ponerse rojo ominoso, como si el universo quisiera " .. thegroup .. "  fracasar." $) cyoa-text!
 		near-last-day-warn
 		trade-draw
 	then;
 	road-trip-days 15 = if
-		($ "Una inmensa horda de muertos vivientes deambula alrededor de la carniceria que rodea la frontera con Canada. Muchos han intentado pasar. La mayoria solo consiguen que sus cuerpos se anadan a la horda. Tal vez... " .. yourteam .. " will be different..." $) cyoa-text!
+		($ "Un enorme ejercito de muertos vivientes se tambalea alrededor de la carniceria que rodea la frontera con Canada. Muchos han intentado pasar. La mayoria solo logra que sus cuerpos se agreguen a la horda.		Quizas " .. yourteam .. " will be different..." $) cyoa-text!
 		last-day-warn
 		trade-draw
 	then;
 	road-trip-days 24 = if
-		($ "Ha sido un camino muy largo y sinuoso hacia Canada. " .. Thegroup .. " 'esta a solo un par de dias!" $) cyoa-text!
+		($ "'Ha sido un camino muy largo y sinuoso hacia Canada. " .. Thegroup .. "  ahora esta a solo un par de dias!" $) cyoa-text!
 		near-last-day-warn
 		trade-draw
 	then;
 	road-trip-days 25 = if
-		($ "El final esta a la vista. Al final de este camino muy largo se encuentra una gran cantidad de zombis, el resultado natural de las manadas que se hacen un poco mas grandes cada pocos dias de viaje. Tal vez... " .. yourteam .. " 'podra llegar!" $) cyoa-text!
+		($ "El final esta a la vista. Al final de este largo camino hay una gran cantidad de zombis, el resultado final natural de que las hordas se hacen un poco mas grandes cada pocos dias de viaje.		Quizas " .. yourteam .. "  puede lograrlo!" $) cyoa-text!
 		last-day-warn
 		trade-draw
 	then;
 	50 %chance if
-		($ Thegroup .. " 'conduce por una larga extension de carretera. No hay amenazas a la vista, pero tampoco hay mucho de interes. " $)
+		($ Thegroup .. "  esta conduciendo por un largo tramo de carretera. No hay amenazas en el horizonte, pero tampoco mucho mas de interes. " $)
 	else
-		($ Thegroup .. " 'sigue haciendo progresos por la Carretera de la Muerte. Mientras una persona siga viva, la ilusion de Canada persiste." $)
+		($ Thegroup .. "  continua progresando por el Camino de la Muerte. Mientras una persona siga viva, el sueno de Canada seguira vivo." $)
 	then cyoa-text!
 	+cr foodamt
-	($ "Inesperadamente, " .. thegroup .. " 'encuentra a alguien " .. gthey .. " 'con quien puede comerciar: " $)
+	($ "Inesperadamente, " .. thegroup .. "  encuentra a alguien " .. gthey .. "  puede comerciar con: " $)
 		+crtext trade-draw
 	
 ;
