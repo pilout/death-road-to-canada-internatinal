@@ -5,96 +5,94 @@ cyoa{ road{
 
 cyoa: walk-stubtoe
 	image-stubbed-toe
-	"TOE STUB" cyoa-title!
+	"DITO DEL PIEDE COLPITO" cyoa-title!
 	someone choosechar
-	($ "While walking, " .. cname .. " stubs " .. chis .. " toe badly. It's not a big deal, but it is really annoying." $) cyoa-text! 
+	($ "Mentre camminava " .. cname .. "  colpisce " .. chis .. " ' l'alluce male. Non e un grosso problema, ma e davvero fastidioso." $) cyoa-text! 
 	bitefx morale-- sting--
 ;
 cyoa: walk-hole
 	image-backpack-hole
-	"Bottomless Pit" cyoa-title!
+	"Pozzo senza fondo" cyoa-title!
 	choosehuman
-	($ "While walking, " .. cname .. " doesn't notice a hole in " .. chis .. " backpack." $) cyoa-text!
+	($ "Mentre camminava " .. cname .. " ' non nota un buco nel " .. chis .. "  zaino." $) cyoa-text!
 	nosupplyloss2? if
 	// cchar .weaponb@ 0 = and
-		($ "There were so little supplies that none were lost.
-		" .. cname .. " feels really smug about this!" $) +crtext morale2+ goodfx
+		($ "Cerano cosi poche provviste che non ne e andata persa nessuna.		" .. cname .. "  si sente davvero compiaciuto di questo!" $) +crtext morale2+ goodfx
 	else
-		($ "By the time " .. che .. " realizes this, there had been hours of opportunity for supplies to fall through." $) +crtext
+		($ "Nel momento in cui " .. che .. "  si rende conto di questo, ci sono state ore di possibilita per le provviste di cadere." $) +crtext
 		morale-- badfx supplyloss2
 	then
 ;
 
 cyoa: walk-carrock
 	image-car-looking-rock
-	"SO CLOSE" cyoa-title!
+	"COSI VICINO" cyoa-title!
 	someone choosechar
-	($ "While walking along a dirt road, " .. cname .. " thought that " .. che .. " spotted a car in the distance. It was only when " .. che .. " got close to it that " .. che .. " realized it was just a giant rock. What a shame." $) cyoa-text! badfx morale--all 
+	($ "Mentre camminava lungo una strada sterrata, " .. cname .. "  pensava che " .. che .. "  ha avvistato unauto in lontananza. E stato solo quando " .. che .. "  si e avvicinato che " .. che .. "  si e reso conto che era solo una roccia gigante. Che peccato." $) cyoa-text! badfx morale--all 
 ;
 cyoa: walk-dirty
 	image-wet-bag
-	"All Dirty" cyoa-title!
+	"Tutto sporco" cyoa-title!
 	choosehuman
-	($ "While walking through the woods, " .. cname .. " doesn't pay attention to where " .. che .. " is going and falls into a deep puddle of water. " .. cHis .. " gear is fully submerged, putting supplies in danger." $) cyoa-text! supplyloss2 morale2- badfx
+	($ "Mentre camminava nel bosco, " .. cname .. " ' non fa attenzione a dove " .. che .. "  sta andando e cade in una profonda pozzanghera dacqua. " .. cHis .. "  lattrezzatura e completamente sommersa, mettendo a rischio le forniture." $) cyoa-text! supplyloss2 morale2- badfx
 ;
 
 
 cyoa-choice: walk-branchbreak-go
-	($ cname .. " decides to climb a tree to get a better vantage point of the surrounding area." $) cyoa-text!
+	($ cname .. "  decide di arrampicarsi su un albero per avere una migliore visuale dellarea circostante." $) cyoa-text!
 	cfitness+ if
-		($ cHe .. " climbs the tree with little effort. It's fun exercise! " .. cHe .. " spots something in the distance." $) +crtext morale++ goodfx fitnessREV
+		($ cHe .. " ' scala l'albero con poco sforzo. E un esercizio divertente! " .. cHe .. "  individua qualcosa in lontananza." $) +crtext morale++ goodfx fitnessREV
 	then;
 	40 %chance if
-		 ($ "On the way up, the branch that was holding " .. chis .. " weight breaks, causing " .. chim .. " to fall a good distance!" $) +crtext fitnessREV morale-- bitefx ouch--
+		 ($ "Sulla via del ritorno, il ramo che stava tenendo " .. chis .. "  peso si rompe, causando " .. chim .. "  una buona caduta!" $) +crtext fitnessREV morale-- bitefx ouch--
 	then;
-		($ cHis .. " plan works out fine. " .. cHe .. " spots something in the distance, and gets to see a majestic view!" $) +crtext fitnessREV morale++ goodfx
+		($ cHis .. "  il piano funziona bene. " .. cHe .. "  individua qualcosa in lontananza e riesce a vedere una vista maestosa!" $) +crtext fitnessREV morale++ goodfx
 ;
 : walk-branchbreak-no 2 ' walk-countdown +! badfx ;
 
 cyoa: walk-branchbreak
 	image-tree
-	"THE BRANCH" cyoa-title!
+	"IL RAMO" cyoa-title!
 	choosehuman
-	($ "While trekking through the woods, " .. thegroup .. " gets pretty lost. If " .. gthey .. " keep" .. g1s .. " going like this, " .. gthey .. "'ll waste a lot of time." $) cyoa-text! 
-		fittest charchoice( " climbs a tree to look around" )choice: walk-branchbreak-go
-		choice( "Keep wandering blindly" )choice: walk-branchbreak-no
+	($ "Mentre cammina nel bosco, " .. thegroup .. "  si perde abbastanza. Se " .. gthey .. "  mantien" .. g1s .. "  continuando cosi, " .. gthey .. "''perdera un sacco di tempo." $) cyoa-text! 
+		fittest charchoice( "  si arrampica su un albero per guardarsi intorno" )choice: walk-branchbreak-go
+		choice( "Continua a vagare alla cieca" )choice: walk-branchbreak-no
 ;
 cyoa: walk-nicewalk
 	image-uneventful-way
-	"Nice Walk" cyoa-title!
-	($ "" .. Thegroup .. " continues walking through the country side. It is very uneventful but at least there are no zombies or dangers in sight. For the first time in a long time they are able to drop their guard and walk in some form of peace." $) cyoa-text! basic-tone
+	"Bella passeggiata" cyoa-title!
+	($ "" .. Thegroup .. "  continua a camminare attraverso la campagna. E molto tranquillo ma almeno non ci sono zombi o pericoli in vista. Per la prima volta da molto tempo riescono ad abbassare la guardia e a camminare in una sorta di pace." $) cyoa-text! basic-tone
 ;
 cyoa: walk-mold
 	image-white-van
-	"Good Forever" cyoa-title!
-	($ "" .. Thegroup .. " spots a bakery van that has broken down on the side of the road. The van is irreparable, the bread is moldy and inedible, but there are some sugary cakes that are still good." $) cyoa-text! morale++all 4 trunk-food+ goodfx
+	"Buono per sempre" cyoa-title!
+	($ "" .. Thegroup .. "  individua un furgone del panettiere che si e rotto sul ciglio della strada. Il furgone e irreparabile, il pane e ammuffito e immangiabile, ma ci sono delle torte zuccherate che sono ancora buone." $) cyoa-text! morale++all 4 trunk-food+ goodfx
 ;
 cyoa: walk-pain1
-	"Leap of Faith" cyoa-title!
-	($ Thegroup .. " gets sandwiched by zombie hordes while on a cliffside road. Without a car, the only way to escape was by jumping and hoping for the best. The fall was painful, but not fatal." $) cyoa-text! sting--all bitefx
+	"Salto della fede" cyoa-title!
+	($ Thegroup .. "  viene schiacciato da orde di zombi mentre si trova su una strada scoscesa. Senza unauto, lunico modo per scappare era saltare e sperare per il meglio. La caduta e stata dolorosa, ma non fatale." $) cyoa-text! sting--all bitefx
 ;
 cyoa: walk-pain2
-	"Cat Attack!" cyoa-title!
+	"Attacco del gatto!" cyoa-title!
 	someicon
 	image-feral-cat
 	
-	($ cname .. " is walking along the road when " .. che .. " is suddenly mauled by a feral cat!
-	Feral cats coat the United States after the zombocalypse. You never see them, but they're always watching. Waiting for any weakness." $) cyoa-text! sting-- morale-- bitefx
+	($ cname .. "  sta camminando lungo la strada quando " .. che .. " ' viene improvvisamente sbranato da un gatto selvatico! I gatti selvatici ricoprono gli Stati Uniti dopo lo zombocalypse. Non li vedi mai, ma ti stanno sempre osservando. Aspettando qualsiasi debolezza." $) cyoa-text! sting-- morale-- bitefx
 ;
 cyoa: walk-pain3
-	"Rough Terrain" cyoa-title! someicon
-	($ Thegroup .. " runs into a particularly rough stretch of road. There's nothing life-threatening about it, it's just a long and miserable walk. " .. gThey .. " get" .. g1s .. " bruised and battered in multiple small accidents." $) cyoa-text! sting--all morale--all bitefx
+	"Terreno accidentato" cyoa-title! someicon
+	($ Thegroup .. " 'incontra un tratto di strada particolarmente accidentato. Non c'e nulla di pericoloso per la vita, e solo una lunga e miserabile passeggiata. " .. gThey .. "  ottenere" .. g1s .. "  ferito e malconcio in numerosi piccoli incidenti." $) cyoa-text! sting--all morale--all bitefx
 ;
 cyoa: walk-rainmorale
-	"Horrible Weather" cyoa-title! someicon
-	($ "The weather suddenly turns bad. " .. Thegroup .. " is caught in the open, and must keep moving. " .. gTheyare .. " forced to stumble around in miserable conditions." $) cyoa-text!
+	"Tempo orribile" cyoa-title! someicon
+	($ "Il tempo improvvisamente peggiora. " .. Thegroup .. "  e sorpreso allaperto e deve continuare a muoversi. " .. gTheyare .. "  costretto a inciampare in condizioni miserabili." $) cyoa-text!
 	roadtrip-has-umbrella? if
 		umbrella-count numhums >= if 
 			solohuman if choosehuman 
-				($ "It's a good thing that " .. cname .. " brought an umbrella!" $)
-			else "There are enough umbrellas to go around!" then +crtext "Things could have been much worse!" +crtext goodfx
+				($ "'E una buona cosa che " .. cname .. "  abbia portato un ombrello!" $)
+			else "Ci sono abbastanza ombrelli per tutti!" then +crtext "Le cose sarebbero potute andare molto peggio!" +crtext goodfx
 		else 
-			umbrella-count 2 < if "Having an umbrella helps, but only a little." else "There are not enough umbrellas to fully protect everyone from the downpour!"
+			umbrella-count 2 < if "Avere un ombrello aiuta, ma solo un po." else "Non ci sono abbastanza ombrelli per proteggere completamente tutti dal diluvio!"
 			then +crtext morale--all badfx
 		then
 	else
@@ -104,76 +102,74 @@ cyoa: walk-rainmorale
 ;
 cyoa: walk-meal
 	image-caught-fish
-	"Free Meal" cyoa-title!
+	"Pasto gratuito" cyoa-title!
 	choosehuman
-	($ "While walking along side a large stream " .. cname .. " notices some fish in the water. " .. cname .. " tries their luck, goes into the water, and tries to catch some fish by hand. By some miracle, " .. cname .. " is able to catch a decent sized Catfish! " $) cyoa-text! morale++all +6 trunk-food+ goodfx
+	($ "Mentre cammina lungo un grande ruscello " .. cname .. "  nota alcuni pesci nellacqua. " .. cname .. "  tenta la fortuna, entra nellacqua e prova a catturare del pesce a mani nude. Per miracolo, " .. cname .. "  riesce a catturare un grosso pesce gatto! " $) cyoa-text! morale++all +6 trunk-food+ goodfx
 ;
 
 cyoa-choice: walk-bandit1-paranoid
-	($ cname .. " foresaw an ambush, so " .. che .. " set " .. chis .. " plans up shortly before the bandits appeared." $) cyoa-text!
+	($ cname .. "  aveva previsto unimboscata, quindi " .. che .. "  predispose " .. chis .. "  piani poco prima che arrivassero i banditi." $) cyoa-text!
 	solo if
-		($ cHe .. " runs immediately as the bandits start making demands. When the bandits chase " .. chim .. ", they trip over branches and snares that were set on the path." $)
+		($ cHe .. "  scappa subito quando i banditi iniziano a fare richieste. Quando i banditi lo inseguono " .. chim .. ", inciampano su rami e trappole che erano state posizionate sul sentiero." $)
 	else
-		($ "When the bandits make their demands of " .. cname .. ", " .. theothers .. " sneak" .. g2s .. " behind them in a counter-ambush. They're surprised by this and surrender." $)
+		($ "Quando i banditi chiedono " .. cname .. ", " .. theothers .. "  si intrufolano" .. g2s .. " ' dietro di loro in un contro agguato. Sono sorpresi da questo e si arrendono." $)
 	then +crtext morale++all witsattREV goodfx
 ;
 
 cyoa-choice: walk-bandit1-charm
-	($ cname .. " convinces the bandits to not go through with the attack. They didn't want to, anyway." $) cyoa-text! goodfx
+	($ cname .. " ' convince i banditi a non portare a termine l'attacco. Non volevano comunque farlo." $) cyoa-text! goodfx
 	trunk-food 4 > if
-		($ "Feeling pity, " .. cname .. " gives them some food." $) +crtext -5 trunk-food+ morale++
+		($ "Sentendo pieta, " .. cname .. "  da loro del cibo." $) +crtext -5 trunk-food+ morale++
 	else
-		($ cname .. " wants to help them, but can't spare much." $) +crtext  morale--
+		($ cname .. " vuole aiutarli, ma non puo permettersi molto." $) +crtext  morale--
 	then
 ;
 
 cyoa: walk-bandit1
-	"Reluctant Bandits" cyoa-title!
-	($ "Without a car, " .. thegroup .. " is a sitting duck for bandits.
-	" .. Thegroup .. " is ambushed by awkward bandits that apologize for the robbery. They are likely new at this.
-	" .. "They demand " rbold $) cyoa-text! 1 500 tone
+	"Brigate Rischiose" cyoa-title!
+	($ "Senza una macchina, " .. thegroup .. "  e un facile bersaglio per i briganti.	" .. Thegroup .. "  viene assalito da goffi briganti che si scusano per la rapina. Sono probabilmente alle prime armi.	" .. "Chiedono " rbold $) cyoa-text! 1 500 tone
 	bandit-demand-fight
 		most-paranoid if 
-			charchoice( " expected this" )choice: walk-bandit1-paranoid
+			charchoice( "  lo sospettavo" )choice: walk-bandit1-paranoid
 		then
 		most-charming if
-			charchoice( " reasons with them" )choice: walk-bandit1-charm
+			charchoice( "  ragiona con loro" )choice: walk-bandit1-charm
 		then
 ;
 
 cyoa-choice: walk-bandit2-coolit
 	cpet? if 
-		($ cname .. " somehow manages to speak with " .. chis .. " animal mouth to say" .. " COOL IT " pbold .. "to the merciless bandits." $)
+		($ cname .. "  in qualche modo riesce a parlare con " .. chis .. "  bocca animale per dire" .. "  CALMATI " pbold .. "ai briganti spietati." $)
 	else
-		($ cname .. " tells the merciless bandits to" .. " COOL IT." pbold $)
+		($ cname .. "  dice ai briganti spietati di" .. " Raffreddati." pbold $)
 	then cyoa-text!
-	($ "This transforms them into murderous bandits. No miracle here was possible." $) +crtext
+	($ "Questo li trasforma in briganti assassini. Qui non era possibile nessun miracolo." $) +crtext
 	cool-it++ sting--all ouch2- witsattREV bitefx
 ;
 
 cyoa-choice: walk-bandit2-pay
-	($ Thegroup .. " pays up." $) text!
+	($ Thegroup .. "  paga." $) text!
 	ezbandit? if
-		($ gThey .. " lose" .. g1s .. " a chunk of " .. ghis .. " supplies. " .. gTheyare .. " still alive, for the time being." $) 
+		($ gThey .. "  perdere" .. g1s .. "  un pezzo di " .. ghis .. "  rifornimenti. " .. gTheyare .. "  ancora vivo, per il momento." $) 
 	else
-		($ gThey .. " lose" .. g1s .. " " .. ghis .. " weapons and everything else " .. gthey .. " had. " .. gTheyare .. " still alive, for the time being." $) 
+		($ gThey .. "  perdere" .. g1s .. " " .. ghis .. "  armi e tutto il resto " .. gthey .. "  aveva. " .. gTheyare .. "  ancora vivo, per il momento." $) 
 	then +crtext badfx
 	 ezbandit? not if 0weaponsall trunk.clear then bandit-all morale3-all someicon
 ;
 
-: bandit2-ezbandit ezbandit? if " a quarter " else " half " then ;
+: bandit2-ezbandit ezbandit? if "  un quarto " else "  meta " then ;
 
 cyoa-choice: walk-bandit2-paranoid
-	($ cname .. " expected an ambush, so " .. che .. " thought of an escape plan earlier." $) cyoa-text!
-	($ gHe .. " quickly tosses" .. bandit2-ezbandit .. "of " .. ghis .. " supplies on the ground as a distraction, then " .. "RUNS AWAY!" rbold .. " as a hail of bullets zing by." $) +crtext
+	($ cname .. "  si aspettava unimboscata, quindi " .. che .. "  pensava a un piano di fuga in anticipo." $) cyoa-text!
+	($ gHe .. "  lancia velocemente" .. bandit2-ezbandit .. "di " .. ghis .. "  fornisce a terra come distrazione, quindi " .. "SCAPPA VIA!" rbold .. "  mentre una grandinata di proiettili sfreccia." $) +crtext
 	sting-- 
-	($ "The plan was really simple and far from perfect, but things could have gone a lot worse." $) +crtext goodfx witsattREV bandit-supplies2
+	($ "Il piano era davvero semplice e tuttaltro che perfetto, ma le cose sarebbero potute andare molto peggio." $) +crtext goodfx witsattREV bandit-supplies2
 ;
 
 cyoa-choice: walk-bandit2-gourmand
-	"Fine! Whatever! I don't care!" text! goodfx
-	($ cname .. " waddles over to each bandit, then eats the weapon that the bandit is holding. " .. cHe .. " does this for every single bandit. Everyone is too confused by this to move, or even react to the proceedings." $) +crtext
-	($ cname .. " later explains that " .. che .. " was " .. "'really hungry'" pbold .. "." $) +crtext 
+	"'Bene! Qualunque cosa! Non mi interessa!" text! goodfx
+	($ cname .. "  dondola verso ogni bandito, poi mangia larma che il bandito tiene in mano. " .. cHe .. "  lo fa per ogni singolo bandito. Tutti sono troppo confusi da questo per muoversi o addirittura reagire al procedimento." $) +crtext
+	($ cname .. "  spiega in seguito che " .. che .. "  era " .. "''davvero affamato'" pbold .. "." $) +crtext 
 	morale3+
 	cchar .vitality@ 6 < if 
 		1.5 cchar .scale.body.x!
@@ -184,101 +180,91 @@ cyoa-choice: walk-bandit2-gourmand
 cyoa-bridge: walk-bandit2-eatpick
 	' gourmandcheck pick-team-char 0= if false then; pickchar true if choosechar then
 	cicon
-	"What?
-	What do you mean, " text! "Eat the Bandit's Weapons" pbold +text "?" +text
-	"That doesn't even make any sense!" +crtext
-	cchar charchoice( " eats the bandit's weapons! " .. "DO IT!" rbold )choice: walk-bandit2-gourmand
-	choice( "You heard me! Eat all those weapons!" )choice: walk-bandit2-gourmand
-	choice( "Eat the weapons! It's the perfect counter!" )choice: walk-bandit2-gourmand
-	choice( "Eat weapons, but use stealth tactics" )choice: walk-bandit2-gourmand
+	"Cosa?	Cosa intendi con " text! "'Mangia le armi del bandito" pbold +text "?" +text
+	"'Questo non ha neanche senso!" +crtext
+	cchar charchoice( " ' mangia le armi del bandito! " .. "Fallo!" rbold )choice: walk-bandit2-gourmand
+	choice( "Mi hai sentito! Mangia tutte quelle armi!" )choice: walk-bandit2-gourmand
+	choice( "'Mangia le armi! E la contromossa perfetta!" )choice: walk-bandit2-gourmand
+	choice( "Mangia le armi, ma usa tattiche furtive" )choice: walk-bandit2-gourmand
 ;
 
 cyoa: walk-bandit2
-	"Merciless Bandits" cyoa-title!
-	($ "Without a car, " .. thegroup .. " is easy prey for bandits. A group ambushes you and demands your supplies." $) text!
+	"Banditi spietati" cyoa-title!
+	($ "Senza una macchina, " .. thegroup .. "  e una facile preda per i banditi. Un gruppo ti tende unimboscata e richiede le tue scorte." $) text!
 	ezbandit? if
-		($ "All food and gas, plus half of your ammo and medical supplies." rbold $)
+		($ "Tutto il cibo e la benzina, piu la meta delle tue munizioni e delle tue scorte mediche." rbold $)
 	else
-		($ "All weapons, ammo, gas, supplies. Everything." rbold .. "
-		This is exceptionally cruel, to a level most bandits won't stoop to. They know it's a death sentence." $)
+		($ "Tutte le armi, munizioni, benzina, rifornimenti. Tutto." rbold .. "'		Questo e eccezionalmente crudele, a un livello a cui la maggior parte dei banditi non si abbassa. Sanno che e una condanna a morte." $)
 	then +crtext 1 500 tone
-	choice( "Give their demands" )choice: walk-bandit2-pay
+	choice( "Dategli quello che chiedono" )choice: walk-bandit2-pay
 	bandit-fight
 		numgourmands 0 > if
-			choice( "Eat the Bandits' Weapons" )choice: walk-bandit2-eatpick
+			choice( "'Mangia le armi del bandito" )choice: walk-bandit2-eatpick
 		then
 		most-paranoid if 
-			charchoice( ": Drop" .. bandit2-ezbandit .. "of loot and run" )choice: walk-bandit2-paranoid
+			charchoice( ": Lascia" .. bandit2-ezbandit .. "di bottino e scappa" )choice: walk-bandit2-paranoid
 		then
 		most-grating if
-			charchoice( " says 'Cool It' as last words" )choice: walk-bandit2-coolit
+			charchoice( " ' dice Calma come ultime parole" )choice: walk-bandit2-coolit
 		then
 ;
 
 cyoa-choice: walk-bandit3-burn
-	($ cname .. " promises the bandits that if " .. che .. " isn't let go, " .. che .. " will come back and burn the bridge down." $) cyoa-text!
+	($ cname .. "  promette ai banditi che se " .. che .. " ' non viene lasciato andare, " .. che .. "  tornera e brucera il ponte." $) cyoa-text!
 	50 %chance if
-		($ "The bandits decide to play it safe and just attack immediately. " .. Thegroup .. " manages to escape from the fight, with no supplies stolen." $) +crtext
+		($ "I banditi decidono di giocare sul sicuro e attaccano immediatamente. " .. Thegroup .. "  riesce a scappare dalla lotta, senza che gli vengano rubate provviste." $) +crtext
 		solo if 
 			sting2-
 		else
 			sting-- sting--all
 		then bitefx 
 	else
-		($ "The bandits are intimidated at the thought of losing their livelihood, so they let " .. thegroup .. " pass.
-		Once " .. che .. " crosses the bridge, " .. che .. " lights it on fire." $) +crtext morale++ goodfx
+		($ "I banditi sono intimiditi al pensiero di perdere i loro mezzi di sussistenza, quindi lasciano " .. thegroup .. "  passare.		Una volta " .. che .. "  attraversa il ponte, " .. che .. "  lo da alle fiamme." $) +crtext morale++ goodfx
 	then aholeREV
 ;
 
 cyoa-choice: walk-bandit3-paranoid
-	($ cname .. " expected an ambush, so " .. che .. " walked through the bridge alone, carrying nothing.
-	The bandits are annoyed by " .. chis .. " lack of stuff and crappy attitude, so they toss " .. chim .. " over the bridge. It's not a bad fall." $) cyoa-text!
+	($ cname .. "  si aspettava unimboscata, quindi " .. che .. "  ha attraversato il ponte da solo, senza portare nulla.	I banditi sono infastiditi da " .. chis .. "  manca di roba e pessimo atteggiamento, cosi la gettano " .. chim .. " ' oltre il ponte. Non e una brutta caduta." $) cyoa-text!
 	sting-- 
-	($ "While this is happening, " .. theothers .. " sneak" .. g2s .. " past the bridge with the supplies!" $) +crtext goodfx witsattREV
+	($ "Mentre cio accade, " .. theothers .. "  si intrufolano" .. g2s .. "  oltre il ponte con le provviste!" $) +crtext goodfx witsattREV
 ;
 
 cyoa: walk-bandit3
-	"Toll Bridge Bandits" cyoa-title!
-	($ Thegroup .. " is ambushed while crossing a rickety bridge over a river.
-	The bandits demand a toll to cross.
-	" .. "They want " rbold $) cyoa-text! 1 500 tone
+	"Banditi del ponte a pedaggio" cyoa-title!
+	($ Thegroup .. "  viene tesa unimboscata mentre attraversa un ponte traballante su un fiume. I banditi chiedono un pedaggio per attraversare." .. "Vogliono " rbold $) cyoa-text! 1 500 tone
 	bandit-demand-fight
 		most-paranoid notsolo and if 
-			charchoice( " expected this" )choice: walk-bandit3-paranoid
+			charchoice( "  lo sospettavo" )choice: walk-bandit3-paranoid
 		then
 		most-ahole if
-			charchoice( " threatens to burn bridge" )choice: walk-bandit3-burn
+			charchoice( "  minaccia di bruciare il ponte" )choice: walk-bandit3-burn
 		then
 ;
 
 cyoa-choice: walk-bandit4-fight
-	($ Thegroup .. " is tired and caught in the open as " .. gthey .. " fight" .. g1s .. ". It's fortunate that these bandits aren't that dangerous. After a short fight, they run." $) cyoa-text! someicon bitefx sting--all
+	($ Thegroup .. "  e stanco e viene catturato allo scoperto mentre " .. gthey .. " combatti" .. g1s .. "'. Fortunatamente questi banditi non sono cosi pericolosi. Dopo un breve combattimento, scappano." $) cyoa-text! someicon bitefx sting--all
 ;
 cyoa-choice: walk-bandit4-angry
-	($ "The bandits are " .. "UTTERLY TERRIFIED" rbold .. " by " .. cname .. "!
-	They trip over themselves in a rush to escape!
-	" .. Thegroup .. " is relieved to avoid a fight while exhausted." $) cyoa-text! goodfx temperREV strengthREV morale++
+	($ "I banditi sono " .. "TERRORIZZATI" rbold .. "  da " .. cname .. "! Cadono a terra di corsa per scappare!" .. Thegroup .. "  e sollevato di evitare una lotta mentre e esausto." $) cyoa-text! goodfx temperREV strengthREV morale++
 ;
 cyoa-choice: walk-bandit4-obliv
 	cpet? if
-		($ cname .. " makes a threatening sounding noise. It turns out it was just animal confusion noises." $) cyoa-text!
+		($ cname .. "  fa un rumore minaccioso. Si scopre invece che erano solo suoni di confusione animale." $) cyoa-text!
 	else
-		($ cname .. " says something like " .. "WHAT DID YOU SAY?" pbold .. " but really " .. che .. " just didn't hear them." $) cyoa-text!
+		($ cname .. "  dice qualcosa come " .. "CHE HAI DICOTTO?" pbold .. " in realta " .. che .. " 'ma in verita non l'hanno sentita." $) cyoa-text!
 	then
-	($ "The bandits misunderstand this and are " .. "VERY INTIMIDATED" rbold .. " by " .. cname .. "! They flee and scatter!
-	" .. cname .. " has no idea what happened but is glad the bandits are gone." $) +crtext goodfx witsattREV morale++
+	($ "I fuorilegge si sbagliano e sono " .. "OLTREMMANO" rbold .. "  da " .. cname .. "! Si allontanano e dispersi!" .. cname .. " non ha idea di cosa e successo ma e felice che i fuorilegge siano andati via." $) +crtext goodfx witsattREV morale++
 ;
 
 cyoa: walk-bandit4
-	"Cowardly Bandits" cyoa-title!
-	($ Thegroup .. " is robbed by weak bandits. The bandits are of a kind that would normally not be a problem, if " .. thegroup .. " had a car or wasn't tired from walking all day.
-	" .. "The bandits nervously demand " rbold $) cyoa-text! 1 500 tone
-	bandit-demand choice( "Refuse and fight!" )choice: walk-bandit4-fight
+	"Fuorilegge codardi" cyoa-title!
+	($ Thegroup .. " e derubato da fuorilegge debole. I fuorilegge sono di una specie che normalmente non sarebbe un problema, se " .. thegroup .. " 'avesse una macchina o non fosse stanchissimo di camminare tutto il giorno." .. "I banditi chiedono nervosamente " rbold $) cyoa-text! 1 500 tone
+	bandit-demand choice( "Rifiuta e combatti!" )choice: walk-bandit4-fight
 	most-angrystrong if 
-		charchoice( " terrifies the bandits" )choice: walk-bandit4-angry
+		charchoice( "  terrorizza i banditi" )choice: walk-bandit4-angry
 	then
 	most-oblivious if
-		charchoice( ": WHAT DID YOU SAY?" )choice: walk-bandit4-obliv
+		charchoice( ": COSA HAI DETTO?" )choice: walk-bandit4-obliv
 	then
 	// badfx morale--all bandit-ammomed bandit-food 0bweaponsall
 ;
@@ -287,16 +273,15 @@ cyoa: walk-bandit4
 
 cyoa: walk-boot
 	image-stubbed-toe
-	"Free Boot" cyoa-title!
-	($ Thegroup .. " spots an old boot on the road. It doesn't look like it's anyone's size, but hey, it's free!
-	This is surely a symbol of good luck." $) cyoa-text!
-		choice( "Get that boot" )choice: walk-boot-get
-		choice( "Ignore boot" )choice
+	"Stivale Gratis" cyoa-title!
+	($ Thegroup .. " ' individua un vecchio stivale sulla strada. Non sembra essere della misura di nessuno, ma ehi, e gratis!	Questo e sicuramente un simbolo di buona fortuna." $) cyoa-text!
+		choice( "Prendi quello stivale" )choice: walk-boot-get
+		choice( "Ignora lo stivale" )choice
 ;
 
 : walk-caryell-check args( @ )
 	<- @ oblivious? if
-		($ <- @ .colourname .. " didn't notice any of this." $) +crtext 
+		($ <- @ .colourname .. " ' non ha notato nulla di tutto cio." $) +crtext 
 		<- @ <- @ .witsattREV
 	then;
 	<- @ .morale--
@@ -304,10 +289,9 @@ cyoa: walk-boot
 
 cyoa: walk-caryell
 	image-angry-car
-	"Immortal American Pastime" cyoa-title!
-	($ Thegroup .. " spots a car speeding down the road. Maybe this stranger can help them!
-	Without slowing down, the driver yells out " .. FLASHY .. "NEEEEEEEEEEEEEEEEEEEERD" .. gS .. "!" .. WHITE $) cyoa-text!
-	"And then the car is gone." +crtext ' walk-caryell-check foreach-human-char badfx
+	"Passatempo Americano Immortale" cyoa-title!
+	($ Thegroup .. "  individua unauto che sfreccia lungo la strada. Forse questo sconosciuto puo aiutarli!	Senza rallentare, lautista urla " .. FLASHY .. "NEEEEEEEEEEEEEEEEEEEERD" .. gS .. "!" .. WHITE $) cyoa-text!
+	"E poi lauto se ne va." +crtext ' walk-caryell-check foreach-human-char badfx
 ;
 
 } }

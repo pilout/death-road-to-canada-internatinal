@@ -15,7 +15,7 @@ road{
 cyoa{ road{
 
 : santajoins
-	+cr ($ "HO HO HO! MERRY CHRISTMAS!" pbold $) +text
+	+cr ($ "HO HO HO! BUON NATALE!" pbold $) +text
 	team-count 3 > if then;
 	4 recruitee .mechanical! 6 recruitee .attitude!
 	recruitee .attitudeREV
@@ -31,203 +31,184 @@ cyoa{ road{
 
 cyoa-choice: santa-test-nice
 	ricon
-($ "Santa gives " .. thegroup .. " a present! It's a bunch of cans of corn, just what " .. gthey .. " always wanted!" $) cyoa-text! 2 300 tone
+($ "Babbo Natale regala " .. thegroup .. " ' un regalo! E' un sacco di lattine di mais, proprio quello che " .. gthey .. "  sempre voluto!" $) cyoa-text! 2 300 tone
 	5 LOOT_FOOD trunk.loot+
 	santajoins
 ;
 cyoa-choice: santa-test-naughty 
 	ricon
-	($ "You're still nicer than those awful zombies! 
-	Santa gives " .. thegroup .. " some coal. " .. cname-He .. " crams it into the car's gas port." $) cyoa-text! 2 300 tone
+	($ "'Sei ancora piu gentile di quegli orribili zombi! Babbo Natale da " .. thegroup .. "  del carbone. " .. cname-He .. " ' lo infila nel bocchettone della benzina dell'auto." $) cyoa-text! 2 300 tone
 	50 LOOT_GAS trunk.loot+
 	santajoins
 ;
 cyoa-choice: santa-test-pissoff
 	ricon
-	"Evil Santa" recruitee .name! 4 screcruit
-	($ cname .. " snaps and verbally lays into Santa." .. "
-	PISS OFF, SANTA. NICE ONE! YOU'RE A D**FUS. WAY TO GO! WAY TO SPREAD HOLIDAY CHEER! YOU D*NK!" pbold .. "
-	Santa loses faith in humanity and and becomes " .. rname .. "!" $) cyoa-text! goodfx morale2-
+	"Babbo Natale malvagio" recruitee .name! 4 screcruit
+	($ cname .. "  scatta e si scaglia verbalmente contro Babbo Natale." .. "'	SPARISCI, BABBO NATALE. BELLO! SEI UN CRETINO. BRAVO! BEL MODO DI DIFFONDERE L'ALLEGREZZA NATALIZIA! CRETINO!" pbold .. "	Babbo Natale perde fiducia nellumanita e diventa " .. rname .. "!" $) cyoa-text! goodfx morale2-
 	evilsantajoins	
 ;
 
 cyoa: santa-test
-	"MERRY CHRISTMAS" cyoa-title!
+	"BUON NATALE" cyoa-title!
 	someone choosechar
 	char-gen to recruitee
 	ricon
 	3 screcruit
-	"Santa" recruitee .name!
+	"Babbo Natale" recruitee .name!
 	4 recruitee .shooting! 0 recruitee .female! 6 recruitee .morale!
 	($ Thegroup .. " is searching through a house for supplies when something comes down the chimney. It's Santa!!!
-	" .. "HO HO HO! HAVE YOU BEEN NAUGHTY OR NICE?" pbold $) cyoa-text! basic-tone
-		choice( "Nice" )choice: santa-test-nice
-		choice( "Naughty" )choice: santa-test-naughty
+	" .. "HO HO HO! SEI STATO CATTTIVO O BUONO?" pbold $) cyoa-text! basic-tone
+		choice( "Buono" )choice: santa-test-nice
+		choice( "Cattivo" )choice: santa-test-naughty
 		goofus-pass if
-			goofus charchoice( ": PISS OFF" )choice: santa-test-pissoff
+			goofus charchoice( ": SPARISCI" )choice: santa-test-pissoff
 		then
 ;
 
 cyoa-bridge: TLB-recruit
 	team-count 3 > if
 		ricon
-		($ "TOO MANY PEOPLE, HOW AM I SUPPOSED TO POSE OR OIL UP IN THE CAR?
-		" fbold ..
-		 rname .. " has a point here. Get rid of someone to make room:" $) cyoa-text!
+		($ "TROPPA GENTE, COME POSSO POSARE O UNGERMI IN MACCHINA?		" fbold ..
+		 rname .. "  ha ragione. Sbarazzati di qualcuno per fare spazio:" $) cyoa-text!
 		 recruit-replace?
 	then;
-	($ cname .. " convinces " .. "THE LAST BODYBUILDER" pbold  .. " that there's no point being the best bodybuilder in the world if there's no one around to appreciate it.
-	" .. "LET'S DO THIS! YEAH!!!" fbold $) cyoa-text! goodfx
+	($ cname .. "  convince " .. "LULTIMO BODYBUILDER" pbold  .. " ' che non ha senso essere il miglior bodybuilder al mondo se non c'e nessuno che lo apprezzi.	" .. "LET'S DO THIS! YEAH!!!" fbold $) cyoa-text! goodfx
 		recruitee .attitudeREV recruitee .strengthREV recruitee .temperREV
 		recruited
 ;
 
 cyoa-bridge: TLB-flex
-	"Foolish!" cyoa-title!
-	($ cname .. " challenges " .. "THE LAST BODYBUILDER" pbold .. " to a flexing contest. What folly!" $) text!
-	($ cname .. " IS OBLITERATED IN THE CONTEST AFTER ONE FLEX! THERE WAS NO CHANCE!" fbold $) +crtext
-	($ "There's nothing left of " .. chim .. ". " .. "T*L*B" pbold .. " has a single tear in his eye." $) +crtext
+	"Sciocco!" cyoa-title!
+	($ cname .. "  sfida " .. "LULTIMO BODYBUILDER" pbold .. "  a una gara di flessioni. Che follia!" $) text!
+	($ cname .. "  VIENE ANNIENTATO NELLA GARA DOPO UNA FLESSIONE! NON AVEVA ALCUNA POSSIBILITA!" fbold $) +crtext
+	($ "'Non e rimasto nulla di " .. chim .. ". " .. "T*L*B" pbold .. "  ha una lacrima nellocchio." $) +crtext
 	cchar .kill
 		team-count 0 > if
-			choice( "Try to recruit him" )choice: TLB-recruit
-			choice( "Leave him be" )choice
+			choice( "Prova ad arruolarlo" )choice: TLB-recruit
+			choice( "Lascialo stare" )choice
 		then
 ;
 
 cyoa-choice: TLB-train
-	"Getting Pumped with T*L*B" cyoa-title!
+	"Allenamento con T*L*B" cyoa-title!
 	ricon
-	($ "THE LAST BODYBUILDER " pbold .. "gives " .. thegroup .. " some excellent tips on getting swolled up during the post-apocalypse.
-	The advice is so good that a pump is felt immediately, no working out required." $) cyoa-text! goodfx
+	($ "LULTIMO BODYBUILDER " pbold .. "da " .. thegroup .. "  alcuni eccellenti consigli su come gonfiarsi durante la post apocalisse.	Il consiglio e cosi buono che si sente subito una pompa, non e necessario allenarsi." $) cyoa-text! goodfx
 	' .strength++ foreach-team-char
 ;
 
 cyoa: TLB-test
-	"The Last Bodybuilder" cyoa-title!
+	"Lultimo bodybuilder" cyoa-title!
 	someone choosechar
 	char-gen to recruitee
 	ricon
 	"T*L*B" recruitee .name!
 	5 recruitee .morale! 6 recruitee .attitude!	1 recruitee .composure! recruitee .tlbify
 	STAT_STRENGTH recruitee .effstat print
-	($ Thegroup .. " enters an abandoned gym. There, on a throne of old protein powder jars, sits a bronzed bodybuilder.
-	" .. "I AM... " pbold .. "THE LAST BODYBUILDER! YEAH!!!" fbold .. "
-	He FLEXES and GRUNTS, in a mournful manner." $) cyoa-text! basic-tone
-		choice( "Ask for strength tips" )choice: TLB-train
-		choice( "Try to recruit him" )choice: TLB-recruit
-		cchar charchoice( " starts a flexing contest" )choice: TLB-flex
+	($ Thegroup .. "  entra in una palestra abbandonata. Li, su un trono di vecchi barattoli di proteine in polvere, siede un bodybuilder abbronzato.	" .. "I AM... " pbold .. "THE LAST BODYBUILDER! YEAH!!!" fbold .. "	SI FLESSIONA E GRUGNISCE, in modo lugubre." $) cyoa-text! basic-tone
+		choice( "Chiedi suggerimenti sulla forza" )choice: TLB-train
+		choice( "Prova ad arruolarlo" )choice: TLB-recruit
+		cchar charchoice( "  inizia una gara di flessioni" )choice: TLB-flex
 		
 ;
 
 cyoa-bridge: alvis-recruit
 	ricon
 	team-count 3 > if
-		($  rname .. " mumbles something. The group is too full.
-		Get rid of someone to make room:" $) cyoa-text!
+		($  rname .. "  borbotta qualcosa. Il gruppo e troppo pieno.		Sbarazzati di qualcuno per fare spazio:" $) cyoa-text!
 		recruit-replace?
 	then;
-	($ rname  .. " somewhat clearly says " .. "LET'S ROCK!" pbold $) cyoa-text! goodfx
+	($ rname  .. "  dice abbastanza chiaramente " .. "'SCATENIAMOCI!" pbold $) cyoa-text! goodfx
 		recruitee .fitnessREV recruitee .strengthREV recruitee .temperREV
 		recruited
 ;
 
 cyoa: alvis-test
-	"The King of Sing" cyoa-title!
+	"Il re del canto" cyoa-title!
 	someone choosechar
 	char-gen to recruitee
 	ricon
 	"Alvis" recruitee .name!
 	3 recruitee .strength! 4 recruitee .morale! 6 recruitee .fitness!
 	1 recruitee .composure! 4 recruitee .shooting! recruitee .alvify
-	($ Thegroup .. " is looting a city when they run into a man in a gold suit, with an incredible pompadour. He is practicing karate moves.
-	He says something that you can't understand, due to a harmonious but unintelligible mumble." $) cyoa-text! basic-tone
-		choice( "Recruit him" )choice: alvis-recruit
-		choice( "Leave him be" )choice
+	($ Thegroup .. " ' sta saccheggiando una citta quando incontra un uomo in un abito dorato, con un'incredibile pompadour. Sta praticando mosse di karate.	Dice qualcosa che non riesci a capire, a causa di un borbottio armonioso ma incomprensibile." $) cyoa-text! basic-tone
+		choice( "Reclutalo" )choice: alvis-recruit
+		choice( "Lascialo stare" )choice
 ;
 
 cyoa-bridge: debutante-recruit
 	ricon
 	team-count 3 > if
-		($  rname .. " agrees to join, but then sees how incredibly crowded your vehicle is, with both people and various filth. " .. "WELL, I NEVER!" pbold .. "
-		Get rid of someone to make room:" $) cyoa-text!
+		($  rname .. "  accetta di unirsi, ma poi vede quanto e incredibilmente affollato il tuo veicolo, sia di persone che di varie immondizie. " .. "BENE, NON LHO MAI FATTO!" pbold .. "		Sbarazzati di qualcuno per fare spazio:" $) cyoa-text!
 		recruit-replace?
 	then;
-	($ rname  .. " spins her umbrella around her hand with lightning speed, and then snaps it in a resting pose against her shoulder. She must have practiced that a lot." $) cyoa-text! goodfx
+	($ rname  .. "  fa girare il suo ombrello intorno alla sua mano con la velocita della luce, e poi lo scatta in una posa di riposo contro la sua spalla. Deve averlo praticato molto." $) cyoa-text! goodfx
 		recruitee .strengthREV recruitee .fitnessREV
 		recruited
 ;
 
 cyoa: debutante-test
-	"High Society Fashion, Post-Society" cyoa-title!
+	"Post Modern Society, Post Society Fashion  Post Modern Fashion" cyoa-title!
 	someone choosechar
 	char-gen to recruitee
 	ricon
 	4 recruitee .morale! recruitee .debutantify
-	($ Thegroup .. " opens the door to a tea shop and finds a very fancy dressed woman inside, casually comparing two boxes of tea.
-	She puts the boxes down, turns half to you, and picks up her umbrella." $) cyoa-text! basic-tone
-		choice( "Recruit her" )choice: debutante-recruit
-		choice( "Leave her be" )choice
+	($ Thegroup .. " 	Apri la porta di un negozio di te e trovi una donna molto elegante allinterno, che confronta casualmente due scatole di te.	Posa le scatole, si gira verso di te e prende il suo ombrello." $) cyoa-text! basic-tone
+		choice( "Assumila" )choice: debutante-recruit
+		choice( "Lasciala stare" )choice
 ;
 
 cyoa-bridge: fencer-recruit
 	ricon
 	team-count 3 > if
-		($  rname .. " is undaunted by your packed car and just barely squeezes in. She ends up ripping up the interior of the car really bad with her sword. 
-		When asked if she can put her rapier in the trunk, she says " .. "NO DEAL! REPLACE SOMEONE OR I QUIT!" pbold $) cyoa-text! recruit-replace?
+		($  rname .. "  non e scoraggiata dalla tua auto stipata e si infila a malapena. Finisce per squarciare linterno dellauto in modo davvero pessimo con la sua spada. Quando le viene chiesto se puo mettere la sua spada nel bagagliaio, lei dice " .. "NESSUN AFFARE! SOSTITUISCI QUALCUNO O MI DIMETTO!" pbold $) cyoa-text! recruit-replace?
 	then;
-	($ rname  .. " points her sword to the sky and belts out " .. "NO ONE CAN STOP MY BLADE! HO HO HO!" pbold .. " It's briefly unsettling after she was talking so normally.
-	She then slashes the air in a grand fashion while laughing for about 4 straight minutes." $) cyoa-text! goodfx
+	($ rname  .. "  punta la sua spada verso il cielo e urla " .. "NESSUNO PUO FERMARE LA MIA LAMA! HO HO HO!" pbold .. " ' E brevemente inquietante dopo che parlava cosi normalmente. Poi taglia l'aria in modo grandioso mentre ride per circa 4 minuti consecutivi." $) cyoa-text! goodfx
 		recruitee .strengthREV recruitee .fitnessREV
 		recruited
 ;
 
 cyoa: fencer-test
-	"Swashbuckler" cyoa-title!
+	"Spadaccino" cyoa-title!
 	someone choosechar
 	char-gen to recruitee
 	ricon
 	4 recruitee .morale! recruitee .fencify
-	($ Thegroup .. " stumbles across someone's camp hidden behind an empty town. There's a woman dressed in medieval clothing like she's at a Renaissance Faire. She's sparring the air with a fencing foil.
-	She stops slashing her sword eventually, but never puts her rapier down. When talking to her, she seems like a pretty normal person despite appearances." $) cyoa-text! basic-tone
-		choice( "Recruit her" )choice: fencer-recruit
-		choice( "Leave her be" )choice
+	($ Thegroup .. " ' si imbatte nell'accampamento di qualcuno nascosto dietro una citta vuota. C'e una donna vestita con abiti medievali come se fosse a una fiera rinascimentale. Sta duellando in aria con un fioretto. Alla fine smette di tagliare la sua spada, ma non mette mai giu la sua spada. Quando le parli, sembra una persona piuttosto normale nonostante le apparenze." $) cyoa-text! basic-tone
+		choice( "Assumila" )choice: fencer-recruit
+		choice( "Lasciala stare" )choice
 ;
 
 cyoa-bridge: wrestler-recruit
 	ricon
 	team-count 3 > if
-		($ "I don't like disappointing fans, but you just have too many people." pbold .. "
-		El Satan can't join unless someone leaves:" $) cyoa-text!
+		($ "'Non mi piace deludere i fan, ma hai troppe persone." pbold .. "' El Satan non puo unirsi a meno che qualcuno non se ne vada:" $) cyoa-text!
 		recruit-replace?
 	then;
-	($ rname  .. " strikes his patented dramatic pose and then says " .. "Yeah, sure, I'll join you." pbold $) cyoa-text! goodfx
+	($ rname  .. "  colpisce la sua posa drammatica brevettata e poi dice " .. "'Si, certo, mi uniro a te." pbold $) cyoa-text! goodfx
 		recruitee .strengthREV recruitee .fitnessREV
 		recruited
 ;
 
 cyoa: wrestler-test
-	"LET'S WRESTLE" cyoa-title!
+	"COMBATTIAMO" cyoa-title!
 	someone choosechar
 	char-gen to recruitee
 	ricon
 	"El Satan" recruitee .name!
 	5 recruitee .morale! recruitee .wrestify
-	($ Thegroup .. " hears big crashing noises coming from a nearby house, and goes to investigate.
-	In the middle of a sea of destroyed furniture and zombie gore is the world famous wrestler, " .. rname .. "!
-	He is currently pile driving a zombie while yelling " .. "PILE DRIVER!" pbold .. " at the top of his lungs." $) cyoa-text! basic-tone
-		choice( "Recruit him" )choice: wrestler-recruit
-		choice( "Leave him be" )choice
+	($ Thegroup .. " il Gigante    who is now a zombie.  He is a huge, muscular " .. rname .. "sta attualmente guidando un zombie mentre urla " .. "PALLA AL PIEDE!" pbold .. "  a squarciagola." $) cyoa-text! basic-tone
+		choice( "Reclutalo" )choice: wrestler-recruit
+		choice( "Lascialo stare" )choice
 ;
 
 cyoa-bridge: lnk-recruit
 	ricon
 	1 2 rnd to lnk-countdown
 	team-count 3 > if
-		($ "KYYYYYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!" pbold .. "
-		This means that " .. rname .. " thinks the group is too full. Replace someone to make room:" $) cyoa-text!
+		($ "KYYYYYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!" pbold .. "		Questo significa che " .. rname .. "  pensa che il gruppo sia troppo pieno. Sostituisci qualcuno per fare spazio:" $) cyoa-text!
 		recruit-replace?
 	then;
-	($ rname  .. " picks up a stick and then holds it towards the sky awkwardly. From nowhere, a little tune plays." $) cyoa-text! goodfx
+	($ rname  .. "  raccoglie un bastone e poi lo tiene verso il cielo goffamente. Dal nulla, una piccola melodia suona." $) cyoa-text! goodfx
 		recruitee .strengthREV recruitee .fitnessREV
 		recruited
 ;
@@ -248,11 +229,9 @@ cyoa: lnk-test
 	ricon
 	lnkname recruitee .name!
 	3 recruitee .morale! recruitee .lnkify
-	($ Thegroup .. " investigates some loud crashing noises from a crafts store.
-	There is a man dressed in green, smashing pottery with a gigantic sword. The sword clangs against the ground as it slams through each pot, but doesn't bend.
-	After watching this go on for quite awhile, it's clear there is something deeply wrong with this person." $) cyoa-text! basic-tone
-		choice( "Recruit him" )choice: lnk-recruit
-		choice( "Leave him be" )choice
+	($ Thegroup .. " ' indaga su alcuni rumori forti di schianto provenienti da un negozio di artigianato. C'e un uomo vestito di verde che spacca ceramiche con una spada gigantesca. La spada sbatte contro il terreno mentre sbatte attraverso ogni vaso, ma non si piega. Dopo aver visto questo andare avanti per un po', e chiaro che c'e qualcosa di profondamente sbagliato in questa persona." $) cyoa-text! basic-tone
+		choice( "Reclutalo" )choice: lnk-recruit
+		choice( "Lascialo stare" )choice
 ;
 
 } }

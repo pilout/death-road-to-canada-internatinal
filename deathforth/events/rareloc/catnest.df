@@ -3,7 +3,7 @@ cyoa{
 
 : npc-cat-recruit
 	cchar to recruitee goodfx clear-cyoa
-	($ "Should " .. pname .. " recruit the cat?" $) +crtext
+	($ "Dovrebbe " .. pname .. "  reclutare il gatto?" $) +crtext
 	pchar .morale3+ 
 	// pchar .loyaltyREV pchar .attitudeREV
 	recruitee .loyaltyREV recruitee .fitnessREV
@@ -17,14 +17,13 @@ cyoa-bridge: npc-cat-oscar
 	recruit-yes
 	pchar .morale3+ 
 	recruitee .loyaltyREV recruitee .fitnessREV recruitee .temperREV
-	"BONUS: Oscar's morale always stays above zero!" fbold +crtext
+	"'BONUS: Il morale di Oscar rimane sempre sopra lo zero!" fbold +crtext
 	
 ;
 
 cyoa-bridge: npc-cat-food
 	LOOT_FOOD pchar .lootamt@ 0 > if
-		($ pname .. " offers the cat some food.
-		The cat sniffs at it carefully, then devours it in an instant. It decides not to kill " .. pname .. " at this moment in time." $) text!
+		($ pname .. " offre il gatto qualche cibo.		Il gatto si avvicina e lo sniffa attentamente, poi lo devora in un istante. Decide di non uccidere " .. pname .. " in questo momento in particolare." $) text!
 		npc-cat-recruit
 		-1 add-food
 	else
@@ -33,8 +32,7 @@ cyoa-bridge: npc-cat-food
 ;
 
 cyoa-bridge: npc-cat-poke
-	($ "Well, your call, I suppose.
-	" .. pname .. " reaches out to poke the cat but is interrupted due to " .. "GETTING MURDERED" fbold .. " by a flurry of claws and bites." $) text!
+	($ "Bene, tu hai ragione, forse.	" .. pname .. " tenta di toccare il gatto con la mano ma viene interrotto a causa di " .. "ESSERE UCCISO" fbold .. " da una burrasca di unghie e morde." $) text!
 	pchar .kill
 ;
 
@@ -44,21 +42,21 @@ cyoa: npc-catrecruit
 	nearest .character@ choosechar cicon
 	
 	cchar .bodytype@ 9 = if
-		"The Last Good Cat" cyoa-title!
+		"Il Ultimo Buon Gatto" cyoa-title!
 			($ pname .. " finds a cat that has made its den here. It seems different than all other post-zombocalypse cats. 
 			The cat is super calm and doesn't radiate a desire to murder humans! How bizarre!
 			He is wearing a name tag that reads:" .. " OSCAR" rainbold $) text!
-		choice( "Leave Oscar behind" )choice
-		choice( "Recruit Oscar!" )choice: npc-cat-oscar
+		choice( "Lasciare Oscar indietro" )choice
+		choice( "Reclutare Oscar!" )choice: npc-cat-oscar
 	then;
 	
-	"The Cat Nest" cyoa-title!
-	($ pname .. " finds a cat that has made its den in this trashed house. The cat stares at " .. phim .. " with a lazy glance that is tinged with " .. "MURDEROUS INTENT." rainbold $) text!
-	// "Cats got huge some time after the apocalypse. The small cats of the past are now a thing of distant memory." +crtext 
-	"WARNING: Will kill you. If not now, maybe later." rbold +crtext
-		choice( "Leave it alone" )choice
-		choice( "Poke the cat! Yeah!" fbold )choice: npc-cat-poke
-		choice( "Coax it with food" )choice: npc-cat-food
+	"Il Nido dei Gatti" cyoa-title!
+	($ pname .. " trova un gatto che ha costruito il suo nido in questa casa abbandonata. Il gatto guarda a " .. phim .. "  con uno sguardo pigro che e tinto di " .. "INTENTO OMICIDA." rainbold $) text!
+	// "I gatti sono diventati enormi un po di tempo dopo lapocalisse. I piccoli gatti del passato sono ora un ricordo lontano." +crtext 
+	"AVVERTIMENTO: ti uccidero. Se non ora, forse piu tardi." rbold +crtext
+		choice( "Lascialo stare" )choice
+		choice( "Tocca il gatto! Si!" fbold )choice: npc-cat-poke
+		choice( "Attirarlo con del cibo" )choice: npc-cat-food
 ;
 
 }
